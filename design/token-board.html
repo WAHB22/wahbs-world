@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WAHB'S WORLD token plan</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  /* base: deep navy and near black blues */
+  --abyss:#040914; --midnight:#081330; --deep:#0C1C44; --harbor:#132A5E;
+  /* main family: blues and cyan */
+  --cobalt:#1F4FD8; --signal:#3B7BFF; --sky:#8DB6FF; --frost:#DCE8FF; --cobalt-ink:#173DB0;
+  --coolant:#2FD4E6; --lagoon:#0E8FA3;
+  /* warm accent: orange */
+  --ember:#FF6A13; --flame:#FF8A3D; --glow:#FFB070;
+  /* supporting, sparingly */
+  --basil:#3FD89A; --alarm:#FF8290;
+  /* text */
+  --ink:#EEF3FF; --ink-soft:#B9C6E4; --ink-mute:#9AA8CC;
+
+  --glass:rgb(8 19 48 / .84); --glass-deep:rgb(4 9 20 / .88); --frost-glass:rgb(220 232 255 / .90);
+  --glass-edge:rgb(220 232 255 / .14); --glass-lip:inset 0 1px 0 rgb(220 232 255 / .20);
+  --blur:24px;
+
+  --f-display:"Anybody", system-ui, sans-serif;
+  --f-ui:"Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --f-ticket:"Martian Mono", ui-monospace, monospace;
+
+  --gutter:clamp(16px, 4vw, 72px);
+  --r-pane:28px; --r-control:14px; --r-ticket:6px;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{background:var(--abyss);color-scheme:dark}
+body{margin:0;font:400 17px/1.55 var(--f-ui);color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 78% -10%, rgb(31 79 216 / .35), transparent 60%),
+    radial-gradient(900px 600px at -10% 30%, rgb(14 143 163 / .22), transparent 60%),
+    linear-gradient(180deg, var(--midnight), var(--abyss) 70%);
+  min-height:100vh}
+main{padding:0 var(--gutter) 120px;max-width:2200px;margin:0 auto}
+h1,h2,h3{margin:0;font-family:var(--f-display);font-weight:760;letter-spacing:-.01em}
+p{margin:0}
+.measure{max-width:64ch}
+
+/* ---------- opening ---------- */
+.open{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(20px,3vw,56px) clamp(24px,4vw,80px);align-items:end;padding:clamp(40px,6vw,110px) 0 clamp(40px,6vw,96px)}
+.open .wahb{grid-column:1/-1}
+.open .sub{font-family:var(--f-display);font-weight:700;font-variation-settings:"wdth" 100;font-size:clamp(24px,2.6vw,44px);line-height:1.05;margin:0}
+.wahb{font-family:var(--f-display);font-weight:820;font-variation-settings:"wdth" 132;font-size:min(20.5vw,440px);line-height:.8;letter-spacing:-.035em;margin:0;
+  background:linear-gradient(180deg,var(--frost) 20%,var(--sky) 62%,var(--signal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.open .note{color:var(--ink-soft)}
+.open .note strong{color:var(--ink);font-weight:700}
+
+section{padding:clamp(40px,6vw,96px) 0;border-top:1px solid var(--glass-edge)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(16px,4vw,80px);align-items:end;margin-bottom:clamp(28px,4vw,56px)}
+.sec-head h2{font-size:clamp(34px,4.6vw,76px);line-height:.95;font-variation-settings:"wdth" 88}
+.sec-head p{color:var(--ink-soft)}
+
+/* ---------- palette ---------- */
+.families{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.fam{grid-column:span 3;display:flex;flex-direction:column;gap:10px}
+.fam.base{grid-column:span 4}.fam.blue{grid-column:span 5}.fam.warm{grid-column:span 3}
+.fam.supp{grid-column:span 4}.fam.text{grid-column:span 8}
+.fam h3{font-size:22px;font-variation-settings:"wdth" 100;font-weight:700}
+.fam > p{color:var(--ink-mute);font-size:15px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{flex:1 1 120px;min-width:110px;border-radius:18px;overflow:hidden;border:1px solid var(--glass-edge);background:var(--glass-deep)}
+.chip i{display:block;height:92px}
+.chip b{display:block;padding:10px 12px 0;font:700 16px/1.2 var(--f-ui)}
+.chip code{display:block;padding:2px 12px 12px;font:500 13px/1.3 var(--f-ticket);font-variation-settings:"wdth" 87.5;color:var(--ink-soft)}
+.chip span{display:block;padding:0 12px 12px;font-size:14px;color:var(--ink-mute);line-height:1.35}
+.fam.base .chip i{height:140px}
+.fam.warm .chip{flex-basis:90px}
+
+/* ---------- glass over a scene ---------- */
+.scene{position:relative;border-radius:36px;overflow:hidden;min-height:560px;padding:clamp(20px,3vw,48px);
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,28px);align-items:center;
+  background:
+    radial-gradient(260px 260px at 18% 22%, #fff 0 12%, rgb(255 176 112 / .95) 30%, rgb(255 106 19 / .6) 52%, transparent 72%),
+    radial-gradient(360px 300px at 62% 78%, rgb(47 212 230 / .95), rgb(14 143 163 / .5) 50%, transparent 75%),
+    radial-gradient(420px 360px at 92% 12%, rgb(59 123 255 / .9), transparent 70%),
+    linear-gradient(135deg, var(--deep), var(--abyss));}
+.scene svg{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}
+.pane{position:relative;border-radius:var(--r-pane);padding:clamp(20px,2.2vw,32px);backdrop-filter:blur(var(--blur)) saturate(140%);-webkit-backdrop-filter:blur(var(--blur)) saturate(140%);
+  border:1px solid var(--glass-edge);box-shadow:var(--glass-lip),0 40px 90px -30px rgb(2 6 18 / .8)}
+.pane.g{background:var(--glass)}
+.pane.gd{background:var(--glass-deep)}
+.pane.fr{background:var(--frost-glass);color:var(--midnight);border-color:rgb(255 255 255 / .6)}
+.pane h3{font-size:clamp(24px,2.2vw,34px);line-height:1.05;margin-bottom:10px;font-variation-settings:"wdth" 92}
+.pane p{margin-bottom:10px}
+.pane .soft{color:var(--ink-soft)}.pane .mute{color:var(--ink-mute)}
+.pane.fr .soft{color:var(--deep)}.pane.fr a{color:var(--cobalt-ink);font-weight:700}
+.ratio{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font:500 13px/1.3 var(--f-ticket);font-variation-settings:"wdth" 87.5}
+.ratio span{white-space:nowrap}
+.pane.fr .ratio{color:var(--deep)}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border-radius:var(--r-control);font:700 17px/1 var(--f-ui);border:0;cursor:pointer}
+.btn.primary{background:var(--ember);color:var(--midnight)}
+.btn.quiet{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--glass-edge)}
+.btn:focus-visible{outline:3px solid var(--coolant);outline-offset:3px}
+.pane.fr .btn.primary{background:var(--cobalt);color:var(--ink)}
+.pane.fr .btn:focus-visible{outline-color:var(--cobalt-ink)}
+.rule-note{margin-top:18px;color:var(--ink-soft);max-width:80ch}
+
+/* ---------- type ---------- */
+.type{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(20px,3vw,56px)}
+.spec{border-top:2px solid var(--harbor);padding-top:18px}
+.spec .who{display:flex;justify-content:space-between;gap:16px;align-items:baseline;flex-wrap:wrap;color:var(--ink-soft);font-size:15px;margin-bottom:14px}
+.spec .who b{color:var(--ink);font-size:18px}
+.widths{display:grid;gap:4px}
+.widths div{display:grid;grid-template-columns:120px minmax(0,1fr);align-items:baseline;gap:16px}
+.widths em{font-style:normal;color:var(--ink-mute);font-size:14px}
+.widths strong{font-family:var(--f-display);font-weight:820;font-size:clamp(56px,8vw,150px);line-height:.9;letter-spacing:-.03em;color:var(--frost);white-space:nowrap;overflow:hidden}
+.w-calm{font-variation-settings:"wdth" 140}.w-service{font-variation-settings:"wdth" 100}.w-rush{font-variation-settings:"wdth" 62}
+.scale{display:grid;gap:14px;margin-top:22px}
+.scale div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:baseline}
+.scale em{font-style:normal;color:var(--ink-mute);font-size:14px}
+.ui-body{max-width:62ch}
+.ticket{position:relative;background:var(--frost);color:var(--midnight);border-radius:var(--r-ticket);padding:22px 22px 26px;font-family:var(--f-ticket);font-variation-settings:"wdth" 87.5;font-size:14px;line-height:1.55;max-width:360px;
+  -webkit-mask:radial-gradient(7px at 50% 100%,#0000 97%,#000) 50% 100%/18px 100% repeat-x;mask:radial-gradient(7px at 50% 100%,#0000 97%,#000) 50% 100%/18px 100% repeat-x;font-feature-settings:"tnum"}
+.ticket .row{display:flex;justify-content:space-between;gap:12px}
+.ticket .big{font-size:20px;font-weight:700;margin:6px 0 10px}
+.ticket hr{border:0;border-top:1.5px dashed rgb(8 19 48 / .35);margin:12px 0}
+.ticket .rush{color:var(--cobalt-ink);font-weight:700}
+
+/* ---------- worlds as a menu board ---------- */
+.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(24px,4vw,72px)}
+.dish{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 18px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--glass-edge)}
+.dish h3{font-size:clamp(28px,3vw,46px);line-height:1;font-variation-settings:"wdth" 96;color:var(--acc)}
+.dish .dots{align-self:end;border-bottom:2px dotted rgb(154 168 204 / .45);margin-bottom:.5em}
+.dish .acc{display:flex;align-items:center;gap:8px;font:500 13px/1 var(--f-ticket);font-variation-settings:"wdth" 87.5;color:var(--ink-soft)}
+.dish .acc i{width:22px;height:22px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgb(255 255 255 / .06)}
+.dish p{grid-column:1/-1;color:var(--ink-soft);max-width:70ch}
+.dish p b{color:var(--ink);font-weight:700}
+
+/* ---------- motion ---------- */
+.levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.lvl{border-radius:22px;padding:18px;background:var(--glass-deep);border:1px solid var(--glass-edge);display:flex;flex-direction:column;gap:8px}
+.lvl h3{font-size:26px;font-variation-settings:"wdth" var(--w)}
+.lvl p{color:var(--ink-soft);font-size:15px}
+.meter{height:6px;border-radius:9px;background:var(--harbor);overflow:hidden}
+.meter i{display:block;height:100%;width:var(--b);background:linear-gradient(90deg,var(--coolant),var(--signal))}
+.lvl.done .meter i{background:linear-gradient(90deg,var(--flame),var(--ember))}
+.lvl dl{margin:4px 0 0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:14px}
+.lvl dt{color:var(--ink-mute)}.lvl dd{margin:0;font-family:var(--f-ticket);font-variation-settings:"wdth" 87.5;font-size:13px}
+.durs{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}
+.durs span{padding:10px 14px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-edge);font-size:15px}
+.durs b{font-family:var(--f-ticket);font-variation-settings:"wdth" 87.5;font-weight:600;color:var(--coolant);margin-right:6px}
+
+/* ---------- wireframes ---------- */
+.wires{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:clamp(16px,3vw,48px);align-items:start}
+.wires figure{margin:0}
+.wires pre{margin:0;padding:18px;border-radius:20px;background:var(--glass-deep);border:1px solid var(--glass-edge);overflow:auto;
+  font:400 12.5px/1.17 ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;color:var(--ink-soft);white-space:pre}
+.wires figcaption{margin-top:10px;color:var(--ink-mute);font-size:15px}
+
+footer{padding-top:48px;color:var(--ink-mute);font-size:15px}
+
+@media (max-width:1100px){
+  .open,.sec-head,.type,.wires{grid-template-columns:minmax(0,1fr)}
+  .fam,.fam.base,.fam.blue,.fam.warm,.fam.supp,.fam.text{grid-column:1/-1}
+  .scene{grid-template-columns:minmax(0,1fr)}
+  .levels{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .board{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .levels{grid-template-columns:1fr}
+  .widths div,.scale div{grid-template-columns:1fr;gap:2px}
+  .chip{flex-basis:44%}
+  .scene{border-radius:26px}
+}
+@media (min-width:2000px){ body{font-size:19px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+
+<header class="open">
+  <h1 class="wahb" aria-label="WAHB'S WORLD token plan">WAHB</h1>
+  <p class="sub">The token plan for WAHB'S WORLD, Phase 0</p>
+  <div class="note measure">
+    <p><strong>Night service at the pass.</strong> He opens the site before a 06:15 shift and again after a lecture that ends at 21:50. Both scenes are dark rooms, so the ground is deep navy, the light comes from the objects, and warm orange is the heat lamp that marks what needs him now.</p>
+  </div>
+</header>
+
+<section aria-labelledby="pal">
+  <div class="sec-head">
+    <h2 id="pal">Few colors, deeply satisfying</h2>
+    <p class="measure">Navy carries most of every screen. Blue and cyan do the structural work. Orange appears once or twice per screen, on the one action or the one thing that is hot. Basil green and alarm coral only mark status.</p>
+  </div>
+  <div class="families">
+    <div class="fam base">
+      <h3>Base</h3><p>The room. Never pure black.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:var(--abyss)"></i><b>Abyss</b><code>#040914</code><span>Deepest ground, far scene</span></div>
+        <div class="chip"><i style="background:var(--midnight)"></i><b>Midnight</b><code>#081330</code><span>Page ground, glass tint</span></div>
+        <div class="chip"><i style="background:var(--deep)"></i><b>Deep</b><code>#0C1C44</code><span>Raised planes</span></div>
+        <div class="chip"><i style="background:var(--harbor)"></i><b>Harbor</b><code>#132A5E</code><span>Rails, tracks, dividers</span></div>
+      </div>
+    </div>
+    <div class="fam blue">
+      <h3>Blue and cyan</h3><p>Structure, links, focus, fluid.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:var(--cobalt)"></i><b>Cobalt</b><code>#1F4FD8</code><span>Blueprint ground, blue fills</span></div>
+        <div class="chip"><i style="background:var(--signal)"></i><b>Signal</b><code>#3B7BFF</code><span>Large display, lines</span></div>
+        <div class="chip"><i style="background:var(--sky)"></i><b>Sky</b><code>#8DB6FF</code><span>Links and blue text</span></div>
+        <div class="chip"><i style="background:var(--frost)"></i><b>Frost</b><code>#DCE8FF</code><span>Light glass, tickets</span></div>
+        <div class="chip"><i style="background:var(--coolant)"></i><b>Coolant</b><code>#2FD4E6</code><span>Focus ring, live fluid</span></div>
+        <div class="chip"><i style="background:var(--lagoon)"></i><b>Lagoon</b><code>#0E8FA3</code><span>Deep cyan fills</span></div>
+      </div>
+    </div>
+    <div class="fam warm">
+      <h3>Orange</h3><p>Heat. Spent once per screen.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:var(--ember)"></i><b>Ember</b><code>#FF6A13</code><span>Primary action</span></div>
+        <div class="chip"><i style="background:var(--flame)"></i><b>Flame</b><code>#FF8A3D</code><span>Hot text, due soon</span></div>
+        <div class="chip"><i style="background:var(--glow)"></i><b>Glow</b><code>#FFB070</code><span>Warm highlight</span></div>
+      </div>
+    </div>
+    <div class="fam supp">
+      <h3>Status, sparingly</h3><p>Never decoration.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:var(--basil)"></i><b>Basil</b><code>#3FD89A</code><span>Done, saved, synced</span></div>
+        <div class="chip"><i style="background:var(--alarm)"></i><b>Alarm</b><code>#FF8290</code><span>Overdue, over 24 hours</span></div>
+      </div>
+    </div>
+    <div class="fam text">
+      <h3>Text</h3><p>Three steps of ink. Every step passes AA on every glass backing.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:var(--ink)"></i><b>Ink</b><code>#EEF3FF</code><span>Body and headings</span></div>
+        <div class="chip"><i style="background:var(--ink-soft)"></i><b>Ink soft</b><code>#B9C6E4</code><span>Secondary text</span></div>
+        <div class="chip"><i style="background:var(--ink-mute)"></i><b>Ink mute</b><code>#9AA8CC</code><span>Hints and times</span></div>
+        <div class="chip"><i style="background:var(--cobalt-ink)"></i><b>Cobalt ink</b><code>#173DB0</code><span>Links on light glass</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="gl">
+  <div class="sec-head">
+    <h2 id="gl">Glass that stays readable</h2>
+    <p class="measure">Text never sits on raw transparency. Each pane has an opaque enough tint, and its contrast is measured in the worst case: the pane over pure white light, the brightest thing a scene can put behind it.</p>
+  </div>
+  <div class="scene">
+    <svg viewBox="0 0 1200 560" preserveAspectRatio="none" aria-hidden="true" fill="none" stroke="#DCE8FF" stroke-width="1.5">
+      <path d="M0 140 H300 V420 H720 V260 H1200"/><path d="M0 470 H180 V300 H560"/><circle cx="720" cy="260" r="26"/><path d="M880 0 V120 H1040"/><path d="M300 140 l14 -8 v16z" fill="#DCE8FF"/>
+    </svg>
+    <div class="pane g">
+      <h3>Glass</h3>
+      <p>Midnight at 84 percent. The default pane for text in every world.</p>
+      <p class="soft">Secondary lines use ink soft.</p>
+      <p class="mute">Hints and timestamps use ink mute.</p>
+      <button class="btn primary">Log a shift</button>
+      <div class="ratio"><span>ink 10.3</span><span>soft 6.7</span><span>mute 4.8</span><span>flame 4.9</span></div>
+    </div>
+    <div class="pane gd">
+      <h3>Deep glass</h3>
+      <p>Abyss at 88 percent, for long reading and dense data like the bill or a course.</p>
+      <p class="soft">Chosen when a scene is busy behind it.</p>
+      <button class="btn quiet">Back to the world</button>
+      <div class="ratio"><span>ink 13.5</span><span>soft 8.8</span><span>mute 6.3</span><span>alarm 6.3</span></div>
+    </div>
+    <div class="pane fr">
+      <h3>Light glass</h3>
+      <p>Frost at 90 percent. Tickets, receipts and the morning opening.</p>
+      <p class="soft">Links read like <a href="#gl">this link</a>.</p>
+      <button class="btn primary">Open the ticket</button>
+      <div class="ratio"><span>midnight 11.9</span><span>deep 10.8</span><span>cobalt ink 5.9</span></div>
+    </div>
+  </div>
+  <p class="rule-note">Numbers are worst case contrast ratios from <code>tools/contrast.py</code>. AA needs 4.5 for body text. Signal and ember are too weak for small text on dark glass, so they are reserved for fills, lines and display sizes, where 3.0 applies.</p>
+</section>
+
+<section aria-labelledby="ty">
+  <div class="sec-head">
+    <h2 id="ty">Three faces, three jobs</h2>
+    <p class="measure">A display face with a width axis, so intensity can change how the letters stand without adding a single particle. A hyperlegible interface face for numbers, hours and money read over glass. A mono face only for things that are printed in real life: tickets, receipts, the bill.</p>
+  </div>
+  <div class="type">
+    <div class="spec">
+      <div class="who"><b>Anybody</b><span>Display. Variable width 50 to 150, weight 100 to 900. SIL Open Font License.</span></div>
+      <div class="widths">
+        <div><em>Calm, width 140</em><strong class="w-calm">WAHB</strong></div>
+        <div><em>Service, width 100</em><strong class="w-service">WAHB</strong></div>
+        <div><em>Rush, width 62</em><strong class="w-rush">WAHB</strong></div>
+      </div>
+      <div class="scale">
+        <div><em>World title</em><h3 style="font-size:clamp(44px,6vw,96px);line-height:.95;font-variation-settings:'wdth' 96">School</h3></div>
+        <div><em>Section</em><h3 style="font-size:clamp(28px,3.2vw,46px);line-height:1;font-variation-settings:'wdth' 90">Due this week</h3></div>
+      </div>
+    </div>
+    <div>
+      <div class="spec">
+        <div class="who"><b>Atkinson Hyperlegible Next</b><span>Interface and body. Weight 200 to 800. OFL.</span></div>
+        <p class="ui-body" style="font-size:22px;font-weight:700;line-height:1.25;margin-bottom:10px">CHM 2120 Midterm 1 is on Wednesday</p>
+        <p class="ui-body">It is worth 20 percent and covers modules 1 to 4. You have two study blocks before it, on Tuesday at 10:30 and Thursday at 16:00. Contrôle des procédés keeps its accents.</p>
+        <p class="ui-body" style="margin-top:10px;color:var(--ink-soft);font-size:15px">Figures stay distinct: 0O 1lI 5S 8B. Tabular figures for columns: 18.00 590.00 1043.60</p>
+      </div>
+      <div class="spec" style="margin-top:28px">
+        <div class="who"><b>Martian Mono</b><span>Accent, printed things only. Width 75 to 112.5. OFL.</span></div>
+        <div class="ticket" role="img" aria-label="Sample work ticket">
+          <div class="row"><span>ORDER 0412</span><span>SAT 26 SEP</span></div>
+          <div class="big">Bobino Bagel</div>
+          <div class="row"><span>Shift</span><span>08:00 to 16:00</span></div>
+          <div class="row"><span>Hours</span><span>8.0</span></div>
+          <div class="row"><span>Week so far</span><span>21.75 of 24</span></div>
+          <hr>
+          <div class="row rush"><span>Rush</span><span>11:30 to 13:00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="wo">
+  <div class="sec-head">
+    <h2 id="wo">Nine worlds, one family</h2>
+    <p class="measure">Worlds are told apart by their scene and their objects. Each one shifts the accent within the family, nothing more. The list below is set the way the landing will list them: a menu, not a grid of cards.</p>
+  </div>
+  <div class="board">
+    <div class="dish" style="--acc:var(--ember)"><h3>Today</h3><span class="dots"></span><span class="acc"><i></i>ember</span><p><b>The pass.</b> Heat lamps over the one thing that matters now, tickets on the rail, a thumb dock of check ins.</p></div>
+    <div class="dish" style="--acc:var(--coolant)"><h3>School</h3><span class="dots"></span><span class="acc"><i></i>coolant</span><p><b>A small plant.</b> Fluid moving through a heat exchanger, a reactor whose conversion is progress, gauges, a pen writing.</p></div>
+    <div class="dish" style="--acc:var(--flame)"><h3>Work</h3><span class="dots"></span><span class="acc"><i></i>flame</span><p><b>The kitchen.</b> Shifts as order tickets, steam, plates, a service bell, the 24 hour line.</p></div>
+    <div class="dish" style="--acc:var(--lagoon)"><h3>Money</h3><span class="dots"></span><span class="acc"><i></i>lagoon</span><p><b>The jar and the bill.</b> A glass jar filling toward each goal, receipts, categories flowing as streams.</p></div>
+    <div class="dish" style="--acc:var(--cobalt)"><h3>Projects</h3><span class="dots"></span><span class="acc"><i></i>cobalt</span><p><b>Blueprints.</b> Nodes and dependency lines; a finished milestone lights its sheet.</p></div>
+    <div class="dish" style="--acc:var(--sky)"><h3>Career</h3><span class="dots"></span><span class="acc"><i></i>sky</span><p><b>The chain.</b> Experience to evidence to skill to story to opportunity, with the summer 2027 goal in view.</p></div>
+    <div class="dish" style="--acc:var(--frost)"><h3>Knowledge</h3><span class="dots"></span><span class="acc"><i></i>frost</span><p><b>A constellation.</b> Topics as stars that connect; reviews that come due.</p></div>
+    <div class="dish" style="--acc:var(--signal)"><h3>Training</h3><span class="dots"></span><span class="acc"><i></i>signal</span><p><b>Kinetic.</b> Movement trails, rings and progress arcs. Showing up is visible, without guilt.</p></div>
+    <div class="dish" style="--acc:var(--glow)"><h3>Life</h3><span class="dots"></span><span class="acc"><i></i>glow</span><p><b>Moments.</b> A timeline where places, meals, people, good and hard days accumulate.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="mo">
+  <div class="sec-head">
+    <h2 id="mo">Intensity sets the tempo</h2>
+    <p class="measure">Five levels change how much moves and how fast. Text size, contrast and layout never change with intensity. The cap in Settings always wins, and reduced motion replaces every move with a short crossfade.</p>
+  </div>
+  <div class="levels">
+    <div class="lvl" style="--w:140;--b:15%"><h3>Calm</h3><div class="meter"><i></i></div><p>Minimal and slow. Late night, nothing due.</p><dl><dt>objects</dt><dd>0.15</dd><dt>tempo</dt><dd>1.30x</dd><dt>sound</dt><dd>0.2</dd></dl></div>
+    <div class="lvl" style="--w:118;--b:40%"><h3>Opening</h3><div class="meter"><i></i></div><p>Lights on, objects entering. Morning.</p><dl><dt>objects</dt><dd>0.40</dd><dt>tempo</dt><dd>1.10x</dd><dt>sound</dt><dd>0.4</dd></dl></div>
+    <div class="lvl" style="--w:100;--b:65%"><h3>Service</h3><div class="meter"><i></i></div><p>Normal activity. Most of the day.</p><dl><dt>objects</dt><dd>0.65</dd><dt>tempo</dt><dd>1.00x</dd><dt>sound</dt><dd>0.5</dd></dl></div>
+    <div class="lvl" style="--w:70;--b:90%"><h3>Rush</h3><div class="meter"><i></i></div><p>Exam week. More movement, still readable.</p><dl><dt>objects</dt><dd>0.90</dd><dt>tempo</dt><dd>0.80x</dd><dt>sound</dt><dd>0.6</dd></dl></div>
+    <div class="lvl done" style="--w:120;--b:100%"><h3>Completion</h3><div class="meter"><i></i></div><p>A short celebration, then back.</p><dl><dt>length</dt><dd>1.2 s max</dd><dt>then</dt><dd>previous</dd></dl></div>
+  </div>
+  <div class="durs">
+    <span><b>90 ms</b>press feedback</span><span><b>180 ms</b>small state change</span><span><b>280 ms</b>panel move</span><span><b>520 ms</b>scene change</span><span><b>880 ms</b>signature transition ceiling</span><span><b>ease out</b>cubic bezier .22 1 .36 1</span><span><b>glass tilt</b>spring 170 stiffness, 26 damping</span>
+  </div>
+</section>
+
+<section aria-labelledby="wf">
+  <div class="sec-head">
+    <h2 id="wf">Layout concept</h2>
+    <p class="measure">ASCII wireframes for the landing and for Today, on a laptop and on a phone. The same drawings are in <code>design/TOKENS.md</code>.</p>
+  </div>
+  <div class="wires">
+    <figure><pre id="wf-landing-desktop"></pre><figcaption>Landing, laptop. Panes float at three depths around WAHB; the nearest one is the world that needs him most.</figcaption></figure>
+    <figure><pre id="wf-landing-phone"></pre><figcaption>Landing, phone. A stacked depth carousel instead of a shrunken orbit.</figcaption></figure>
+    <figure><pre id="wf-today-desktop"></pre><figcaption>Today, laptop. One thing, the service rail, tickets, and a check in dock.</figcaption></figure>
+    <figure><pre id="wf-today-phone"></pre><figcaption>Today, phone. The dock sits under the thumb.</figcaption></figure>
+  </div>
+</section>
+
+<footer>Phase 0 design artifact. Not app code. Fonts are self hosted copies of Google Fonts releases under the SIL Open Font License.</footer>
+</main>
+<script src="wireframes.js"></script>
+</body>
+</html>

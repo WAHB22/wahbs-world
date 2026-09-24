@@ -1,0 +1,37 @@
+backing          text         worst bg   worst   best  need
+glass            ink          #303951    10.33  16.79  4.5  ok
+glass            inkSoft      #303951     6.70  10.89  4.5  ok
+glass            inkMute      #303951     4.84   7.86  4.5  ok
+glass            sky          #303951     5.61   9.12  4.5  ok
+glass            coolant      #303951     6.38  10.38  4.5  ok
+glass            flame        #303951     4.89   7.96  4.5  ok
+glass            glow         #303951     6.39  10.39  4.5  ok
+glass            basil        #303951     6.29  10.22  4.5  ok
+glass            alarm        #303951     4.84   7.86  4.5  ok
+glassDeep        ink          #222730    13.49  17.93  4.5  ok
+glassDeep        inkSoft      #222730     8.75  11.63  4.5  ok
+glassDeep        inkMute      #222730     6.32   8.39  4.5  ok
+glassDeep        sky          #222730     7.33   9.74  4.5  ok
+glassDeep        coolant      #222730     8.34  11.08  4.5  ok
+glassDeep        flame        #222730     6.39   8.49  4.5  ok
+glassDeep        glow         #222730     8.35  11.09  4.5  ok
+glassDeep        basil        #222730     8.21  10.91  4.5  ok
+glassDeep        alarm        #222730     6.32   8.39  4.5  ok
+frostGlass       midnight     #C6D1E6    11.92  15.17  4.5  ok
+frostGlass       deep         #C6D1E6    10.80  13.74  4.5  ok
+frostGlass       cobaltInk    #C6D1E6     5.86   7.46  4.5  ok
+
+ink on midnight                           ink on midnight    16.49  4.5  ok
+inkMute on midnight                   inkMute on midnight     7.72  4.5  ok
+inkMute on harbor                     inkMute on harbor       5.82  4.5  ok
+midnight on ember (primary button)   midnight on ember        6.39  4.5  ok
+abyss on flame                          abyss on flame        8.49  4.5  ok
+ink on cobalt (blue button)               ink on cobalt       5.97  4.5  ok
+midnight on coolant                  midnight on coolant     10.19  4.5  ok
+midnight on basil (done chip)        midnight on basil       10.03  4.5  ok
+midnight on alarm (alert chip)       midnight on alarm        7.72  4.5  ok
+cobaltInk on frost                  cobaltInk on frost        7.31  4.5  ok
+focus ring coolant on midnight        coolant on midnight    10.19  3  ok
+focus ring cobaltInk on frost       cobaltInk on frost        7.31  3  ok
+signal on abyss (large display only)     signal on abyss        5.18  3  ok
+ember on abyss (large display only)      ember on abyss        6.95  3  ok

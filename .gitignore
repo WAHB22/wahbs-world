@@ -1,0 +1,28 @@
+# dependencies and builds
+node_modules/
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+__pycache__/
+
+# secrets and personal data
+.env
+.env.*
+!.env.example
+seed/private.json
+*.statement.*
+
+# service worker output (Serwist)
+public/sw*
+public/swe-worker*
+
+# local tooling
+.vercel/
+.impeccable/config.local.json
+.claude/settings.local.json
+.claude/skills/impeccable/scripts/bin/
+.DS_Store
+.idea/
