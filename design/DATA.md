@@ -1,6 +1,6 @@
 # WAHB'S WORLD data model and sync
 
-Phase 0 plan. Nothing here is implemented yet. SQL below is a sketch of the Phase 1 migration, not final code.
+Implemented in Phase 1. The schema lives in `src/data/schema.ts`; `supabase/migrations/0001_init.sql` is generated from it (`npm run gen`), so the two never drift.
 
 ## 1. Principles
 
@@ -23,7 +23,7 @@ Phase 0 plan. Nothing here is implemented yet. SQL below is a sketch of the Phas
 | `rev` | `bigint` | assigned by the server from one sequence on every accepted write; the other device pulls "everything with `rev` above what I have" |
 | `device_id` | `text` | which device made the last edit |
 
-Money is stored as integer cents in CAD. Dates that are days (a deadline day, a memory day) are `date`; moments are `timestamptz`. Times of a weekly schedule are `time` in the America/Toronto zone.
+Money is stored as integer cents in CAD. Weekdays follow JavaScript (0 is Sunday). Links between tables are plain uuid columns without foreign keys, because rows can arrive in any order from an offline device; the app checks links, and the seed test proves every seed link resolves. Dates that are days (a deadline day, a memory day) are `date`; moments are `timestamptz`. Times of a weekly schedule are `time` in the America/Toronto zone.
 
 ## 3. Tables by world
 
@@ -46,7 +46,7 @@ Money is stored as integer cents in CAD. Dates that are days (a deadline day, a 
 | `term_breaks` | `term_id`, `name`, `starts_on`, `ends_on` | reading week, holidays. IRCC allows unlimited off campus hours during scheduled breaks, so the Work warning turns off inside them |
 | `courses` | `term_id`, `code`, `name`, `professor`, `language` (en, fr), `retake`, `topics text[]`, `links jsonb`, `notes` | `topics` holds the chapter list |
 | `schedule_blocks` | `term_id`, `course_id null`, `kind` (lecture, tutorial, lab, discussion, study, gym, shift, other), `title`, `weekday`, `starts_at`, `ends_at`, `location`, `valid_from`, `valid_to` | the weekly pattern; shifts that actually happen live in `shifts` |
-| `assessments` | `course_id null`, `project_id null`, `title`, `kind` (quiz, midterm, exam, assignment, report, deliverable, other), `due_at null`, `weight`, `covers text[]`, `status` (open, done, dropped), `grade`, `grade_out_of`, `notes` | deadlines and exams; a null `due_at` means "date not posted yet" and is shown as such |
+| `assessments` | `course_id null`, `project_id null`, `title`, `kind` (quiz, midterm, exam, assignment, report, deliverable, other), `due_on null`, `due_time null`, `weight`, `covers text[]`, `status` (open, done, dropped), `grade`, `grade_out_of`, `notes` | deadlines and exams; a null `due_on` means "date not posted yet" and is shown as such |
 
 ### Work
 
@@ -64,7 +64,7 @@ The weekly limit check sums paid hours of planned and worked shifts in the week 
 | `accounts` | `name`, `kind` (chequing, savings, cash, credit), `is_own` | |
 | `categories` | `group_name`, `name`, `kind` (expense, income), `monthly_budget_cents`, `archived` | |
 | `recurring_bills` | `name`, `amount_cents`, `day_of_month`, `category_id`, `active` | rent, phone, subscriptions |
-| `transactions` | `occurred_on`, `amount_cents` (always positive), `direction` (in, out, transfer), `account_id`, `to_account_id null`, `category_id null`, `merchant`, `note`, `goal_id null`, `memory_id null`, `source` (manual, import, recurring) | a transfer between his own accounts is `direction = transfer`: never income, never spending. Moving money into savings for a goal is a transfer with `goal_id` |
+| `transactions` | `occurred_on`, `amount_cents` (always positive), `direction` (in, out, transfer), `account_id`, `to_account_id null`, `category_id null`, `merchant`, `note`, `goal_id null`, `memory_id null`, `source` (manual, recurring) | a transfer between his own accounts is `direction = transfer`: never income, never spending. Moving money into savings for a goal is a transfer with `goal_id` |
 | `goals` | `kind` (money, training, career, other), `name`, `target_cents null`, `target_value null`, `due_on`, `term_id null`, `notes` | the jar reads `sum(transfers with this goal_id) / target_cents` |
 
 ### Projects
@@ -94,8 +94,9 @@ The weekly limit check sums paid hours of planned and worked shifts in the week 
 |---|---|---|
 | `knowledge_entries` | `topic`, `learned`, `source_title`, `source_url`, `why_it_matters`, `questions`, `review_on`, `interval_days`, `ease`, `changed_mind`, `rabbit_hole`, `course_id null` | spaced review uses `interval_days` and `ease`; `source_url` is required |
 | `knowledge_links` | `from_id`, `to_id` | the constellation edges |
-| `training_sessions` | `occurred_on`, `kind` (strength, cardio, sport, mobility, other), `minutes`, `exercises jsonb`, `notes` | records are computed from `exercises`, never typed |
-| `memories` | `occurred_on`, `title`, `body`, `kind` (place, meal, outing, people, good day, hard day, mistake, spontaneous), `place`, `people text[]` | |
+| `training_sessions` | `occurred_on`, `kind` (strength, cardio, sport, mobility, other), `minutes`, `notes` | sessions only, by his choice |
+| `memories` | `occurred_on`, `title`, `body`, `kind` (place, meal, outing, people, good day, hard day, mistake, spontaneous), `place`, `people text[]` |
+| `people` | `name`, `first_seen_on`, `times_mentioned` | every name typed in a memory is remembered here, so it can be picked next time |
 | `photos` | `memory_id`, `storage_path`, `width`, `height`, `bytes`, `blurhash`, `taken_at` | files live in a private Storage bucket |
 
 ### Server only

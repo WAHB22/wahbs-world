@@ -26,3 +26,5 @@ public/swe-worker*
 .claude/skills/impeccable/scripts/bin/
 .DS_Store
 .idea/
+next-env.d.ts
+*.tsbuildinfo

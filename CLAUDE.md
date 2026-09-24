@@ -4,7 +4,7 @@ Read `BRIEF.md` first, then `PRODUCT.md`, `PLAN.md`, `design/TOKENS.md` and `des
 
 ## Where the project stands
 
-Phase 0 (plan) is delivered and waiting for Wahb's approval. Do not write app code until he approves. Work phase by phase; each phase ends with desktop and phone screenshots, `/impeccable audit` and `critique`, a plain language summary, and a stop.
+Phase 0 approved. Phase 1 (foundations) built: local first store, sync engine, Supabase schema and sync functions, export and import, seed, settings shell, PWA shell, tests, CI. Setup steps that need Wahb's accounts are in `SETUP.md`. Each phase ends with desktop and phone screenshots in `shots/`, `/impeccable` checks, a plain language summary, and a stop.
 
 ## Non negotiables (from the brief, always on)
 
@@ -35,16 +35,18 @@ Phase 0 (plan) is delivered and waiting for Wahb's approval. Do not write app co
 * Fact checks: Firecrawl search and scrape on official domains.
 * Keys live in environment variables only (`API_KEY_21ST`, `PERPLEXITY_API_KEY`, Supabase and Vercel variables).
 
-## Commands (Phase 0)
+## Commands
 
 ```
-python3 tools/nodash.py .                        # no dash check
-python3 tools/contrast.py design/tokens.json     # AA check for every token pair
-python3 tools/build_wireframes.py                # rebuild design/wireframes.js from TOKENS.md
-python3 tools/shoot_board.py                     # screenshots of the token board
+npm run dev              # local app; device only unless Supabase or memory mode is set
+npm run check            # typecheck, unit tests, generated files up to date, no dash, contrast
+npm run test:sql         # migration and sync functions on a throwaway Postgres
+npm run e2e              # build in memory sync mode, then Playwright: two devices, offline, export, axe
+npm run gen              # after editing design/tokens.json or src/data/schema.ts
+python3 tools/shoot_app.py http://localhost:3200 phaseN   # phase screenshots
 ```
 
-Phase 1 adds the app commands (dev, build, test, lint) here.
+Never edit `src/styles/tokens.css` or `supabase/migrations/0001_init.sql` by hand; they are generated.
 
 ## Data rules
 

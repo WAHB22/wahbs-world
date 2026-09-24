@@ -1,0 +1,46 @@
+{
+  "name": "wahbs-world",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:sql": "bash tests/sql/run.sh",
+    "test:e2e": "playwright test",
+    "check:dash": "python3 tools/nodash.py .",
+    "check:contrast": "python3 tools/contrast.py design/tokens.json",
+    "check": "npm run typecheck && npm run test && npm run check:generated && npm run check:dash && npm run check:contrast",
+    "check:generated": "python3 tools/gen_tokens.py --check && tsx tools/gen_sql.ts --check",
+    "gen": "python3 tools/gen_tokens.py && tsx tools/gen_sql.ts",
+    "e2e": "NEXT_PUBLIC_SYNC_MODE=memory next build --webpack && NEXT_PUBLIC_SYNC_MODE=memory playwright test"
+  },
+  "dependencies": {
+    "@serwist/next": "^9.5.12",
+    "@supabase/supabase-js": "^2.117.1",
+    "dexie": "^4.4.6",
+    "dexie-react-hooks": "^4.4.0",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^30.1.1",
+    "serwist": "^9.5.12",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}

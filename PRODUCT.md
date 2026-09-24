@@ -48,7 +48,7 @@ A world built around one specific person's real life, with real data behind ever
 
 * **Daily rhythm.** Morning opening, shifts at Bobino Bagel (often 06:15 to 14:00, and 08:00 to 16:00 on weekends), classes in the afternoon and evening, gym most days, study blocks. Evening is closing time and the moment to capture a memory.
 * **Terms.** Fall 2026 is the current term with six courses, some taught in French (CHG 3735 is "Contrôle des procédés"). A new term brings new courses, professors and a new weekly schedule.
-* **Work rules.** As a study permit holder he may work off campus up to 24 hours a week during academic sessions and full time only during scheduled breaks (IRCC). The Work world warns when planned hours cross that limit.
+* **Work rules** (tracking set aside for now at his request). As a study permit holder he may work off campus up to 24 hours a week during academic sessions and full time only during scheduled breaks (IRCC). The Work world warns when planned hours cross that limit.
 * **Career horizon.** A summer 2027 internship is the priority, inside a two year map (Winter 2027 to Winter 2028) whose options depend on immigration rules he confirms with the uOttawa Student Immigration Advising Team.
 * **Money.** Fixed monthly bills, category budgets, tuition goals per term, and transfers between his own accounts that are neither income nor spending. Currency is CAD **(inferred)**.
 * **Devices.** An iPhone as a home screen app **(inferred from the brief's gyroscope and home screen notes; confirm the phone model)** and a laptop browser.
@@ -69,7 +69,6 @@ A world built around one specific person's real life, with real data behind ever
 * Five intensity levels (Calm, Opening, Service, Rush, Completion) driven by time of day, workload and recent activity, always capped by a setting.
 * Weekly recap and monthly chapter.
 * Ambient sound, off by default.
-* Optional AI copilot, built last and only after he approves the setup and cost.
 
 **Terminology.** Restaurant words only where they stay understandable: orders, tickets, service, specials, reservations, the bill, 86'd. Each world keeps plain labels for its real data (course, deadline, shift, transaction).
 

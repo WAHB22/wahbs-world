@@ -136,7 +136,7 @@ Text size, contrast and layout never change with intensity. The cap in Settings 
 | School | `coolant` | heat exchanger with moving fluid, reactor conversion, gauges, flow lines, a pen |
 | Work | `flame` | order tickets, steam, plates, the service bell, the 24 hour line |
 | Money | `lagoon` | the glass jar, receipts, category streams |
-| Projects | `cobalt` | blueprint sheets, nodes, dependency lines |
+| Projects | `cobalt` (fills), `signal` (text, since `cobalt` is 2.76:1 on midnight) | blueprint sheets, nodes, dependency lines |
 | Career | `sky` | the chain from experience to opportunity |
 | Knowledge | `frost` | a constellation of topics |
 | Training | `signal` | movement trails, rings, progress arcs |

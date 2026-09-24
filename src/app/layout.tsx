@@ -1,0 +1,41 @@
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import "@/styles/globals.css";
+import "@/styles/app.css";
+import { WorldProvider } from "@/data/runtime";
+import { MotionPreference } from "@/ui/MotionPreference";
+
+export const metadata: Metadata = {
+  title: "WAHB'S WORLD",
+  description: "Wahb's world: school, work, money, projects, career, knowledge, training and life in one place.",
+  applicationName: "WAHB'S WORLD",
+  appleWebApp: { capable: true, title: "WAHB", statusBarStyle: "black-translucent" },
+  robots: { index: false, follow: false },
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: "#081330",
+  colorScheme: "dark",
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preload" href="/fonts/Anybody-normal-latin.woff2" as="font" type="font/woff2" crossOrigin="" />
+        <link rel="preload" href="/fonts/AtkinsonHyperlegibleNext-normal-latin.woff2" as="font" type="font/woff2" crossOrigin="" />
+      </head>
+      <body>
+        <WorldProvider>
+          <MotionPreference />
+          {children}
+        </WorldProvider>
+      </body>
+    </html>
+  );
+}

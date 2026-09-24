@@ -1,6 +1,6 @@
 # WAHB'S WORLD plan
 
-Phase 0 deliverable. Status: **waiting for Wahb's approval.** No app code has been written.
+Phase 0 deliverable. Status: **approved.** Phase 1 built; waiting for Wahb to review it and to do the account setup in `SETUP.md`.
 
 | Document | What it holds |
 |---|---|
@@ -88,14 +88,13 @@ Each phase ends with desktop and phone screenshots, `/impeccable audit` and `cri
 
 | Phase | Builds | Accepted when |
 |---|---|---|
-| 0 Plan | this document set | Wahb approves, and answers the open questions below |
+| 0 Plan | this document set | Wahb approves (approved 24 September 2026) |
 | 1 Foundations | scaffold, tokens, login, database and migrations, row level security, Dexie store and outbox, sync engine, export and import, settings shell (motion, sound, data, account), PWA shell, test harness, CI | a check in made offline appears on the other device after reconnecting and survives reloads (automated test with two browser contexts); export then import round trips every table; no dash and contrast checks pass |
 | 2 Landing and Today | the glass landing in DOM and 3D, at least three signature transition prototypes side by side, navigation and return, Today with quick check ins | Wahb picks a transition; Today is understandable in five seconds; check ins are one tap; 390, 768, 1440, 2560 px |
-| 3 School, Work, Money | the three worlds, the new term flow, the 24 hour warning, budgets, the jar, transfers | the new term flow takes a few minutes and is tested; create, edit and delete are tested |
+| 3 School, Work, Money | the three worlds, the new term flow, weekly hours, budgets, the jar, transfers | the new term flow takes a few minutes and is tested; create, edit and delete are tested |
 | 4 Projects, Career, Knowledge, Training, Life | the remaining five worlds, photos | each world's create, edit and delete tested; photos compress and upload offline |
 | 5 Living system | intensity and time engine, sound, weekly recap, monthly chapter | intensity changes are visible and the cap wins; sound starts only after an intentional action |
 | 6 Polish | accessibility, performance, PWA install, final design test | the definition of done in the brief, measured: zero console errors, zero failed tests, about 60 fps in DevTools traces, AA everywhere, keyboard reach |
-| 7 Copilot (optional) | setup, cost estimate, then build if approved | Wahb approves the cost first |
 
 ## 6. Tools and when they are used
 
@@ -138,19 +137,19 @@ Each phase ends with desktop and phone screenshots, `/impeccable audit` and `cri
 7. Money is stored in CAD cents.
 8. Database region Canada (Central).
 
-## 9. Open questions
+## 9. Answers from Wahb (24 September 2026)
 
-1. **Phone.** Is it an iPhone? (It decides how install, storage persistence and gyroscope permission are handled.)
-2. **Sign in email.** Which address should be the only account? (Suggested: the address this project already uses.)
-3. **Address.** A free `vercel.app` address, or a custom domain (about 15 to 25 CAD a year)? Passkeys bind to whichever domain is chosen, so decide before enabling them.
-4. **Auth email.** OK to set up a free transactional email service for sign in codes, so the 2 emails an hour limit never locks you out?
-5. **Work week.** IRCC does not say which day a week starts. Should the 24 hour check count Monday to Sunday, or match Bobino Bagel's pay week? Worth confirming with the uOttawa Student Immigration Advising Team.
-6. **Money import.** v18 parsed bank statements. Do you want statement import (a CSV from your bank) in the new Money world, or manual entries plus recurring bills only?
-7. **Interface language.** English everywhere, keeping French course names as they are? Or should the interface also be available in French?
-8. **Training detail.** Log sessions only (kind, minutes, a note), or exercises with sets, reps and weights so records can be computed?
-9. **Memories.** Should people in memories be free text names only (simplest and private), or a small list of people you pick from?
-10. **Copilot.** Keep it as the optional Phase 7, or drop it for now?
-11. **Repo.** Please create the private GitHub repository `wahbs-world` (empty) and give the Claude GitHub App access to it, so Phase 0 can be pushed. Until then it lives in a private local folder.
+1. **Phone:** iPhone. Install, storage persistence and gyroscope permission follow iOS rules.
+2. **Account:** his Gmail address is the only account. It is set through the `ALLOWED_EMAIL` environment variable, not written in the repo.
+3. **Address:** the free `vercel.app` address.
+4. **Auth email:** yes, a free SMTP sender is set up for sign in codes.
+5. **Immigration:** set aside for now. Work tracks hours and pay; the weekly hours limit warning is off by default and can be switched on later in Settings (week counted Monday to Sunday).
+6. **Money:** manual entries plus recurring bills. No statement import.
+7. **Language:** English interface; French course names stay as they are.
+8. **Training:** sessions only (kind, minutes, a note).
+9. **People in memories:** typed names, and every name typed is remembered in a `people` list so it can be picked next time.
+10. **Copilot:** dropped.
+11. **Go ahead:** full green light to proceed.
 
 ## 10. What happens after approval
 

@@ -50,7 +50,7 @@ def main(args):
     for a in args or ['.']:
         p = pathlib.Path(a)
         files += [f for f in (p.rglob('*') if p.is_dir() else [p])
-                  if f.suffix in ('.md', '.html') and 'node_modules' not in f.parts and '.git' not in f.parts and '.claude' not in f.parts]
+                  if f.suffix in ('.md', '.html') and not ({'node_modules', '.git', '.claude', '.next', 'test-results', 'playwright-report'} & set(f.parts))]
     fails = 0
     for f in sorted(files):
         text = f.read_text(encoding='utf-8')
