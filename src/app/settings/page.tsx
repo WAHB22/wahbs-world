@@ -1,6 +1,7 @@
 "use client";
 
 import { useLiveQuery } from "dexie-react-hooks";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { exportAll, exportFileName, importAll, previewImport, type ImportPreview } from "@/data/backup";
 import { SYNC_MODE } from "@/data/config";
@@ -84,6 +85,9 @@ export default function SettingsPage() {
             <>
               <Choice label="Movement" field="motion" value={s.motion} onChange={change}
                 options={[["system", "Follow the device"], ["full", "Full"], ["reduced", "Reduced"]]} />
+              <Choice label="Entering a world" field="transition" value={s.transition} onChange={change}
+                options={[["morph", "Shared morph"], ["dive", "Dive"], ["liquid", "Liquid"], ["shatter", "Shatter"]]} />
+              <p className="hint"><Link href="/lab/transitions">Compare the four side by side</Link></p>
               <Choice label="Intensity cap" field="intensity_cap" value={s.intensity_cap} onChange={change}
                 options={[["calm", "Calm"], ["opening", "Opening"], ["service", "Service"], ["rush", "Rush"]]} />
             </>

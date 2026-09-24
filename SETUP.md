@@ -9,7 +9,8 @@ GitHub, the `wahbs-world` repository, Settings, Danger Zone, Change visibility, 
 ## 2. Supabase (database, sign in, photos)
 
 1. Create a free account at supabase.com and a new project named `wahbs-world`. Choose the region **Canada (Central)**. Save the database password in your password manager.
-2. Open the SQL Editor. Paste the whole of `supabase/migrations/0001_init.sql` and run it. Then do the same with `0002_storage.sql`.
+2. Open the SQL Editor. Paste the whole of `supabase/migrations/0001_init.sql` and run it. Then do the same with `0002_storage.sql`. Copy with GitHub's Copy raw file button so nothing is cut off.
+   When a later phase changes `0001_init.sql`, run it again the same way: it only adds what is new and never touches your data.
 3. Authentication, Sign In / Providers: keep **Email** on, and turn **off** "Allow new users to sign up". Nobody else can ever create an account.
 4. Authentication, Users, Add user, Create new user: your Gmail address, tick auto confirm. This is the only account.
 5. Authentication, Emails, the **Magic Link** template: replace the body with a short message that shows the code, for example `Your WAHB'S WORLD code is {{ .Token }}`. The app asks for this six digit code; a code works inside the installed iPhone app, where a link would open Safari.

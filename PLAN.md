@@ -1,6 +1,6 @@
 # WAHB'S WORLD plan
 
-Phase 0 deliverable. Status: **approved.** Phase 1 built; waiting for Wahb to review it and to do the account setup in `SETUP.md`.
+Phase 0 deliverable. Status: **approved.** Phases 1 and 2 built. Waiting for Wahb to pick a transition at `/lab/transitions` and to finish the account setup in `SETUP.md`.
 
 | Document | What it holds |
 |---|---|

@@ -46,6 +46,12 @@ create table if not exists public.days (
   energy double precision,
   note text
 );
+alter table public.days add column if not exists day date;
+alter table public.days add column if not exists one_thing text;
+alter table public.days add column if not exists one_thing_ref text;
+alter table public.days add column if not exists mood double precision;
+alter table public.days add column if not exists energy double precision;
+alter table public.days add column if not exists note text;
 create index if not exists days_user_rev on public.days (user_id, rev);
 alter table public.days enable row level security;
 drop policy if exists "owner only" on public.days;
@@ -73,6 +79,12 @@ create table if not exists public.checkins (
   ref_id uuid,
   payload jsonb
 );
+alter table public.checkins add column if not exists occurred_at timestamptz;
+alter table public.checkins add column if not exists local_day date;
+alter table public.checkins add column if not exists kind text;
+alter table public.checkins add column if not exists ref_table text;
+alter table public.checkins add column if not exists ref_id uuid;
+alter table public.checkins add column if not exists payload jsonb;
 create index if not exists checkins_user_rev on public.checkins (user_id, rev);
 alter table public.checkins enable row level security;
 drop policy if exists "owner only" on public.checkins;
@@ -103,6 +115,15 @@ create table if not exists public.tasks (
   resource_id uuid,
   notes text
 );
+alter table public.tasks add column if not exists title text;
+alter table public.tasks add column if not exists area text;
+alter table public.tasks add column if not exists due_on date;
+alter table public.tasks add column if not exists done_at timestamptz;
+alter table public.tasks add column if not exists priority text;
+alter table public.tasks add column if not exists course_id uuid;
+alter table public.tasks add column if not exists project_id uuid;
+alter table public.tasks add column if not exists resource_id uuid;
+alter table public.tasks add column if not exists notes text;
 create index if not exists tasks_user_rev on public.tasks (user_id, rev);
 alter table public.tasks enable row level security;
 drop policy if exists "owner only" on public.tasks;
@@ -132,6 +153,14 @@ create table if not exists public.resources (
   link_status text,
   link_checked_at timestamptz
 );
+alter table public.resources add column if not exists title text;
+alter table public.resources add column if not exists publisher text;
+alter table public.resources add column if not exists url text;
+alter table public.resources add column if not exists summary text;
+alter table public.resources add column if not exists area text;
+alter table public.resources add column if not exists verified_on date;
+alter table public.resources add column if not exists link_status text;
+alter table public.resources add column if not exists link_checked_at timestamptz;
 create index if not exists resources_user_rev on public.resources (user_id, rev);
 alter table public.resources enable row level security;
 drop policy if exists "owner only" on public.resources;
@@ -157,8 +186,16 @@ create table if not exists public.settings (
   sound_profile text,
   volume double precision,
   week_starts_on integer,
-  hours_warning boolean
+  hours_warning boolean,
+  transition text
 );
+alter table public.settings add column if not exists motion text;
+alter table public.settings add column if not exists intensity_cap text;
+alter table public.settings add column if not exists sound_profile text;
+alter table public.settings add column if not exists volume double precision;
+alter table public.settings add column if not exists week_starts_on integer;
+alter table public.settings add column if not exists hours_warning boolean;
+alter table public.settings add column if not exists transition text;
 create index if not exists settings_user_rev on public.settings (user_id, rev);
 alter table public.settings enable row level security;
 drop policy if exists "owner only" on public.settings;
@@ -185,6 +222,11 @@ create table if not exists public.chapters (
   note text,
   cover_photo_id uuid
 );
+alter table public.chapters add column if not exists period_kind text;
+alter table public.chapters add column if not exists period_start date;
+alter table public.chapters add column if not exists title text;
+alter table public.chapters add column if not exists note text;
+alter table public.chapters add column if not exists cover_photo_id uuid;
 create index if not exists chapters_user_rev on public.chapters (user_id, rev);
 alter table public.chapters enable row level security;
 drop policy if exists "owner only" on public.chapters;
@@ -211,6 +253,11 @@ create table if not exists public.terms (
   ends_on date not null,
   status text
 );
+alter table public.terms add column if not exists name text;
+alter table public.terms add column if not exists kind text;
+alter table public.terms add column if not exists starts_on date;
+alter table public.terms add column if not exists ends_on date;
+alter table public.terms add column if not exists status text;
 create index if not exists terms_user_rev on public.terms (user_id, rev);
 alter table public.terms enable row level security;
 drop policy if exists "owner only" on public.terms;
@@ -236,6 +283,10 @@ create table if not exists public.term_breaks (
   starts_on date not null,
   ends_on date not null
 );
+alter table public.term_breaks add column if not exists term_id uuid;
+alter table public.term_breaks add column if not exists name text;
+alter table public.term_breaks add column if not exists starts_on date;
+alter table public.term_breaks add column if not exists ends_on date;
 create index if not exists term_breaks_user_rev on public.term_breaks (user_id, rev);
 alter table public.term_breaks enable row level security;
 drop policy if exists "owner only" on public.term_breaks;
@@ -266,6 +317,15 @@ create table if not exists public.courses (
   links jsonb,
   notes text
 );
+alter table public.courses add column if not exists term_id uuid;
+alter table public.courses add column if not exists code text;
+alter table public.courses add column if not exists name text;
+alter table public.courses add column if not exists professor text;
+alter table public.courses add column if not exists language text;
+alter table public.courses add column if not exists retake boolean;
+alter table public.courses add column if not exists topics text[];
+alter table public.courses add column if not exists links jsonb;
+alter table public.courses add column if not exists notes text;
 create index if not exists courses_user_rev on public.courses (user_id, rev);
 alter table public.courses enable row level security;
 drop policy if exists "owner only" on public.courses;
@@ -297,6 +357,16 @@ create table if not exists public.schedule_blocks (
   valid_from date,
   valid_to date
 );
+alter table public.schedule_blocks add column if not exists term_id uuid;
+alter table public.schedule_blocks add column if not exists course_id uuid;
+alter table public.schedule_blocks add column if not exists kind text;
+alter table public.schedule_blocks add column if not exists title text;
+alter table public.schedule_blocks add column if not exists weekday integer;
+alter table public.schedule_blocks add column if not exists starts_at time;
+alter table public.schedule_blocks add column if not exists ends_at time;
+alter table public.schedule_blocks add column if not exists location text;
+alter table public.schedule_blocks add column if not exists valid_from date;
+alter table public.schedule_blocks add column if not exists valid_to date;
 create index if not exists schedule_blocks_user_rev on public.schedule_blocks (user_id, rev);
 alter table public.schedule_blocks enable row level security;
 drop policy if exists "owner only" on public.schedule_blocks;
@@ -330,6 +400,18 @@ create table if not exists public.assessments (
   grade_out_of double precision,
   notes text
 );
+alter table public.assessments add column if not exists course_id uuid;
+alter table public.assessments add column if not exists project_id uuid;
+alter table public.assessments add column if not exists title text;
+alter table public.assessments add column if not exists kind text;
+alter table public.assessments add column if not exists due_on date;
+alter table public.assessments add column if not exists due_time time;
+alter table public.assessments add column if not exists weight double precision;
+alter table public.assessments add column if not exists covers text[];
+alter table public.assessments add column if not exists status text;
+alter table public.assessments add column if not exists grade double precision;
+alter table public.assessments add column if not exists grade_out_of double precision;
+alter table public.assessments add column if not exists notes text;
 create index if not exists assessments_user_rev on public.assessments (user_id, rev);
 alter table public.assessments enable row level security;
 drop policy if exists "owner only" on public.assessments;
@@ -355,6 +437,10 @@ create table if not exists public.employers (
   tips_estimate_cents integer,
   deduction_rate double precision
 );
+alter table public.employers add column if not exists name text;
+alter table public.employers add column if not exists hourly_cents integer;
+alter table public.employers add column if not exists tips_estimate_cents integer;
+alter table public.employers add column if not exists deduction_rate double precision;
 create index if not exists employers_user_rev on public.employers (user_id, rev);
 alter table public.employers enable row level security;
 drop policy if exists "owner only" on public.employers;
@@ -385,6 +471,15 @@ create table if not exists public.shifts (
   tips_cents integer,
   notes text
 );
+alter table public.shifts add column if not exists employer_id uuid;
+alter table public.shifts add column if not exists starts_at timestamptz;
+alter table public.shifts add column if not exists ends_at timestamptz;
+alter table public.shifts add column if not exists unpaid_break_min integer;
+alter table public.shifts add column if not exists status text;
+alter table public.shifts add column if not exists rush jsonb;
+alter table public.shifts add column if not exists pay_cents integer;
+alter table public.shifts add column if not exists tips_cents integer;
+alter table public.shifts add column if not exists notes text;
 create index if not exists shifts_user_rev on public.shifts (user_id, rev);
 alter table public.shifts enable row level security;
 drop policy if exists "owner only" on public.shifts;
@@ -409,6 +504,9 @@ create table if not exists public.accounts (
   kind text not null,
   is_own boolean
 );
+alter table public.accounts add column if not exists name text;
+alter table public.accounts add column if not exists kind text;
+alter table public.accounts add column if not exists is_own boolean;
 create index if not exists accounts_user_rev on public.accounts (user_id, rev);
 alter table public.accounts enable row level security;
 drop policy if exists "owner only" on public.accounts;
@@ -435,6 +533,11 @@ create table if not exists public.categories (
   monthly_budget_cents integer,
   archived boolean
 );
+alter table public.categories add column if not exists group_name text;
+alter table public.categories add column if not exists name text;
+alter table public.categories add column if not exists kind text;
+alter table public.categories add column if not exists monthly_budget_cents integer;
+alter table public.categories add column if not exists archived boolean;
 create index if not exists categories_user_rev on public.categories (user_id, rev);
 alter table public.categories enable row level security;
 drop policy if exists "owner only" on public.categories;
@@ -462,6 +565,12 @@ create table if not exists public.recurring_bills (
   account_id uuid,
   active boolean
 );
+alter table public.recurring_bills add column if not exists name text;
+alter table public.recurring_bills add column if not exists amount_cents integer;
+alter table public.recurring_bills add column if not exists day_of_month integer;
+alter table public.recurring_bills add column if not exists category_id uuid;
+alter table public.recurring_bills add column if not exists account_id uuid;
+alter table public.recurring_bills add column if not exists active boolean;
 create index if not exists recurring_bills_user_rev on public.recurring_bills (user_id, rev);
 alter table public.recurring_bills enable row level security;
 drop policy if exists "owner only" on public.recurring_bills;
@@ -494,6 +603,17 @@ create table if not exists public.transactions (
   memory_id uuid,
   source text
 );
+alter table public.transactions add column if not exists occurred_on date;
+alter table public.transactions add column if not exists amount_cents integer;
+alter table public.transactions add column if not exists direction text;
+alter table public.transactions add column if not exists account_id uuid;
+alter table public.transactions add column if not exists to_account_id uuid;
+alter table public.transactions add column if not exists category_id uuid;
+alter table public.transactions add column if not exists merchant text;
+alter table public.transactions add column if not exists note text;
+alter table public.transactions add column if not exists goal_id uuid;
+alter table public.transactions add column if not exists memory_id uuid;
+alter table public.transactions add column if not exists source text;
 create index if not exists transactions_user_rev on public.transactions (user_id, rev);
 alter table public.transactions enable row level security;
 drop policy if exists "owner only" on public.transactions;
@@ -522,6 +642,13 @@ create table if not exists public.goals (
   term_id uuid,
   notes text
 );
+alter table public.goals add column if not exists kind text;
+alter table public.goals add column if not exists name text;
+alter table public.goals add column if not exists target_cents integer;
+alter table public.goals add column if not exists target_value double precision;
+alter table public.goals add column if not exists due_on date;
+alter table public.goals add column if not exists term_id uuid;
+alter table public.goals add column if not exists notes text;
 create index if not exists goals_user_rev on public.goals (user_id, rev);
 alter table public.goals enable row level security;
 drop policy if exists "owner only" on public.goals;
@@ -552,6 +679,15 @@ create table if not exists public.projects (
   course_id uuid,
   notes text
 );
+alter table public.projects add column if not exists title text;
+alter table public.projects add column if not exists type text;
+alter table public.projects add column if not exists stage text;
+alter table public.projects add column if not exists objective text;
+alter table public.projects add column if not exists success text;
+alter table public.projects add column if not exists deadline date;
+alter table public.projects add column if not exists weekly_hours double precision;
+alter table public.projects add column if not exists course_id uuid;
+alter table public.projects add column if not exists notes text;
 create index if not exists projects_user_rev on public.projects (user_id, rev);
 alter table public.projects enable row level security;
 drop policy if exists "owner only" on public.projects;
@@ -583,6 +719,16 @@ create table if not exists public.project_tasks (
   depends_on uuid[],
   done_at timestamptz
 );
+alter table public.project_tasks add column if not exists project_id uuid;
+alter table public.project_tasks add column if not exists title text;
+alter table public.project_tasks add column if not exists deliverable text;
+alter table public.project_tasks add column if not exists due_on date;
+alter table public.project_tasks add column if not exists estimate_hours double precision;
+alter table public.project_tasks add column if not exists kind text;
+alter table public.project_tasks add column if not exists priority text;
+alter table public.project_tasks add column if not exists status text;
+alter table public.project_tasks add column if not exists depends_on uuid[];
+alter table public.project_tasks add column if not exists done_at timestamptz;
 create index if not exists project_tasks_user_rev on public.project_tasks (user_id, rev);
 alter table public.project_tasks enable row level security;
 drop policy if exists "owner only" on public.project_tasks;
@@ -609,6 +755,11 @@ create table if not exists public.project_sessions (
   kind text,
   note text
 );
+alter table public.project_sessions add column if not exists project_id uuid;
+alter table public.project_sessions add column if not exists started_at timestamptz;
+alter table public.project_sessions add column if not exists minutes integer;
+alter table public.project_sessions add column if not exists kind text;
+alter table public.project_sessions add column if not exists note text;
 create index if not exists project_sessions_user_rev on public.project_sessions (user_id, rev);
 alter table public.project_sessions enable row level security;
 drop policy if exists "owner only" on public.project_sessions;
@@ -634,6 +785,10 @@ create table if not exists public.project_logs (
   body text not null,
   occurred_on date not null
 );
+alter table public.project_logs add column if not exists project_id uuid;
+alter table public.project_logs add column if not exists kind text;
+alter table public.project_logs add column if not exists body text;
+alter table public.project_logs add column if not exists occurred_on date;
 create index if not exists project_logs_user_rev on public.project_logs (user_id, rev);
 alter table public.project_logs enable row level security;
 drop policy if exists "owner only" on public.project_logs;
@@ -665,6 +820,16 @@ create table if not exists public.applications (
   next_step_on date,
   notes text
 );
+alter table public.applications add column if not exists organization text;
+alter table public.applications add column if not exists role text;
+alter table public.applications add column if not exists location text;
+alter table public.applications add column if not exists url text;
+alter table public.applications add column if not exists season text;
+alter table public.applications add column if not exists status text;
+alter table public.applications add column if not exists applied_on date;
+alter table public.applications add column if not exists next_step text;
+alter table public.applications add column if not exists next_step_on date;
+alter table public.applications add column if not exists notes text;
 create index if not exists applications_user_rev on public.applications (user_id, rev);
 alter table public.applications enable row level security;
 drop policy if exists "owner only" on public.applications;
@@ -692,6 +857,12 @@ create table if not exists public.evidence (
   description text,
   occurred_on date
 );
+alter table public.evidence add column if not exists title text;
+alter table public.evidence add column if not exists kind text;
+alter table public.evidence add column if not exists project_id uuid;
+alter table public.evidence add column if not exists url text;
+alter table public.evidence add column if not exists description text;
+alter table public.evidence add column if not exists occurred_on date;
 create index if not exists evidence_user_rev on public.evidence (user_id, rev);
 alter table public.evidence enable row level security;
 drop policy if exists "owner only" on public.evidence;
@@ -715,6 +886,8 @@ create table if not exists public.skills (
   name text not null,
   notes text
 );
+alter table public.skills add column if not exists name text;
+alter table public.skills add column if not exists notes text;
 create index if not exists skills_user_rev on public.skills (user_id, rev);
 alter table public.skills enable row level security;
 drop policy if exists "owner only" on public.skills;
@@ -738,6 +911,8 @@ create table if not exists public.evidence_skills (
   evidence_id uuid not null,
   skill_id uuid not null
 );
+alter table public.evidence_skills add column if not exists evidence_id uuid;
+alter table public.evidence_skills add column if not exists skill_id uuid;
 create index if not exists evidence_skills_user_rev on public.evidence_skills (user_id, rev);
 alter table public.evidence_skills enable row level security;
 drop policy if exists "owner only" on public.evidence_skills;
@@ -765,6 +940,12 @@ create table if not exists public.stories (
   lesson text,
   evidence_ids uuid[]
 );
+alter table public.stories add column if not exists title text;
+alter table public.stories add column if not exists situation text;
+alter table public.stories add column if not exists action text;
+alter table public.stories add column if not exists result text;
+alter table public.stories add column if not exists lesson text;
+alter table public.stories add column if not exists evidence_ids uuid[];
 create index if not exists stories_user_rev on public.stories (user_id, rev);
 alter table public.stories enable row level security;
 drop policy if exists "owner only" on public.stories;
@@ -789,6 +970,9 @@ create table if not exists public.linkedin_drafts (
   body text,
   resource_id uuid
 );
+alter table public.linkedin_drafts add column if not exists section text;
+alter table public.linkedin_drafts add column if not exists body text;
+alter table public.linkedin_drafts add column if not exists resource_id uuid;
 create index if not exists linkedin_drafts_user_rev on public.linkedin_drafts (user_id, rev);
 alter table public.linkedin_drafts enable row level security;
 drop policy if exists "owner only" on public.linkedin_drafts;
@@ -814,6 +998,10 @@ create table if not exists public.term_plans (
   probability double precision,
   note text
 );
+alter table public.term_plans add column if not exists term_label text;
+alter table public.term_plans add column if not exists option text;
+alter table public.term_plans add column if not exists probability double precision;
+alter table public.term_plans add column if not exists note text;
 create index if not exists term_plans_user_rev on public.term_plans (user_id, rev);
 alter table public.term_plans enable row level security;
 drop policy if exists "owner only" on public.term_plans;
@@ -847,6 +1035,18 @@ create table if not exists public.knowledge_entries (
   rabbit_hole boolean,
   course_id uuid
 );
+alter table public.knowledge_entries add column if not exists topic text;
+alter table public.knowledge_entries add column if not exists learned text;
+alter table public.knowledge_entries add column if not exists source_title text;
+alter table public.knowledge_entries add column if not exists source_url text;
+alter table public.knowledge_entries add column if not exists why_it_matters text;
+alter table public.knowledge_entries add column if not exists questions text;
+alter table public.knowledge_entries add column if not exists review_on date;
+alter table public.knowledge_entries add column if not exists interval_days integer;
+alter table public.knowledge_entries add column if not exists ease double precision;
+alter table public.knowledge_entries add column if not exists changed_mind boolean;
+alter table public.knowledge_entries add column if not exists rabbit_hole boolean;
+alter table public.knowledge_entries add column if not exists course_id uuid;
 create index if not exists knowledge_entries_user_rev on public.knowledge_entries (user_id, rev);
 alter table public.knowledge_entries enable row level security;
 drop policy if exists "owner only" on public.knowledge_entries;
@@ -870,6 +1070,8 @@ create table if not exists public.knowledge_links (
   from_id uuid not null,
   to_id uuid not null
 );
+alter table public.knowledge_links add column if not exists from_id uuid;
+alter table public.knowledge_links add column if not exists to_id uuid;
 create index if not exists knowledge_links_user_rev on public.knowledge_links (user_id, rev);
 alter table public.knowledge_links enable row level security;
 drop policy if exists "owner only" on public.knowledge_links;
@@ -895,6 +1097,10 @@ create table if not exists public.training_sessions (
   minutes integer,
   notes text
 );
+alter table public.training_sessions add column if not exists occurred_on date;
+alter table public.training_sessions add column if not exists kind text;
+alter table public.training_sessions add column if not exists minutes integer;
+alter table public.training_sessions add column if not exists notes text;
 create index if not exists training_sessions_user_rev on public.training_sessions (user_id, rev);
 alter table public.training_sessions enable row level security;
 drop policy if exists "owner only" on public.training_sessions;
@@ -922,6 +1128,12 @@ create table if not exists public.memories (
   place text,
   people text[]
 );
+alter table public.memories add column if not exists occurred_on date;
+alter table public.memories add column if not exists title text;
+alter table public.memories add column if not exists body text;
+alter table public.memories add column if not exists kind text;
+alter table public.memories add column if not exists place text;
+alter table public.memories add column if not exists people text[];
 create index if not exists memories_user_rev on public.memories (user_id, rev);
 alter table public.memories enable row level security;
 drop policy if exists "owner only" on public.memories;
@@ -946,6 +1158,9 @@ create table if not exists public.people (
   first_seen_on date not null,
   times_mentioned integer
 );
+alter table public.people add column if not exists name text;
+alter table public.people add column if not exists first_seen_on date;
+alter table public.people add column if not exists times_mentioned integer;
 create index if not exists people_user_rev on public.people (user_id, rev);
 alter table public.people enable row level security;
 drop policy if exists "owner only" on public.people;
@@ -974,6 +1189,13 @@ create table if not exists public.photos (
   blurhash text,
   taken_at timestamptz
 );
+alter table public.photos add column if not exists memory_id uuid;
+alter table public.photos add column if not exists storage_path text;
+alter table public.photos add column if not exists width integer;
+alter table public.photos add column if not exists height integer;
+alter table public.photos add column if not exists bytes integer;
+alter table public.photos add column if not exists blurhash text;
+alter table public.photos add column if not exists taken_at timestamptz;
 create index if not exists photos_user_rev on public.photos (user_id, rev);
 alter table public.photos enable row level security;
 drop policy if exists "owner only" on public.photos;

@@ -4,7 +4,7 @@ Read `BRIEF.md` first, then `PRODUCT.md`, `PLAN.md`, `design/TOKENS.md` and `des
 
 ## Where the project stands
 
-Phase 0 approved. Phase 1 (foundations) built: local first store, sync engine, Supabase schema and sync functions, export and import, seed, settings shell, PWA shell, tests, CI. Setup steps that need Wahb's accounts are in `SETUP.md`. Each phase ends with desktop and phone screenshots in `shots/`, `/impeccable` checks, a plain language summary, and a stop.
+Phase 0 approved. Phase 2 built (glass landing with a lazy 3D refraction layer, phone depth deck, four transition prototypes at /lab/transitions waiting for Wahb's pick, full Today). Phase 1 (foundations) built: local first store, sync engine, Supabase schema and sync functions, export and import, seed, settings shell, PWA shell, tests, CI. Setup steps that need Wahb's accounts are in `SETUP.md`. Each phase ends with desktop and phone screenshots in `shots/`, `/impeccable` checks, a plain language summary, and a stop.
 
 ## Non negotiables (from the brief, always on)
 

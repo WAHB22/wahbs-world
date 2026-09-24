@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const PAGES = ["/", "/today", "/settings", "/~offline"];
+const PAGES = ["/", "/today", "/settings", "/~offline", "/lab/transitions", "/school", "/life"];
 const DASH = /[‒–—―]|\S - \S/;
 
 for (const path of PAGES) {

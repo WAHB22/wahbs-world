@@ -85,7 +85,13 @@ for (const name of TABLES) {
     const nullable = s.safeParse(null).success || s.safeParse(undefined).success;
     return `  ${c} ${sqlType(c, s)}${nullable ? "" : " not null"}`;
   });
+  // Columns added after a table exists: re-running this file adds them without touching data.
+  const additions = Object.entries(shape)
+    .filter(([c]) => !baseCols.includes(c))
+    .map(([c, s]) => `alter table public.${name} add column if not exists ${c} ${sqlType(c, s)};`)
+    .join("\n");
   out += `create table if not exists public.${name} (\n${cols.join(",\n")}\n);
+${additions}
 create index if not exists ${name}_user_rev on public.${name} (user_id, rev);
 alter table public.${name} enable row level security;
 drop policy if exists "owner only" on public.${name};

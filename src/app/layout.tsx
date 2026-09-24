@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import "@/styles/app.css";
 import { WorldProvider } from "@/data/runtime";
 import { MotionPreference } from "@/ui/MotionPreference";
+import { TransitionLayer } from "@/motion/TransitionLayer";
 
 export const metadata: Metadata = {
   title: "WAHB'S WORLD",
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <WorldProvider>
           <MotionPreference />
           {children}
+          <TransitionLayer />
         </WorldProvider>
       </body>
     </html>
