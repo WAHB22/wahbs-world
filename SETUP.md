@@ -15,9 +15,12 @@ GitHub, the `wahbs-world` repository, Settings, Danger Zone, Change visibility, 
 5. Authentication, Emails, the **Magic Link** template: replace the body with a short message that shows the code, for example `Your WAHB'S WORLD code is {{ .Token }}`. The app asks for this six digit code; a code works inside the installed iPhone app, where a link would open Safari.
 6. Authentication, Emails, SMTP Settings (the built in sender allows only 2 emails an hour): turn on custom SMTP with your Gmail.
    * Host `smtp.gmail.com`, port `587`, user your Gmail address.
-   * Password: a Google **app password** (Google Account, Security, 2 Step Verification must be on, then App passwords). Not your normal password.
+   * Password: a Google **app password**, a 16 character code made at myaccount.google.com/apppasswords. It needs 2 Step Verification turned on first. Not your normal password.
    * Sender name `WAHB'S WORLD`.
-7. Project Settings, API: copy the **Project URL**, the **anon public** key and the **service_role** key for step 3.
+7. Copy three values for step 3. The **Connect** button at the top of the project (or Project Settings, API Keys) shows them:
+   * the **Project URL**, which looks like `https://abcdefghij.supabase.co`;
+   * the **publishable** key (`sb_publishable_...`) or the legacy **anon** key; either works;
+   * the **secret** key (`sb_secret_...`) or the legacy **service_role** key; either works. Keep it secret.
 
 ## 3. Vercel (hosting)
 
@@ -26,13 +29,14 @@ GitHub, the `wahbs-world` repository, Settings, Danger Zone, Change visibility, 
 
 | Name | Value |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | the Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the anon public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | the service_role key (server only, used by the daily backup) |
+| `NEXT_PUBLIC_SUPABASE_URL` | the Project URL, `https://....supabase.co` (not a key) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the publishable key or the anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | the secret key or the service_role key (server only, used by the daily backup) |
 | `CRON_SECRET` | any long random string |
 
-3. Deploy. Your address is `wahbs-world.vercel.app` or similar.
-4. Back in Supabase, Authentication, URL Configuration: set the Site URL to that address.
+3. Deploy. The address to use is the short one under Domains (for example `wahbs-worlds.vercel.app`). The long links with a random part belong to single deployments and ask for a Vercel login.
+4. Changed a variable later? Deployments, the latest one, Redeploy. Variables starting with `NEXT_PUBLIC_` are built into the site, so they only take effect after a redeploy.
+5. Back in Supabase, Authentication, URL Configuration: set the Site URL to that address.
 
 The daily backup runs by itself (Vercel Cron, once a day). It saves a JSON copy of everything into the private `backups` storage bucket and keeps the last 14.
 
