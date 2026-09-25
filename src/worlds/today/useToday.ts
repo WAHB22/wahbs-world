@@ -32,7 +32,7 @@ export function useToday(today: string, now: Date): TodayData | undefined {
   return useLiveQuery(async () => {
     if (!store) return undefined;
     const dayId = await uuidFromName(`day:${today}`);
-    const [day, assessments, courses, tasks, blocksAll, checkinsAll, terms] = await Promise.all([
+    const [day, assessments, courses, tasks, blocksAll, checkinsAll, terms, txAll] = await Promise.all([
       store.get("days", dayId),
       store.all("assessments"),
       store.all("courses"),
@@ -40,6 +40,7 @@ export function useToday(today: string, now: Date): TodayData | undefined {
       store.all("schedule_blocks"),
       store.all("checkins"),
       store.all("terms"),
+      store.all("transactions"),
     ]);
     const code = new Map(courses.map((c) => [c.id, c.code]));
     const withCode = (a: Row<"assessments">): Deadline => ({ ...a, code: a.course_id ? code.get(a.course_id) ?? null : null });
@@ -89,9 +90,11 @@ export function useToday(today: string, now: Date): TodayData | undefined {
     const week = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).map((d) => ({ day: d, items: open.filter((a) => a.due_on === d) }));
 
     const ws = weekStart(today);
+    // Money spent: every "out" entry in Money, plus any older spent check ins saved before entries existed.
     const cents = (c: Row<"checkins">) => Number((c.payload as { cents?: number }).cents ?? 0);
-    const spent = checkinsAll.filter((c) => c.kind === "spent");
-    const money = { today: spent.filter((c) => c.local_day === today).reduce((n, c) => n + cents(c), 0), week: spent.filter((c) => c.local_day >= ws).reduce((n, c) => n + cents(c), 0) };
+    const legacy = checkinsAll.filter((c) => c.kind === "spent" && !c.ref_id).map((c) => ({ day: c.local_day, cents: cents(c) }));
+    const outs = txAll.filter((t) => t.direction === "out").map((t) => ({ day: t.occurred_on, cents: t.amount_cents })).concat(legacy);
+    const money = { today: outs.filter((x) => x.day === today).reduce((n, x) => n + x.cents, 0), week: outs.filter((x) => x.day >= ws && x.day <= today).reduce((n, x) => n + x.cents, 0) };
     const gymBlocks = new Set(blocksAll.filter((b) => b.kind === "gym" && (!current || b.term_id === current.id)).map((b) => b.weekday)).size;
     const training = { done: checkinsAll.filter((c) => c.kind === "gym_done" && c.local_day >= ws).length, planned: gymBlocks };
     const moments = checkinsAll.filter((c) => c.kind === "moment").sort((a, b) => b.occurred_at.localeCompare(a.occurred_at)).slice(0, 3);

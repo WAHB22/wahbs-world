@@ -38,7 +38,7 @@ test("reduced motion turns every transition into a short crossfade", async ({ br
   await page.locator('[data-world="school"]').click();
   await expect(page).toHaveURL(/\/school$/);
   await expect(page.locator(".tx-host > *")).toHaveCount(0, { timeout: 600 });
-  await expect(page.getByRole("heading", { name: "Opens in phase 3" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "School", level: 1 })).toBeVisible();
   await ctx.close();
 });
 

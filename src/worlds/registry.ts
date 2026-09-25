@@ -17,9 +17,9 @@ export type WorldDef = {
 
 export const WORLDS: WorldDef[] = [
   { slug: "today", name: "Today", accent: "ember", text: "ember", blurb: "The pass: what needs you now.", opensIn: null, at: { x: 50, y: 22, depth: "near" } },
-  { slug: "school", name: "School", accent: "coolant", text: "coolant", blurb: "Courses, deadlines, the new term.", opensIn: 3, at: { x: 15, y: 40, depth: "mid" } },
-  { slug: "work", name: "Work", accent: "flame", text: "flame", blurb: "Shifts as tickets, hours and pay.", opensIn: 3, at: { x: 85, y: 40, depth: "mid" } },
-  { slug: "money", name: "Money", accent: "lagoon", text: "lagoon", blurb: "The jar, the bill, recurring bills.", opensIn: 3, at: { x: 18, y: 76, depth: "mid" } },
+  { slug: "school", name: "School", accent: "coolant", text: "coolant", blurb: "Courses, deadlines, the new term.", opensIn: null, at: { x: 15, y: 40, depth: "mid" } },
+  { slug: "work", name: "Work", accent: "flame", text: "flame", blurb: "Shifts as tickets, hours and pay.", opensIn: null, at: { x: 85, y: 40, depth: "mid" } },
+  { slug: "money", name: "Money", accent: "lagoon", text: "lagoon", blurb: "The jar, the bill, recurring bills.", opensIn: null, at: { x: 18, y: 76, depth: "mid" } },
   { slug: "projects", name: "Projects", accent: "cobalt", text: "signal", blurb: "Blueprints, tasks, dependencies.", opensIn: 4, at: { x: 68, y: 82, depth: "mid" } },
   { slug: "career", name: "Career", accent: "sky", text: "sky", blurb: "Experience to opportunity.", opensIn: 4, at: { x: 22, y: 12, depth: "far" } },
   { slug: "knowledge", name: "Knowledge", accent: "frost", text: "frost", blurb: "A constellation of what you learn.", opensIn: 4, at: { x: 79, y: 12, depth: "far" } },

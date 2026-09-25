@@ -6,6 +6,7 @@ import { WorldProvider } from "@/data/runtime";
 import { MotionPreference } from "@/ui/MotionPreference";
 import { TransitionLayer } from "@/motion/TransitionLayer";
 import { UpdateReload } from "@/ui/UpdateReload";
+import { Toaster } from "@/ui/kit/toast";
 
 export const metadata: Metadata = {
   title: "WAHB'S WORLD",
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <UpdateReload />
           {children}
           <TransitionLayer />
+          <Toaster />
         </WorldProvider>
       </body>
     </html>

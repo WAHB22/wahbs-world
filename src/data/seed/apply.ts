@@ -4,7 +4,7 @@ import type { AnyRow } from "../schema";
 import type { Store } from "../store";
 import { fall2026, type SeedRow } from "./fall2026";
 
-export const SEED_VERSION = "fall2026:v1";
+export const SEED_VERSION = "fall2026:v2";
 
 /** Turn keyed seed rows into full rows with stable ids, resolving `ref:` links. */
 export async function resolveSeed(rows: SeedRow[] = fall2026()): Promise<{ table: SeedRow["table"]; row: AnyRow }[]> {

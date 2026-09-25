@@ -206,6 +206,15 @@ export function fall2026(): SeedRow[] {
     add("tasks", `task:career:${title}`, { title, notes, priority: prio, area: "career", resource_id: res ? `ref:resource:${res}` : null }),
   );
   TERM_PLANS.forEach(([term, option]) => add("term_plans", `plan:${term}:${option}`, { term_label: term, option }));
+  // Money starts with plain accounts and categories; amounts and budgets are his to enter.
+  for (const [k, name, kind] of [["chequing", "Chequing", "chequing"], ["savings", "Savings", "savings"], ["cash", "Cash", "cash"], ["credit", "Credit card", "credit"]] as const)
+    add("accounts", `account:${k}`, { name, kind });
+  for (const [group, name, kind] of [
+    ["Home", "Rent", "expense"], ["Home", "Phone and internet", "expense"], ["Food", "Groceries", "expense"], ["Food", "Eating out", "expense"],
+    ["Getting around", "Transit", "expense"], ["School", "Books and fees", "expense"], ["Health", "Gym and health", "expense"],
+    ["Life", "Shopping", "expense"], ["Life", "Fun", "expense"], ["Life", "Other", "expense"],
+    ["Income", "Pay", "income"], ["Income", "Tips", "income"], ["Income", "Other income", "income"],
+  ] as const) add("categories", `category:${name}`, { group_name: group, name, kind });
   add("settings", "settings", {});
   return out;
 }

@@ -2,6 +2,7 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
+import { localDay } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
 import { fire } from "@/motion/feedback";
 import type { Row } from "@/data/schema";
@@ -57,15 +58,28 @@ export function CheckinDock({ today }: { today: string }) {
 
   async function save(kind: Kind, payload: Record<string, unknown> = {}, taskId?: string) {
     if (!store) return;
+    // Spending is also an entry on the month's bill in Money; the check in points at it.
+    let ref: { table: string; id: string } | null = taskId ? { table: "tasks", id: taskId } : null;
+    if (kind === "spent" && Number(payload.cents) > 0) {
+      const t = await store.put("transactions", { occurred_on: today, amount_cents: Number(payload.cents), direction: "out", note: (payload.note as string) || null, merchant: null });
+      ref = { table: "transactions", id: t.id };
+    }
     const row = await store.put("checkins", {
       kind,
       occurred_at: new Date().toISOString(),
       local_day: today,
       payload,
-      ref_table: taskId ? "tasks" : null,
-      ref_id: taskId ?? null,
+      ref_table: ref?.table ?? null,
+      ref_id: ref?.id ?? null,
     });
     if (taskId) await store.patch("tasks", taskId, { done_at: new Date().toISOString() });
+    // A worked shift confirms today's planned shift in Work.
+    if (kind === "shift_worked") {
+      const planned = (await store.all("shifts")).filter((x) => x.status === "planned" && localDay(new Date(x.starts_at)) === today);
+      for (const x of planned) await store.patch("shifts", x.id, { status: "worked" });
+      if (planned.length) row.payload = { ...row.payload, shifts: planned.map((x) => x.id) };
+      if (planned.length) await store.patch("checkins", row.id, { payload: row.payload });
+    }
     setAsking(null);
     fire(document.querySelector<HTMLElement>(`[data-testid="checkin-${kind}"]`));
     clearTimeout(undoTimer.current);
@@ -78,6 +92,8 @@ export function CheckinDock({ today }: { today: string }) {
     const row = await store.get("checkins", undo.id);
     await store.remove("checkins", undo.id);
     if (row?.ref_table === "tasks" && row.ref_id) await store.patch("tasks", row.ref_id, { done_at: null });
+    if (row?.ref_table === "transactions" && row.ref_id) await store.remove("transactions", row.ref_id);
+    for (const id of ((row?.payload as { shifts?: string[] })?.shifts ?? [])) await store.patch("shifts", id, { status: "planned" });
     setUndo(null);
   }
 

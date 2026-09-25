@@ -1,6 +1,6 @@
 # WAHB'S WORLD plan
 
-Phase 0 deliverable. Status: **approved.** Phases 1 and 2 built. Waiting for Wahb to pick a transition at `/lab/transitions` and to finish the account setup in `SETUP.md`.
+Phase 0 deliverable. Status: **approved.** Phases 1, 2 and 3 built (Today, School with the new term flow, Work, Money). For now the site opens directly and saves on the device; sign in and sync return with the privacy work at the end. Pick a transition at `/lab/transitions`.
 
 | Document | What it holds |
 |---|---|
