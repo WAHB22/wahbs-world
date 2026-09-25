@@ -10,7 +10,7 @@ test("the landing shows WORLD with its little planet and nine worlds with live s
   await expect(page.getByRole("img", { name: /small planet/ })).toBeVisible();
   const panes = page.getByRole("navigation", { name: "Worlds" }).getByRole("link");
   await expect(panes).toHaveCount(9);
-  await expect(page.locator('[data-world="school"] .pane-line')).not.toHaveText("Courses, deadlines, the new term.", { timeout: 15_000 });
+  await expect(page.locator('[data-world="school"] .plaque-line')).not.toHaveText("Courses, deadlines, the new term.", { timeout: 15_000 });
 });
 
 for (const kind of ["morph", "dive", "liquid", "shatter"] as const) {
@@ -21,8 +21,8 @@ for (const kind of ["morph", "dive", "liquid", "shatter"] as const) {
     await expect(page.getByTestId(`choose-${kind}`)).toHaveText("Chosen");
     await page.goto("/");
     await page.locator('[data-world="today"]').click();
-    // Navigation starts immediately: the URL changes well before the transition ends.
-    await expect(page).toHaveURL(/\/today$/, { timeout: 500 });
+    // Navigation starts immediately (the glass cabinet lets the object break first, well under a second).
+    await expect(page).toHaveURL(/\/today$/, { timeout: kind === "shatter" ? 2000 : 500 });
     // The overlay never takes clicks: the world is usable during the transition.
     await page.getByTestId("checkin-gym_done").click();
     await expect(page.getByTestId("today-log")).toContainText("Gym done");
@@ -32,14 +32,13 @@ for (const kind of ["morph", "dive", "liquid", "shatter"] as const) {
   });
 }
 
-test("shatter is the default: the screen breaks into shards that clear away", async ({ page }) => {
+test("shatter is the default and carries you into the world", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator('[data-world="school"] .pane-line')).not.toHaveText("Courses, deadlines, the new term.", { timeout: 15_000 });
-  await page.waitForTimeout(2500); // the landing's picture is taken while the page is idle
+  await expect(page.locator('[data-world="school"] .plaque-line')).not.toHaveText("Courses, deadlines, the new term.", { timeout: 15_000 });
+  await page.waitForTimeout(2500); // the landing's picture (flat mode) is taken while the page is idle
   await page.locator('[data-world="school"]').click();
-  expect(Number(await page.locator(".tx-host [data-shards]").getAttribute("data-shards"))).toBeGreaterThan(30);
-  await expect(page).toHaveURL(/\/school$/);
-  await expect(page.locator(".tx-host > *")).toHaveCount(0, { timeout: 3000 });
+  await expect(page).toHaveURL(/\/school$/, { timeout: 3000 });
+  await expect(page.locator(".tx-host > *")).toHaveCount(0, { timeout: 4000 });
 });
 
 test("reduced motion turns every transition into a short crossfade", async ({ browser }) => {
@@ -61,20 +60,14 @@ test("a world that is not built yet says so honestly and offers the way back", a
   await expect(page).toHaveURL(/\/$/);
 });
 
-test("phone: the deck turns with buttons and keys, and the front card opens its world", async ({ browser }) => {
+test("phone: all nine worlds are within reach and Today opens", async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
   await page.goto("/");
-  await expect(page.locator('.deck-card[data-front]')).toHaveAttribute("data-world", "today");
-  await page.getByRole("button", { name: "Next world" }).click();
-  await expect(page.locator('.deck-card[data-front]')).toHaveAttribute("data-world", "school");
-  await page.locator('.deck-card[data-front]').focus();
-  await page.keyboard.press("ArrowDown");
-  await expect(page.locator('.deck-card[data-front]')).toHaveAttribute("data-world", "work");
-  await page.getByRole("button", { name: "Previous world" }).click();
-  await page.getByRole("button", { name: "Previous world" }).click();
-  await page.locator('.deck-card[data-front]').click();
-  await expect(page).toHaveURL(/\/today$/);
+  await expect(page.getByRole("navigation", { name: "Worlds" }).getByRole("link")).toHaveCount(9);
+  for (const slug of ["career", "today", "training"]) await expect(page.locator(`[data-world="${slug}"]`)).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByTestId("enter-today").click();
+  await expect(page).toHaveURL(/\/today$/, { timeout: 3000 });
   await ctx.close();
 });

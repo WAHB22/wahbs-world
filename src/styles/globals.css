@@ -93,21 +93,24 @@ p { margin: 0; }
     0 2px 6px rgb(var(--rgb-abyss) / 0.25),
     0 34px 70px -26px rgb(var(--rgb-abyss) / 0.75);
 }
-/* The bevel ring. */
+/* The polished edge. Glass splits light as it bends it: cyan on one edge, magenta on the other. */
 .glass::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; z-index: -1;
-  background: linear-gradient(145deg, rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.12) 30%, rgb(var(--rgb-petal) / 0.12) 55%, rgb(var(--accent-rgb, var(--rgb-coolant)) / 0.55) 85%, rgb(255 255 255 / 0.3));
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; pointer-events: none; z-index: -1;
+  background:
+    linear-gradient(125deg, rgb(140 225 255 / 0.7) 0%, rgb(255 255 255 / 0.45) 16%, transparent 38%, transparent 62%, rgb(255 140 215 / 0.5) 100%),
+    linear-gradient(145deg, rgb(255 255 255 / 0.5), transparent 40%, rgb(var(--accent-rgb, var(--rgb-coolant)) / 0.45) 90%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
-/* The specular streak: slides across when the glass is touched. */
+/* Light on the glass: a soft specular spot that follows the pointer (set by GlassLight), and the pane's
+   own weight darkening its lower half. */
 .glass::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
-  background: linear-gradient(112deg, transparent 18%, rgb(255 255 255 / 0.13) 30%, rgb(255 255 255 / 0.04) 38%, transparent 46%) no-repeat;
-  background-size: 250% 100%; background-position: calc(100% - var(--spec)) 0;
-  transition: background-position 900ms var(--ease-out);
+  background:
+    radial-gradient(280px circle at var(--mx, 30%) var(--my, 22%), rgb(255 255 255 / 0.17), rgb(255 255 255 / 0.05) 48%, transparent 74%),
+    linear-gradient(112deg, transparent 18%, rgb(255 255 255 / 0.09) 30%, transparent 42%),
+    linear-gradient(to bottom, transparent 50%, rgb(var(--rgb-abyss) / 0.18) 100%);
 }
-@media (hover: hover) and (pointer: fine) { .glass:hover { --spec: 60%; } }
 .glass-deep { background:
     linear-gradient(160deg, rgb(255 255 255 / 0.14), transparent 40%),
     var(--backing-glass-deep); }

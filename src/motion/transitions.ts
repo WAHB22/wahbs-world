@@ -19,14 +19,15 @@ export const TRANSITIONS: { kind: TransitionKind; name: string; line: string }[]
   { kind: "liquid", name: "Liquid glass", line: "The pane melts outward with a ripple and settles into the world." },
 ];
 
-export const DURATION: Record<TransitionKind | "reduced", number> = { morph: 620, dive: 720, liquid: 820, shatter: 1150, reduced: 160 };
+export const DURATION: Record<TransitionKind | "glass" | "reduced", number> = { morph: 620, dive: 720, liquid: 820, shatter: 1150, glass: 760, reduced: 160 };
 
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 const EASE_IN_OUT = "cubic-bezier(0.65, 0, 0.35, 1)";
 
 export type Box = { x: number; y: number; w: number; h: number };
 export type RunOptions = {
-  kind: TransitionKind;
+  /** "glass": the landing's object has already broken; light from the break carries you in */
+  kind: TransitionKind | "glass";
   host: HTMLElement; // positioned container the overlay is drawn in (fixed layer or a lab stage)
   bounds: Box; // the area the world fills, in host coordinates
   from: Box; // the pane, in host coordinates
@@ -84,6 +85,18 @@ export function runTransition(o: RunOptions): Running {
   if (o.reduced) {
     const veil = track(el(o.host, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px`, background: "var(--color-abyss)" }));
     play(veil, [{ opacity: 0.7 }, { opacity: 0 }], { duration: DURATION.reduced, easing: "ease-out" });
+  } else if (o.kind === "glass") {
+    // Light pours out of the broken glass and fills the view (the world loads behind it), then clears.
+    const cx = o.from.x + o.from.w / 2 - b.x, cy = o.from.y + o.from.h / 2 - b.y;
+    const end = Math.hypot(Math.max(cx, b.w - cx), Math.max(cy, b.h - cy));
+    const light = track(el(o.host, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px`,
+      background: `radial-gradient(circle at ${cx}px ${cy}px, #ffffff 0%, rgb(var(--rgb-frost)) ${end * 0.18}px, rgb(var(--rgb-sky)) ${end * 0.45}px, rgb(var(--rgb-${o.accent})) ${end * 0.8}px, rgb(var(--rgb-deep)) ${end}px)` }));
+    play(light, [
+      { clipPath: `circle(0px at ${cx}px ${cy}px)`, opacity: 1 },
+      { clipPath: `circle(${end}px at ${cx}px ${cy}px)`, opacity: 1, offset: 0.42 },
+      { clipPath: `circle(${end}px at ${cx}px ${cy}px)`, opacity: 1, offset: 0.52 },
+      { clipPath: `circle(${end}px at ${cx}px ${cy}px)`, opacity: 0 },
+    ], { duration: DURATION.glass, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
   } else if (o.kind === "morph") {
     // A glass sheet grows from the pane to the header band, while the name travels to the title.
     const sheet = track(el(o.host, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px`, ...glass(o.accent) }));

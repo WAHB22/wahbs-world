@@ -4,7 +4,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { runTransition, type Box, type Running, type TransitionKind } from "./transitions";
 
-export type EnterWorld = { href: string; from: Box; accent: string; name: string; kind: TransitionKind; source?: HTMLElement | null };
+export type EnterWorld = {
+  href: string; from: Box; accent: string; name: string; kind: TransitionKind | "glass"; source?: HTMLElement | null;
+  /** when set, the route changes this many ms into the transition (once the view is covered) */
+  navigateAt?: number;
+};
 
 let request: ((e: EnterWorld) => void) | null = null;
 
@@ -41,7 +45,8 @@ export function TransitionLayer() {
   useEffect(() => {
     request = (e) => {
       running.current?.cancel();
-      router.push(e.href);
+      if (e.navigateAt) window.setTimeout(() => router.push(e.href), e.navigateAt);
+      else router.push(e.href);
       target.current = e.href;
       if (!host.current) return;
       // While a transition plays, the world knows it (the morph hides the real title until the travelling one lands).

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { localDay } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
 import { fire } from "@/motion/feedback";
+import { ObjectImage, type ObjectName } from "@/ui/ObjectImage";
 import type { Row } from "@/data/schema";
 
 export type Kind = Row<"checkins">["kind"];
@@ -17,12 +18,13 @@ export const DOCK: { kind: Kind; label: string; done: string; ask?: "amount" | "
   { kind: "moment", label: "A moment", done: "Moment kept", ask: "text" },
 ];
 
-const ICON: Record<Kind, string> = {
-  task_done: "M5 12.5l4.5 4.5L19 7.5",
-  shift_worked: "M12 7v5l3 2M12 3a9 9 0 100 18 9 9 0 000-18z",
-  gym_done: "M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10",
-  spent: "M12 3v18M16.5 7.5c0-1.7-2-3-4.5-3s-4.5 1.3-4.5 3 2 2.6 4.5 3 4.5 1.3 4.5 3-2 3-4.5 3-4.5-1.3-4.5-3",
-  moment: "M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4z",
+/** Each check in is a real object: the clipboard, the alarm clock, the lifter, the banknote, the camera. */
+const OBJECT: Record<Kind, ObjectName> = {
+  task_done: "clipboard",
+  shift_worked: "alarm-clock",
+  gym_done: "lifting",
+  spent: "banknote",
+  moment: "camera",
 };
 
 export function describe(c: Row<"checkins">): string {
@@ -112,9 +114,7 @@ export function CheckinDock({ today }: { today: string }) {
       <nav className="dock glass" aria-label="Check in">
         {DOCK.map((d) => (
           <button key={d.kind} className="dock-btn" data-testid={`checkin-${d.kind}`} onClick={(e) => { if (d.ask) setAsking(d); else { fire(e.currentTarget); void save(d.kind); } }} disabled={!store}>
-            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-              <path d={ICON[d.kind]} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ObjectImage name={OBJECT[d.kind]} size={30} />
             <span>{d.label}</span>
           </button>
         ))}

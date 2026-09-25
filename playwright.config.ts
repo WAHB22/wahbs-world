@@ -16,7 +16,20 @@ export default defineConfig({
     serviceWorkers: "allow",
   },
   projects: [
-    { name: "laptop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
+    // The flat card layout (no WebGL), so these tests are quick and deterministic.
+    {
+      name: "laptop", testIgnore: /glass\.spec/,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, launchOptions: { ...(existsSync(chromium) ? { executablePath: chromium } : {}), args: ["--disable-3d-apis"] } },
+    },
+    // The WebGL glass cabinet, on software rendering.
+    {
+      name: "glass",
+      testMatch: /glass\.spec/,
+      use: {
+        ...devices["Desktop Chrome"], viewport: { width: 1000, height: 640 },
+        launchOptions: { ...(existsSync(chromium) ? { executablePath: chromium } : {}), args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader", "--ignore-gpu-blocklist"] },
+      },
+    },
   ],
   webServer: {
     command: `npx next start -p ${PORT}`,
