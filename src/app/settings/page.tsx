@@ -114,7 +114,7 @@ export default function SettingsPage() {
           <dl className="facts">
             <dt>Sync</dt>
             <dd data-testid="sync-detail">
-              {SYNC_MODE === "device" ? "This build saves on this device only." : status.state === "idle" ? "Everything is synced." : status.state === "offline" ? "Offline. Changes are saved here and wait." : status.state === "error" ? `Problem: ${status.error}` : status.state === "syncing" ? "Syncing now." : "Not connected."}
+              {SYNC_MODE === "device" ? "Saved on this device. Syncing between your devices comes back with the privacy update; until then, Export and Import move your data." : status.state === "idle" ? "Everything is synced." : status.state === "offline" ? "Offline. Changes are saved here and wait." : status.state === "error" ? `Problem: ${status.error}` : status.state === "syncing" ? "Syncing now." : "Not connected."}
             </dd>
             <dt>Waiting to sync</dt>
             <dd>{status.pending}</dd>
