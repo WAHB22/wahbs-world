@@ -86,8 +86,8 @@ export default function SettingsPage() {
               <Choice label="Movement" field="motion" value={s.motion} onChange={change}
                 options={[["system", "Follow the device"], ["full", "Full"], ["reduced", "Reduced"]]} />
               <Choice label="Entering a world" field="transition" value={s.transition} onChange={change}
-                options={[["morph", "Shared morph"], ["dive", "Dive"], ["liquid", "Liquid"], ["shatter", "Shatter"]]} />
-              <p className="hint" style={{ marginBottom: 16 }}><Link href="/lab/transitions">Compare the four side by side</Link></p>
+                options={[["shatter", "Glass shatter"], ["morph", "Shared morph"], ["dive", "Dive"], ["liquid", "Liquid"]]} />
+              <p style={{ marginBottom: 16 }}><Link className="btn btn-small" href="/lab/transitions" data-testid="watch-transitions">Watch all four before choosing</Link></p>
               <Choice label="Intensity cap" field="intensity_cap" value={s.intensity_cap} onChange={change}
                 options={[["calm", "Calm"], ["opening", "Opening"], ["service", "Service"], ["rush", "Rush"]]} />
             </>

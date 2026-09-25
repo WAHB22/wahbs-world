@@ -22,7 +22,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   interactiveWidget: "resizes-content",
-  themeColor: "#081330",
+  themeColor: "#1A46C4",
   colorScheme: "dark",
 };
 
@@ -34,6 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preload" href="/fonts/AtkinsonHyperlegibleNext-normal-latin.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body>
+        <div className="sky" aria-hidden="true"><i /><i /><i /><i /></div>
         <WorldProvider>
           <MotionPreference />
           <UpdateReload />

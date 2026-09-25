@@ -1,6 +1,6 @@
 """WCAG 2.x contrast for the WAHB'S WORLD token plan.
 Glass backings are checked in the worst case: the backing composited over the
-brightest thing a scene may put behind it (pure white), and over its darkest."""
+brightest thing the room may put behind glass (tokens "behind", white if unset), and over its darkest."""
 import itertools, json, sys
 
 def hx(h):
@@ -18,10 +18,11 @@ def tohex(rgb): return '#%02X%02X%02X' % rgb
 T = json.load(open(sys.argv[1]))
 c = {k: hx(v) for k, v in T['color'].items()}
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
+BEHIND = hx(T['behind']) if 'behind' in T else WHITE
 rows = []
 for name, spec in T['backings'].items():
     base = c[spec['color']]; a = spec['alpha']
-    worst = over(base, a, WHITE) if spec['theme'] == 'dark' else over(base, a, BLACK)
+    worst = over(base, a, BEHIND) if spec['theme'] == 'dark' else over(base, a, BLACK)
     best = over(base, a, c['abyss']) if spec['theme'] == 'dark' else over(base, a, WHITE)
     for t in spec['text']:
         rows.append((name, t, tohex(worst), ratio(c[t], worst), ratio(c[t], best), spec.get('min', 4.5)))

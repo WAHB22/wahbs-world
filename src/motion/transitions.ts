@@ -8,15 +8,18 @@
  * blur on the dive), with the project's easing tokens.
  */
 
+import { snapshotOf } from "./snapshot";
+
 export type TransitionKind = "morph" | "dive" | "liquid" | "shatter";
+const SHATTER_ENTRY: { kind: TransitionKind; name: string; line: string } = { kind: "shatter", name: "Glass shatter", line: "The screen cracks where you tap, breaks into shards and they fall away to show the world." };
 export const TRANSITIONS: { kind: TransitionKind; name: string; line: string }[] = [
+  SHATTER_ENTRY,
   { kind: "morph", name: "Shared morph", line: "The pane becomes the world's header in one continuous move." },
   { kind: "dive", name: "Dive through the glass", line: "You push into the pane; its glass bends and the world appears on the far side." },
   { kind: "liquid", name: "Liquid glass", line: "The pane melts outward with a ripple and settles into the world." },
-  { kind: "shatter", name: "Glass shatter", line: "The pane steps forward and breaks into a few designed shards." },
 ];
 
-export const DURATION: Record<TransitionKind | "reduced", number> = { morph: 620, dive: 720, liquid: 820, shatter: 780, reduced: 160 };
+export const DURATION: Record<TransitionKind | "reduced", number> = { morph: 620, dive: 720, liquid: 820, shatter: 1150, reduced: 160 };
 
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 const EASE_IN_OUT = "cubic-bezier(0.65, 0, 0.35, 1)";
@@ -31,6 +34,8 @@ export type RunOptions = {
   accent: string; // token name, for example "ember"
   name: string;
   reduced: boolean;
+  /** what the shatter breaks: the element whose picture (see snapshot.ts) is cut into shards */
+  source?: HTMLElement | null;
 };
 
 export type Running = { finished: Promise<void>; cancel: () => void };
@@ -135,25 +140,7 @@ export function runTransition(o: RunOptions): Running {
       ], { duration: DURATION.liquid * 0.7, delay: k * 110, easing: EASE_OUT });
     });
   } else {
-    // The pane steps forward, then breaks along designed lines; shards fly past the camera.
-    const stage = track(el(o.host, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px`, perspective: "900px" }));
-    const px = (x: number) => `${x * 100}%`;
-    const impact = { x: 0.42, y: 0.46 };
-    SHARDS.forEach((poly, i) => {
-      const s = track(el(stage, {
-        left: `${o.from.x - b.x}px`, top: `${o.from.y - b.y}px`, width: `${o.from.w}px`, height: `${o.from.h}px`,
-        clipPath: `polygon(${poly.map(([x, y]) => `${px(x)} ${px(y)}`).join(", ")})`, ...glass(o.accent), borderRadius: "28px",
-      }));
-      const c = poly.reduce((a, [x, y]) => [a[0] + x / poly.length, a[1] + y / poly.length], [0, 0]);
-      const dx = (c[0] - impact.x) * o.from.w * 2.6, dy = (c[1] - impact.y) * o.from.h * 2.6;
-      const dist = Math.hypot(c[0] - impact.x, c[1] - impact.y);
-      const spin = ((i * 47) % 60) - 30;
-      play(s, [
-        { transform: "translate3d(0,0,0) scale(1)", opacity: 1 },
-        { transform: "translate3d(0,0,40px) scale(1.03)", opacity: 1, offset: 0.14 },
-        { transform: `translate3d(${dx}px, ${dy}px, ${260 + (1 - dist) * 320}px) rotate3d(${c[1] - 0.5}, ${c[0] - 0.5}, 0.3, ${spin}deg)`, opacity: 0 },
-      ], { duration: DURATION.shatter, delay: dist * 70, easing: EASE_OUT });
-    });
+    shatter(o, b, track, play);
   }
 
   const finished = Promise.all(anims.map((a) => a.finished.catch(() => undefined))).then(() => {
@@ -168,21 +155,151 @@ export function runTransition(o: RunOptions): Running {
   };
 }
 
-/**
- * Eleven shards in pane coordinates (0 to 1), cut along lines that radiate from an
- * impact point left of center, so the break reads as one blow rather than confetti.
- */
-const SHARDS: [number, number][][] = [
-  [[0, 0], [0.3, 0], [0.42, 0.46], [0, 0.28]],
-  [[0.3, 0], [0.62, 0], [0.42, 0.46]],
-  [[0.62, 0], [1, 0], [1, 0.22], [0.42, 0.46]],
-  [[1, 0.22], [1, 0.58], [0.42, 0.46]],
-  [[1, 0.58], [1, 1], [0.8, 1], [0.42, 0.46]],
-  [[0.8, 1], [0.52, 1], [0.42, 0.46]],
-  [[0.52, 1], [0.2, 1], [0.42, 0.46]],
-  [[0.2, 1], [0, 1], [0, 0.7], [0.42, 0.46]],
-  [[0, 0.7], [0, 0.28], [0.42, 0.46]],
-  [[0.42, 0.46], [0.5, 0.36], [0.56, 0.5], [0.46, 0.56]],
-  [[0.42, 0.46], [0.34, 0.4], [0.36, 0.54]],
-];
+/** A small seeded random, so each break is different but a given tap is repeatable in tests. */
+function rng(seed: number) {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
+type Pt = [number, number];
+
+/**
+ * Real glass breaks in a star: radial cracks from the point of impact, joined by rings.
+ * The grid of crack points is shared, so the shards tile the screen with no gaps.
+ */
+export function fracture(cx: number, cy: number, w: number, h: number, seed = 7): { shards: Pt[][]; cracks: Pt[][] } {
+  const rand = rng(seed);
+  const rays = 11;
+  const reach = Math.hypot(Math.max(cx, w - cx), Math.max(cy, h - cy)) * 1.15;
+  const rings = [0, 0.07, 0.19, 0.4, 0.68, 1.02].map((r) => r * reach);
+  const angles = Array.from({ length: rays }, (_, i) => ((i + (rand() - 0.5) * 0.7) / rays) * Math.PI * 2);
+  const P: Pt[][] = angles.map((a) => rings.map((r, j) => {
+    if (j === 0) return [cx, cy];
+    const aj = a + (rand() - 0.5) * 0.22;
+    const rj = r * (1 + (rand() - 0.5) * 0.24);
+    return [cx + Math.cos(aj) * rj, cy + Math.sin(aj) * rj];
+  }));
+  const shards: Pt[][] = [];
+  for (let i = 0; i < rays; i++) {
+    const n = (i + 1) % rays;
+    for (let j = 0; j < rings.length - 1; j++) {
+      const quad: Pt[] = j === 0 ? [P[i][0], P[i][1], P[n][1]] : [P[i][j], P[i][j + 1], P[n][j + 1], P[n][j]];
+      // Long outer cells split once more along a diagonal, so the big pieces are not slabs.
+      if (j >= 3 && rand() > 0.35) { shards.push([quad[0], quad[1], quad[2]], [quad[0], quad[2], quad[3]]); }
+      else shards.push(quad);
+    }
+  }
+  const cracks: Pt[][] = [...P.map((ray) => ray.slice(0, 5)), ...[1, 2, 3].map((j) => [...P.map((ray) => ray[j]), P[0][j]])];
+  return { shards, cracks };
+}
+
+function shatter(o: RunOptions, b: Box, track: <T extends HTMLElement>(n: T) => T, play: (n: Element, k: Keyframe[], t: KeyframeAnimationOptions) => Animation) {
+  // The tap lands in the middle of the pane that was chosen.
+  const cx = o.from.x + o.from.w / 2 - b.x, cy = o.from.y + o.from.h / 2 - b.y;
+  const { shards, cracks } = fracture(cx, cy, b.w, b.h, Math.round(cx * 31 + cy * 17));
+  const stage = track(el(o.host, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px`, perspective: "1400px", overflow: "hidden" }));
+  const snap = snapshotOf(o.source);
+  const hostBox = o.host.getBoundingClientRect();
+  // Where the picture sits in stage coordinates.
+  const sx = snap ? snap.box.x - hostBox.left - b.x : 0, sy = snap ? snap.box.y - hostBox.top - b.y : 0;
+  const scale = snap?.scale ?? Math.min(window.devicePixelRatio || 1, 1.5);
+  const CRACK = 150; // the crack spreads before anything moves
+  const rand = rng(Math.round(cx + cy));
+
+  shards.forEach((poly) => {
+    // Each shard is a small canvas holding its piece of the screen, with the broken edge lit.
+    const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
+    const x0 = Math.max(0, Math.floor(Math.min(...xs))), y0 = Math.max(0, Math.floor(Math.min(...ys)));
+    const x1 = Math.min(b.w, Math.ceil(Math.max(...xs))), y1 = Math.min(b.h, Math.ceil(Math.max(...ys)));
+    const w = x1 - x0, h = y1 - y0;
+    if (w < 2 || h < 2) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(w * scale); canvas.height = Math.ceil(h * scale);
+    Object.assign(canvas.style, { position: "absolute", left: `${x0}px`, top: `${y0}px`, width: `${w}px`, height: `${h}px`, willChange: "transform, opacity" });
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(scale, scale);
+    ctx.translate(-x0, -y0);
+    ctx.beginPath();
+    poly.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    ctx.closePath();
+    ctx.save();
+    ctx.clip();
+    if (snap) ctx.drawImage(snap.canvas, sx, sy, snap.box.w, snap.box.h);
+    else {
+      const g = ctx.createLinearGradient(0, 0, b.w, b.h);
+      g.addColorStop(0, "rgba(120, 170, 255, 0.55)");
+      g.addColorStop(1, "rgba(18, 51, 156, 0.75)");
+      ctx.fillStyle = g;
+      ctx.fillRect(x0, y0, w, h);
+    }
+    // A faint sheen across the piece: glass catches light when it breaks.
+    const ang = rand() * Math.PI;
+    const sh = ctx.createLinearGradient(x0 + w / 2 - Math.cos(ang) * w, y0 + h / 2 - Math.sin(ang) * h, x0 + w / 2 + Math.cos(ang) * w, y0 + h / 2 + Math.sin(ang) * h);
+    sh.addColorStop(0.35, "rgba(255,255,255,0)");
+    sh.addColorStop(0.5, "rgba(255,255,255,0.16)");
+    sh.addColorStop(0.65, "rgba(255,255,255,0)");
+    ctx.fillStyle = sh;
+    ctx.fillRect(x0, y0, w, h);
+    ctx.restore();
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = "rgba(255,255,255,0.85)";
+    ctx.shadowColor = "rgba(170, 220, 255, 0.9)";
+    ctx.shadowBlur = 4;
+    ctx.stroke();
+    stage.appendChild(canvas);
+
+    const mx = xs.reduce((n, v) => n + v, 0) / xs.length, my = ys.reduce((n, v) => n + v, 0) / ys.length;
+    canvas.style.transformOrigin = `${mx - x0}px ${my - y0}px`;
+    const dx = mx - cx, dy = my - cy;
+    const len = Math.hypot(dx, dy) || 1;
+    const d = len / Math.hypot(b.w, b.h);
+    const push = 1 - Math.min(1, d * 1.6); // pieces near the impact fly at you; far ones mostly drop
+    const ux = dx / len, uy = dy / len;
+    const outX = ux * (80 + push * 280) + (rand() - 0.5) * 60;
+    const fall = b.h * (0.9 + rand() * 0.5) + uy * 120;
+    const z = 60 + push * 560 + rand() * 80;
+    const rx = (rand() - 0.5) * 150, ry = (rand() - 0.5) * 150, rz = (rand() - 0.5) * 90;
+    const delay = CRACK + d * 220 + rand() * 40;
+    const dur = DURATION.shatter - delay + 40;
+    play(canvas, [
+      { transform: "none", opacity: 1, filter: "brightness(1)" },
+      { transform: `translate3d(${ux * 6}px, ${uy * 6}px, ${z * 0.12}px)`, opacity: 1, filter: "brightness(1.35)", offset: 0.1 },
+      { transform: `translate3d(${outX * 0.5}px, ${fall * 0.22}px, ${z * 0.7}px) rotateX(${rx * 0.4}deg) rotateY(${ry * 0.4}deg) rotateZ(${rz * 0.4}deg)`, opacity: 1, filter: "brightness(1.1)", offset: 0.45 },
+      { transform: `translate3d(${outX}px, ${fall}px, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`, opacity: 0, filter: "brightness(0.9)" },
+    ], { duration: dur, delay, easing: "cubic-bezier(0.3, 0, 0.8, 0.6)" });
+  });
+  stage.dataset.shards = String(stage.childElementCount);
+
+  // The crack: lines race out from the tap, with a white flash at the point of impact.
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("width", String(b.w)); svg.setAttribute("height", String(b.h));
+  Object.assign(svg.style, { position: "absolute", left: `${b.x}px`, top: `${b.y}px`, pointerEvents: "none", overflow: "visible" });
+  cracks.forEach((line, k) => {
+    const path = document.createElementNS(ns, "polyline");
+    path.setAttribute("points", line.map((p) => p.join(",")).join(" "));
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "white");
+    path.setAttribute("stroke-width", k < 11 ? "2.4" : "1.5");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("pathLength", "1");
+    path.setAttribute("stroke-dasharray", "1");
+    svg.appendChild(path);
+    play(path, [{ strokeDashoffset: 1, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: 0.5 }, { strokeDashoffset: 0, opacity: 0 }],
+      { duration: CRACK + 200, delay: k < 11 ? 0 : 40 + (k - 11) * 25, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)" });
+  });
+  svg.style.filter = "drop-shadow(0 0 3px rgb(200 230 255 / 0.9))";
+  o.host.appendChild(svg);
+  track(svg as unknown as HTMLElement);
+  const flash = track(el(o.host, { left: `${b.x + cx - 110}px`, top: `${b.y + cy - 110}px`, width: "220px", height: "220px", borderRadius: "50%",
+    background: "radial-gradient(circle, rgb(255 255 255 / 0.95), rgb(200 230 255 / 0.45) 30%, transparent 70%)" }));
+  play(flash, [{ transform: "scale(0.15)", opacity: 1 }, { transform: "scale(1.5)", opacity: 0 }], { duration: 380, easing: EASE_OUT });
+  // One small jolt of the whole pane of glass at the moment of impact.
+  play(stage, [{ transform: "none" }, { transform: "translate(4px, -3px)", offset: 0.25 }, { transform: "translate(-3px, 2px)", offset: 0.5 }, { transform: "none" }], { duration: 170, easing: "linear" });
+}

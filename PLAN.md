@@ -27,7 +27,7 @@ The brief's recommended stack holds up. Versions are the current releases on npm
 | Styling | **Tailwind CSS 4.3** with the tokens as CSS custom properties through `@theme` | Tokens stay the single source; components never hold raw hex values |
 | Interface motion | **Motion 13** (`motion/react`) | Layout animations, shared element transitions, springs, and `useReducedMotion` |
 | Timelines | **GSAP 3.15** | Complex scene timelines. GSAP is now free for all uses, including every former members only plugin (verified on gsap.com) |
-| 3D and glass | **three 0.186**, **@react-three/fiber 9.8**, **@react-three/drei 10.7** (`MeshTransmissionMaterial`) | Only on the landing and the signature transition, loaded lazily after the DOM version has painted |
+| Glass and the shatter | CSS glass (backdrop blur over a moving sky) and **modern-screenshot 4.7** | The WebGL layer was dropped after review: the landing's picture is taken while the page is idle and cut into canvas shards on tap, so the break is instant on a phone |
 | Components | **shadcn/ui** (Radix primitives) and **21st.dev** as raw material | Accessible primitives; every component restyled to the tokens, licenses checked one by one |
 | Local first data | **Dexie 4.4** over IndexedDB, with `liveQuery` | Instant saves, reactive reads, a local outbox |
 | Validation | **Zod 4.6** | One schema per table, shared by the forms, the sync engine and import |

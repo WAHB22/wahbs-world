@@ -4,7 +4,7 @@ import type { AnyRow } from "../schema";
 import type { Store } from "../store";
 import { fall2026, type SeedRow } from "./fall2026";
 
-export const SEED_VERSION = "fall2026:v2";
+export const SEED_VERSION = "fall2026:v3";
 
 /** Turn keyed seed rows into full rows with stable ids, resolving `ref:` links. */
 export async function resolveSeed(rows: SeedRow[] = fall2026()): Promise<{ table: SeedRow["table"]; row: AnyRow }[]> {
@@ -36,6 +36,9 @@ export async function resolveSeed(rows: SeedRow[] = fall2026()): Promise<{ table
 export async function seedIfNeeded(store: Store): Promise<boolean> {
   if ((await store.getMeta<string>("seed")) === SEED_VERSION) return false;
   for (const { table, row } of await resolveSeed()) await store.applyRemote(table, row, { queue: true });
+  // The glass shatter became the default way into a world; settings nobody has touched follow it.
+  const settings = (await store.all("settings"))[0];
+  if (settings && settings.hlc === SEED_HLC && settings.transition === "morph") await store.patch("settings", settings.id, { transition: "shatter" });
   await store.setMeta("seed", SEED_VERSION);
   return true;
 }

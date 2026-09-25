@@ -1,10 +1,10 @@
 "use client";
 
 import { useLiveQuery } from "dexie-react-hooks";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Component, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useWorld } from "@/data/runtime";
+import { scheduleSnapshot } from "@/motion/snapshot";
 import { enterWorld, prefersReduced } from "@/motion/TransitionLayer";
 import type { TransitionKind } from "@/motion/transitions";
 import { AuthGate } from "@/ui/AuthGate";
@@ -12,17 +12,8 @@ import { SyncBadge } from "@/ui/SyncBadge";
 import { DEPTH_FOLLOW, DEPTH_Z, WORLDS, type WorldDef } from "@/worlds/registry";
 import { useWorldStatus } from "@/worlds/useWorldStatus";
 import { pointer } from "./pointer";
-
-// Real refraction is an enhancement: loaded after the page is usable, laptop only.
-const GlassScene = dynamic(() => import("./GlassScene"), { ssr: false });
-
-/** If the 3D layer fails for any reason, the flat glass landing stays. */
-class GlassBoundary extends Component<{ children: ReactNode; onFail: () => void }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch() { this.props.onFail(); }
-  render() { return this.state.failed ? null : this.props.children; }
-}
+import { TinyWorld } from "./TinyWorld";
+import { WorldIcon } from "./WorldIcon";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function moment(d = new Date()): string {
@@ -34,12 +25,13 @@ function moment(d = new Date()): string {
 function useTransitionKind(): TransitionKind {
   const { store } = useWorld();
   const s = useLiveQuery(async () => (store ? (await store.all("settings"))[0] : undefined), [store]);
-  return (s?.transition as TransitionKind | undefined) ?? "morph";
+  return (s?.transition as TransitionKind | undefined) ?? "shatter";
 }
 
 function go(w: WorldDef, el: HTMLElement, kind: TransitionKind) {
   const r = el.getBoundingClientRect();
-  return enterWorld({ href: `/${w.slug}`, from: { x: r.left, y: r.top, w: r.width, h: r.height }, accent: w.accent, name: w.name, kind });
+  const source = document.querySelector<HTMLElement>(".landing-root");
+  return enterWorld({ href: `/${w.slug}`, from: { x: r.left, y: r.top, w: r.width, h: r.height }, accent: w.accent, name: w.name, kind, source });
 }
 
 export function Landing() {
@@ -53,10 +45,19 @@ export function Landing() {
   }, []);
   const status = useWorldStatus();
   const kind = useTransitionKind();
+  const root = useRef<HTMLDivElement>(null);
+  // Keep a fresh picture of the landing for the glass shatter (taken when the page is idle).
+  useEffect(() => { if (kind === "shatter") scheduleSnapshot(root.current, 1200); }, [phone, status, kind]);
+  useEffect(() => {
+    const again = () => scheduleSnapshot(root.current, 600);
+    window.addEventListener("resize", again);
+    window.addEventListener("wahb:landing-moved", again);
+    return () => { window.removeEventListener("resize", again); window.removeEventListener("wahb:landing-moved", again); };
+  }, []);
 
   return (
     <AuthGate>
-      <div className="landing-root" data-layout={phone === null ? "loading" : phone ? "phone" : "stage"}>
+      <div className="landing-root" ref={root} data-layout={phone === null ? "loading" : phone ? "phone" : "stage"}>
         <header className="topbar landing-top">
           <span className="brand">WAHB'S WORLD</span>
           <div className="top-right">
@@ -78,6 +79,7 @@ type Props = { status: Partial<Record<string, string>>; kind: TransitionKind };
 function PaneBody({ w, line }: { w: WorldDef; line?: string }) {
   return (
     <span className="pane-plate">
+      <WorldIcon slug={w.slug} />
       <span className="pane-name" style={{ color: `var(--color-${w.text})` }}>{w.name}</span>
       <span className="pane-line">{line ?? w.blurb}</span>
       {w.opensIn && <span className="pane-soon">Phase {w.opensIn}</span>}
@@ -89,21 +91,6 @@ function PaneBody({ w, line }: { w: WorldDef; line?: string }) {
 function StageLanding({ status, kind }: Props) {
   const stage = useRef<HTMLDivElement>(null);
   const panes = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [gl, setGl] = useState(false);
-  const [glReady, setGlReady] = useState(false);
-
-  useEffect(() => {
-    // 3D only where it pays: a fine pointer, motion allowed, a capable machine.
-    const webgl = (() => {
-      try { return !!document.createElement("canvas").getContext("webgl2"); } catch { return false; }
-    })();
-    const ok = webgl && window.matchMedia("(pointer: fine)").matches && !prefersReduced() && (navigator.hardwareConcurrency ?? 4) >= 4;
-    if (!ok) return;
-    const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
-    const id = idle ? idle(() => setGl(true)) : window.setTimeout(() => setGl(true), 600);
-    return () => { if (!idle) clearTimeout(id); };
-  }, []);
-
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
@@ -140,6 +127,7 @@ function StageLanding({ status, kind }: Props) {
       pointer.notify?.();
       const settled = Math.abs(pointer.tx - pointer.x) < 0.001 && Math.abs(pointer.ty - pointer.y) < 0.001;
       raf = settled ? 0 : requestAnimationFrame(layout);
+      if (settled) window.dispatchEvent(new Event("wahb:landing-moved"));
     };
     const kick = () => { if (!raf) raf = requestAnimationFrame(layout); };
     const move = (e: PointerEvent) => {
@@ -166,13 +154,11 @@ function StageLanding({ status, kind }: Props) {
 
   const today = WORLDS[0];
   return (
-    <main className={`stage${glReady ? " gl-on" : ""}`} ref={stage}>
-      <h1 className="stage-wahb" aria-label="WAHB">WAHB</h1>
-      {gl && (
-        <GlassBoundary onFail={() => { setGl(false); setGlReady(false); }}>
-          <GlassScene stage={stage} onReady={() => setGlReady(true)} />
-        </GlassBoundary>
-      )}
+    <main className="stage" ref={stage}>
+      <div className="stage-title">
+        <h1 className="world-word">WORLD</h1>
+        <TinyWorld />
+      </div>
       <nav className="stage-panes" aria-label="Worlds">
         {WORLDS.map((w, i) => (
           <a
@@ -182,14 +168,14 @@ function StageLanding({ status, kind }: Props) {
             className="pane3d"
             data-depth={w.at.depth}
             data-world={w.slug}
-            style={{ left: `${w.at.x}%`, top: `${w.at.y}%`, "--acc": `var(--color-${w.accent})`, "--acc-rgb": `var(--rgb-${w.accent})` } as CSSProperties}
+            style={{ left: `${w.at.x}%`, top: `${w.at.y}%`, "--acc": `var(--color-${w.accent})`, "--acc-rgb": `var(--rgb-${w.accent})`, "--accent-rgb": `var(--rgb-${w.accent})` } as CSSProperties}
             onClick={(e) => {
               if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
               e.preventDefault();
               if (!go(w, e.currentTarget, kind)) window.location.assign(`/${w.slug}`);
             }}
           >
-            <span className="pane-glass"><PaneBody w={w} line={status[w.slug]} /></span>
+            <span className="pane-glass glass"><PaneBody w={w} line={status[w.slug]} /></span>
           </a>
         ))}
       </nav>
@@ -216,6 +202,7 @@ function PhoneLanding({ status, kind }: Props) {
   const clamp = (n: number) => Math.max(0, Math.min(last, n));
   const pos = clamp(index + (drag ?? 0));
   const turn = (to: number) => setIndex(clamp(to));
+  useEffect(() => { window.dispatchEvent(new Event("wahb:landing-moved")); }, [index]);
 
   const onDown = (e: React.PointerEvent) => { start.current = { y: e.clientY, t: performance.now(), moved: false }; };
   const onMove = (e: React.PointerEvent) => {
@@ -239,7 +226,10 @@ function PhoneLanding({ status, kind }: Props) {
 
   return (
     <main className="phone-landing">
-      <h1 className="phone-wahb" aria-label="WAHB">WAHB</h1>
+      <div className="phone-title">
+        <h1 className="world-word">WORLD</h1>
+        <TinyWorld />
+      </div>
       <nav
         className={`deck${drag !== null ? " dragging" : ""}`}
         ref={deck}
@@ -264,7 +254,7 @@ function PhoneLanding({ status, kind }: Props) {
           const behind = Math.max(0, rel);
           const hidden = rel < -1 || rel > 3.2;
           const style = {
-            "--acc": `var(--color-${w.accent})`, "--acc-rgb": `var(--rgb-${w.accent})`,
+            "--acc": `var(--color-${w.accent})`, "--acc-rgb": `var(--rgb-${w.accent})`, "--accent-rgb": `var(--rgb-${w.accent})`,
             transform: rel < 0 ? `translateY(${rel * 110}%) scale(1)` : `translateY(${behind * 18}px) scale(${1 - behind * 0.06})`,
             opacity: rel < 0 ? Math.max(0, 1 + rel * 1.6) : hidden ? 0 : 1 - Math.min(behind, 3) * 0.2,
             zIndex: 100 - k,
@@ -287,7 +277,7 @@ function PhoneLanding({ status, kind }: Props) {
                 if (!go(w, e.currentTarget, kind)) window.location.assign(`/${w.slug}`);
               }}
             >
-              <span className="pane-glass"><PaneBody w={w} line={status[w.slug]} /></span>
+              <span className="pane-glass glass"><PaneBody w={w} line={status[w.slug]} /></span>
             </a>
           );
         })}

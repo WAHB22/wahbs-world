@@ -4,9 +4,10 @@ test.beforeEach(async ({ request }) => {
   await request.post("/api/dev-sync", { data: { op: "reset" } });
 });
 
-test("the landing shows WAHB and nine worlds with live status lines", async ({ page }) => {
+test("the landing shows WORLD with its little planet and nine worlds with live status lines", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "WAHB" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "WORLD" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /small planet/ })).toBeVisible();
   const panes = page.getByRole("navigation", { name: "Worlds" }).getByRole("link");
   await expect(panes).toHaveCount(9);
   await expect(page.locator('[data-world="school"] .pane-line')).not.toHaveText("Courses, deadlines, the new term.", { timeout: 15_000 });
@@ -30,6 +31,16 @@ for (const kind of ["morph", "dive", "liquid", "shatter"] as const) {
     await expect(page).toHaveURL(/\/$/);
   });
 }
+
+test("shatter is the default: the screen breaks into shards that clear away", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('[data-world="school"] .pane-line')).not.toHaveText("Courses, deadlines, the new term.", { timeout: 15_000 });
+  await page.waitForTimeout(2500); // the landing's picture is taken while the page is idle
+  await page.locator('[data-world="school"]').click();
+  expect(Number(await page.locator(".tx-host [data-shards]").getAttribute("data-shards"))).toBeGreaterThan(30);
+  await expect(page).toHaveURL(/\/school$/);
+  await expect(page.locator(".tx-host > *")).toHaveCount(0, { timeout: 3000 });
+});
 
 test("reduced motion turns every transition into a short crossfade", async ({ browser }) => {
   const ctx = await browser.newContext({ reducedMotion: "reduce" });

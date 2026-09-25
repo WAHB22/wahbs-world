@@ -78,7 +78,7 @@ export const tables = {
     volume: z.number().min(0).max(1).default(0.6),
     week_starts_on: z.number().int().min(0).max(6).default(1),
     hours_warning: flag,
-    transition: z.enum(["morph", "dive", "liquid", "shatter"]).default("morph"),
+    transition: z.enum(["morph", "dive", "liquid", "shatter"]).default("shatter"),
   }),
   chapters: t({ period_kind: z.enum(["week", "month"]), period_start: day, title: opt, note: opt, cover_photo_id: ref }),
 

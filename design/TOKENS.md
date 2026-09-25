@@ -2,70 +2,101 @@
 
 Phase 0. The source of truth for values is `design/tokens.json`; the visual board is `design/token-board.html` (screenshots in `design/shots/`). In Phase 1 these become CSS custom properties in `app/tokens.css`, mapped into Tailwind 4 with `@theme`. Components never use a raw hex value.
 
-## 1. The scene that decides dark or light
+## 1. The scene that decides the palette
 
-He opens the site before a 06:15 shift and again after a lecture that ends at 21:50, in a dark room, on a phone or a laptop. So the ground is deep navy, the light comes from the objects in each world, and warm orange is the heat lamp at the pass: it marks what needs him now. Light glass exists for things that are printed in real life (tickets, receipts) and for the morning opening.
+A bright, clear blue sky, not a dark room: Wahb asked for a brighter blue. The ground is a vivid blue that deepens toward the bottom of the screen, slow orbs of light drift behind everything, and every pane is glass that bends and blurs that light. Warm orange is still the heat lamp at the pass: it marks what needs him now.
 
-Color strategy: **committed**. Navy and blue own whole regions of every screen. Orange is spent once or twice per screen. Status tones are never decoration.
+Color strategy: **committed**. Blue owns every screen. Orange is spent once or twice per screen. Status tones are never decoration.
 
 ## 2. Color
 
 | Token | Hex | Family | Role |
 |---|---|---|---|
-| `abyss` | `#040914` | base | deepest ground, far scene, deep glass tint |
-| `midnight` | `#081330` | base | page ground, default glass tint, text on light fills |
-| `deep` | `#0C1C44` | base | raised planes, text on frost |
-| `harbor` | `#132A5E` | base | rails, tracks, dividers, meters |
-| `cobalt` | `#1F4FD8` | blue | blueprint ground, blue buttons (ink text) |
-| `cobaltInk` | `#173DB0` | blue | links and focus ring on light glass |
-| `signal` | `#3B7BFF` | blue | lines, nodes, display sizes only |
-| `sky` | `#8DB6FF` | blue | links and blue text on dark glass |
-| `frost` | `#DCE8FF` | blue | light glass, tickets, receipts |
-| `coolant` | `#2FD4E6` | cyan | focus ring on dark, live fluid, progress |
-| `lagoon` | `#0E8FA3` | cyan | deep cyan fills (the jar) |
-| `ember` | `#FF6A13` | orange | the primary action (midnight text) |
-| `flame` | `#FF8A3D` | orange | hot text: due soon, rush |
-| `glow` | `#FFB070` | orange | warm highlight, Life accent |
-| `basil` | `#3FD89A` | status | done, saved, synced |
-| `alarm` | `#FF8290` | status | overdue, over the 24 hour limit, sync error |
-| `ink` | `#EEF3FF` | text | body and headings on dark |
-| `inkSoft` | `#B9C6E4` | text | secondary text |
-| `inkMute` | `#9AA8CC` | text | hints, timestamps |
+| `abyss` | `#0B2170` | base | deepest ground, text on bright fills |
+| `midnight` | `#12339C` | base | lower page ground |
+| `deep` | `#1A46C4` | base | upper page ground |
+| `harbor` | `#2458E0` | base | raised planes, meters |
+| `cobalt` | `#2F6BFF` | blue | sky orbs, fills |
+| `signal` | `#6A9BFF` | blue | lines, rings, display sizes |
+| `sky` | `#B5D0FF` | blue | blue text on glass |
+| `frost` | `#EEF4FF` | blue | tickets, receipts, light glass |
+| `cobaltInk` | `#173DB0` | blue | blue buttons, links on light glass |
+| `tint` | `#0A1B5C` | base | the tint inside every glass pane |
+| `coolant` | `#6FF0F8` | cyan | focus ring, live fluid, School and Money text |
+| `lagoon` | `#19B8CC` | cyan | deep cyan fills (the jar) |
+| `ember` | `#FF6A13` | orange | the primary action |
+| `flame` | `#FF8A3D` | orange | hot fills: the bell, rush |
+| `glow` | `#FFC08A` | orange | warm text on glass, Today and Life |
+| `peach` | `#FFB27A` | orange | warm text on glass, Work |
+| `basil` | `#6CEBB6` | status | done, saved, synced |
+| `alarm` | `#FFB0B9` | status | overdue, sync error |
+| `leaf` | `#7DDB8A` | scene | the little planet |
+| `petal` | `#FFD6E8` | scene | soft highlights |
+| `ink` | `#FFFFFF` | text | body and headings |
+| `inkSoft` | `#E3ECFF` | text | secondary text |
+| `inkMute` | `#CFDCFF` | text | hints, timestamps |
 
 Rules:
 
-* No brown, beige, cream, sepia or paper tones anywhere in the interface. Scenes may use any color the subject needs (a flame, a molecule), never the interface.
-* `signal` and `ember` fail AA as small text on dark glass. They are for fills, lines and display sizes, where 3:1 applies.
+* No brown, beige, cream, sepia or paper tones in the interface. Scenes may use any color the subject needs (a meadow, a flame), never the interface.
+* `ember`, `flame` and `signal` are fills, lines and display sizes, never small text.
 * Status is never color alone: every status also has an icon or a word.
 
 ## 3. Glass
 
 | Backing | Recipe | Used for |
 |---|---|---|
-| `glass` | `midnight` at 84 percent, blur 24px, saturate 140 percent, 1px edge `frost` at 14 percent, inner top lip `frost` at 20 percent | default pane for text in every world |
-| `glassDeep` | `abyss` at 88 percent, same blur and edge | long reading, dense data, busy scenes |
-| `frostGlass` | `frost` at 90 percent, edge white at 60 percent | tickets, receipts, the morning opening |
+| `glass` | `tint` at 64 percent, blur 22px, saturate 185 percent; a bright top rim, a bevel ring, a faint prism split on the edges, a specular streak that slides across on hover, a lit bottom edge for thickness, the room's accent pooling inside | every pane with text |
+| `landingPane` | `tint` at 56 percent, same recipe | the nine landing panes (large names, short lines) |
+| `glassDeep` | `tint` at 80 percent | long reading, dense data |
+| `frostGlass` | `frost` at 90 percent | tickets, receipts |
 
-Worst case contrast (pane composited over pure white; `tools/contrast.py design/tokens.json`, full output in `design/contrast-report.txt`):
+Worst case contrast: each backing composited over the brightest light the sky can put behind glass (`behind`, `#6FA2FF`), from `tools/contrast.py design/tokens.json` (full output in `design/contrast-report.txt`). The check runs in CI, so a token change that breaks AA fails the build.
 
-| Text | on `glass` | on `glassDeep` | on `frostGlass` |
-|---|---|---|---|
-| `ink` | 10.33 | 13.49 | |
-| `inkSoft` | 6.70 | 8.75 | |
-| `inkMute` | 4.84 | 6.32 | |
-| `sky` | 5.61 | 7.33 | |
-| `coolant` | 6.38 | 8.34 | |
-| `flame` | 4.89 | 6.39 | |
-| `glow` | 6.39 | 8.35 | |
-| `basil` | 6.29 | 8.21 | |
-| `alarm` | 4.84 | 6.32 | |
-| `midnight` | | | 11.92 |
-| `deep` | | | 10.80 |
-| `cobaltInk` | | | 5.86 |
+```
+backing          text         worst bg   worst   best  need
+glass            ink          #2E4C97     8.09  15.34  4.5  ok
+glass            inkSoft      #2E4C97     6.82  12.94  4.5  ok
+glass            inkMute      #2E4C97     5.91  11.20  4.5  ok
+glass            sky          #2E4C97     5.17   9.81  4.5  ok
+glass            coolant      #2E4C97     5.97  11.32  4.5  ok
+glass            glow         #2E4C97     5.07   9.61  4.5  ok
+glass            peach        #2E4C97     4.58   8.69  4.5  ok
+glass            basil        #2E4C97     5.47  10.37  4.5  ok
+glass            alarm        #2E4C97     4.68   8.89  4.5  ok
+landingPane      ink          #3656A4     6.94  15.15  4.5  ok
+landingPane      inkSoft      #3656A4     5.86  12.77  4.5  ok
+landingPane      inkMute      #3656A4     5.07  11.06  4.5  ok
+landingPane      coolant      #3656A4     5.12  11.18  4.5  ok
+glassDeep        ink          #1E367D    11.18  15.58  4.5  ok
+glassDeep        inkSoft      #1E367D     9.42  13.14  4.5  ok
+glassDeep        inkMute      #1E367D     8.16  11.38  4.5  ok
+glassDeep        sky          #1E367D     7.15   9.96  4.5  ok
+glassDeep        coolant      #1E367D     8.25  11.50  4.5  ok
+glassDeep        glow         #1E367D     7.00   9.76  4.5  ok
+glassDeep        peach        #1E367D     6.33   8.83  4.5  ok
+glassDeep        basil        #1E367D     7.56  10.53  4.5  ok
+glassDeep        alarm        #1E367D     6.47   9.02  4.5  ok
+frostGlass       midnight     #D6DCE6     7.70   9.71  4.5  ok
+frostGlass       abyss        #D6DCE6    10.40  13.11  4.5  ok
+frostGlass       cobaltInk    #D6DCE6     6.54   8.24  4.5  ok
 
-Solid pairs: `midnight` on `ember` 6.39, `ink` on `cobalt` 5.97, `midnight` on `coolant` 10.19, `midnight` on `basil` 10.03, `midnight` on `alarm` 7.72, `cobaltInk` on `frost` 7.31. The check runs in CI from Phase 1, so a token change that breaks AA fails the build.
-
-Where `backdrop-filter` is unavailable or too slow (checked at runtime on low end phones), panes fall back to the same tint at 94 percent with no blur. Contrast only improves.
+ink on midnight                           ink on midnight    10.61  4.5  ok
+inkMute on midnight                   inkMute on midnight     7.75  4.5  ok
+inkSoft on deep (text on the room)    inkSoft on deep         6.52  4.5  ok
+inkMute on deep (text on the room)    inkMute on deep         5.64  4.5  ok
+abyss on ember (primary button)         abyss on ember        5.00  4.5  ok
+abyss on flame                          abyss on flame        6.11  4.5  ok
+ink on cobaltInk (blue button)            ink on cobaltInk    9.01  4.5  ok
+abyss on coolant                        abyss on coolant     10.57  4.5  ok
+abyss on basil (done chip)              abyss on basil        9.69  4.5  ok
+abyss on alarm (alert chip)             abyss on alarm        8.30  4.5  ok
+cobaltInk on frost                  cobaltInk on frost        8.16  4.5  ok
+abyss on frost (tickets)                abyss on frost       12.98  4.5  ok
+focus ring coolant on midnight        coolant on midnight     7.83  3  ok
+focus ring cobaltInk on frost       cobaltInk on frost        8.16  3  ok
+ink on harbor (large display only)        ink on harbor       5.92  3  ok
+```
 
 ## 4. Type
 

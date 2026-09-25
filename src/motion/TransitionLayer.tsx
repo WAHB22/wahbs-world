@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { runTransition, type Box, type Running, type TransitionKind } from "./transitions";
 
-export type EnterWorld = { href: string; from: Box; accent: string; name: string; kind: TransitionKind };
+export type EnterWorld = { href: string; from: Box; accent: string; name: string; kind: TransitionKind; source?: HTMLElement | null };
 
 let request: ((e: EnterWorld) => void) | null = null;
 
