@@ -50,7 +50,7 @@ test("a new term archives the old one and brings its courses", async ({ page }) 
   await page.getByTestId("wizard-next").click();
   await page.getByTestId("wizard-start").click();
   await expect(page).toHaveURL(/\/school$/);
-  await expect(page.getByRole("heading", { name: "Winter 2027" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "The term" })).toContainText("Winter 2027");
   await expect(page.getByTestId("unit")).toHaveCount(1);
   await expect(page.getByTestId("unit")).toContainText("CHG 4999");
 });

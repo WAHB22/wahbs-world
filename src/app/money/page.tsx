@@ -4,13 +4,13 @@ import { useState } from "react";
 import { dayLabel, localDay } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
 import type { Row } from "@/data/schema";
+import { playSound } from "@/living/sound";
 import { fire, useCountUp } from "@/motion/feedback";
 import { EditSheet } from "@/ui/kit/EditSheet";
 import { removeWithUndo, toast } from "@/ui/kit/toast";
 import { money } from "@/ui/format";
 import { Shell } from "@/ui/Shell";
 import { monthName, shiftMonth, useMoney, type BillView } from "@/worlds/money/data";
-import { JarScene } from "@/worlds/money/JarScene";
 import { billSpec, categorySpec, goalSpec, txSpec } from "@/worlds/money/specs";
 
 type Editing =
@@ -28,7 +28,6 @@ export default function Money() {
   const [month, setMonth] = useState(() => localDay().slice(0, 7));
   const data = useMoney(month);
   const [editing, setEditing] = useState<Editing>(null);
-  const [drop, setDrop] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const spent = useCountUp(data?.spent ?? 0);
   const income = useCountUp(data?.income ?? 0);
@@ -45,7 +44,7 @@ export default function Money() {
     const values = editing.kind === "goal" ? { kind: "money", ...v } : editing.kind === "bill" ? { ...v, day_of_month: Math.min(31, Math.max(1, Math.round(Number(v.day_of_month) || 1))) } : v;
     if (editing.kind === "tx" && values.direction !== "transfer") values.to_account_id = null;
     const row = editing.row.id ? await store.patch(table, editing.row.id, values as never) : await store.put(table, values as never);
-    if (editing.kind === "tx") setDrop((d) => d + 1);
+    if (editing.kind === "tx") playSound("check");
     toast(editing.row.id ? "Saved." : editing.kind === "tx" ? `${money((row as Row<"transactions">).amount_cents)} added.` : `${(row as { name: string }).name} added.`);
   }
 
@@ -55,7 +54,7 @@ export default function Money() {
       occurred_on: b.due <= localDay() || month !== thisMonth ? b.due : localDay(), amount_cents: b.amount_cents, direction: "out",
       category_id: b.category_id, account_id: b.account_id, merchant: b.name, source: "recurring",
     });
-    fire(el); setDrop((d) => d + 1);
+    fire(el); playSound("done");
     toast(`${b.name} paid.`, () => store.remove("transactions", t.id).then(() => undefined));
   }
 
@@ -63,34 +62,34 @@ export default function Money() {
   const sign = (t: Row<"transactions">) => (t.direction === "in" ? "plus " : t.direction === "out" ? "" : "moved ");
 
   return (
-    <Shell title="Money" accent="lagoon">
-      <div className="school-top">
-        <JarScene level={data?.level ?? 0} drop={drop} caption={data?.budgetTotal ? "of the budget left" : data?.room ? "of what came in is left" : "nothing in yet"} label={data?.room ? `${Math.round((data.level) * 100)} percent of ${data.budgetTotal ? "the month's budget" : "the month's income"} is left.` : "The jar is empty until money comes in or a budget is set."} />
-        <section className="glass pane term-card" aria-labelledby="mo">
-          <div className="section-head">
-            <h2 id="mo" className="pane-title">{monthName(month)}</h2>
-            <span className="row-actions month-nav">
-              <button className="btn btn-small" aria-label="Previous month" onClick={() => setMonth(shiftMonth(month, -1))}>Earlier</button>
-              <button className="btn btn-small" aria-label="Next month" onClick={() => setMonth(shiftMonth(month, 1))} disabled={month >= thisMonth}>Later</button>
-            </span>
+    <Shell title="Money" world="money">
+      <section className="hero-figures" aria-labelledby="mo">
+        <div className="figure-block figure-main">
+          <div className="month-nav">
+            <h2 id="mo" className="figure-label">{monthName(month)}</h2>
+            <button className="btn btn-small btn-ghost" aria-label="Previous month" onClick={() => setMonth(shiftMonth(month, -1))}>Earlier</button>
+            <button className="btn btn-small btn-ghost" aria-label="Next month" onClick={() => setMonth(shiftMonth(month, 1))} disabled={month >= thisMonth}>Later</button>
           </div>
-          <dl className="money-figs">
-            <div><dt>Spent</dt><dd className="figure" data-testid="month-spent">{money(Math.round(spent))}</dd></div>
-            <div><dt>Came in</dt><dd className="figure">{money(Math.round(income))}</dd></div>
-          </dl>
-          <p className="soft">{data?.budgetTotal ? `${money(Math.max(0, data.budgetTotal - data.spent))} left of a ${money(data.budgetTotal)} budget.` : "Set a budget on a category to see what is left."}{data?.billsLeft ? ` ${money(data.billsLeft)} in bills still to pay.` : ""}</p>
-          <div className="row-actions">
-            <button className="btn btn-primary" data-testid="add-spent" onClick={() => setEditing({ kind: "tx", row: newTx("out") })}>Add spending</button>
-            <button className="btn" data-testid="add-income" onClick={() => setEditing({ kind: "tx", row: newTx("in") })}>Add income</button>
-            <button className="btn" onClick={() => setEditing({ kind: "tx", row: newTx("transfer") })}>Move money</button>
-          </div>
-        </section>
-      </div>
+          <span className="figure-xl" data-testid="month-spent">{money(Math.round(spent))}</span>
+          <span className="figure-note">spent{data?.billsLeft ? `, ${money(data.billsLeft)} in bills still to pay` : ""}</span>
+          {data?.budgetTotal ? <span className="meter meter-lg" aria-label={`${Math.round(data.level * 100)} percent of the budget left`}><i style={{ width: `${Math.min(100, (data.spent / data.budgetTotal) * 100)}%` }} /></span> : null}
+        </div>
+        <div className="figure-block">
+          <span className="figure-label">Came in</span>
+          <span className="figure-lg">{money(Math.round(income))}</span>
+          <span className="figure-note">{data?.budgetTotal ? `${money(Math.max(0, data.budgetTotal - data.spent))} left of a ${money(data.budgetTotal)} budget` : "Set a budget on a category to see what is left"}</span>
+        </div>
+        <div className="figure-actions">
+          <button className="btn btn-primary" data-testid="add-spent" onClick={() => setEditing({ kind: "tx", row: newTx("out") })}>Add spending</button>
+          <button className="btn" data-testid="add-income" onClick={() => setEditing({ kind: "tx", row: newTx("in") })}>Add income</button>
+          <button className="btn" onClick={() => setEditing({ kind: "tx", row: newTx("transfer") })}>Move money</button>
+        </div>
+      </section>
 
       <div className="world-grid">
-        <section className="glass pane" aria-labelledby="bills">
+        <section className="panel" aria-labelledby="bills">
           <div className="section-head">
-            <h2 id="bills" className="pane-title">Recurring bills</h2>
+            <h2 id="bills" className="panel-title">Recurring bills</h2>
             <button className="btn btn-small" data-testid="add-bill" onClick={() => setEditing({ kind: "bill", row: { active: true, day_of_month: 1, account_id: data?.accounts[0]?.id } })}>Add a bill</button>
           </div>
           <ul className="list" data-testid="bill-list">
@@ -108,9 +107,9 @@ export default function Money() {
           </ul>
         </section>
 
-        <section className="glass pane" aria-labelledby="bud">
+        <section className="panel" aria-labelledby="bud">
           <div className="section-head">
-            <h2 id="bud" className="pane-title">Budgets</h2>
+            <h2 id="bud" className="panel-title">Budgets</h2>
             <button className="btn btn-small" onClick={() => setEditing({ kind: "category", row: { kind: "expense" } })}>Add a category</button>
           </div>
           <ul className="list budget-list">
@@ -140,8 +139,8 @@ export default function Money() {
           </ul>
         </section>
 
-        <section className="glass pane tx-pane" aria-labelledby="txh">
-          <h2 id="txh" className="pane-title">The bill</h2>
+        <section className="panel tx-pane" aria-labelledby="txh">
+          <h2 id="txh" className="panel-title">The bill</h2>
           <ul className="list" data-testid="tx-list">
             {(showAll ? tx : tx.slice(0, 12)).map((t) => (
               <li key={t.id} className="tx" data-dir={t.direction}>
@@ -157,9 +156,9 @@ export default function Money() {
           {tx.length > 12 && <button className="btn btn-small" style={{ marginTop: 12 }} onClick={() => setShowAll((v) => !v)}>{showAll ? "Show fewer" : `Show all ${tx.length}`}</button>}
         </section>
 
-        <section className="glass pane" aria-labelledby="goals">
+        <section className="panel" aria-labelledby="goals">
           <div className="section-head">
-            <h2 id="goals" className="pane-title">Goals</h2>
+            <h2 id="goals" className="panel-title">Goals</h2>
             <button className="btn btn-small" onClick={() => setEditing({ kind: "goal", row: {} })}>Add a goal</button>
           </div>
           <ul className="list">

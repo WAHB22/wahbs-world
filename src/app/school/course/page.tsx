@@ -37,13 +37,13 @@ function Course() {
   }
 
   return (
-    <Shell title={c?.code ?? "Course"} accent="coolant">
+    <Shell title={c?.code ?? "Course"} world="school" back={{ href: "/school", label: "School" }}>
       {c && (
         <>
           <p className="today-sub"><span lang={c.language}>{c.name}</span>{c.professor && <span className="soft">{c.professor}</span>}</p>
           <div className="world-grid">
-            <section className="glass pane" aria-labelledby="prog">
-              <h2 id="prog" className="pane-title">Progress</h2>
+            <section className="panel" aria-labelledby="prog">
+              <h2 id="prog" className="panel-title">Progress</h2>
               <p className="figure">{Math.round(c.conversion * 100)}%</p>
               <p className="soft">of this course's weight is done{c.grade != null ? `, with an average of ${Math.round(c.grade)} on graded work` : ""}.</p>
               <div className="meter" style={{ marginTop: 12 }}><i style={{ width: `${Math.round(c.conversion * 100)}%` }} /></div>
@@ -53,8 +53,8 @@ function Course() {
               </div>
             </section>
 
-            <section className="glass pane" aria-labelledby="work">
-              <h2 id="work" className="pane-title">Graded work</h2>
+            <section className="panel" aria-labelledby="work">
+              <h2 id="work" className="panel-title">Graded work</h2>
               <ul className="list">
                 {c.assessments.map((a) => (
                   <li key={a.id}>
@@ -69,8 +69,8 @@ function Course() {
               </ul>
             </section>
 
-            <section className="glass pane" aria-labelledby="topics">
-              <h2 id="topics" className="pane-title">Topics</h2>
+            <section className="panel" aria-labelledby="topics">
+              <h2 id="topics" className="panel-title">Topics</h2>
               <ol className="topics" lang={c.language}>
                 {c.topics.map((t) => {
                   const covered = c.assessments.some((a) => a.status === "done" && a.covers.includes(t));

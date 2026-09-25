@@ -187,7 +187,8 @@ create table if not exists public.settings (
   volume double precision,
   week_starts_on integer,
   hours_warning boolean,
-  transition text
+  transition text,
+  theme text
 );
 alter table public.settings add column if not exists motion text;
 alter table public.settings add column if not exists intensity_cap text;
@@ -196,6 +197,7 @@ alter table public.settings add column if not exists volume double precision;
 alter table public.settings add column if not exists week_starts_on integer;
 alter table public.settings add column if not exists hours_warning boolean;
 alter table public.settings add column if not exists transition text;
+alter table public.settings add column if not exists theme text;
 create index if not exists settings_user_rev on public.settings (user_id, rev);
 alter table public.settings enable row level security;
 drop policy if exists "owner only" on public.settings;

@@ -1,17 +1,17 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect } from "react";
-import { useWorld } from "@/data/runtime";
+import { useSettings } from "@/ui/useSettings";
 
-/** Applies the synced motion setting to the page; "system" follows prefers-reduced-motion. */
+/** Applies the synced motion and theme settings to the page; "system" follows the device. */
 export function MotionPreference() {
-  const { store } = useWorld();
-  const settings = useLiveQuery(async () => (store ? (await store.all("settings"))[0] : undefined), [store]);
+  const settings = useSettings();
   useEffect(() => {
+    const root = document.documentElement;
     const m = settings?.motion ?? "system";
-    if (m === "system") delete document.documentElement.dataset.motion;
-    else document.documentElement.dataset.motion = m;
-  }, [settings?.motion]);
+    if (m === "system") delete root.dataset.motion; else root.dataset.motion = m;
+    const t = settings?.theme ?? "system";
+    if (t === "system") delete root.dataset.theme; else root.dataset.theme = t;
+  }, [settings?.motion, settings?.theme]);
   return null;
 }

@@ -32,7 +32,7 @@ export function useToday(today: string, now: Date): TodayData | undefined {
   return useLiveQuery(async () => {
     if (!store) return undefined;
     const dayId = await uuidFromName(`day:${today}`);
-    const [day, assessments, courses, tasks, blocksAll, checkinsAll, terms, txAll] = await Promise.all([
+    const [day, assessments, courses, tasks, blocksAll, checkinsAll, terms, txAll, sessionsAll] = await Promise.all([
       store.get("days", dayId),
       store.all("assessments"),
       store.all("courses"),
@@ -41,6 +41,7 @@ export function useToday(today: string, now: Date): TodayData | undefined {
       store.all("checkins"),
       store.all("terms"),
       store.all("transactions"),
+      store.all("training_sessions"),
     ]);
     const code = new Map(courses.map((c) => [c.id, c.code]));
     const withCode = (a: Row<"assessments">): Deadline => ({ ...a, code: a.course_id ? code.get(a.course_id) ?? null : null });
@@ -96,7 +97,8 @@ export function useToday(today: string, now: Date): TodayData | undefined {
     const outs = txAll.filter((t) => t.direction === "out").map((t) => ({ day: t.occurred_on, cents: t.amount_cents })).concat(legacy);
     const money = { today: outs.filter((x) => x.day === today).reduce((n, x) => n + x.cents, 0), week: outs.filter((x) => x.day >= ws && x.day <= today).reduce((n, x) => n + x.cents, 0) };
     const gymBlocks = new Set(blocksAll.filter((b) => b.kind === "gym" && (!current || b.term_id === current.id)).map((b) => b.weekday)).size;
-    const training = { done: checkinsAll.filter((c) => c.kind === "gym_done" && c.local_day >= ws).length, planned: gymBlocks };
+    // Sessions come from Training; gym check ins saved before sessions existed still count.
+    const training = { done: sessionsAll.filter((x) => x.occurred_on >= ws && x.occurred_on <= today).length + checkinsAll.filter((c) => c.kind === "gym_done" && !c.ref_id && c.local_day >= ws).length, planned: gymBlocks };
     const moments = checkinsAll.filter((c) => c.kind === "moment").sort((a, b) => b.occurred_at.localeCompare(a.occurred_at)).slice(0, 3);
 
     return { dayId, day, oneThing, choices, attention, blocks, rail, week, money, training, moments, checkins: todays.sort((a, b) => b.occurred_at.localeCompare(a.occurred_at)) };

@@ -4,13 +4,14 @@ import { useState } from "react";
 import { dayLabel } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
 import type { Row } from "@/data/schema";
+import { playSound } from "@/living/sound";
 import { fire, useCountUp } from "@/motion/feedback";
 import { EditSheet } from "@/ui/kit/EditSheet";
 import { removeWithUndo, toast } from "@/ui/kit/toast";
 import { clock, money } from "@/ui/format";
 import { Shell } from "@/ui/Shell";
 import { planFromRoutine, shiftTimes, useWork, type ShiftView } from "@/worlds/work/data";
-import { fmtHours, PassScene } from "@/worlds/work/PassScene";
+import { fmtHours } from "@/worlds/work/data";
 import { employerSpec, shiftSpec } from "@/worlds/work/specs";
 
 type Editing = { kind: "shift"; row: Partial<ShiftView> } | { kind: "employer"; row: Partial<Row<"employers">> } | null;
@@ -19,14 +20,13 @@ export default function Work() {
   const { store } = useWorld();
   const data = useWork();
   const [editing, setEditing] = useState<Editing>(null);
-  const [ring, setRing] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const weekPay = useCountUp(data?.week.pay ?? 0);
 
   async function setStatus(s: ShiftView, status: "worked" | "cancelled", el?: HTMLElement | null) {
     if (!store) return;
     await store.patch("shifts", s.id, { status });
-    if (status === "worked") { setRing((r) => r + 1); fire(el ?? null); }
+    if (status === "worked") { fire(el ?? null); playSound("done"); }
     toast(status === "worked" ? `${s.employer}, ${dayLabel(s.day, data!.today)}: worked.` : `${s.employer}, ${dayLabel(s.day, data!.today)}: marked as not happening.`,
       () => store.patch("shifts", s.id, { status: s.status }).then(() => undefined));
   }
@@ -52,25 +52,29 @@ export default function Work() {
   const hasPay = !!data && (data.employers.some((e) => e.hourly_cents != null) || data.shifts.some((x) => x.pay_cents != null || x.tips_cents != null));
 
   return (
-    <Shell title="Work" accent="flame">
-      <div className="school-top">
-        <PassScene days={data?.week.days ?? []} shifts={data?.week.shifts ?? []} worked={data?.week.worked ?? 0} planned={data?.week.planned ?? 0} ring={ring} />
-        <section className="glass pane term-card" aria-labelledby="wk">
-          <h2 id="wk" className="pane-title">This week</h2>
-          <p className="figure">{fmtHours(data?.week.worked ?? 0)}</p>
-          <p className="soft">worked of {fmtHours(data?.week.planned ?? 0)} on the rail{hasPay ? `, about ${money(Math.round(weekPay))} earned` : ""}</p>
-          <p className="soft">This month: {fmtHours(data?.month.hours ?? 0)}{hasPay ? `, about ${money(data?.month.pay ?? 0)}` : ""}</p>
-          {data && !hasPay && <p className="hint">Add your hourly wage under Where you work to see pay.</p>}
-          <div className="row-actions">
-            <button className="btn btn-primary" data-testid="add-shift" onClick={() => setEditing({ kind: "shift", row: newShift() })}>Add a shift</button>
-            {data && data.routine.length > 0 && <button className="btn" data-testid="plan-shifts" onClick={plan}>Plan the next two weeks</button>}
-          </div>
-        </section>
-      </div>
+    <Shell title="Work" world="work">
+      <section className="hero-figures" aria-label="This week">
+        <div className="figure-block figure-main">
+          <span className="figure-label">Worked this week</span>
+          <span className="figure-xl" data-testid="week-hours">{fmtHours(data?.week.worked ?? 0).replace(/ hours?/, "")}<small>h</small></span>
+          <span className="figure-note">of {fmtHours(data?.week.planned ?? 0)} planned{hasPay ? `, about ${money(Math.round(weekPay))} earned` : ""}</span>
+        </div>
+        <div className="figure-block">
+          <span className="figure-label">This month</span>
+          <span className="figure-lg">{fmtHours(data?.month.hours ?? 0)}</span>
+          <span className="figure-note">{hasPay ? `about ${money(data?.month.pay ?? 0)}` : "Add your hourly wage to see pay"}</span>
+        </div>
+        <div className="figure-actions">
+          <button className="btn btn-primary" data-testid="add-shift" onClick={() => setEditing({ kind: "shift", row: newShift() })}>Add a shift</button>
+          {data && data.routine.length > 0 && <button className="btn" data-testid="plan-shifts" onClick={plan}>Plan the next two weeks</button>}
+        </div>
+      </section>
+
+      <WeekStrip days={data?.week.days ?? []} shifts={data?.week.shifts ?? []} today={data?.today ?? ""} />
 
       {data && data.toConfirm.length > 0 && (
-        <section className="glass pane confirm-pane" aria-labelledby="cf">
-          <h2 id="cf" className="pane-title">Did these happen?</h2>
+        <section className="panel confirm-pane" aria-labelledby="cf">
+          <h2 id="cf" className="panel-title">Did these happen?</h2>
           <ul className="list" data-testid="to-confirm">
             {data.toConfirm.map((s) => (
               <li key={s.id} className="confirm-row">
@@ -101,8 +105,8 @@ export default function Work() {
       </ul>
 
       <div className="world-grid school-lower">
-        <section className="glass pane" aria-labelledby="hist">
-          <h2 id="hist" className="pane-title">Worked</h2>
+        <section className="panel" aria-labelledby="hist">
+          <h2 id="hist" className="panel-title">Worked</h2>
           <ul className="list" data-testid="worked-list">
             {(showAll ? history : history.slice(0, 8)).map((s) => (
               <li key={s.id}>
@@ -118,9 +122,9 @@ export default function Work() {
           {history.length > 8 && <button className="btn btn-small" style={{ marginTop: 12 }} onClick={() => setShowAll((v) => !v)}>{showAll ? "Show fewer" : `Show all ${history.length}`}</button>}
         </section>
 
-        <section className="glass pane" aria-labelledby="emp">
+        <section className="panel" aria-labelledby="emp">
           <div className="section-head">
-            <h2 id="emp" className="pane-title">Where you work</h2>
+            <h2 id="emp" className="panel-title">Where you work</h2>
             <button className="btn btn-small" onClick={() => setEditing({ kind: "employer", row: {} })}>Add a place</button>
           </div>
           <ul className="list">
@@ -157,5 +161,31 @@ export default function Work() {
         />
       )}
     </Shell>
+  );
+}
+
+const DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** The week as a strip of seven days: each bar is as tall as that day's shifts, solid once worked. */
+function WeekStrip({ days, shifts, today }: { days: string[]; shifts: ShiftView[]; today: string }) {
+  const max = 10;
+  return (
+    <section className="week-strip" aria-label="Shifts this week">
+      {days.map((d) => {
+        const mine = shifts.filter((s) => s.day === d);
+        const worked = mine.filter((s) => s.status === "worked").reduce((n, s) => n + s.hours, 0);
+        const planned = mine.filter((s) => s.status === "planned").reduce((n, s) => n + s.hours, 0);
+        return (
+          <div key={d} className="strip-day" data-today={d === today || undefined}>
+            <div className="strip-bar" aria-hidden="true">
+              {planned > 0 && <i className="planned" style={{ height: `${(Math.min(max, worked + planned) / max) * 100}%` }} />}
+              {worked > 0 && <i className="worked" style={{ height: `${(Math.min(max, worked) / max) * 100}%` }} />}
+            </div>
+            <span className="strip-name">{DAY3[new Date(`${d}T12:00:00`).getDay()]}</span>
+            <span className="strip-hours mono">{worked + planned ? fmtHours(worked + planned).replace(" hours", "h").replace(" hour", "h") : ""}</span>
+          </div>
+        );
+      })}
+    </section>
   );
 }

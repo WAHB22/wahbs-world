@@ -16,17 +16,17 @@ export default defineConfig({
     serviceWorkers: "allow",
   },
   projects: [
-    // The flat card layout (no WebGL), so these tests are quick and deterministic.
+    // WebGL off, so the chrome hero never loads and these tests stay quick and deterministic.
     {
-      name: "laptop", testIgnore: /glass\.spec/,
+      name: "laptop", testIgnore: /chrome\.spec/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, launchOptions: { ...(existsSync(chromium) ? { executablePath: chromium } : {}), args: ["--disable-3d-apis"] } },
     },
-    // The WebGL glass cabinet, on software rendering.
+    // The liquid chrome hero, on software rendering.
     {
-      name: "glass",
-      testMatch: /glass\.spec/,
+      name: "chrome",
+      testMatch: /chrome\.spec/,
       use: {
-        ...devices["Desktop Chrome"], viewport: { width: 1000, height: 640 },
+        ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 },
         launchOptions: { ...(existsSync(chromium) ? { executablePath: chromium } : {}), args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader", "--ignore-gpu-blocklist"] },
       },
     },

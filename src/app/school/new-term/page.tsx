@@ -73,14 +73,14 @@ export default function NewTerm() {
   const setB = (key: number, patch: Partial<BlockDraft>) => setBlocks((bs) => bs.map((b) => (b.key === key ? { ...b, ...patch } : b)));
 
   return (
-    <Shell title="New term" accent="coolant">
+    <Shell title="New term" world="school" back={{ href: "/school", label: "School" }}>
       <ol className="steps" aria-label="Steps">
         {["Term", "Courses", "Weekly times", "Start"].map((s, i) => (
           <li key={s} aria-current={step === i + 1 ? "step" : undefined} data-done={step > i + 1 || undefined}>{s}</li>
         ))}
       </ol>
 
-      <section className="glass pane wizard">
+      <section className="panel wizard">
         {step === 1 && (
           <div className="edit-fields">
             <div className="field wide"><label htmlFor="tn">Term name</label><input id="tn" value={term.name} onChange={(e) => setTerm({ ...term, name: e.target.value })} placeholder="Winter 2027" /></div>

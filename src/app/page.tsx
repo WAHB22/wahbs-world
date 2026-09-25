@@ -1,5 +1,5 @@
-import { Landing } from "@/landing/Landing";
+import { Home } from "@/home/Home";
 
-export default function Home() {
-  return <Landing />;
+export default function Page() {
+  return <Home />;
 }

@@ -1,13 +1,16 @@
 "use client";
 
 import { useLiveQuery } from "dexie-react-hooks";
-import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { exportAll, exportFileName, importAll, previewImport, type ImportPreview } from "@/data/backup";
 import { SYNC_MODE } from "@/data/config";
 import { useWorld } from "@/data/runtime";
 import type { Row } from "@/data/schema";
 import { supabase } from "@/data/supabase";
+import { playSound } from "@/living/sound";
+import { TRANSITIONS } from "@/motion/transitions";
+import { PasscodeSettings } from "@/privacy/PasscodeSettings";
+import { InstallApp } from "@/ui/InstallApp";
 import { Shell } from "@/ui/Shell";
 
 type Settings = Row<"settings">;
@@ -15,13 +18,16 @@ type Settings = Row<"settings">;
 function Choice<K extends keyof Settings>({ label, field, value, options, onChange }: {
   label: string; field: K; value: Settings[K]; options: [Settings[K], string][]; onChange: (field: K, v: Settings[K]) => void;
 }) {
+  // Answer the tap at once; the saved value follows a moment later.
+  const [picked, setPicked] = useState(value);
+  useEffect(() => setPicked(value), [value]);
   return (
     <fieldset className="choice">
       <legend>{label}</legend>
       <div className="seg">
         {options.map(([v, text]) => (
           <label key={String(v)} className="tappable">
-            <input type="radio" name={String(field)} checked={value === v} onChange={() => onChange(field, v)} />
+            <input type="radio" name={String(field)} checked={picked === v} onChange={() => { setPicked(v); onChange(field, v); }} />
             <span>{text}</span>
           </label>
         ))}
@@ -77,25 +83,28 @@ export default function SettingsPage() {
 
   const s = settings;
   return (
-    <Shell title="Settings">
+    <Shell title="Settings" lede="How the world looks, sounds and keeps your data.">
       <div className="settings-grid">
-        <section className="glass pane" aria-labelledby="motion-h">
-          <h2 id="motion-h" className="pane-title">Motion</h2>
+        <section className="panel" aria-labelledby="motion-h">
+          <h2 id="motion-h" className="panel-title">Look and motion</h2>
           {s && (
             <>
+              <Choice label="Theme" field="theme" value={s.theme} onChange={change}
+                options={[["system", "Follow the device"], ["light", "Light"], ["dark", "Dark"]]} />
               <Choice label="Movement" field="motion" value={s.motion} onChange={change}
                 options={[["system", "Follow the device"], ["full", "Full"], ["reduced", "Reduced"]]} />
-              <Choice label="Entering a world" field="transition" value={s.transition} onChange={change}
-                options={[["shatter", "Glass shatter"], ["morph", "Shared morph"], ["dive", "Dive"], ["liquid", "Liquid"]]} />
-              <p style={{ marginBottom: 16 }}><Link className="btn btn-small" href="/lab/transitions" data-testid="watch-transitions">Watch all four before choosing</Link></p>
-              <Choice label="Intensity cap" field="intensity_cap" value={s.intensity_cap} onChange={change}
+              <Choice label="Entering a world" field="transition" value={s.transition === "morph" ? "morph" : "liquid"} onChange={change}
+                options={TRANSITIONS.map((t) => [t.kind, t.name])} />
+              <p className="hint">{(TRANSITIONS.find((t) => t.kind === (s.transition === "morph" ? "morph" : "liquid")) ?? TRANSITIONS[0]).line}</p>
+              <Choice label="Pace never goes above" field="intensity_cap" value={s.intensity_cap} onChange={change}
                 options={[["calm", "Calm"], ["opening", "Opening"], ["service", "Service"], ["rush", "Rush"]]} />
+              <p className="hint">The day&apos;s pace comes from the time and what is due. It sets how lively the chrome and the highlights are.</p>
             </>
           )}
         </section>
 
-        <section className="glass pane" aria-labelledby="sound-h">
-          <h2 id="sound-h" className="pane-title">Sound</h2>
+        <section className="panel" aria-labelledby="sound-h">
+          <h2 id="sound-h" className="panel-title">Sound</h2>
           {s && (
             <>
               <Choice label="Profile" field="sound_profile" value={s.sound_profile} onChange={change}
@@ -104,13 +113,22 @@ export default function SettingsPage() {
                 <label htmlFor="vol">Volume</label>
                 <input id="vol" type="range" min={0} max={1} step={0.05} value={s.volume} onChange={(e) => change("volume", Number(e.target.value))} />
               </div>
-              <p className="hint">Sound stays off until you choose a profile. It arrives in phase 5.</p>
+              <div className="row-actions"><button className="btn btn-small" disabled={s.sound_profile === "off"} onClick={() => playSound("enter")}>Play a sample</button></div>
+              <p className="hint">Off until you choose. Sounds only answer something you did: entering a world, a check in, marking something done.</p>
             </>
           )}
         </section>
 
-        <section className="glass pane" aria-labelledby="data-h">
-          <h2 id="data-h" className="pane-title">Data</h2>
+        <section className="panel" aria-labelledby="lock-h">
+          <h2 id="lock-h" className="panel-title">Privacy</h2>
+          <PasscodeSettings />
+          {auth.state === "signed-in" && (
+            <div className="row-actions" style={{ marginTop: 16 }}><button className="btn" onClick={() => supabase().auth.signOut()}>Sign this device out of sync</button></div>
+          )}
+        </section>
+
+        <section className="panel" aria-labelledby="data-h">
+          <h2 id="data-h" className="panel-title">Data</h2>
           <dl className="facts">
             <dt>Sync</dt>
             <dd data-testid="sync-detail">
@@ -126,7 +144,7 @@ export default function SettingsPage() {
             <dd>{lastExport ? new Date(lastExport).toLocaleString("en-CA") : "Never"}</dd>
           </dl>
           <div className="row-actions">
-            <button className="btn btn-blue" onClick={doExport} data-testid="export">Export a backup</button>
+            <button className="btn btn-primary" onClick={doExport} data-testid="export">Export a backup</button>
             <button className="btn" onClick={() => fileInput.current?.click()} data-testid="import">Import a backup</button>
             <button className="btn" onClick={() => engine?.sync()} disabled={SYNC_MODE === "device"}>Sync now</button>
             <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={pick} data-testid="import-file" />
@@ -153,21 +171,10 @@ export default function SettingsPage() {
           {message && <p className="hint" role="status">{message}</p>}
         </section>
 
-        <section className="glass pane" aria-labelledby="term-h">
-          <h2 id="term-h" className="pane-title">Terms</h2>
-          <p className="soft">Archiving a term and starting the next one arrives with the School world in phase 3.</p>
-        </section>
-
-        <section className="glass pane" aria-labelledby="acct-h">
-          <h2 id="acct-h" className="pane-title">Account</h2>
-          {auth.state === "signed-in" ? (
-            <>
-              <p className="soft">This device stays unlocked. Locking it means typing the password again here.</p>
-              <button className="btn" onClick={() => supabase().auth.signOut()}>Lock this device</button>
-            </>
-          ) : (
-            <p className="soft">{SYNC_MODE === "memory" ? "Test build: no sign in needed." : "This build has no server connected, so no sign in is needed."}</p>
-          )}
+        <section className="panel" aria-labelledby="app-h">
+          <h2 id="app-h" className="panel-title">The app</h2>
+          <InstallApp />
+          <p className="hint">{SYNC_MODE === "memory" ? "Test build: no sign in needed." : SYNC_MODE === "device" ? "Sync between your devices is off in this build; Export and Import move your data." : "Signed in for sync."}</p>
         </section>
       </div>
     </Shell>

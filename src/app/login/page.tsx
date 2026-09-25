@@ -39,7 +39,7 @@ export default function Login() {
   return (
     <main className="page login">
       <h1 className="wahb small">WAHB</h1>
-      <form className="glass pane login-pane" onSubmit={unlock}>
+      <form className="panel login-pane" onSubmit={unlock}>
         <div className="field">
           <label htmlFor="password">Password</label>
           <input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { dayLabel, localDay, timeLabel } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
+import { INTENSITY_LABEL } from "@/living/intensity";
+import { useIntensity } from "@/living/LivingSystem";
+import { playSound } from "@/living/sound";
 import { useCountUp } from "@/motion/feedback";
 import { Shell } from "@/ui/Shell";
 import { askCheckin, checkinNow, CheckinDock, describe } from "@/worlds/today/CheckinDock";
@@ -21,11 +24,6 @@ function useClock() {
   return now;
 }
 
-function servicePhase(d: Date): string {
-  const h = d.getHours();
-  return h < 5 ? "Late night" : h < 11 ? "Opening" : h < 17 ? "Service" : h < 22 ? "Closing time" : "Late night";
-}
-
 export default function Today() {
   const { store } = useWorld();
   const now = useClock();
@@ -36,11 +34,13 @@ export default function Today() {
   const weekSpent = useCountUp(data?.money.week ?? 0);
   const dateLine = now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" });
   const evening = now.getHours() >= 19;
+  const intensity = useIntensity();
 
   async function markOneDone() {
     if (!store || !data?.oneThing) return;
     const { kind, item } = data.oneThing;
     setStamped(Date.now());
+    playSound("done");
     if (kind === "assessment") await store.patch("assessments", item.id, { status: "done" });
     else await store.patch("tasks", item.id, { done_at: new Date().toISOString() });
   }
@@ -53,13 +53,12 @@ export default function Today() {
 
   const one = data?.oneThing;
   return (
-    <Shell title="Today" accent="ember">
-      <p className="today-sub"><span>{dateLine}</span><span className="soft">{servicePhase(now)}</span></p>
+    <Shell title="Today" world="today" lede={<>{dateLine}. <span className="pace" data-pace={intensity}>{INTENSITY_LABEL[intensity]}</span></>}>
       <div className="today-layout">
         <div className="today-col">
-          <section className="glass pane one-thing" aria-labelledby="one">
+          <section className="panel one-thing" aria-labelledby="one">
             {stamped > 0 && <span key={stamped} className="stamp" aria-hidden="true">DONE</span>}
-            <h2 id="one" className="pane-title">The one thing</h2>
+            <h2 id="one" className="panel-title">The one thing</h2>
             {!data ? null : one ? (
               <>
                 <p className="big-line" data-testid="one-thing">{one.kind === "assessment" ? `${one.item.code ? one.item.code + " " : ""}${one.item.title}` : one.item.title}</p>
@@ -92,8 +91,8 @@ export default function Today() {
             )}
           </section>
 
-          <section className="glass pane" aria-labelledby="att">
-            <h2 id="att" className="pane-title">Needs attention</h2>
+          <section className="panel" aria-labelledby="att">
+            <h2 id="att" className="panel-title">Needs attention</h2>
             {data && data.attention.length ? (
               <ul className="attention">{data.attention.map((a) => <li key={a.id} data-tone={a.tone}><i aria-hidden="true" />{a.text}</li>)}</ul>
             ) : (
@@ -102,8 +101,8 @@ export default function Today() {
           </section>
         </div>
 
-        <section className="glass pane service" aria-labelledby="svc">
-          <h2 id="svc" className="pane-title">Service today</h2>
+        <section className="panel service" aria-labelledby="svc">
+          <h2 id="svc" className="panel-title">Service today</h2>
           {data && data.blocks.length ? (
             <ol className="rail" data-testid="service-rail">
               {data.blocks.map((b, i) => {
@@ -122,8 +121,8 @@ export default function Today() {
           )}
         </section>
 
-        <section className="pane-bare tickets" aria-labelledby="rail">
-          <h2 id="rail" className="pane-title">On the rail</h2>
+        <section className="tickets" aria-labelledby="rail">
+          <h2 id="rail" className="panel-title">On the rail</h2>
           {data && data.rail.length ? (
             <ul className="ticket-list">
               {data.rail.map((a) => (
@@ -139,8 +138,8 @@ export default function Today() {
           )}
         </section>
 
-        <section className="glass pane week-ahead" aria-labelledby="wk">
-          <h2 id="wk" className="pane-title">The week ahead</h2>
+        <section className="panel week-ahead" aria-labelledby="wk">
+          <h2 id="wk" className="panel-title">The week ahead</h2>
           <ul className="week-list">
             {data?.week.map((d) => (
               <li key={d.day}>
@@ -153,27 +152,27 @@ export default function Today() {
       </div>
 
       <div className="today-strip">
-        <section className="glass pane stat" aria-labelledby="mny">
-          <h2 id="mny" className="pane-title">Money</h2>
+        <section className="panel stat" aria-labelledby="mny">
+          <h2 id="mny" className="panel-title">Money</h2>
           <p className="figure">{money(Math.round(weekSpent))}</p>
           <p className="soft">spent this week, {money(data?.money.today ?? 0)} today</p>
         </section>
-        <section className="glass pane stat" aria-labelledby="trn">
-          <h2 id="trn" className="pane-title">Training</h2>
+        <section className="panel stat" aria-labelledby="trn">
+          <h2 id="trn" className="panel-title">Training</h2>
           <div className="ring-row">
             <Ring done={data?.training.done ?? 0} planned={data?.training.planned ?? 0} />
             <p className="soft">{data ? `${data.training.done} of ${data.training.planned} planned sessions this week` : ""}</p>
           </div>
         </section>
-        <section className="glass pane stat" aria-labelledby="mom">
-          <h2 id="mom" className="pane-title">Moments</h2>
+        <section className="panel stat" aria-labelledby="mom">
+          <h2 id="mom" className="panel-title">Moments</h2>
           {data?.moments.length ? (
             <ul className="moments">{data.moments.map((m) => <li key={m.id}><span className="soft moment-day">{dayLabel(m.local_day, today)}</span>{String((m.payload as { text?: string }).text ?? "")}</li>)}</ul>
           ) : <p className="soft">None kept yet.</p>}
           {evening && <button className="btn" onClick={() => askCheckin("moment")}>Keep a moment from today</button>}
         </section>
-        <section className="glass pane stat log" aria-labelledby="log">
-          <h2 id="log" className="pane-title">Checked in today</h2>
+        <section className="panel stat log" aria-labelledby="log">
+          <h2 id="log" className="panel-title">Checked in today</h2>
           {data?.checkins.length ? (
             <ul className="log-list" data-testid="today-log">
               {data.checkins.map((c) => (
@@ -216,8 +215,8 @@ function Ring({ done, planned }: { done: number; planned: number }) {
   useEffect(() => { const id = requestAnimationFrame(() => setFrac(target)); return () => cancelAnimationFrame(id); }, [target]);
   return (
     <svg className="session-ring" viewBox="0 0 76 76" width="76" height="76" role="img" aria-label={`${done} of ${planned} sessions`}>
-      <circle cx="38" cy="38" r={r} fill="none" stroke="var(--color-harbor)" strokeWidth="8" />
-      <circle cx="38" cy="38" r={r} fill="none" stroke="var(--color-signal)" strokeWidth="8" strokeLinecap="round"
+      <circle cx="38" cy="38" r={r} fill="none" stroke="var(--sunken)" strokeWidth="8" />
+      <circle cx="38" cy="38" r={r} fill="none" stroke="var(--accent)" strokeWidth="8" strokeLinecap="round"
         strokeDasharray={c} strokeDashoffset={c * (1 - frac)} transform="rotate(-90 38 38)" className="session-ring-arc" />
       <text x="38" y="44" textAnchor="middle" className="session-ring-num">{done}</text>
     </svg>

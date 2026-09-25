@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const PAGES = ["/", "/today", "/settings", "/~offline", "/lab/transitions", "/school", "/school/new-term", "/work", "/money", "/life"];
+const PAGES = ["/", "/today", "/settings", "/~offline", "/school", "/school/new-term", "/work", "/money", "/projects", "/career", "/knowledge", "/training", "/life", "/recap", "/chapter"];
 const DASH = /[‒–—―]|\S - \S/;
 
 for (const path of PAGES) {
@@ -11,7 +11,9 @@ for (const path of PAGES) {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     await page.goto(path);
     await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(500);
+    // Let the page's entrance finish, so contrast is measured on the settled page.
+    await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running" || a.effect?.getTiming().iterations === Infinity));
+    await page.waitForTimeout(300);
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
     const text = await page.evaluate(() => document.body.innerText);

@@ -1,21 +1,20 @@
 # WAHB'S WORLD plan
 
-Phase 0 deliverable. Status: **approved.** Phases 1, 2 and 3 built (Today, School with the new term flow, Work, Money). For now the site opens directly and saves on the device; sign in and sync return with the privacy work at the end. Pick a transition at `/lab/transitions`.
+Phase 0 deliverable. Status: **approved.** All phases built: the nine worlds, the living system (pace, sound, weekly recap, monthly chapter), the passcode lock, and the Chrome Carte design. The site saves on the device first; sync to Supabase is switched on with `NEXT_PUBLIC_SYNC=on` (see `SETUP.md`). The transition is chosen in Settings: Chrome drop (default) or Shared morph.
 
 | Document | What it holds |
 |---|---|
 | `BRIEF.md` | the brief, unchanged |
 | `PRODUCT.md` | product truth: who it is for, purpose, constraints, principles (written with `/impeccable init`) |
 | `PLAN.md` | this file: stack, hosting, costs, architecture, phases, risks, open questions |
-| `design/TOKENS.md` | the token system: named colors, glass, type roles, space, motion, intensity, world accents, ASCII wireframes |
+| `design/TOKENS.md` | the Chrome Carte token system: colors in light and dark, chrome, type, shape, motion, pace, layout |
 | `design/tokens.json` | the same values as data, checked by `tools/contrast.py` |
-| `design/token-board.html` | the visual token board; screenshots in `design/shots/` |
 | `design/DATA.md` | the data model, security, sync, export and import, seed data, capacity |
 | `CLAUDE.md` | working rules for any agent in this repo |
 
 ## 1. In plain language
 
-WAHB'S WORLD will be a website that installs on his phone and laptop like an app. It opens on "WAHB" surrounded by glass panes, one per world. Each world has its own scene and its own real data. Everything he records is saved on the device the moment he taps, then copied to a private database so the other device gets it too. It costs nothing per month to run at his scale. We build it in seven phases and stop after each one to show him.
+WAHB'S WORLD will be a website that installs on his phone and laptop like an app. It opens on a menu of nine worlds under a liquid chrome hero. Each world has its own real data. Everything he records is saved on the device the moment he taps, then copied to a private database so the other device gets it too. It costs nothing per month to run at his scale. We build it in seven phases and stop after each one to show him.
 
 ## 2. Stack and hosting (final proposal)
 
@@ -27,7 +26,8 @@ The brief's recommended stack holds up. Versions are the current releases on npm
 | Styling | **Tailwind CSS 4.3** with the tokens as CSS custom properties through `@theme` | Tokens stay the single source; components never hold raw hex values |
 | Interface motion | **Motion 13** (`motion/react`) | Layout animations, shared element transitions, springs, and `useReducedMotion` |
 | Timelines | **GSAP 3.15** | Complex scene timelines. GSAP is now free for all uses, including every former members only plugin (verified on gsap.com) |
-| Glass and the shatter | **three 0.186**, **@react-three/fiber 9**, **@react-three/drei 10** (Environment and Lightformer studio light, MeshReflectorMaterial), Fluent Emoji 3D renders (MIT), **modern-screenshot 4.7** | The landing is a glass cabinet of nine real objects in physically based glass on a mirror floor; tapping one breaks it with real gravity and friction. Without WebGL, the same worlds show as real-object cards and the screen itself shatters |
+| Liquid chrome | **three 0.186**, **@react-three/fiber 9**, **@react-three/drei 10** (MeshDistortMaterial, Environment and Lightformer studio light, PerformanceMonitor) | Two metal drops on the home page whose flow follows the day's pace; loaded after the page is idle, paused off screen, still when motion is reduced. Without WebGL the page is complete without them |
+| Type and icons | **Geist** through `next/font`, **Phosphor Icons 2** | One sans and one mono; one icon family |
 | Components | **shadcn/ui** (Radix primitives) and **21st.dev** as raw material | Accessible primitives; every component restyled to the tokens, licenses checked one by one |
 | Local first data | **Dexie 4.4** over IndexedDB, with `liveQuery` | Instant saves, reactive reads, a local outbox |
 | Validation | **Zod 4.6** | One schema per table, shared by the forms, the sync engine and import |
@@ -62,10 +62,11 @@ app/                     routes: / (landing), /today, /school, /work, /money,
 src/data/                zod schemas, Dexie database, repositories, sync engine,
                          export and import, seed modules
 src/worlds/<world>/      the world's interface and its scene, one folder each
-src/scenes/              the 3D landing and the signature transition (lazy)
-src/motion/              motion tokens, the intensity engine, reduced motion
-src/sound/               Web Audio synthesis, profiles, volume (off by default)
-src/ui/                  restyled primitives (buttons, sheets, fields, glass)
+src/home/                the home page: the carte, the week board, the chrome scene (lazy)
+src/motion/              the transitions into a world, reduced motion
+src/living/              the day's pace, Web Audio sound (off by default), recap and chapter
+src/privacy/             the device passcode and the lock screen
+src/ui/                  primitives (shell, sheets, fields, toasts, world marks)
 supabase/migrations/     SQL: tables, row level security, sync functions, triggers
 design/                  tokens, board, data model
 tests/                   unit, flow, accessibility, sync across two sessions
@@ -77,9 +78,9 @@ Rules: data code never imports interface or animation code. Scenes read derived 
 ## 4. Design direction
 
 * **Direction lead:** Anthropic's `frontend-design` (one lead, as the brief asks), with `ui-ux-pro-max` for tokens and type data and `/impeccable` for product context, critique and audits.
-* **The world:** night service at the pass. Deep navy rooms, light coming from the objects, orange as the heat lamp over what needs him now, glass as the interface. Details in `design/TOKENS.md`.
-* **Type:** Anybody (display, with a width axis tied to intensity), Atkinson Hyperlegible Next (interface), Martian Mono (printed things only). All SIL Open Font License, self hosted.
-* **Contrast:** every text color passes AA on every glass backing in the worst case (glass over pure white). The check runs in CI.
+* **The world:** Chrome Carte. A café menu set in liquid chrome: a neutral ground, near black ink, chrome for the objects, and one orange for what needs him now. Details in `design/TOKENS.md`.
+* **Type:** Geist Sans and Geist Mono (SIL Open Font License) through `next/font`.
+* **Contrast:** every text color passes AA on every ground in light and dark. The check runs in CI.
 * **Phase 2 opens with the impeccable direction round** for the landing surface: the brief pins the world, so the round decides composition and the signature interaction, not a new look.
 
 ## 5. Phases and acceptance
@@ -117,7 +118,7 @@ Each phase ends with desktop and phone screenshots, `/impeccable audit` and `cri
 | iPhone storage eviction of IndexedDB for sites not used for a while | local copy lost on the phone | install to the home screen, request persistent storage, keep the server copy as the backstop; data is only removed from a device after the server confirms it |
 | Two devices edit the same row offline | one edit wins | row level last writer wins by a hybrid clock, and the replaced version kept in `history`, restorable from Settings |
 | Serwist with Turbopack in Next.js 16 | offline shell harder to build | Phase 1 spike with `@serwist/turbopack`; fallback to webpack builds for the worker |
-| Glass blur and 3D refraction on a mid range phone | dropped frames, heat, battery | 3D only on the landing and the transition, loaded lazily; the DOM landing paints first; runtime quality tiers; solid tint fallback without blur; nothing animates off screen or in a hidden tab |
+| The chrome scene on a slower device | dropped frames, heat, battery | one canvas on the home page only, loaded when idle; resolution drops when frames are slow; the loop stops off screen and in a hidden tab; still when motion is reduced; the page is complete without it |
 | Supabase free project pausing | sync stops until restored | daily use plus the daily backup job; local copies keep working; Pro is 25 USD a month if it ever becomes a problem |
 | Built in auth email limit of 2 an hour | locked out after several code requests | custom SMTP through a free transactional email service; long lived sessions so codes are rare |
 | No automatic backups on Supabase Free | a mistake on the server is permanent | daily JSON snapshot to private storage (last 14), manual export in Settings, and full local copies on both devices |

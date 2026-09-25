@@ -26,12 +26,13 @@ test("a check in made offline on the phone appears on the laptop after reconnect
   await phoneCtx.setOffline(true);
   await phone.getByTestId("checkin-gym_done").click();
   await expect(phone.getByTestId("today-log")).toContainText("Gym done");
-  await expect(phone.getByTestId("sync-badge")).toHaveText(/1 waiting/);
+  // Gym done writes the check in and a training session: two changes waiting.
+  await expect(phone.getByTestId("sync-badge")).toHaveText(/2 waiting/);
 
   // Reload with no connection: the service worker serves the page, IndexedDB still has the check in.
   await phone.reload();
   await expect(phone.getByTestId("today-log")).toContainText("Gym done");
-  await expect(phone.getByTestId("sync-badge")).toHaveText(/1 waiting|Offline/);
+  await expect(phone.getByTestId("sync-badge")).toHaveText(/2 waiting|Offline/);
 
   await laptop.reload();
   await expect(laptop.getByTestId("sync-badge")).toHaveText(/Synced/);

@@ -10,7 +10,6 @@ import { removeWithUndo, toast } from "@/ui/kit/toast";
 import { Shell } from "@/ui/Shell";
 import { useSchool, type CourseView } from "@/worlds/school/data";
 import { assessmentSpec, blockSpec, DAYS } from "@/worlds/school/specs";
-import { PlantScene } from "@/worlds/school/PlantScene";
 
 type Editing =
   | { kind: "assessment"; row: Partial<Row<"assessments">> }
@@ -49,19 +48,24 @@ export default function School() {
   }
 
   return (
-    <Shell title="School" accent="coolant">
-      <div className="school-top">
-        <PlantScene conversion={data?.conversion ?? 0} label={data?.term?.name ?? ""} />
-        <section className="glass pane term-card" aria-labelledby="term-h">
-          <h2 id="term-h" className="pane-title">{data?.term?.name ?? "No current term"}</h2>
-          <p className="big-line">{Math.round((data?.conversion ?? 0) * 100)} percent of the term's graded work is done</p>
-          {data?.term && <p className="soft">{data.term.starts_on} to {data.term.ends_on}</p>}
-          <div className="row-actions">
-            <button className="btn btn-primary" onClick={() => setEditing({ kind: "assessment", row: { status: "open", kind: "assignment", course_id: courses[0]?.id } })} data-testid="add-deadline">Add a deadline</button>
-            <Link className="btn" href="/school/new-term" data-testid="new-term">Start a new term</Link>
-          </div>
-        </section>
-      </div>
+    <Shell title="School" world="school">
+      <section className="hero-figures" aria-label="The term">
+        <div className="figure-block figure-main">
+          <span className="figure-label">{data?.term?.name ?? "No current term"}</span>
+          <span className="figure-xl">{Math.round((data?.conversion ?? 0) * 100)}<small>%</small></span>
+          <span className="figure-note">of the term&apos;s graded work is done</span>
+          <span className="meter meter-lg" aria-hidden="true"><i style={{ width: `${Math.round((data?.conversion ?? 0) * 100)}%` }} /></span>
+        </div>
+        <div className="figure-block">
+          <span className="figure-label">Open deadlines</span>
+          <span className="figure-lg">{courses.reduce((n, c) => n + c.assessments.filter((a) => a.status === "open").length, 0)}</span>
+          <span className="figure-note">{data?.term ? `${data.term.starts_on} to ${data.term.ends_on}` : ""}</span>
+        </div>
+        <div className="figure-actions">
+          <button className="btn btn-primary" onClick={() => setEditing({ kind: "assessment", row: { status: "open", kind: "assignment", course_id: courses[0]?.id } })} data-testid="add-deadline">Add a deadline</button>
+          <Link className="btn" href="/school/new-term" data-testid="new-term">Start a new term</Link>
+        </div>
+      </section>
 
       <h2 className="band-title">Units</h2>
       <div className="units">
@@ -70,9 +74,9 @@ export default function School() {
       </div>
 
       <div className="world-grid school-lower">
-        <section className="glass pane" aria-labelledby="dl-h">
+        <section className="panel" aria-labelledby="dl-h">
           <div className="section-head">
-            <h2 id="dl-h" className="pane-title">Deadlines</h2>
+            <h2 id="dl-h" className="panel-title">Deadlines</h2>
             <div className="tabs" role="tablist" aria-label="Show">
               {(["open", "done", "all"] as const).map((f) => (
                 <button key={f} role="tab" aria-selected={filter === f} onClick={() => setFilter(f)}>{f === "open" ? "Open" : f === "done" ? "Done" : "All"}</button>
@@ -98,9 +102,9 @@ export default function School() {
           )}
         </section>
 
-        <section className="glass pane" aria-labelledby="wk-h">
+        <section className="panel" aria-labelledby="wk-h">
           <div className="section-head">
-            <h2 id="wk-h" className="pane-title">The week</h2>
+            <h2 id="wk-h" className="panel-title">The week</h2>
             <button className="btn btn-small" onClick={() => setEditing({ kind: "block", row: { kind: "lecture", weekday: new Date().getDay() } })}>Add a block</button>
           </div>
           <div className="week">
@@ -147,7 +151,7 @@ export default function School() {
 
 function Unit({ c, today }: { c: CourseView; today: string }) {
   return (
-    <Link href={`/school/course?id=${c.id}`} className="unit glass" data-testid="unit">
+    <Link href={`/school/course?id=${c.id}`} className="unit panel" data-testid="unit">
       <span className="unit-code">{c.code}</span>
       <span className="unit-name" lang={c.language}>{c.name}</span>
       <span className="unit-meter" aria-label={`${Math.round(c.conversion * 100)} percent done`}>

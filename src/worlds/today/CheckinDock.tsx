@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { localDay } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
 import { fire } from "@/motion/feedback";
-import { ObjectImage, type ObjectName } from "@/ui/ObjectImage";
+import { Barbell, CameraPlus, ClipboardText, Alarm, Receipt, type Icon } from "@phosphor-icons/react";
+import { playSound } from "@/living/sound";
 import type { Row } from "@/data/schema";
 
 export type Kind = Row<"checkins">["kind"];
@@ -18,13 +19,13 @@ export const DOCK: { kind: Kind; label: string; done: string; ask?: "amount" | "
   { kind: "moment", label: "A moment", done: "Moment kept", ask: "text" },
 ];
 
-/** Each check in is a real object: the clipboard, the alarm clock, the lifter, the banknote, the camera. */
-const OBJECT: Record<Kind, ObjectName> = {
-  task_done: "clipboard",
-  shift_worked: "alarm-clock",
-  gym_done: "lifting",
-  spent: "banknote",
-  moment: "camera",
+/** Each check in is a real object: the clipboard, the alarm clock, the barbell, the receipt, the camera. */
+const OBJECT: Record<Kind, Icon> = {
+  task_done: ClipboardText,
+  shift_worked: Alarm,
+  gym_done: Barbell,
+  spent: Receipt,
+  moment: CameraPlus,
 };
 
 export function describe(c: Row<"checkins">): string {
@@ -66,6 +67,15 @@ export function CheckinDock({ today }: { today: string }) {
       const t = await store.put("transactions", { occurred_on: today, amount_cents: Number(payload.cents), direction: "out", note: (payload.note as string) || null, merchant: null });
       ref = { table: "transactions", id: t.id };
     }
+    // Gym done is a training session; a moment is a memory in Life. The check in points at what it made.
+    if (kind === "gym_done") {
+      const t = await store.put("training_sessions", { occurred_on: today, kind: "strength" });
+      ref = { table: "training_sessions", id: t.id };
+    }
+    if (kind === "moment" && String(payload.text ?? "").trim()) {
+      const m = await store.put("memories", { occurred_on: today, title: String(payload.text).trim().slice(0, 140), kind: "spontaneous" });
+      ref = { table: "memories", id: m.id };
+    }
     const row = await store.put("checkins", {
       kind,
       occurred_at: new Date().toISOString(),
@@ -83,6 +93,7 @@ export function CheckinDock({ today }: { today: string }) {
       if (planned.length) await store.patch("checkins", row.id, { payload: row.payload });
     }
     setAsking(null);
+    playSound("check");
     fire(document.querySelector<HTMLElement>(`[data-testid="checkin-${kind}"]`));
     clearTimeout(undoTimer.current);
     setUndo({ id: row.id, text: `${describe(row)}. Saved.` });
@@ -94,7 +105,8 @@ export function CheckinDock({ today }: { today: string }) {
     const row = await store.get("checkins", undo.id);
     await store.remove("checkins", undo.id);
     if (row?.ref_table === "tasks" && row.ref_id) await store.patch("tasks", row.ref_id, { done_at: null });
-    if (row?.ref_table === "transactions" && row.ref_id) await store.remove("transactions", row.ref_id);
+    if (row?.ref_table && ["transactions", "training_sessions", "memories"].includes(row.ref_table) && row.ref_id) await store.remove(row.ref_table as "transactions", row.ref_id);
+    playSound("undo");
     for (const id of ((row?.payload as { shifts?: string[] })?.shifts ?? [])) await store.patch("shifts", id, { status: "planned" });
     setUndo(null);
   }
@@ -105,16 +117,16 @@ export function CheckinDock({ today }: { today: string }) {
       {asking && <AskSheet item={asking} tasks={openTasks ?? []} onCancel={() => setAsking(null)} onSave={(payload, taskId) => save(asking.kind, payload, taskId)} />}
       <div className="undo-slot" aria-live="polite">
         {undo && (
-          <div className="undo glass" role="status">
+          <div className="undo" role="status">
             <span>{undo.text}</span>
             <button className="btn" onClick={undoLast}>Undo</button>
           </div>
         )}
       </div>
-      <nav className="dock glass" aria-label="Check in">
+      <nav className="dock" aria-label="Check in">
         {DOCK.map((d) => (
           <button key={d.kind} className="dock-btn" data-testid={`checkin-${d.kind}`} onClick={(e) => { if (d.ask) setAsking(d); else { fire(e.currentTarget); void save(d.kind); } }} disabled={!store}>
-            <ObjectImage name={OBJECT[d.kind]} size={30} />
+            {(() => { const I = OBJECT[d.kind]; return <I size={24} aria-hidden="true" />; })()}
             <span>{d.label}</span>
           </button>
         ))}
@@ -161,8 +173,8 @@ function AskSheet({
   }
 
   return (
-    <form className="sheet glass" onSubmit={submit} onKeyDown={(e) => e.key === "Escape" && onCancel()} aria-label={item.label}>
-      <h2 className="pane-title">{item.label}</h2>
+    <form className="sheet panel" onSubmit={submit} onKeyDown={(e) => e.key === "Escape" && onCancel()} aria-label={item.label}>
+      <h2 className="panel-title">{item.label}</h2>
       {item.ask === "amount" && (
         <>
           <div className="field">

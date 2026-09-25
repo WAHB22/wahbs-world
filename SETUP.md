@@ -30,6 +30,7 @@ GitHub, the `wahbs-world` repository, Settings, Danger Zone, Change visibility, 
 | `CRON_SECRET` | any long random string |
 | `OWNER_EMAIL` | your Gmail address (server only; it is never shown or emailed) |
 | `ACCESS_PASSWORD` | the password you will type once on each device. Pick a long one; iCloud Keychain can remember it |
+| `NEXT_PUBLIC_SYNC` | `on` to sync between your devices through Supabase. Leave it out and everything stays on each device |
 
 3. Deploy. The address to use is the short one under Domains (for example `wahbs-worlds.vercel.app`). The long links with a random part belong to single deployments and ask for a Vercel login.
 4. Changed a variable later? Deployments, the latest one, Redeploy. Variables starting with `NEXT_PUBLIC_` are built into the site, so they only take effect after a redeploy.
@@ -41,6 +42,7 @@ The daily backup runs by itself (Vercel Cron, once a day). It saves a JSON copy 
 
 * **iPhone:** open the address in Safari, type your password once, then Share, Add to Home Screen. Open it from the home screen from then on: that is the app, it works offline, and iOS protects its storage.
 * **Laptop:** open the address and type your password once. In Chrome or Edge you can also install it from the address bar.
+* In Settings, Privacy, set a **passcode** on each device. The app then asks for it when it opens and after it has been away for the time you pick (1 minute to 1 hour). The passcode is kept only on that device, as a salted hash, and is never synced or exported. Forgot it? Clear the site's data in the browser; with sync on, everything comes back from Supabase after you unlock with your password.
 * In Settings, Data, press **Export a backup** once in a while and keep the file somewhere safe. Import never deletes anything.
 
 ## Running it locally (for development)

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 export type FieldSpec = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "money" | "date" | "time" | "select" | "checkbox" | "list";
+  type: "text" | "textarea" | "number" | "money" | "date" | "time" | "select" | "checkbox" | "list" | "multi" | "url";
   options?: { value: string; label: string }[];
   required?: boolean;
   hint?: string;
@@ -16,11 +16,14 @@ export type FieldSpec = {
 type Values = Record<string, unknown>;
 
 /** Turn a stored row into what the form shows (money is cents in storage, dollars on screen). */
-function toForm(spec: FieldSpec[], row: Values): Record<string, string | boolean> {
-  const out: Record<string, string | boolean> = {};
+type FormValue = string | boolean | string[];
+
+function toForm(spec: FieldSpec[], row: Values): Record<string, FormValue> {
+  const out: Record<string, FormValue> = {};
   for (const f of spec) {
     const v = row[f.name];
     if (f.type === "checkbox") out[f.name] = Boolean(v);
+    else if (f.type === "multi") out[f.name] = Array.isArray(v) ? (v as string[]) : [];
     else if (f.type === "money") out[f.name] = v == null ? "" : (Number(v) / 100).toFixed(2);
     else if (f.type === "list") out[f.name] = Array.isArray(v) ? v.join(", ") : "";
     else if (f.type === "time") out[f.name] = v == null ? "" : String(v).slice(0, 5);
@@ -29,11 +32,12 @@ function toForm(spec: FieldSpec[], row: Values): Record<string, string | boolean
   return out;
 }
 
-function fromForm(spec: FieldSpec[], form: Record<string, string | boolean>): Values {
+function fromForm(spec: FieldSpec[], form: Record<string, FormValue>): Values {
   const out: Values = {};
   for (const f of spec) {
     const v = form[f.name];
     if (f.type === "checkbox") out[f.name] = Boolean(v);
+    else if (f.type === "multi") out[f.name] = Array.isArray(v) ? v : [];
     else if (f.type === "money") out[f.name] = v === "" ? null : Math.round(parseFloat(String(v).replace(",", ".")) * 100);
     else if (f.type === "number") out[f.name] = v === "" ? null : Number(String(v).replace(",", "."));
     else if (f.type === "list") out[f.name] = String(v).split(",").map((x) => x.trim()).filter(Boolean);
@@ -61,11 +65,12 @@ export function EditSheet({
   const [error, setError] = useState<string | null>(null);
   const first = useRef<HTMLElement | null>(null);
   useEffect(() => { first.current?.focus(); }, []);
-  const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
+  const set = (k: string, v: FormValue) => setForm((f) => ({ ...f, [k]: v }));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     for (const f of spec) if (f.required && (form[f.name] === "" || form[f.name] == null)) return setError(`${f.label} is needed.`);
+    for (const f of spec) if (f.type === "url" && form[f.name] && !/^https?:\/\/\S+\.\S+/.test(String(form[f.name]))) return setError(`${f.label} should be a full link, starting with https://`);
     const values = fromForm(spec, form);
     for (const f of spec) if (f.type === "money" && values[f.name] != null && !Number.isFinite(values[f.name] as number)) return setError(`${f.label} should be an amount, like 12.50.`);
     try {
@@ -79,20 +84,36 @@ export function EditSheet({
   return (
     <>
       <div className="sheet-scrim" onClick={onClose} aria-hidden="true" />
-      <form className="sheet edit-sheet glass" onSubmit={submit} onKeyDown={(e) => e.key === "Escape" && onClose()} aria-label={title} role="dialog">
-        <h2 className="pane-title">{title}</h2>
+      <form className="sheet edit-sheet panel" onSubmit={submit} onKeyDown={(e) => e.key === "Escape" && onClose()} aria-label={title} role="dialog">
+        <h2 className="panel-title">{title}</h2>
         <div className="edit-fields">
           {spec.map((f, i) => {
             const id = `f-${f.name}`;
             const ref = i === 0 ? (n: HTMLElement | null) => { first.current = n; } : undefined;
             const common = { id, name: f.name, placeholder: f.placeholder };
             return (
-              <div key={f.name} className={`field${f.type === "textarea" || f.type === "list" ? " wide" : ""}${f.type === "checkbox" ? " check" : ""}`}>
+              <div key={f.name} className={`field${f.type === "textarea" || f.type === "list" || f.type === "multi" ? " wide" : ""}${f.type === "checkbox" ? " check" : ""}`}>
                 {f.type === "checkbox" ? (
                   <label className="tappable check-row">
                     <input type="checkbox" ref={ref as never} checked={Boolean(form[f.name])} onChange={(e) => set(f.name, e.target.checked)} {...common} />
                     <span>{f.label}</span>
                   </label>
+                ) : f.type === "multi" ? (
+                  <fieldset className="multi">
+                    <legend>{f.label}</legend>
+                    {!f.options?.length && <p className="hint">Nothing to choose from yet.</p>}
+                    <div className="chips">
+                      {f.options?.map((o) => {
+                        const on = (form[f.name] as string[]).includes(o.value);
+                        return (
+                          <label key={o.value} className="chip-check tappable">
+                            <input type="checkbox" checked={on} onChange={(e) => set(f.name, e.target.checked ? [...(form[f.name] as string[]), o.value] : (form[f.name] as string[]).filter((x) => x !== o.value))} />
+                            <span>{o.label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
                 ) : (
                   <label htmlFor={id}>{f.label}</label>
                 )}
@@ -103,10 +124,10 @@ export function EditSheet({
                     {f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 )}
-                {["text", "list", "date", "time", "number", "money"].includes(f.type) && (
+                {["text", "list", "date", "time", "number", "money", "url"].includes(f.type) && (
                   <input
                     ref={ref as never}
-                    type={f.type === "date" || f.type === "time" ? f.type : "text"}
+                    type={f.type === "date" || f.type === "time" || f.type === "url" ? f.type : "text"}
                     inputMode={f.type === "number" ? "decimal" : f.type === "money" ? "decimal" : undefined}
                     value={String(form[f.name])}
                     onChange={(e) => set(f.name, e.target.value)}

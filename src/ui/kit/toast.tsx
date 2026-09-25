@@ -25,7 +25,7 @@ export function Toaster() {
   return (
     <div className="toast-slot" aria-live="polite">
       {t && (
-        <div className="undo glass" role="status" key={t.id}>
+        <div className="undo" role="status" key={t.id}>
           <span>{t.text}</span>
           {t.undo && <button className="btn" onClick={async () => { await t.undo!(); setT(null); }}>Undo</button>}
         </div>

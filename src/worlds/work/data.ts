@@ -78,3 +78,8 @@ export async function planFromRoutine(store: Store, routine: Row<"schedule_block
   }
   return made;
 }
+
+export function fmtHours(h: number): string {
+  const r = Math.round(h * 4) / 4;
+  return `${Number.isInteger(r) ? r : r.toFixed(2).replace(/0$/, "")} ${r === 1 ? "hour" : "hours"}`;
+}
