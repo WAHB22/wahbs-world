@@ -1,6 +1,13 @@
 /* Layout and components for the Phase 1 shell. Tokens only; see design/TOKENS.md. */
 
-.shell { --accent: var(--color-sky); min-height: 100dvh; display: flex; flex-direction: column; }
+.shell { --accent: var(--color-sky); --accent-rgb: var(--rgb-sky); min-height: 100dvh; display: flex; flex-direction: column; }
+/* Each world's room is lit by its own accent, from high on the right: the scene light, not decoration. */
+.shell::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 88% -8%, rgb(var(--accent-rgb) / 0.22), transparent 62%),
+    radial-gradient(60% 50% at -8% 105%, rgb(var(--rgb-cobalt) / 0.2), transparent 65%);
+}
 
 .topbar {
   position: sticky; top: 0; z-index: 20;
@@ -24,11 +31,11 @@
 @keyframes pulse { to { opacity: 0.35; } }
 
 .page { flex: 1; width: 100%; max-width: 2200px; margin: 0 auto; padding: clamp(20px, 4vw, 56px) var(--gutter) calc(140px + env(safe-area-inset-bottom, 0px)); }
-.world-title { font-size: clamp(44px, 8vw, 128px); line-height: 0.95; font-variation-settings: "wdth" 96; margin-bottom: clamp(20px, 3vw, 44px); }
+.world-title { font-size: clamp(48px, 8.5vw, 140px); line-height: 0.9; font-weight: 820; letter-spacing: -0.035em; font-variation-settings: "wdth" 118; margin-bottom: clamp(20px, 3vw, 44px); }
 .shell .world-title::after { content: ""; display: block; width: 0.9em; height: 0.08em; margin-top: 0.12em; border-radius: 99px; background: var(--accent); }
 
 .pane { padding: clamp(18px, 2.2vw, 30px); }
-.pane-title { font-size: clamp(24px, 2.4vw, 34px); font-variation-settings: "wdth" 90; margin-bottom: 14px; }
+.pane-title { font-size: clamp(23px, 2.1vw, 31px); font-weight: 740; font-variation-settings: "wdth" 104; letter-spacing: -0.01em; margin-bottom: 14px; }
 .big-line { font-size: clamp(22px, 2.2vw, 30px); font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
 
 /* Landing (phase 1): WAHB and the worlds as a menu */
@@ -294,3 +301,46 @@ input[type="range"] { accent-color: var(--color-coolant); min-height: 32px; }
 .one-thing .row-actions { margin-top: 16px; }
 .moments li { display: grid; gap: 0; }
 .moment-day { font-size: 14px; text-transform: capitalize; }
+
+
+/* ---------- One orchestrated entrance per page ---------- */
+@keyframes title-in { from { clip-path: inset(0 100% 0 0); transform: translateX(-12px); } to { clip-path: inset(0 0 0 0); transform: none; } }
+@keyframes room-in { from { opacity: 0; transform: translateY(14px) scale(0.99); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+.page > .world-title { animation: title-in 520ms var(--ease-out) both; }
+/* Fixed layers (the dock, sheets, the undo) keep their own positioning and are never part of the entrance. */
+.page > .world-title ~ :not(.dock):not(.sheet):not(.sheet-scrim):not(.undo-slot) { animation: room-in 460ms var(--ease-out) 110ms both; }
+[data-tx] .page > .world-title ~ :not(.dock):not(.sheet):not(.sheet-scrim):not(.undo-slot) { animation-delay: 260ms; }
+
+/* ---------- Motion that answers an action ---------- */
+@keyframes ring-out { from { transform: translate(-50%, -50%) scale(0.4); opacity: 0.9; } to { transform: translate(-50%, -50%) scale(2.4); opacity: 0; } }
+.fire-ring { position: absolute; left: 50%; top: 42%; width: 44px; height: 44px; border-radius: 50%; pointer-events: none;
+  border: 2px solid var(--color-flame); box-shadow: 0 0 18px rgb(var(--rgb-ember) / 0.6); animation: ring-out 520ms var(--ease-out) forwards; }
+.dock-btn { position: relative; }
+@keyframes icon-pop { 40% { transform: translateY(-4px) scale(1.12); } }
+.dock-btn.fired svg { animation: icon-pop 360ms var(--ease-out); }
+
+.log-list li { transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out); }
+@starting-style { .log-list li { opacity: 0; transform: translateY(10px); } }
+
+.stamp { position: absolute; right: 22px; top: 18px; z-index: 2; pointer-events: none;
+  font: 820 26px/1 var(--font-display); font-variation-settings: "wdth" 120; letter-spacing: 0.02em;
+  color: var(--color-basil); border: 3px solid var(--color-basil); border-radius: 10px; padding: 6px 12px;
+  animation: stamp 900ms var(--ease-out) forwards; }
+@keyframes stamp { 0% { opacity: 0; transform: rotate(-14deg) scale(1.6); } 18% { opacity: 1; transform: rotate(-8deg) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: rotate(-8deg) scale(1); } }
+.one-thing { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page > .world-title, .page > .world-title ~ :not(.dock) { animation: none; }
+  .fire-ring { display: none; }
+}
+[data-motion="reduced"] .page > .world-title, [data-motion="reduced"] .page > .world-title ~ * { animation: none; }
+
+/* Landing panes share the house glass: bevelled edge, thickness. */
+.pane-glass { border-color: transparent; isolation: isolate; }
+.pane-glass::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
+  background: linear-gradient(150deg, rgb(var(--rgb-frost) / 0.55), rgb(var(--rgb-frost) / 0.1) 40%, rgb(var(--acc-rgb) / 0.35) 72%, rgb(var(--rgb-abyss) / 0.5));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+@media (hover: hover) and (pointer: fine) { .pane3d:hover .pane-glass::before { background: linear-gradient(150deg, rgb(var(--rgb-frost) / 0.7), rgb(var(--acc-rgb) / 0.8)); } }

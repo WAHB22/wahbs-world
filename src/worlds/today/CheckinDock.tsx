@@ -3,6 +3,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState } from "react";
 import { useWorld } from "@/data/runtime";
+import { fire } from "@/motion/feedback";
 import type { Row } from "@/data/schema";
 
 export type Kind = Row<"checkins">["kind"];
@@ -66,6 +67,7 @@ export function CheckinDock({ today }: { today: string }) {
     });
     if (taskId) await store.patch("tasks", taskId, { done_at: new Date().toISOString() });
     setAsking(null);
+    fire(document.querySelector<HTMLElement>(`[data-testid="checkin-${kind}"]`));
     clearTimeout(undoTimer.current);
     setUndo({ id: row.id, text: `${describe(row)}. Saved.` });
     undoTimer.current = setTimeout(() => setUndo(null), 5000);
@@ -93,7 +95,7 @@ export function CheckinDock({ today }: { today: string }) {
       </div>
       <nav className="dock glass" aria-label="Check in">
         {DOCK.map((d) => (
-          <button key={d.kind} className="dock-btn" data-testid={`checkin-${d.kind}`} onClick={() => (d.ask ? setAsking(d) : save(d.kind))} disabled={!store}>
+          <button key={d.kind} className="dock-btn" data-testid={`checkin-${d.kind}`} onClick={(e) => { if (d.ask) setAsking(d); else { fire(e.currentTarget); void save(d.kind); } }} disabled={!store}>
             <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
               <path d={ICON[d.kind]} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

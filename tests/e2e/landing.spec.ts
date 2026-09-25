@@ -14,6 +14,7 @@ test("the landing shows WAHB and nine worlds with live status lines", async ({ p
 
 for (const kind of ["morph", "dive", "liquid", "shatter"] as const) {
   test(`${kind}: entering a world navigates at once and never blocks, then the way back works`, async ({ page }) => {
+    await page.goto("/today"); // warm the route, so the timing below measures the app, not a cold server
     await page.goto("/lab/transitions");
     await page.getByTestId(`choose-${kind}`).click();
     await expect(page.getByTestId(`choose-${kind}`)).toHaveText("Chosen");

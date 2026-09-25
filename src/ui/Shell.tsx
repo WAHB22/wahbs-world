@@ -9,7 +9,7 @@ import { AuthGate } from "./AuthGate";
 export function Shell({ title, accent, children, back = true }: { title: string; accent?: string; children: ReactNode; back?: boolean }) {
   return (
     <AuthGate>
-      <div className="shell" style={accent ? ({ "--accent": `var(--color-${accent})` } as React.CSSProperties) : undefined}>
+      <div className="shell" style={accent ? ({ "--accent": `var(--color-${accent})`, "--accent-rgb": `var(--rgb-${accent})` } as React.CSSProperties) : undefined}>
         <header className="topbar">
           {back ? (
             <Link href="/" className="back" aria-label="Back to the world">

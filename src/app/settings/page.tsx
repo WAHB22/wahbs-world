@@ -87,7 +87,7 @@ export default function SettingsPage() {
                 options={[["system", "Follow the device"], ["full", "Full"], ["reduced", "Reduced"]]} />
               <Choice label="Entering a world" field="transition" value={s.transition} onChange={change}
                 options={[["morph", "Shared morph"], ["dive", "Dive"], ["liquid", "Liquid"], ["shatter", "Shatter"]]} />
-              <p className="hint"><Link href="/lab/transitions">Compare the four side by side</Link></p>
+              <p className="hint" style={{ marginBottom: 16 }}><Link href="/lab/transitions">Compare the four side by side</Link></p>
               <Choice label="Intensity cap" field="intensity_cap" value={s.intensity_cap} onChange={change}
                 options={[["calm", "Calm"], ["opening", "Opening"], ["service", "Service"], ["rush", "Rush"]]} />
             </>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { dayLabel, localDay, timeLabel } from "@/data/dates";
 import { useWorld } from "@/data/runtime";
+import { useCountUp } from "@/motion/feedback";
 import { Shell } from "@/ui/Shell";
 import { askCheckin, checkinNow, CheckinDock, describe } from "@/worlds/today/CheckinDock";
 import { useToday, type Block } from "@/worlds/today/useToday";
@@ -31,12 +32,15 @@ export default function Today() {
   const today = localDay(now);
   const data = useToday(today, now);
   const [picking, setPicking] = useState(false);
+  const [stamped, setStamped] = useState(0);
+  const weekSpent = useCountUp(data?.money.week ?? 0);
   const dateLine = now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" });
   const evening = now.getHours() >= 19;
 
   async function markOneDone() {
     if (!store || !data?.oneThing) return;
     const { kind, item } = data.oneThing;
+    setStamped(Date.now());
     if (kind === "assessment") await store.patch("assessments", item.id, { status: "done" });
     else await store.patch("tasks", item.id, { done_at: new Date().toISOString() });
   }
@@ -54,6 +58,7 @@ export default function Today() {
       <div className="today-layout">
         <div className="today-col">
           <section className="glass pane one-thing" aria-labelledby="one">
+            {stamped > 0 && <span key={stamped} className="stamp" aria-hidden="true">DONE</span>}
             <h2 id="one" className="pane-title">The one thing</h2>
             {!data ? null : one ? (
               <>
@@ -150,7 +155,7 @@ export default function Today() {
       <div className="today-strip">
         <section className="glass pane stat" aria-labelledby="mny">
           <h2 id="mny" className="pane-title">Money</h2>
-          <p className="figure">{money(data?.money.week ?? 0)}</p>
+          <p className="figure">{money(Math.round(weekSpent))}</p>
           <p className="soft">spent this week, {money(data?.money.today ?? 0)} today</p>
         </section>
         <section className="glass pane stat" aria-labelledby="trn">
@@ -206,7 +211,9 @@ function BlockRow({ b }: { b: Block }) {
 
 function Ring({ done, planned }: { done: number; planned: number }) {
   const r = 30, c = 2 * Math.PI * r;
-  const frac = planned ? Math.min(1, done / planned) : done ? 1 : 0;
+  const target = planned ? Math.min(1, done / planned) : done ? 1 : 0;
+  const [frac, setFrac] = useState(0);
+  useEffect(() => { const id = requestAnimationFrame(() => setFrac(target)); return () => cancelAnimationFrame(id); }, [target]);
   return (
     <svg className="session-ring" viewBox="0 0 76 76" width="76" height="76" role="img" aria-label={`${done} of ${planned} sessions`}>
       <circle cx="38" cy="38" r={r} fill="none" stroke="var(--color-harbor)" strokeWidth="8" />
