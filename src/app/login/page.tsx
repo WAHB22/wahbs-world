@@ -6,13 +6,11 @@ import { SYNC_MODE } from "@/data/config";
 import { useWorld } from "@/data/runtime";
 import { supabase } from "@/data/supabase";
 
-/** Sign in with a six digit code by email. A code works inside the installed iPhone app; a link would open Safari. */
+/** One password, once per device. After that the world opens straight away. */
 export default function Login() {
   const { auth } = useWorld();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState<"email" | "code">("email");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,45 +18,37 @@ export default function Login() {
     if (auth.state === "signed-in" || auth.state === "not-needed") router.replace("/");
   }, [auth.state, router]);
 
-  async function send(e: React.FormEvent) {
+  async function unlock(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const { error } = await supabase().auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } });
-    setBusy(false);
-    if (error) setError(error.message.includes("rate") ? "Too many codes asked for. Wait a few minutes and try again." : "That address cannot sign in here.");
-    else setStep("code");
-  }
-
-  async function verify(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const { error } = await supabase().auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" });
-    setBusy(false);
-    if (error) setError("That code did not work. Check the latest email, or ask for a new code.");
+    try {
+      const res = await fetch("/api/unlock", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message ?? "Could not open.");
+      const { error } = await supabase().auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+      if (error) throw new Error(error.message);
+    } catch (err) {
+      setError(err instanceof TypeError ? "No connection. The first unlock on a device needs the internet." : (err as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (SYNC_MODE !== "supabase") return null;
   return (
     <main className="page login">
       <h1 className="wahb small">WAHB</h1>
-      <form className="glass pane login-pane" onSubmit={step === "email" ? send : verify}>
-        {step === "email" ? (
-          <div className="field">
-            <label htmlFor="email">Your email</label>
-            <input id="email" type="email" autoComplete="email" autoCapitalize="none" autoCorrect="off" required value={email} onChange={(e) => setEmail(e.target.value)} />
-            <p className="hint">You will get a six digit code.</p>
-          </div>
-        ) : (
-          <div className="field">
-            <label htmlFor="code">The code from your email</label>
-            <input id="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]*" maxLength={10} required value={code} onChange={(e) => setCode(e.target.value)} />
-            <button type="button" className="linkish" onClick={() => setStep("email")}>Use another address, or send a new code</button>
-          </div>
-        )}
+      <form className="glass pane login-pane" onSubmit={unlock}>
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <p className="hint">Only once on this device. After that it opens straight into your world.</p>
+        </div>
+        {/* hidden username so iCloud Keychain can save and fill the password */}
+        <input type="text" name="username" autoComplete="username" value="wahb" readOnly hidden />
         {error && <p className="warn" role="alert">{error}</p>}
-        <button type="submit" className="btn btn-primary" disabled={busy}>{step === "email" ? "Send the code" : "Sign in"}</button>
+        <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? "Opening" : "Open my world"}</button>
       </form>
     </main>
   );

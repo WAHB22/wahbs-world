@@ -162,8 +162,8 @@ export default function SettingsPage() {
           <h2 id="acct-h" className="pane-title">Account</h2>
           {auth.state === "signed-in" ? (
             <>
-              <p className="soft">Signed in as {auth.email}.</p>
-              <button className="btn" onClick={() => supabase().auth.signOut()}>Sign out</button>
+              <p className="soft">This device stays unlocked. Locking it means typing the password again here.</p>
+              <button className="btn" onClick={() => supabase().auth.signOut()}>Lock this device</button>
             </>
           ) : (
             <p className="soft">{SYNC_MODE === "memory" ? "Test build: no sign in needed." : "This build has no server connected, so no sign in is needed."}</p>
