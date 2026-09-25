@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 /**
  * One password per device, no email. The owner's email and the access password live only in
@@ -16,11 +16,19 @@ export async function POST(req: Request) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const email = process.env.OWNER_EMAIL;
-  const password = process.env.ACCESS_PASSWORD;
+  // Tolerate spaces and quote marks pasted around the values in Vercel.
+  const clean = (v?: string) => v?.trim().replace(/^["']|["']$/g, "").trim();
+  const email = clean(process.env.OWNER_EMAIL)?.toLowerCase();
+  const password = clean(process.env.ACCESS_PASSWORD);
   if (!url || !anon || !service || !email || !password) {
     return Response.json({ error: "setup", message: "The access password is not set up yet. Add OWNER_EMAIL and ACCESS_PASSWORD in Vercel, then redeploy." }, { status: 503 });
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return Response.json({ error: "setup", message: "OWNER_EMAIL in Vercel is not an email address. Type it plainly, like name@gmail.com, then redeploy." }, { status: 503 });
+  }
+  // The account password is derived from the access password and the server key, so the code typed
+  // on a device can be short (Supabase requires at least 6 characters for the account itself).
+  const accountPassword = createHmac("sha256", service).update(`wahbs-world:${password}`).digest("hex");
   const body = (await req.json().catch(() => ({}))) as { password?: unknown };
   if (typeof body.password !== "string" || !same(body.password, password)) {
     await wait(800); // slows down guessing
@@ -28,7 +36,7 @@ export async function POST(req: Request) {
   }
 
   const client = createClient(url, anon, { auth: { persistSession: false } });
-  let res = await client.auth.signInWithPassword({ email, password });
+  let res = await client.auth.signInWithPassword({ email, password: accountPassword });
   if (res.error) {
     // First time, or the password was changed in Vercel: create or update the one account.
     const admin = createClient(url, service, { auth: { persistSession: false } }).auth.admin;
@@ -36,10 +44,10 @@ export async function POST(req: Request) {
     if (listError) return Response.json({ error: "server", message: listError.message }, { status: 500 });
     const existing = list.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
     const done = existing
-      ? await admin.updateUserById(existing.id, { password, email_confirm: true })
-      : await admin.createUser({ email, password, email_confirm: true });
+      ? await admin.updateUserById(existing.id, { password: accountPassword, email_confirm: true })
+      : await admin.createUser({ email, password: accountPassword, email_confirm: true });
     if (done.error) return Response.json({ error: "server", message: done.error.message }, { status: 500 });
-    res = await client.auth.signInWithPassword({ email, password });
+    res = await client.auth.signInWithPassword({ email, password: accountPassword });
     if (res.error) return Response.json({ error: "server", message: res.error.message }, { status: 500 });
   }
   const s = res.data.session!;
