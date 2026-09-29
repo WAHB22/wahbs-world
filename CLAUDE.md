@@ -2,6 +2,10 @@
 
 Read `BRIEF.md` first, then `PRODUCT.md`, `PLAN.md`, `design/TOKENS.md` and `design/DATA.md`. The brief wins any conflict.
 
+## Wahb's standard (read before any build)
+
+Before building anything for Wahb (a site, an app screen, a video, an animation, a brand piece), load the skill `wahb-satisfaction` (`.claude/skills/wahb-satisfaction/SKILL.md`) and its references. It records what he approved (Spitch video v4, spitch.vercel.app, wahbs-worlds.vercel.app), what he rejected (anything that looks AI made, talking head avatars, partial deliveries), and the exact recipes that got approval. Treat it as the minimum bar for every delivery.
+
 ## Where the project stands
 
 All seven phases built. The design is Chrome Carte (see `design/TOKENS.md`): the home page is a café menu of the nine worlds under a liquid chrome hero. All nine worlds work (Today, School, Work, Money, Projects, Career, Knowledge, Training, Life), with the day's pace, sound (off by default), the weekly recap (`/recap`) and the monthly chapter (`/chapter`). Privacy on the device is a passcode lock set in Settings; sync to Supabase is switched on with `NEXT_PUBLIC_SYNC=on`. Setup steps that need Wahb's accounts are in `SETUP.md`. Each phase ends with desktop and phone screenshots in `shots/`, `/impeccable` checks, a plain language summary, and a stop.
