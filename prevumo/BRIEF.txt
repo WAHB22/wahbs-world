@@ -1,0 +1,52 @@
+PREVUMO owner dashboard (demo prototype). Wahb's brief, kept verbatim in substance. The brief wins any conflict.
+
+Name: PREVUMO = PREVentive Usage MOnitor. "PREVUMO" as the wordmark (all caps), "Prevumo" in running text.
+Clickable, demo-ready web prototype of PREVUMO, a predictive maintenance and usage tracking product for shared spaces with electric equipment (makerspaces, labs, shared commercial kitchens). For a university pitch on Friday. Must look like a real product, run with no backend, be easy to screen-record.
+
+1. Product context
+- Each machine gets a PREVUMO box on its power line: keypad, current sensor, relay. Members type a personal PIN before the machine powers on.
+- The box streams power draw to the cloud. PREVUMO learns each machine's normal current pattern, flags irregular patterns (possible failure) and idle patterns (on but not working), and lets the owner shut a machine down remotely.
+- OWNER side only. No member screens.
+- Attribution: 1) PIN typed on the box; 2) manual assignment by the owner (name/company + machines + time frame); 3) otherwise "Unassigned".
+- Core message: "Booking software tells you who booked the machine. PREVUMO tells you what happened to it, and when it's about to fail."
+
+2. Stack and constraints
+- Vite + React + TypeScript + Tailwind. Recharts. lucide-react. React Router.
+- No backend: local simulation engine, persisted in localStorage, with "Reset demo".
+- Laptop 1440x900 first (screen-recorded); must work on a phone (QR code during Q&A).
+- npm run build gives a static site for Vercel or Netlify. README with run and deploy steps.
+- Typed models, small components, no dead code.
+
+3. Visual design, palette "Field notes" (Tailwind tokens)
+bg #F3EBDD app background; surface #FFFDF8 cards, modals; border #E3D6C0 hairlines; ink #1F3D2B main text; muted #5B6B5F secondary text; green #2F6B45 normal, healthy, primary buttons; green-tint #D6E4D3 normal badges, normal band on charts; orange #E07A2E irregular, warning; orange-tint #F6D2B4 warning badges; rust #A63D1F shut down, critical alert banner; idle #EDE4D3 idle/off machines, secondary buttons.
+- Fonts: Space Grotesk headings, Inter body (Google Fonts), JetBrains Mono for live numbers.
+- Flat, generous whitespace, 10 to 12px card radius, thin borders, no heavy shadows. Calm when fine; the alert must feel urgent.
+- Status colour logic: green normal, orange irregular, rust critical/shut down, grey-beige off/idle. Consistent on cards, badges, chart lines and dots.
+- Subtle motion: alert banner slides in, live numbers tick, chart line scrolls.
+
+4. Pages
+1 Login: branded, pre-filled demo account "Owner: uOttawa Engineering", one Log in button.
+2 Locations: cards per location (Makerspace 1, STEM; Makerspace 2, CBY; Chem Lab B) with machine count and badges ("3 in use", "1 alert", "All idle"). Skip straight in if only one location.
+3 Location home: alert banner pinned at the very top when any machine is irregular (rust, machine name, short reason like "Spiked to 2.3x normal for 40 s", who is using it, Review button; multiple stack). "In use" cards: only running machines, pinned while active; name, current user (PIN, assigned, or Unassigned), session timer, live kW in mono, mini live sparkline, status colour on the left border. "Show all machines" toggle reveals the rest greyed out ("Off · last used 11:20"). Top bar: location switcher, notifications bell with unread count, links to Reports and Settings.
+4 Machine detail: live current/power chart, last 10 minutes, scrolling, over a shaded green normal band, irregular points as orange dots. Health score 0 to 100 with a colour ring and "Service due in X days". Current session: user, start time, energy so far. Irregularity history (date, type, owner decision) and session history (who, when, duration, kWh). Actions: Shut down, Call technician, Assign user, Machine settings.
+5 Irregularity alert modal: "Welder 2 looks irregular", chart of last 10 min vs normal band, context "3rd irregularity this month · last service 74 days ago", buttons Shut down (confirm: "The machine will stop and won't restart on its own"; card turns rust, then off), Call technician, Mark as OK (dismiss and log).
+6 Idle prompt: on but idle for N minutes, or still on after its assigned time frame ended: "3D printer 4 has been idle for 45 min · drawing 0.02 kW · booking ended 13:45" with Shut down and Keep on.
+7 Call technician: side panel with 2 to 3 partner technicians (name, specialty, rating, distance, typical response time); pick one, optional note, Send request; confirmation "Request sent to Volt Repair Ottawa · machine history attached" with the attached data summarized.
+8 Assign user: name or company, email, machines (multi-select), time frame (date range + days of week + hours, or "until I remove it"). Saved list, editable and removable. Sessions in the frame are attributed to that user; a PIN on the box overrides.
+9 Reports: default daily report auto-generated at end of day; range Today / This week / This month / Custom; tiles machine hours, energy kWh, irregularities, idle shut-offs; table per machine (hours, kWh, sessions, irregularities); table per member (user, machines used, hours, kWh) with an Unassigned row; Export PDF (window.print with print stylesheet) and Export CSV.
+10 Notifications: chronological alerts and idle prompts with outcome (Shut down / Technician requested / Marked OK / Kept on / Auto shut-off) and a link to the machine.
+11 Settings: auto shut-off rules (idle after X min; shut everything down daily at a set time; never auto shut off list for fridges, freezers); add machine (name, type, location, rated power, never auto shut off toggle; new machines "learning normal pattern (7 days)"); member PINs; booking integrations "Connect Skedda" and "Connect Google Calendar" marked Coming soon; Reset demo data.
+
+5. Simulation engine
+- 3 locations, 6 to 14 machines each, realistic rated powers (welder ~3 kW, laser cutter ~1.5 kW, 3D printer ~0.2 kW, oven ~5 kW, mixer ~0.8 kW, fridge ~0.3 kW cycling). 8 to 10 members with PINs, 2 manual assignments (Beta Inc. on Welder 2 and Band saw, Tue to Thu 13:00 to 17:00). 30 days of history.
+- 1 s tick, per type normal patterns, per machine normal bands. Irregularity = sustained deviation outside the band (spike, sag, erratic). Idle = near zero flat draw while on.
+- Demo controls from a small floating "Demo" button or Shift+D, hidden from the main UI: start a session (user or PIN), trigger irregularity, trigger idle, fast forward to end of day, reset demo.
+- Shut down sets off and logs; never auto-restarts.
+
+6. Scripted demo path (~70 s): login, Locations, Makerspace 1; 3 machines in use; trigger irregularity on Welder 2, rust banner slides in; Review, alert modal, Call technician, pick partner, request sent; back home, trigger idle on 3D printer 4, prompt, Shut down, card leaves In use; assign Beta Inc. to the laser cutter for this afternoon; fast forward to end of day, daily report, Export PDF preview.
+
+7. Acceptance: every screen reachable, no dead buttons (anything not built says Coming soon); demo path runs with no errors and no layout jumps at 1440x900; works at 390px (single column, banner on top); live numbers and charts animate smoothly; status colours everywhere; build succeeds; README explains run and deploy.
+
+8. Out of scope: member screens, real auth, real hardware, real payments, real booking integrations.
+
+Later requests from Wahb: run a refinement loop every 30 minutes with specialist agents (UI design, colours, security, customer service and help, maintenance, technician flow, irregularity alerting incl. sound or colour, structure and engineering); no AI look; professional, smooth, easy to read, interactive, visually satisfying; clearly better than skedda.com/fr/workplace (5/10 for him). A silent 20 s video of the app in use with the main components flagged. Use the installed design skills.
