@@ -76,6 +76,7 @@ export function DemoPanel({ locId }: { locId?: string }) {
       {!world.hideDemoButton && !demoOpen && (
         <button
           type="button"
+          data-demo-button
           onClick={() => setDemoOpen(true)}
           className="no-print fixed bottom-3 left-3 z-40 inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-surface/90 px-3 text-xs font-medium text-muted shadow-[0_2px_8px_rgb(31_61_43/0.08)] backdrop-blur transition-colors hover:text-ink"
         >

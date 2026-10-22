@@ -79,3 +79,33 @@ Open the demo controls with the small **Demo** button (bottom left) or **Shift+D
 ## Not built (out of scope)
 
 Member screens, real sign in, real hardware, payments and real booking integrations.
+
+## Pitch deck and videos
+
+Everything for Friday is in `deliverables/`:
+
+| File | What it is |
+| --- | --- |
+| `PREVUMO-pitch.pptx` | The 16:9 deck: 11 slides for 8:00 plus a 5 slide appendix for Q&A, speaker notes on every slide, the demo video on slide 6 (starts on the next click) |
+| `PREVUMO-pitch.pdf` | The same deck as a PDF for Brightspace (the video shows as its first frame) |
+| `PREVUMO-speaker-script.pdf` | Every speaker's words, timings, cues and transitions, plus Q&A answers, for rehearsal |
+| `prevumo-demo-70s.mp4` | The scripted demo path, 67 s, no sound, for slide 6 |
+| `prevumo-flags-20s.mp4` | 20.00 s, no sound: the app in use with the main components flagged |
+| `fonts/` | Space Grotesk, Inter and JetBrains Mono (SIL Open Font License). Install them on the presenting laptop so PowerPoint shows the real faces |
+
+Rebuild the deck (for example once the live URL exists, which turns both QR slots into real QR codes):
+
+```bash
+cd prevumo/deck
+npm install
+PPTX_SKILL=<path to the pptx skill> NODE_PATH=$PWD/node_modules node build.js --url https://your-live-url
+```
+
+Re-record the videos against a running preview (`npm run preview` in `prevumo/`):
+
+```bash
+FFMPEG=<path to ffmpeg with libx264> node video/record.mjs demo deliverables
+FFMPEG=<path to ffmpeg with libx264> node video/record.mjs flags deliverables
+```
+
+The recorder pins the browser clock to a weekday afternoon in Ottawa, draws a cursor, hides the demo controls and writes a 1920x1080 H.264 file.
