@@ -57,9 +57,9 @@ Before you click: "Here is the owner app. Everything you'll see works today."
 [0:06] Three machines are running: one started with a PIN, one unassigned, one booked to a capstone team. Below, the whole day on one timeline.
 [0:11] Now Welder 2 starts drawing more than twice its normal current.
 [0:15] Within seconds, this banner.
-[0:18] Review shows the live curve against this welder's normal range, in green. Orange dots are the irregular points. Third time this month, 74 days since its last service.
-[0:25] The owner calls a technician. The best match is preselected, and the machine's history goes with the request.
-[0:34] Meanwhile, a 3D printer has been idle for 45 minutes, still drawing power. One tap shuts it down, for good.
+[0:19] Review shows the live curve against this welder's normal range, in green. Orange dots are the irregular points. Third time this month, 74 days since its last service.
+[0:26] The owner calls a technician. The best match is preselected, and the machine's history goes with the request.
+[0:35] Meanwhile, a 3D printer has been idle for 45 minutes, still drawing power. One tap shuts it down, for good.
 [0:46] The owner gives Beta Inc. the laser cutter for this afternoon.
 [0:56] And at the end of the day, the report builds itself, per machine and per member, ready to export.
 [1:05] That's the loop: warning, decision, record. Scan the QR code to try it yourself.
