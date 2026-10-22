@@ -83,6 +83,7 @@ export function Login() {
           <Button type="submit" variant="primary" size="lg" className="mt-7 w-full">
             Log in <ArrowRight className="size-4" />
           </Button>
+          <p className="mt-4 text-[13px] text-muted lg:hidden">Inside, open Demo at the bottom left to trigger an irregularity or an idle machine and see what reaches the owner.</p>
         </form>
       </section>
     </main>

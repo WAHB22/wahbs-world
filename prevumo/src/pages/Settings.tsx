@@ -9,9 +9,9 @@ import { HELP } from "../components/help";
 import { previewChime, setSoundOn, useSoundOn } from "../lib/chime";
 import { cx, inputCls } from "../components/style";
 
-function Section({ title, lead, children }: { title: string; lead: string; children: ReactNode }) {
+function Section({ id, title, lead, children }: { id?: string; title: string; lead: string; children: ReactNode }) {
   return (
-    <section className="grid gap-4 border-t border-border py-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10">
+    <section id={id} className="grid scroll-mt-20 gap-4 border-t border-border py-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10">
       <div>
         <h2 className="text-[20px] font-semibold">{title}</h2>
         <p className="mt-1 text-[14px] text-muted">{lead}</p>
@@ -29,7 +29,11 @@ function NumberField({ id, value, onChange, min, max, suffix }: { id: string; va
   const [draft, setDraft] = useState<string | null>(null);
   const commit = () => {
     const v = Math.round(Number(draft));
-    if (draft && Number.isFinite(v)) onChange(Math.min(max, Math.max(min, v)));
+    if (draft && Number.isFinite(v)) {
+      const kept = Math.min(max, Math.max(min, v));
+      onChange(kept);
+      if (kept !== v) toast(`Use a number from ${min} to ${max}. Set to ${kept} ${suffix}.`);
+    }
     setDraft(null);
   };
   return (
@@ -57,12 +61,16 @@ export function Settings() {
   const s = world.settings;
   const sound = useSoundOn();
   const glossary: [ReactNode, string][] = [
-    [<StatusBadge status="normal" />, "Running inside its green band."],
-    [<StatusBadge status="irregular" />, "Outside its green band for a sustained stretch. A rust alert appears at the top."],
+    ["Normal range", HELP.band],
+    [<StatusBadge status="normal" />, "Running inside its normal range."],
+    [<StatusBadge status="irregular" />, "Outside its normal range for a sustained stretch. A rust alert appears at the top."],
     [<StatusBadge status="idle" />, `On, but drawing only standby power. After ${s.idlePromptMin} min you are asked whether to shut it down. On a location card, All idle means nothing is running.`],
     [<StatusBadge status="normal" label="Learning" />, HELP.learning],
     [<StatusBadge status="off" />, "Not powered. Nothing restarts on its own after a shutdown."],
+    ["PIN", HELP.pin],
+    ["Assigned", HELP.assigned],
     ["Unassigned", "Running with no PIN typed and no assignment covering that time."],
+    ["Health", HELP.health],
   ];
   const [shown, setShown] = useState<Set<string>>(new Set());
   const [mName, setMName] = useState("");
@@ -120,7 +128,7 @@ export function Settings() {
                 value={s.autoOffIdle.minutes}
                 min={10}
                 max={480}
-                suffix="min idle"
+                suffix="min"
                 onChange={(v) => updateSettings({ ...s, autoOffIdle: { ...s.autoOffIdle, minutes: v } })}
               />
             </label>
@@ -330,7 +338,7 @@ export function Settings() {
         </div>
       </Section>
 
-      <Section title="Help" lead="What the words on screen mean, and who to contact.">
+      <Section id="help" title="Help" lead="What the words on screen mean, and how to reach PREVUMO.">
         <Card className="divide-y divide-border text-[14px]">
           <dl className="grid items-center gap-x-6 gap-y-3 px-5 py-4 sm:grid-cols-[170px_minmax(0,1fr)]">
             {glossary.map(([t, d], i) => (
@@ -342,12 +350,18 @@ export function Settings() {
           </dl>
           <div className="px-5 py-4">
             <p className="font-medium">Try it</p>
-            <p className="text-muted">Open Demo at the bottom left, or press Shift D, to start a session, trigger an irregularity or an idle prompt, or skip to the end of the day.</p>
+            <p className="text-muted">
+              {world.hideDemoButton ? "Press Shift D" : "Open Demo at the bottom left, or press Shift D,"} to start a session, trigger an irregularity or an idle prompt, or skip to the end of the day.
+            </p>
           </div>
           <div className="px-5 py-4">
-            <p className="font-medium">Contact</p>
-            <p className="text-muted">help@prevumo.example, weekdays 9:00 to 17:00</p>
-            <p className="mt-1 text-xs text-muted">Demo contact. This address is not monitored.</p>
+            <p className="font-medium">Contact PREVUMO support</p>
+            <p className="text-muted">For a box that stops reporting, a reading that looks wrong, or adding boxes. A fault on the machine itself goes to a technician: use Call technician on its page.</p>
+            <p className="mt-2">
+              <span className="font-medium select-all">help@prevumo.example</span>
+              <span className="text-muted">, weekdays 9:00 to 17:00</span>
+            </p>
+            <p className="mt-2 inline-flex rounded-full bg-idle px-2.5 py-0.5 text-xs font-medium text-ink">Demo address: nothing sent here is read</p>
           </div>
         </Card>
       </Section>

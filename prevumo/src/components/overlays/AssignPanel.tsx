@@ -63,7 +63,7 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
   const known = [...new Map([...world.assignments.map((a) => [a.name, a.email] as const), ...world.members.map((m) => [m.name, m.email] as const)]).entries()];
   const errors = {
     name: !d.name.trim() ? "Add a name or a company." : undefined,
-    email: d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email) ? "This email doesn't look right." : undefined,
+    email: d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email) ? "Check the email. It should look like name@company.com, or leave it empty." : undefined,
     machines: d.machineIds.length === 0 ? "Pick at least one machine." : undefined,
     frame:
       d.mode === "schedule"
@@ -109,7 +109,15 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
 
   const submit = () => {
     setTried(true);
-    if (!valid) return;
+    if (!valid) {
+      // On a phone the first problem can sit above the fold: bring it into view, cursor in the field when there is one.
+      requestAnimationFrame(() => {
+        document.querySelector("dialog[open] p.text-rust")?.scrollIntoView({ block: "center" });
+        const field = errors.name ? "as-name" : errors.email ? "as-email" : undefined;
+        if (field) document.getElementById(field)?.focus({ preventScroll: true });
+      });
+      return;
+    }
     saveAssignment({ id: editing?.id, name: d.name.trim(), email: d.email.trim(), machineIds: d.machineIds, frame });
     const names = world.machines.filter((m) => d.machineIds.includes(m.id)).map((m) => m.name);
     toast(`${d.name.trim()} assigned to ${names.join(", ")} · ${frameText(frame)}`);

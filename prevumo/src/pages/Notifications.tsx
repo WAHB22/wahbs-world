@@ -91,7 +91,7 @@ export function Notifications() {
                           {unread.has(e.id) && <span aria-label="Unread" className="size-1.5 shrink-0 rounded-full bg-rust" />}
                           {t.title}
                         </p>
-                        <p className="truncate text-[13px] text-muted">
+                        <p className="text-[13px] text-muted sm:truncate">
                           <Nums text={`${fmtTime(e.at)} · ${loc?.name} · ${t.detail}`} />
                         </p>
                       </div>

@@ -19,8 +19,12 @@ function Shell() {
   const { world } = useApp();
   useAlertSignals();
   const { locId } = useParams();
-  const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    const target = hash ? document.getElementById(hash.slice(1)) : null;
+    if (target) target.scrollIntoView({ block: "start" });
+    else window.scrollTo(0, 0);
+  }, [pathname, hash]);
   if (!world.loggedIn) return <Navigate to="/login" replace />;
   if (locId && !world.locations.some((l) => l.id === locId)) return <Navigate to="/locations" replace />;
   return (

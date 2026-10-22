@@ -274,7 +274,7 @@ export function MachineDetail() {
           </div>
           <div className="mt-3 mb-1 flex items-center gap-2">
             <ChartLegend showBand={!learning} stroke={line} />
-            <HelpTip label="the green band" align="right">
+            <HelpTip label="the normal range" align="right">
               {learning ? HELP.learning : HELP.band}
             </HelpTip>
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
-import { Bell, Check, ChevronDown, Menu, X } from "lucide-react";
+import { Bell, Check, ChevronDown, CircleHelp, Menu, X } from "lucide-react";
 import { useApp } from "../store/store";
 import { isInUse, openIrregular } from "../sim/insights";
 import { fmtDate, fmtTime, pad } from "../lib/time";
@@ -161,6 +161,16 @@ export function TopBar({ locId }: { locId?: string }) {
               </NavLink>
             ))}
           </nav>
+        )}
+        {locId && (
+          <Link
+            to={`/l/${locId}/settings#help`}
+            aria-label="Help and support"
+            title="Help and support"
+            className="inline-flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-idle"
+          >
+            <CircleHelp className="size-[19px]" />
+          </Link>
         )}
         <BellLink locId={locId} />
         {locId && (

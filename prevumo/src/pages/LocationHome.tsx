@@ -110,14 +110,19 @@ export function LocationHome() {
 
       {due.length > 0 && (
         <section aria-labelledby="due" className="mt-8">
-          <h2 id="due" className="mb-3 text-[16px] font-semibold">
+          <h2 id="due" className="mb-3 flex flex-wrap items-center gap-x-2 text-[16px] font-semibold">
             Service coming up
+            <span className="text-[13px] font-normal text-muted">with health out of 100</span>
+            <HelpTip label="the health score">{HELP.health}</HelpTip>
           </h2>
           <ul className="divide-y divide-border rounded-[var(--radius-card)] border border-border bg-surface">
             {due.map(({ m, h }) => (
               <li key={m.id}>
                 <Link to={`/l/${locId}/m/${m.id}`} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-bg/60">
-                  <span className={cx("num inline-flex h-7 min-w-9 items-center justify-center rounded-full px-2 text-[13px] font-medium", TONE_CHIP[healthTone(h.score)])}>{h.score}</span>
+                  <span className={cx("num inline-flex h-7 min-w-9 items-center justify-center rounded-full px-2 text-[13px] font-medium", TONE_CHIP[healthTone(h.score)])}>
+                    <span className="sr-only">Health </span>
+                    {h.score}
+                  </span>
                   <span className="min-w-0 flex-1 truncate font-medium">{m.name}</span>
                   <span className={cx("text-[14px]", h.dueInDays <= 7 ? "font-semibold text-rust" : "text-muted")}>{serviceText(h)}</span>
                   <ChevronRight aria-hidden className="size-4 text-muted" />
