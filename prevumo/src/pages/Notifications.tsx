@@ -82,13 +82,13 @@ export function Notifications() {
                   const loc = world.locations.find((l) => l.id === e.locationId);
                   const pending = !e.outcome;
                   return (
-                    <li key={e.id} className={cx("flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 sm:px-5", unread.has(e.id) && "bg-orange-tint/25")}>
+                    <li key={e.id} className={cx("flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 sm:px-5", unread.has(e.id) && "bg-bg/70")}>
                       <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-full", ICON_TONE[e.kind])}>
                         <Icon className="size-[17px]" />
                       </span>
                       <div className="min-w-0 flex-1 basis-[220px]">
                         <p className="flex items-center gap-2 text-[15px] font-medium">
-                          {unread.has(e.id) && <span aria-label="Unread" className="size-1.5 shrink-0 rounded-full bg-rust" />}
+                          {unread.has(e.id) && <span aria-label="Unread" className="size-1.5 shrink-0 rounded-full bg-ink" />}
                           {t.title}
                         </p>
                         <p className="text-[13px] text-muted sm:truncate">

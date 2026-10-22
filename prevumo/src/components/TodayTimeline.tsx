@@ -34,7 +34,7 @@ export function TodayTimeline({ locId }: { locId: string }) {
         </h2>
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
           <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden className="h-2.5 w-4 rounded-[3px] border border-dashed border-ink/50" /> Booked
+            <span aria-hidden className="h-2.5 w-4 rounded-[3px] border border-dashed border-idle-mark" /> Booked
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span aria-hidden className="h-2 w-4 rounded-sm bg-green-done" /> What really ran
@@ -44,6 +44,9 @@ export function TodayTimeline({ locId }: { locId: string }) {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span aria-hidden className="h-2.5 w-[3px] rounded-sm bg-rust" /> Shut down
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-1.5 w-[3px] rounded-sm bg-idle-mark" /> Auto shut-off
           </span>
         </p>
       </div>
@@ -92,7 +95,7 @@ export function TodayTimeline({ locId }: { locId: string }) {
                         <span
                           key={a.id}
                           title={`Booked for ${a.name}, ${fmtTime(win.start)} to ${fmtTime(win.end)}`}
-                          className="absolute top-1/2 h-5 -translate-y-1/2 rounded-[4px] border border-dashed border-ink/50"
+                          className="absolute top-1/2 h-5 -translate-y-1/2 rounded-[4px] border border-dashed border-idle-mark"
                           style={{ left: x(win.start), width: w(win.start, win.end) }}
                         />
                       ) : null;
@@ -120,8 +123,8 @@ export function TodayTimeline({ locId }: { locId: string }) {
                       ) : e.outcome === "shutdown" || e.outcome === "auto-off" ? (
                         <span
                           key={e.id}
-                          title={`Shut down at ${fmtTime(e.outcomeAt ?? e.at)}`}
-                          className="absolute top-1/2 h-4 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-rust"
+                          title={`${e.outcome === "auto-off" ? "Auto shut-off" : "Shut down"} at ${fmtTime(e.outcomeAt ?? e.at)}`}
+                          className={cx("absolute top-1/2 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-sm", e.outcome === "auto-off" ? "h-2.5 bg-idle-mark" : "h-4 bg-rust")}
                           style={{ left: x(e.outcomeAt ?? e.at) }}
                         />
                       ) : null,

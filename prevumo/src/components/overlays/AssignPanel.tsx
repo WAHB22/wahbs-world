@@ -67,7 +67,9 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
     machines: d.machineIds.length === 0 ? "Pick at least one machine." : undefined,
     frame:
       d.mode === "schedule"
-        ? d.days.length === 0
+        ? !d.from || !d.to || !d.start || !d.end
+          ? "Fill in both dates and both times."
+          : d.days.length === 0
           ? "Pick at least one day."
           : d.end <= d.start
             ? "The end time must be after the start time."

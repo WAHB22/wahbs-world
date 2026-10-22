@@ -70,7 +70,7 @@ export function StatusBadge({ status, label, className, still }: { status: Statu
     <span
       className={cx(
         "inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium whitespace-nowrap",
-        still ? "bg-surface text-ink ring-1 ring-orange ring-inset" : b.cls,
+        still ? "bg-surface text-ink ring-1 ring-orange-mark ring-inset" : b.cls,
         className,
       )}
     >
@@ -157,7 +157,7 @@ export function Segmented<T extends string>({
           onClick={() => onChange(o.value)}
           className={cx(
             "h-8 rounded-[8px] px-3 text-[13px] font-medium transition-[background-color,color,box-shadow] duration-200",
-            value === o.value ? "bg-surface text-ink shadow-[0_1px_2px_rgb(31_61_43/0.12)]" : "text-muted hover:text-ink",
+            value === o.value ? "bg-surface text-ink shadow-[0_0_0_1px_var(--color-idle-mark),0_1px_2px_rgb(31_61_43/0.12)]" : "text-muted hover:text-ink",
           )}
         >
           {o.label}

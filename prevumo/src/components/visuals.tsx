@@ -113,10 +113,10 @@ export function Sparkline({
 }
 
 /** Health as a ring of ticks, filled up to the score in the status colour. */
-export function HealthRing({ score, color, size = 132, label }: { score: number; color: string; size?: number; label?: string }) {
+export function HealthRing({ score, color, size = 132, label }: { score: number | null; color: string; size?: number; label?: string }) {
   const ticks = 60;
   const r = size / 2;
-  const filled = Math.round((score / 100) * ticks);
+  const filled = Math.round(((score ?? 0) / 100) * ticks);
   return (
     <div className="relative" role="img" aria-label={label ?? `Health ${score} of 100`} style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
@@ -140,8 +140,14 @@ export function HealthRing({ score, color, size = 132, label }: { score: number;
         })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="num text-[34px] font-medium leading-none text-ink">{score}</span>
-        <span className="mt-1 text-xs text-muted">of 100</span>
+        {score === null ? (
+          <span className="text-[13px] text-muted">Learning</span>
+        ) : (
+          <>
+            <LiveNumber value={score} digits={0} className="text-[34px] font-medium leading-none text-ink" />
+            <span className="mt-1 text-xs text-muted">of 100</span>
+          </>
+        )}
       </div>
     </div>
   );
@@ -202,7 +208,7 @@ export function HealthTrend({ points, height = 64 }: { points: TrendPoint[]; hei
           {points.map((q, i) => (
             <g key={q.at}>
               {q.serviced && <line x1={x(i)} x2={x(i)} y1={p} y2={height - p} stroke="var(--color-green)" strokeWidth={2} />}
-              {q.irregular > 0 && <circle cx={x(i)} cy={y(q.score)} r={4} fill="var(--color-orange)" stroke="var(--color-surface)" strokeWidth={2} />}
+              {q.irregular > 0 && <circle cx={x(i)} cy={y(q.score)} r={4} fill="var(--color-orange-mark)" stroke="var(--color-surface)" strokeWidth={2} />}
               <rect x={x(i) - 5} width={10} height={height} fill="transparent">
                 <title>{`${fmtDate(q.at)}: ${q.score}${q.irregular ? ", irregular" : ""}${q.serviced ? ", serviced" : ""}`}</title>
               </rect>

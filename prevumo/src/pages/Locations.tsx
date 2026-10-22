@@ -32,7 +32,10 @@ export function Locations() {
           const alerts = world.events.filter((e) => e.kind === "irregular" && !e.outcome && e.locationId === l.id).length;
           const kw = ms.reduce((a, m) => a + (m.power === "on" ? (live[m.id]?.at(-1)?.kw ?? 0) : 0), 0);
           const kwh = todayKwh(world, l.id, now);
-          const dueWeek = dueSoon(world, ms, now).filter((x) => x.h.dueInDays <= 7).length;
+          const dueWeek = dueSoon(world, ms, now).filter((x) => x.h.dueInDays <= 7);
+          const overdue = dueWeek.filter((x) => x.h.dueInDays < 0).length;
+          const soon = dueWeek.length - overdue;
+          const serviceLabel = [overdue && `${overdue} overdue`, soon && `${soon} due this week`].filter(Boolean).join(", ");
           return (
             <Link key={l.id} to={`/l/${l.id}`} className="group block rounded-[var(--radius-card)]">
               <Card rail={alerts ? "irregular" : inUse ? "normal" : "off"} className="transition-colors duration-200 group-hover:border-idle-mark">
@@ -51,10 +54,8 @@ export function Locations() {
                       ) : (
                         <span className="inline-flex h-6 items-center rounded-full bg-idle px-2.5 text-xs font-medium text-ink">All idle</span>
                       )}
-                      {dueWeek > 0 && (
-                        <span className="inline-flex h-6 items-center rounded-full bg-orange-tint px-2.5 text-xs font-medium">
-                          {dueWeek} service{dueWeek > 1 ? "s" : ""} due this week
-                        </span>
+                      {serviceLabel && (
+                        <span className="inline-flex h-6 items-center rounded-full bg-orange-tint px-2.5 text-xs font-medium">Service: {serviceLabel}</span>
                       )}
                     </div>
                   </div>

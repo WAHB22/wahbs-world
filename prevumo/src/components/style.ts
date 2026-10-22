@@ -6,7 +6,7 @@ export function cx(...parts: (string | false | null | undefined)[]): string {
 
 export const RAIL: Record<Status, string> = {
   normal: "bg-green",
-  irregular: "bg-orange",
+  irregular: "bg-orange-mark",
   critical: "bg-rust",
   idle: "bg-idle-mark",
   off: "bg-idle-mark",
@@ -14,7 +14,7 @@ export const RAIL: Record<Status, string> = {
 
 export const STROKE: Record<Status, string> = {
   normal: "var(--color-green)",
-  irregular: "var(--color-orange)",
+  irregular: "var(--color-orange-mark)",
   critical: "var(--color-rust)",
   idle: "var(--color-muted)",
   off: "var(--color-muted)",
@@ -39,4 +39,4 @@ export const OUTCOME_TONE: Record<string, string> = {
 };
 
 export const inputCls =
-  "h-11 w-full rounded-[10px] border border-field bg-surface px-3 text-ink placeholder:text-muted outline-none transition-[border-color,box-shadow] focus:border-green focus:shadow-[0_0_0_3px_var(--color-green-tint)]";
+  "h-11 w-full rounded-[10px] border border-field bg-surface px-3 text-ink placeholder:text-muted outline-hidden transition-[border-color,box-shadow] focus:border-green focus:shadow-[0_0_0_1px_var(--color-green)]";

@@ -422,6 +422,22 @@ export function logService(world: World, machineId: string, techId: string | und
   };
 }
 
+/** Undo a service logged by mistake: the record goes, the date falls back, and a request it closed opens again. */
+export function removeService(world: World, id: string): World {
+  const sv = world.services.find((s) => s.id === id);
+  if (!sv) return world;
+  const services = world.services.filter((s) => s.id !== id);
+  const prev = Math.max(0, ...services.filter((s) => s.machineId === sv.machineId && s.at <= sv.at).map((s) => s.at));
+  return {
+    ...world,
+    services,
+    machines: world.machines.map((m) => (m.id === sv.machineId ? { ...m, lastServiceAt: prev || m.createdAt } : m)),
+    techRequests: world.techRequests.map((r) =>
+      r.machineId === sv.machineId && r.status === "done" && r.closedAt === sv.at ? { ...r, status: "open", closedAt: undefined } : r,
+    ),
+  };
+}
+
 /** Closing a request as done logs the visit as a service, by that technician. */
 export function closeTechRequest(world: World, id: string, how: "done" | "cancelled", now: number): World {
   const r = world.techRequests.find((x) => x.id === id);

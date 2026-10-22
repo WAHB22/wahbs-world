@@ -18,6 +18,7 @@ export type Overlay =
 export interface Toast {
   id: string;
   text: string;
+  action?: { label: string; run: () => void };
 }
 
 export interface AppState {
@@ -31,27 +32,44 @@ export interface AppState {
 
 const KEY = "prevumo:world";
 
-const isNum = (v: unknown) => typeof v === "number" && Number.isFinite(v);
+const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+const isStr = (v: unknown): v is string => typeof v === "string";
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
+const HM = /^\d{2}:\d{2}$/;
+/** Every row is an object with a string id that passes `ok`. */
+const rows = (v: unknown, ok: (r: Record<string, unknown>) => boolean) => Array.isArray(v) && v.every((r) => isObj(r) && isStr(r.id) && ok(r));
+const isFrame = (f: unknown) =>
+  isObj(f) &&
+  (f.kind === "always" ||
+    (f.kind === "schedule" && DAY_KEY.test(String(f.from)) && DAY_KEY.test(String(f.to)) && HM.test(String(f.start)) && HM.test(String(f.end)) && Array.isArray(f.days)));
 
-/** Use a stored world only when its shape matches this build; anything else starts a fresh demo. */
+/** Use a stored world only when every field the screens read has the right type; anything else starts a fresh demo. */
 function isWorld(v: unknown): v is World {
-  if (!v || typeof v !== "object") return false;
-  const w = v as Record<string, unknown>;
-  const s = w.settings as Settings | undefined;
+  if (!isObj(v)) return false;
+  const s = v.settings;
   return (
-    w.version === WORLD_VERSION &&
-    isNum(w.lastTick) &&
-    isNum(w.clockOffset) &&
-    [w.locations, w.machines, w.members, w.assignments, w.sessions, w.events, w.techRequests, w.services].every(Array.isArray) &&
-    !!w.closedDays &&
-    typeof w.closedDays === "object" &&
-    !!s &&
+    v.version === WORLD_VERSION &&
+    isNum(v.lastTick) &&
+    isNum(v.clockOffset) &&
+    Math.abs(v.clockOffset) < 400 * DAY &&
+    rows(v.locations, (l) => isStr(l.name)) &&
+    (v.locations as unknown[]).length > 0 &&
+    rows(v.machines, (m) => isStr(m.name) && isStr(m.locationId) && Object.hasOwn(TYPES, String(m.type)) && isNum(m.ratedKw)) &&
+    rows(v.members, (m) => isStr(m.name) && isStr(m.pin) && isStr(m.email)) &&
+    rows(v.assignments, (a) => isStr(a.name) && isStr(a.email) && Array.isArray(a.machineIds) && isFrame(a.frame)) &&
+    rows(v.sessions, (x) => isStr(x.machineId) && isNum(x.start) && isNum(x.kwh) && (x.end === undefined || isNum(x.end))) &&
+    rows(v.events, (e) => isStr(e.kind) && isNum(e.at)) &&
+    rows(v.techRequests, (r) => isStr(r.machineId) && isNum(r.at)) &&
+    rows(v.services, (r) => isStr(r.machineId) && isNum(r.at)) &&
+    isObj(v.closedDays) &&
+    Object.values(v.closedDays).every(isNum) &&
+    isObj(s) &&
     isNum(s.idlePromptMin) &&
-    !!s.autoOffIdle &&
-    !!s.dailyShutdown &&
-    typeof s.dailyShutdown.time === "string" &&
-    (w.machines as Machine[]).every((m) => !!m && typeof m.id === "string" && typeof m.name === "string" && Object.hasOwn(TYPES, m.type)) &&
-    (w.members as Member[]).every((m) => !!m && typeof m.name === "string" && typeof m.pin === "string")
+    isObj(s.autoOffIdle) &&
+    isNum(s.autoOffIdle.minutes) &&
+    isObj(s.dailyShutdown) &&
+    HM.test(String(s.dailyShutdown.time))
   );
 }
 
@@ -188,10 +206,10 @@ export function closeOverlay() {
   set({ overlay: null });
 }
 
-export function toast(text: string) {
-  const t = { id: uid("toast"), text };
+export function toast(text: string, action?: Toast["action"]) {
+  const t = { id: uid("toast"), text, action };
   set({ toasts: [...state.toasts, t] });
-  window.setTimeout(() => set({ toasts: state.toasts.filter((x) => x.id !== t.id) }), 4500);
+  window.setTimeout(() => set({ toasts: state.toasts.filter((x) => x.id !== t.id) }), action ? 8000 : 4500);
 }
 
 export function dismissToast(id: string) {
@@ -249,14 +267,22 @@ export function requestTechnician(machineId: string, techId: string, note: strin
 
 export function closeTechRequest(id: string, how: "done" | "cancelled") {
   apply(engine.closeTechRequest(state.world, id, how, simNow()));
-  toast(how === "done" ? "Visit logged. The service date is set to today." : "Request cancelled");
+  if (how === "cancelled") return toast("Request cancelled");
+  const sv = state.world.services.at(-1)!;
+  toast("Visit logged. The service date is set to today.", { label: "Undo", run: () => removeService(sv.id) });
 }
 
 export function logService(machineId: string, techId: string | undefined, note: string) {
   const m = state.world.machines.find((x) => x.id === machineId);
   if (!m) return;
   apply(engine.logService(state.world, machineId, techId, note, simNow()));
-  toast(`${m.name} service logged. Next one due in ${TYPES[m.type].serviceDays} days.`);
+  const sv = state.world.services.at(-1)!;
+  toast(`${m.name} service logged. Next one due in ${TYPES[m.type].serviceDays} days.`, { label: "Undo", run: () => removeService(sv.id) });
+}
+
+export function removeService(id: string) {
+  apply(engine.removeService(state.world, id));
+  toast("Service removed. The previous service date is back.");
 }
 
 export function markAllRead() {

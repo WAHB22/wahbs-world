@@ -50,7 +50,7 @@ export function InUseCard({ m, locId }: { m: Machine; locId: string }) {
         className={cx(
           "h-full transition-[background-color,border-color,box-shadow] duration-500 group-hover:border-muted/40 group-hover:shadow-[0_10px_28px_rgb(31_61_43/0.08)]",
           status === "critical" && "border-rust bg-[color-mix(in_srgb,var(--color-rust)_8%,var(--color-surface))]",
-          awaiting && "border-orange",
+          awaiting && "border-orange-mark",
           fresh && "attn",
         )}
       >

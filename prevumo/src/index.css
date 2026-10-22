@@ -18,6 +18,7 @@
   --color-idle-mark: color-mix(in srgb, var(--color-muted) 72%, var(--color-border));
   --color-green-done: color-mix(in srgb, var(--color-green) 75%, var(--color-surface));
   --color-field: color-mix(in srgb, var(--color-muted) 62%, var(--color-border));
+  --color-orange-mark: color-mix(in srgb, var(--color-orange) 85%, var(--color-rust));
 
   --font-*: initial;
   --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;

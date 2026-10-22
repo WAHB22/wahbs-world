@@ -89,7 +89,7 @@ export function health(w: World, m: Machine, now: number): Health {
     dueInDays: serviceDays - daysSinceService - 6 * n,
     drivers: [
       { label: `${daysSinceService} of ${serviceDays} days since service`, points: agePts },
-      { label: `${n} irregularit${n === 1 ? "y" : "ies"} since service`, points: irrPts },
+      { label: `${n} irregularit${n === 1 ? "y" : "ies"} since service${n ? `, due ${6 * n} days sooner` : ""}`, points: irrPts },
     ],
   };
 }
@@ -167,11 +167,16 @@ export function healthTone(score: number): HealthTone {
   return "critical";
 }
 
+/** "Due in 4 days" or "Overdue by 2 days", for lists that already say Service. */
+export function dueText(h: Health): string {
+  if (h.dueInDays > 1) return `Due in ${h.dueInDays} days`;
+  if (h.dueInDays === 1) return "Due tomorrow";
+  if (h.dueInDays === 0) return "Due today";
+  return `Overdue by ${-h.dueInDays} day${h.dueInDays === -1 ? "" : "s"}`;
+}
+
 export function serviceText(h: Health): string {
-  if (h.dueInDays > 1) return `Service due in ${h.dueInDays} days`;
-  if (h.dueInDays === 1) return "Service due tomorrow";
-  if (h.dueInDays === 0) return "Service due today";
-  return `Service overdue by ${-h.dueInDays} day${h.dueInDays === -1 ? "" : "s"}`;
+  return `Service ${dueText(h).toLowerCase()}`;
 }
 
 export function ordinal(n: number): string {

@@ -3,7 +3,7 @@ import { Power } from "lucide-react";
 import { closeOverlay, logService, shutdownMachine, toast, updateMachine, useApp, type Overlay } from "../../store/store";
 import { activeSession, sessionUser } from "../../sim/insights";
 import { TYPES } from "../../sim/catalog";
-import { fmtDate } from "../../lib/time";
+import { fmtDate, startOfDay } from "../../lib/time";
 import { CloseButton, Dialog } from "../Dialog";
 import { Button, Field, Switch } from "../ui";
 import { inputCls } from "../style";
@@ -56,7 +56,7 @@ function ShutdownConfirm({ machineId, open }: { machineId?: string; open: boolea
 }
 
 function MachineSettings({ machineId, open }: { machineId?: string; open: boolean }) {
-  const { world } = useApp();
+  const { world, now } = useApp();
   const m = world.machines.find((x) => x.id === machineId);
   const [name, setName] = useState(m?.name ?? "");
   const [kw, setKw] = useState(m ? String(m.ratedKw) : "");
@@ -85,7 +85,7 @@ function MachineSettings({ machineId, open }: { machineId?: string; open: boolea
         </div>
         <div className="mt-5 grid gap-4">
           <Field label="Name" htmlFor="ms-name">
-            <input id="ms-name" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+            <input id="ms-name" maxLength={80} value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
             {!name.trim() && <p className="text-xs text-rust">Give the machine a name.</p>}
           </Field>
           <Field label="Rated power (kW)" htmlFor="ms-kw" hint="From the machine's nameplate.">
@@ -104,12 +104,13 @@ function MachineSettings({ machineId, open }: { machineId?: string; open: boolea
               <p className="text-[14px] font-medium">Last service</p>
               <p className="tnum text-[13px] text-muted">{fmtDate(m.lastServiceAt)}</p>
             </div>
-            <Button
-              size="sm"
-              onClick={() => logService(m.id, undefined, "")}
-            >
-              Log a service today
-            </Button>
+            {startOfDay(m.lastServiceAt) === startOfDay(now) ? (
+              <span className="text-[13px] font-medium text-green">Logged today</span>
+            ) : (
+              <Button size="sm" onClick={() => logService(m.id, undefined, "")}>
+                Log a service today
+              </Button>
+            )}
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-2">

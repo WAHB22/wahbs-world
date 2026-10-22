@@ -68,7 +68,7 @@ export function Reports() {
           </p>
           {isDaily && (
             <p className={cx("mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px]", closedAt ? "bg-green-tint" : "bg-idle")}>
-              <span aria-hidden className={cx("size-1.5 rounded-full", closedAt ? "bg-green" : "live-blink bg-orange")} />
+              <span aria-hidden className={cx("size-1.5 rounded-full", closedAt ? "bg-green" : "live-blink bg-green")} />
               {closedAt ? (
                 <>
                   Generated automatically at <span className="num">{fmtTime(closedAt)}</span>, end of day
@@ -106,11 +106,11 @@ export function Reports() {
         <div className="no-print mt-4 flex flex-wrap items-end gap-3">
           <label className="text-[13px] font-medium">
             From
-            <input type="date" value={custom.from} max={dayKey(now)} onChange={(e) => setCustom((c) => ({ ...c, from: e.target.value }))} className={cx(inputCls, "mt-1 w-44")} />
+            <input type="date" value={custom.from} max={dayKey(now)} onChange={(e) => e.target.value && setCustom((c) => ({ ...c, from: e.target.value }))} className={cx(inputCls, "mt-1 w-44")} />
           </label>
           <label className="text-[13px] font-medium">
             To
-            <input type="date" value={custom.to} max={dayKey(now)} onChange={(e) => setCustom((c) => ({ ...c, to: e.target.value }))} className={cx(inputCls, "mt-1 w-44")} />
+            <input type="date" value={custom.to} max={dayKey(now)} onChange={(e) => e.target.value && setCustom((c) => ({ ...c, to: e.target.value }))} className={cx(inputCls, "mt-1 w-44")} />
           </label>
         </div>
       )}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { atTime, HOUR, MIN } from "../lib/time";
 import { attribute } from "./attribution";
-import { backfill, closeTechRequest, fastForward, logService, markOk, requestTechnician, shutdown, tick, triggerIdle, triggerIrregular } from "./engine";
+import { backfill, closeTechRequest, fastForward, logService, markOk, removeService, requestTechnician, shutdown, tick, triggerIdle, triggerIrregular } from "./engine";
 import { activeSession, irregularReason, isInUse, ordinal, health, severity } from "./insights";
 import { buildReport, rangeFor } from "./reports";
 import { seedWorld } from "./seed";
@@ -143,6 +143,18 @@ describe("maintenance and alerts", () => {
     expect(after.score).toBe(100);
     expect(after.dueInDays).toBe(90);
     expect(w1.services.filter((s) => s.machineId === welder.id).at(-1)?.note).toBe("Replaced the liner");
+  });
+
+  it("removing a mistaken service brings back the old date, penalties and request", () => {
+    const w0 = requestTechnician(seedWorld(NOW), "ms1-welder-2", "volt", "", undefined, NOW);
+    const welder = w0.machines.find((m) => m.id === "ms1-welder-2")!;
+    const before = health(w0, welder, NOW + 2000);
+    const w1 = closeTechRequest(w0, w0.techRequests[0].id, "done", NOW + 1000);
+    const w2 = removeService(w1, w1.services.at(-1)!.id);
+    const m2 = w2.machines.find((m) => m.id === welder.id)!;
+    expect(m2.lastServiceAt).toBe(welder.lastServiceAt);
+    expect(health(w2, m2, NOW + 2000)).toEqual(before);
+    expect(w2.techRequests[0].status).toBe("open");
   });
 
   it("closing a technician request as done logs the visit as a service", () => {

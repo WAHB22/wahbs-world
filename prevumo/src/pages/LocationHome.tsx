@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { openOverlay, useApp } from "../store/store";
-import { dueSoon, healthTone, isInUse, serviceText } from "../sim/insights";
+import { dueSoon, dueText, healthTone, isInUse } from "../sim/insights";
 import { todayKwh } from "../sim/reports";
 import { isAlwaysOn } from "../sim/seed";
 import { AlwaysOnCard, InUseCard, OffCard } from "../components/MachineCard";
@@ -124,7 +124,7 @@ export function LocationHome() {
                     {h.score}
                   </span>
                   <span className="min-w-0 flex-1 truncate font-medium">{m.name}</span>
-                  <span className={cx("text-[14px]", h.dueInDays <= 7 ? "font-semibold text-rust" : "text-muted")}>{serviceText(h)}</span>
+                  <span className={cx("shrink-0 text-[14px]", h.dueInDays > 7 ? "text-muted" : healthTone(h.score) === "critical" ? "font-semibold text-rust" : "font-semibold text-ink")}>{dueText(h)}</span>
                   <ChevronRight aria-hidden className="size-4 text-muted" />
                 </Link>
               </li>

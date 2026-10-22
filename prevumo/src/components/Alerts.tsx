@@ -136,6 +136,18 @@ export function Prompts() {
           className="toast on-dark pointer-events-auto flex w-full items-center gap-3 rounded-[12px] bg-ink px-4 py-3 text-[14px] text-white shadow-[0_12px_32px_rgb(31_61_43/0.25)]"
         >
           <span className="flex-1">{t.text}</span>
+          {t.action && (
+            <button
+              type="button"
+              onClick={() => {
+                t.action!.run();
+                dismissToast(t.id);
+              }}
+              className="rounded-full px-3 py-1 font-semibold text-white underline underline-offset-4 hover:bg-white/10"
+            >
+              {t.action.label}
+            </button>
+          )}
           <button type="button" aria-label="Dismiss" onClick={() => dismissToast(t.id)} className="rounded-full p-1 text-white/70 hover:text-white">
             <X className="size-4" />
           </button>

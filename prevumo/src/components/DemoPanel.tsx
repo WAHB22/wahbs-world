@@ -18,7 +18,7 @@ import { CloseButton } from "./Dialog";
 import { Button, Switch } from "./ui";
 
 const selectCls =
-  "h-10 w-full min-w-0 rounded-[8px] border border-border bg-surface px-2.5 text-[14px] text-ink outline-none focus:border-green";
+  "h-10 w-full min-w-0 rounded-[8px] border border-field bg-surface px-2.5 text-[14px] text-ink outline-hidden focus:border-green focus:shadow-[0_0_0_1px_var(--color-green)]";
 
 function MachineSelect({ id, value, onChange, machines, empty }: { id: string; value: string; onChange: (v: string) => void; machines: Machine[]; empty: string }) {
   return (

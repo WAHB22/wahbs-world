@@ -133,7 +133,7 @@ export function MachineDetail() {
   const requests = world.techRequests.filter((r) => r.machineId === m.id).sort((a, b) => b.at - a.at);
   const history = [
     ...world.events.filter((e) => e.kind === "irregular" && e.machineId === m.id).map((e) => ({ at: e.at, e, sv: undefined })),
-    ...world.services.filter((sv) => sv.machineId === m.id && sv.at >= now - 30 * DAY && sv.at <= now).map((sv) => ({ at: sv.at, e: undefined, sv })),
+    ...world.services.filter((sv) => sv.machineId === m.id && sv.at <= now && (sv.at >= now - 30 * DAY || sv.at === m.lastServiceAt)).map((sv) => ({ at: sv.at, e: undefined, sv })),
   ].sort((a, b) => b.at - a.at);
   const loc = world.locations.find((l) => l.id === m.locationId);
   const learningDay = m.learningUntil ? Math.min(LEARNING_DAYS, LEARNING_DAYS - Math.floor((m.learningUntil - now) / DAY)) : 0;
@@ -300,18 +300,18 @@ export function MachineDetail() {
               {!learning && <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium", TONE_CHIP[tone])}>{TONE_WORD[tone]}</span>}
             </div>
             <div className="mt-3 flex items-center gap-5">
-              <HealthRing score={learning ? 0 : h.score} color={STROKE[tone]} size={108} label={learning ? "Not scored yet" : `Health ${h.score} of 100, ${TONE_WORD[tone]}`} />
+              <HealthRing score={learning ? null : h.score} color={STROKE[tone]} size={108} label={learning ? "Not scored yet" : `Health ${h.score} of 100, ${TONE_WORD[tone]}`} />
               <div className="min-w-0 flex-1 space-y-1 text-[14px]">
                 {learning ? (
                   <p className="text-muted">Score available after {LEARNING_DAYS} days of learning.</p>
                 ) : (
                   <>
-                    <p className={cx("text-[15px] font-semibold", h.dueInDays <= 7 ? "text-rust" : "text-ink")}>{serviceText(h)}</p>
+                    <p className={cx("text-[15px] font-semibold", tone === "critical" ? "text-rust" : "text-ink")}>{serviceText(h)}</p>
                     <p className="text-muted">
                       Last service <span className="tnum text-ink">{fmtDate(m.lastServiceAt)}</span>
                     </p>
                     <p className="text-muted">
-                      <span className="tnum text-ink">{h.hours30.toFixed(1)} h</span> of use in 30 days
+                      {spec.alwaysOn ? "Runs around the clock" : <><span className="tnum text-ink">{h.hours30.toFixed(1)} h</span> of use in 30 days</>}
                     </p>
                   </>
                 )}
@@ -326,7 +326,7 @@ export function MachineDetail() {
                   ))}
                   <Row label="Health now" value={String(h.score)} strong />
                 </dl>
-                <p className="mt-2 text-[13px] text-muted">Each irregularity also brings the service date 6 days closer. Logging a service clears both.</p>
+                <p className="mt-2 text-[13px] text-muted">Logging a service brings it back to 100 and restarts the {h.serviceDays} day clock.</p>
               </>
             )}
             <LogService key={m.id} m={m} />

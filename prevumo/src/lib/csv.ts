@@ -10,7 +10,7 @@ function cell(v: string | number): string {
 
 export function toCsv(sections: { title: string; header: string[]; rows: (string | number)[][] }[]): string {
   return sections
-    .map((s) => [s.title, s.header.map(cell).join(","), ...s.rows.map((r) => r.map(cell).join(","))].join("\n"))
+    .map((s) => [cell(s.title), s.header.map(cell).join(","), ...s.rows.map((r) => r.map(cell).join(","))].join("\n"))
     .join("\n\n");
 }
 
