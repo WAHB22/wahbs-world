@@ -1,4 +1,5 @@
-import { Moon, TriangleAlert, VolumeX, X } from "lucide-react";
+import { Link } from "react-router";
+import { Moon, Power, TriangleAlert, VolumeX, X } from "lucide-react";
 import { openOverlay, dismissToast, keepOn, shutdownMachine, toast, useApp } from "../store/store";
 import { activeSession, bookingText, irregularReason, openIrregular, sessionUser, severity } from "../sim/insights";
 import { fmtSpan } from "../lib/time";
@@ -8,33 +9,53 @@ import type { AppEvent } from "../sim/types";
 import { Button } from "./ui";
 import { Nums } from "./Nums";
 
-/** Rust banners pinned to the very top, one per machine that looks irregular. */
+/** Banners shown in full; any more fold into one line, so the stack never covers a phone screen. */
+const SHOWN = 2;
+
+/**
+ * Rust banners pinned to the very top, overloads first, then this location, then oldest. An overload carries a white tag,
+ * and once it has waited a minute without a decision the banner offers Shut down as well.
+ */
 export function AlertBanners({ locId }: { locId?: string }) {
   const { world, now } = useApp();
   const sound = useSoundOn();
-  const rows = useExiting(openIrregular(world), (e) => e.id, 200);
+  const machine = (e: AppEvent) => world.machines.find((x) => x.id === e.machineId);
+  const rank = (e: AppEvent) => {
+    const m = machine(e);
+    return (m && severity(e, m) === "critical" ? 0 : 2) + (e.locationId === locId ? 0 : 1);
+  };
+  const open = openIrregular(world).sort((a, b) => rank(a) - rank(b) || a.at - b.at);
+  const rows = useExiting(open.slice(0, SHOWN), (e) => e.id, 200);
+  const rest = open.slice(SHOWN);
 
   return (
     <div role="region" aria-label="Alerts" className="on-dark bg-rust">
-      {rows.map(({ item: e, leaving, entering }) => {
-        const m = world.machines.find((x) => x.id === e.machineId);
+      {rows.map(({ item: e, leaving, entering }, i) => {
+        const m = machine(e);
         const s = m ? activeSession(world, m.id) : undefined;
         const who = s ? sessionUser(world, s) : undefined;
         const loc = e.locationId !== locId ? world.locations.find((l) => l.id === e.locationId)?.name : undefined;
-        const over = m && severity(e, m) === "critical" ? `, over its ${m.ratedKw.toFixed(2)} kW rating` : "";
+        const critical = m !== undefined && severity(e, m) === "critical";
+        const overdue = critical && !leaving && now - e.at >= 60_000;
+        const over = critical ? `, over its ${m.ratedKw.toFixed(2)} kW rating` : "";
         return (
           <div key={e.id} className="collapse-y" data-open={!leaving && !entering}>
             <div>
               <div className="banner border-b border-white/15 text-white">
-                <div className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6 lg:px-8">
-                  <span className="banner-icon flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15">
+                <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
+                  <span key={overdue ? "overdue" : "new"} className="banner-icon hidden size-8 shrink-0 items-center justify-center rounded-full bg-white/15 sm:flex">
                     <TriangleAlert className="size-[18px]" />
                   </span>
-                  <div className="min-w-0 flex-1 basis-[240px]">
+                  <div className="min-w-0 flex-1">
                     <p role="alert" className="font-display text-[16px] leading-snug font-semibold tracking-[-0.01em]">
+                      {critical && (
+                        <>
+                          <span className="mr-1.5 inline-flex h-5 items-center rounded-full bg-white px-2 align-[1px] text-[12px] font-semibold text-rust">Overload</span>{" "}
+                        </>
+                      )}
                       {m?.name ?? "A machine"} looks irregular{loc ? ` · ${loc}` : ""}
                     </p>
-                    <p className="text-[14px] text-white/85">
+                    <p className="line-clamp-2 text-[14px] text-white/85 sm:line-clamp-none">
                       <Nums text={irregularReason(e, now) + over} />
                       {who && (
                         <>
@@ -44,7 +65,7 @@ export function AlertBanners({ locId }: { locId?: string }) {
                       )}
                     </p>
                   </div>
-                  {sound && (
+                  {sound && i === 0 && (
                     <button
                       type="button"
                       aria-label="Mute alert sound"
@@ -52,20 +73,43 @@ export function AlertBanners({ locId }: { locId?: string }) {
                         setSoundOn(false);
                         toast("Alert sound off. Turn it on again in Settings.");
                       }}
-                      className="inline-flex size-10 items-center justify-center rounded-full text-white/85 hover:bg-white/15 hover:text-white"
+                      className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-white/85 hover:bg-white/15 hover:text-white"
                     >
                       <VolumeX className="size-[18px]" />
                     </button>
                   )}
-                  <Button variant="onRust" size="md" onClick={() => openOverlay({ type: "alert", eventId: e.id })} className="font-semibold">
-                    Review
-                  </Button>
+                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row-reverse sm:items-center">
+                    <Button variant="onRust" size="md" onClick={() => openOverlay({ type: "alert", eventId: e.id })} className="font-semibold">
+                      Review
+                    </Button>
+                    {overdue && (
+                      <button
+                        type="button"
+                        onClick={() => openOverlay({ type: "shutdown", machineId: m.id })}
+                        className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[var(--radius-btn)] px-3 text-sm font-medium text-white ring-1 ring-white/60 ring-inset hover:bg-white/15"
+                      >
+                        <Power className="size-4" /> Shut down
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         );
       })}
+      {rest.length > 0 && (
+        <div className="border-b border-white/15 text-white">
+          <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-4 py-2 text-[14px] sm:px-6 lg:px-8">
+            <p className="min-w-0 flex-1 truncate text-white/85">
+              <span className="font-semibold text-white">{rest.length} more:</span> {rest.map((e) => machine(e)?.name ?? "A machine").join(", ")}
+            </p>
+            <Link to={`/l/${locId ?? world.locations[0].id}/notifications`} className="shrink-0 rounded-[6px] font-semibold underline underline-offset-4">
+              See all {open.length}
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

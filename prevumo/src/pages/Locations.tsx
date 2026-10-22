@@ -30,6 +30,7 @@ export function Locations() {
           const ms = world.machines.filter((m) => m.locationId === l.id);
           const inUse = ms.filter(isInUse).length;
           const alerts = world.events.filter((e) => e.kind === "irregular" && !e.outcome && e.locationId === l.id).length;
+          const requested = world.techRequests.filter((r) => (r.status ?? "open") === "open" && ms.some((m) => m.id === r.machineId)).length;
           const kw = ms.reduce((a, m) => a + (m.power === "on" ? (live[m.id]?.at(-1)?.kw ?? 0) : 0), 0);
           const kwh = todayKwh(world, l.id, now);
           const dueWeek = dueSoon(world, ms, now).filter((x) => x.h.dueInDays <= 7);
@@ -54,6 +55,11 @@ export function Locations() {
                       ) : (
                         <span className="inline-flex h-6 items-center rounded-full bg-idle px-2.5 text-xs font-medium text-ink">All idle</span>
                       )}
+                      {requested > 0 && (
+                        <span className="inline-flex h-6 items-center rounded-full border border-border bg-surface px-2.5 text-xs font-medium text-ink">
+                          {requested} technician request{requested > 1 ? "s" : ""} open
+                        </span>
+                      )}
                       {serviceLabel && (
                         <span className="inline-flex h-6 items-center rounded-full bg-orange-tint px-2.5 text-xs font-medium">Service: {serviceLabel}</span>
                       )}
@@ -64,7 +70,7 @@ export function Locations() {
                       const st = statusOf(world, m);
                       return (
                         <li key={m.id} className={cx("inline-flex h-7 items-center gap-1.5 rounded-[6px] px-2 text-[13px]", TILE[st])}>
-                          <span aria-hidden className={cx("h-3 w-1 rounded-full", st === "off" ? "border border-idle-mark" : RAIL[st])} />
+                          {st !== "off" && <span aria-hidden className={cx("h-3 w-1 rounded-full", RAIL[st])} />}
                           {m.name}
                         </li>
                       );

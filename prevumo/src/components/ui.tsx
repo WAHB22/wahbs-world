@@ -6,12 +6,12 @@ import { OUTCOME_LABEL } from "../sim/insights";
 type Variant = "primary" | "danger" | "secondary" | "ghost" | "quietDanger" | "onRust";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-green text-white hover:bg-[color-mix(in_srgb,var(--color-green)_88%,black)] active:translate-y-px",
-  danger: "bg-rust text-white hover:bg-[color-mix(in_srgb,var(--color-rust)_88%,black)] active:translate-y-px",
-  secondary: "bg-idle text-ink hover:bg-[color-mix(in_srgb,var(--color-idle)_85%,var(--color-ink))] active:translate-y-px",
+  primary: "bg-green text-white hover:bg-[color-mix(in_srgb,var(--color-green)_88%,black)]",
+  danger: "bg-rust text-white hover:bg-[color-mix(in_srgb,var(--color-rust)_88%,black)]",
+  secondary: "bg-idle text-ink hover:bg-[color-mix(in_srgb,var(--color-idle)_85%,var(--color-ink))]",
   ghost: "bg-transparent text-ink hover:bg-idle",
   quietDanger: "bg-transparent text-rust hover:bg-orange-tint/50",
-  onRust: "bg-surface text-rust hover:bg-white active:translate-y-px",
+  onRust: "bg-surface text-rust hover:bg-white",
 };
 
 export function Button({
@@ -26,8 +26,8 @@ export function Button({
       type="button"
       {...rest}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] font-medium whitespace-nowrap",
-        "transition-[background-color,transform,opacity] duration-150 disabled:opacity-45 disabled:pointer-events-none",
+        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] font-medium whitespace-nowrap [&_svg]:shrink-0",
+        "transition-[background-color,scale,opacity] duration-150 ease-[var(--ease-out)] active:scale-[0.97] disabled:opacity-45 disabled:pointer-events-none",
         size === "sm" && "h-8 px-3 text-[13px]",
         size === "md" && "h-10 px-4 text-sm",
         size === "lg" && "h-12 px-5 text-[15px]",
@@ -156,7 +156,7 @@ export function Segmented<T extends string>({
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className={cx(
-            "h-8 rounded-[8px] px-3 text-[13px] font-medium transition-[background-color,color,box-shadow] duration-200",
+            "h-8 rounded-[8px] px-3 text-[13px] font-medium transition-[background-color,color,box-shadow,scale] duration-200 ease-[var(--ease-out)] active:scale-[0.96]",
             value === o.value ? "bg-surface text-ink shadow-[0_0_0_1px_var(--color-idle-mark),0_1px_2px_rgb(31_61_43/0.12)]" : "text-muted hover:text-ink",
           )}
         >

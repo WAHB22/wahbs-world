@@ -70,13 +70,13 @@ export function Reports() {
             <p className={cx("mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px]", closedAt ? "bg-green-tint" : "bg-idle")}>
               <span aria-hidden className={cx("size-1.5 rounded-full", closedAt ? "bg-green" : "live-blink bg-green")} />
               {closedAt ? (
-                <>
+                <span>
                   Generated automatically at <span className="num">{fmtTime(closedAt)}</span>, end of day
-                </>
+                </span>
               ) : (
-                <>
+                <span>
                   Live. Generated automatically at <span className="num">{world.settings.dailyShutdown.time}</span>, end of day
-                </>
+                </span>
               )}
             </p>
           )}

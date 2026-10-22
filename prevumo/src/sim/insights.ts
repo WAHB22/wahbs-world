@@ -146,6 +146,17 @@ export function severity(e: AppEvent, m: Machine): Severity {
   return e.anomaly !== "sag" && episodeKw(e, m) > m.ratedKw * 1.05 ? "critical" : "warning";
 }
 
+/** How loud an open irregularity is: critical for an overload, otherwise a warning. Undefined when none is open. */
+export function alertLevel(w: World, m: Machine): Severity | undefined {
+  const a = openAlert(w, m);
+  return a && !a.outcome ? severity(a, m) : undefined;
+}
+
+/** The colour a machine shows: rust while an overload waits for a decision, otherwise its status colour. */
+export function toneOf(w: World, m: Machine): Status {
+  return alertLevel(w, m) === "critical" ? "critical" : statusOf(w, m);
+}
+
 /** Irregularities still waiting for the owner's decision, on machines that are still running. */
 export function openIrregular(w: World): AppEvent[] {
   return w.events.filter((e) => e.kind === "irregular" && !e.outcome && w.machines.find((m) => m.id === e.machineId)?.power === "on");
@@ -156,7 +167,10 @@ const STATUS_LABEL: Record<Status, string> = { normal: "Normal", irregular: "Irr
 /** One name per state, used on cards, the detail header and anywhere else a machine's status shows. */
 export function statusLabel(w: World, m: Machine, now: number): string {
   const s = statusOf(w, m);
-  if (s === "irregular" && (openAlert(w, m)?.outcome === "technician" || openRequest(w, m.id))) return "Technician requested";
+  // An open request shows wherever the machine does, unless a fresh irregularity is waiting for a decision.
+  const deciding = s === "irregular" && !openAlert(w, m)?.outcome;
+  if ((s === "normal" || s === "off" || (s === "irregular" && !deciding)) && openRequest(w, m.id)) return "Technician requested";
+  if (s === "irregular" && alertLevel(w, m) === "critical") return "Overload";
   if (s === "normal" && isLearning(m, now)) return "Learning";
   return STATUS_LABEL[s];
 }

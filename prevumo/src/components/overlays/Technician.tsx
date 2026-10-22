@@ -4,7 +4,7 @@ import { closeOverlay, requestTechnician, useApp } from "../../store/store";
 import { bestTechnician, replyBy, TECHNICIANS, TYPES, whyBest } from "../../sim/catalog";
 import { health, irregularReason, openRequest } from "../../sim/insights";
 import { freeze } from "../../sim/signal";
-import { DAY, fmtTime, HOUR, startOfDay } from "../../lib/time";
+import { DAY, fmtTime, fmtWhenIn, HOUR, startOfDay } from "../../lib/time";
 import type { Machine, Sample, World } from "../../sim/types";
 import { CloseButton, Dialog } from "../Dialog";
 import { Button } from "../ui";
@@ -17,10 +17,15 @@ function attachments(world: World, m: Machine, eventId: string | undefined, now:
   const since = now - 30 * DAY;
   const sessions = world.sessions.filter((s) => s.machineId === m.id && (s.end ?? now) > since && s.start <= now);
   const hours = sessions.reduce((a, s) => a + (Math.min(s.end ?? now, now) - Math.max(s.start, since)) / HOUR, 0);
+  const irr = (n: number) => (n ? `${n} irregularit${n === 1 ? "y" : "ies"}` : "No irregularities");
   return [
-    e ? `Last 10 min of power data, irregular stretch marked (${irregularReason(e, now).toLowerCase()})` : "Last 10 min of power data",
-    `${h.irregularMonth} irregularit${h.irregularMonth === 1 ? "y" : "ies"} this month, ${h.irregular30} in 30 days`,
-    `Last service ${h.daysSinceService} days ago · health ${h.score} of 100`,
+    m.power === "off"
+      ? `Off since ${m.offAt ? fmtWhenIn(m.offAt, now) : "install"}, so no live power data`
+      : e
+        ? `Last 10 min of power data, irregular stretch marked (${irregularReason(e, now).toLowerCase()})`
+        : "Last 10 min of power data",
+    h.irregularMonth === h.irregular30 ? `${irr(h.irregular30)} in the last 30 days` : `${irr(h.irregularMonth)} this month, ${h.irregular30} in the last 30 days`,
+    `Last service ${h.daysSinceService} days ago, health ${h.score} of 100`,
     `${sessions.length} sessions, ${hours.toFixed(1)} h of use in the last 30 days`,
   ];
 }
@@ -43,7 +48,7 @@ export function TechnicianPanel({ machineId, eventId, open }: { machineId?: stri
   const [note, setNote] = useState("");
   const [sent, setSent] = useState<Sent | null>(null);
   // Frozen when the panel opens, so the preview is exactly what gets sent.
-  const [snap] = useState(() => freeze(live[machineId ?? ""] ?? []));
+  const [snap] = useState(() => (world.machines.find((x) => x.id === machineId)?.power === "off" ? [] : freeze(live[machineId ?? ""] ?? [])));
   const techId = picked ?? best.id;
   if (!m) return <Dialog open={false} onClose={closeOverlay} label="Call technician" kind="drawer"><div /></Dialog>;
   const items = attachments(world, m, eventId, now);
@@ -76,7 +81,7 @@ export function TechnicianPanel({ machineId, eventId, open }: { machineId?: stri
             <div>
               <p className="font-display text-[17px] leading-snug font-semibold">Request sent to {tech.name} · machine history attached</p>
               <p className="mt-1 text-[14px] text-ink/80">
-                Typical reply by <span className="num">{byText(replyBy(tech, sent.at), now)}</span>. Tracked on {m.name} until you mark the visit done.
+                They usually reply by <span className="num">{byText(replyBy(tech, sent.at), now)}</span>. The request stays on {m.name}'s page: mark the visit done there and its service date resets.
               </p>
             </div>
           </div>
@@ -118,7 +123,7 @@ export function TechnicianPanel({ machineId, eventId, open }: { machineId?: stri
         >
           {prior && (
             <p className="mb-4 rounded-[12px] border border-border bg-bg/70 px-4 py-3 text-[14px]">
-              {TECHNICIANS.find((t) => t.id === prior.techId)?.name} already has an open request from <span className="num">{fmtTime(prior.at)}</span>. Sending again adds a second one with fresh data.
+              {TECHNICIANS.find((t) => t.id === prior.techId)?.name} already has an open request from <span className="num">{fmtTime(prior.at)}</span>. Sending now replaces it, with fresh machine history.
             </p>
           )}
           <fieldset>
@@ -156,7 +161,7 @@ export function TechnicianPanel({ machineId, eventId, open }: { machineId?: stri
                           <MapPin className="size-3.5 text-muted" /> {t.km.toFixed(1)} km
                         </span>
                         <span className="inline-flex items-center gap-1">
-                          <Timer className="size-3.5 text-muted" /> {t.response}
+                          <Timer className="size-3.5 text-muted" /> {t.response}, so by {byText(replyBy(t, now), now)}
                         </span>
                       </span>
                       {t.id === best.id ? (

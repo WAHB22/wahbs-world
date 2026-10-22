@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { CalendarClock, KeyRound, Power, UserRound } from "lucide-react";
 import { useApp } from "../store/store";
-import { activeSession, isLearning, openRequest, sessionUser, statusLabel, statusOf } from "../sim/insights";
+import { activeSession, isLearning, openRequest, sessionUser, statusLabel, statusOf, toneOf } from "../sim/insights";
 import { SOURCE, type Attribution } from "../sim/attribution";
 import { fmtClock, fmtTime, fmtWhen } from "../lib/time";
 import type { Machine } from "../sim/types";
@@ -37,20 +37,21 @@ export function InUseCard({ m, locId }: { m: Machine; locId: string }) {
   const badge = statusLabel(world, m, now);
   const alert = m.activeAlertId ? world.events.find((e) => e.id === m.activeAlertId) : undefined;
   const awaiting = status === "irregular" && !alert?.outcome;
+  const tone = toneOf(world, m);
   const fresh = awaiting && !!alert && now - alert.at < 6000;
 
   return (
     <Link
       to={`/l/${locId}/m/${m.id}`}
       style={{ viewTransitionName: `m-${m.id}` }}
-      className="group block rounded-[var(--radius-card)] transition-transform duration-200 hover:-translate-y-0.5"
+      className="group block rounded-[var(--radius-card)] transition-[translate] duration-200 ease-[var(--ease-out)] hover:-translate-y-0.5 active:translate-y-0 active:duration-75"
     >
       <Card
-        rail={status}
+        rail={tone}
         className={cx(
-          "h-full transition-[background-color,border-color,box-shadow] duration-500 group-hover:border-muted/40 group-hover:shadow-[0_10px_28px_rgb(31_61_43/0.08)]",
+          "h-full transition-[background-color,border-color,box-shadow] duration-[500ms,200ms,200ms] group-hover:border-muted/40 group-hover:shadow-[0_10px_28px_rgb(31_61_43/0.08)]",
           status === "critical" && "border-rust bg-[color-mix(in_srgb,var(--color-rust)_8%,var(--color-surface))]",
-          awaiting && "border-orange-mark",
+          awaiting && (tone === "critical" ? "border-rust" : "border-orange-mark"),
           fresh && "attn",
         )}
       >
@@ -60,7 +61,7 @@ export function InUseCard({ m, locId }: { m: Machine; locId: string }) {
               <h3 className="truncate text-[18px] font-semibold">{m.name}</h3>
               <WhoLine who={who} className="mt-0.5" />
             </div>
-            <StatusBadge status={status} label={badge} still={status === "irregular" && !awaiting} className="shrink-0" />
+            <StatusBadge status={tone} label={badge} still={status === "irregular" && !awaiting} className="shrink-0" />
           </div>
           <div className="flex items-end gap-4">
             <div className="shrink-0">

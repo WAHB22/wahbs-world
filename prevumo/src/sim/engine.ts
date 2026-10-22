@@ -408,7 +408,9 @@ export function requestTechnician(
     const e = d.event(eventId);
     if (e) e.techId = techId;
   }
-  d.w.techRequests = [...d.w.techRequests, { id: uid("t"), machineId, techId, note, at: now, eventId, ...packet, status: "open" }];
+  // One open request per machine: a new one, to the same partner or another, replaces the earlier one.
+  const earlier = d.w.techRequests.map((r) => (r.machineId === machineId && (r.status ?? "open") === "open" ? { ...r, status: "cancelled" as const, closedAt: now } : r));
+  d.w.techRequests = [...earlier, { id: uid("t"), machineId, techId, note, at: now, eventId, ...packet, status: "open" }];
   return d.w;
 }
 
@@ -438,12 +440,32 @@ export function removeService(world: World, id: string): World {
   };
 }
 
-/** Closing a request as done logs the visit as a service, by that technician. */
+/**
+ * Done: the visit is logged as a service and the irregularity it was called for is closed, so the machine reads normal again.
+ * Cancelled: nobody is coming, so that irregularity goes back to waiting for the owner's decision.
+ */
 export function closeTechRequest(world: World, id: string, how: "done" | "cancelled", now: number): World {
   const r = world.techRequests.find((x) => x.id === id);
   if (!r || (r.status ?? "open") !== "open") return world;
-  const w = { ...world, techRequests: world.techRequests.map((x) => (x.id === id ? { ...x, status: how, closedAt: now } : x)) };
-  return how === "done" ? logService(w, r.machineId, r.techId, "Visit after a request", now) : w;
+  const d = new Draft(world);
+  d.w.techRequests = d.w.techRequests.map((x) => (x.id === id ? { ...x, status: how, closedAt: now } : x));
+  const m = d.machine(r.machineId);
+  const alert = m?.activeAlertId ? d.event(m.activeAlertId) : undefined;
+  if (m && alert?.outcome === "technician") {
+    if (how === "done") {
+      m.mode = "normal";
+      m.anomaly = undefined;
+      m.modeSince = undefined;
+      m.outsideStreak = 0;
+      m.activeAlertId = undefined;
+    } else {
+      alert.outcome = undefined;
+      alert.outcomeAt = undefined;
+      alert.techId = undefined;
+      alert.durationSec = undefined;
+    }
+  }
+  return how === "done" ? logService(d.w, r.machineId, r.techId, "Visit after a request", now) : d.w;
 }
 
 export function markAllRead(world: World): World {

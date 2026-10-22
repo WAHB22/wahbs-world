@@ -1,4 +1,5 @@
-import { Area, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { memo } from "react";
+import { Area, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fmtTime } from "../lib/time";
 import type { Sample } from "../sim/types";
 
@@ -9,6 +10,8 @@ interface Point {
   v: number;
   band: [number, number];
   irr: number | null;
+  out: boolean;
+  mark: boolean;
 }
 
 function niceMax(v: number): number {
@@ -19,7 +22,7 @@ function niceMax(v: number): number {
 }
 
 /** Ten minutes of live draw over the shaded normal band, irregular points marked in orange. */
-export function LiveChart({
+export const LiveChart = memo(function LiveChart({
   samples,
   unit,
   volts,
@@ -27,24 +30,34 @@ export function LiveChart({
   height = 280,
   stroke = "var(--color-green)",
   since,
+  rated,
 }: {
+  /** Nameplate rating in kW, drawn as a labelled line while an overload is open. */
+  rated?: number;
   /** When an open irregularity started (ms): shades the stretch since then. */
   since?: number;
   samples: Sample[];
   unit: Unit;
   volts: number;
   showBand: boolean;
-  height?: number;
+  height?: number | string;
   stroke?: string;
 }) {
   const k = unit === "kw" ? 1 : 1000 / volts;
-  const data: Point[] = samples.map((s) => ({
+  // Dots on the first reading of each irregular stretch and then every few seconds, so a long stretch reads as a line, not a pile.
+  const gap = Math.max(1, Math.ceil(samples.length / 48));
+  const data: Point[] = samples.map((s, i) => ({
     t: s.t,
     v: s.kw * k,
     band: [s.lo * k, s.hi * k],
-    irr: s.out ? s.kw * k : null,
+    irr: s.out || samples[i - 1]?.out || samples[i + 1]?.out ? s.kw * k : null,
+    out: s.out,
+    mark: s.out && (!samples[i - 1]?.out || s.t % gap === 0),
   }));
-  const top = niceMax(Math.max(0.01, ...data.map((d) => Math.max(d.v, showBand ? d.band[1] : 0))) * 1.12);
+  const peakV = Math.max(0, (rated ?? 0) * k, ...data.map((d) => Math.max(d.v, showBand ? d.band[1] : 0)));
+  // Off draws about 0: keep a readable scale instead of 0.00, 0.01, 0.01 on the axis.
+  const top = peakV < 0.05 ? (unit === "kw" ? 2 : 8) : niceMax(peakV * 1.12);
+  const peak = data.reduce<Point | null>((b, d) => (d.out && (!b || d.v > b.v) ? d : b), null);
   const first = data[0]?.t ?? 0;
   const last = data[data.length - 1]?.t ?? 0;
   const ticks: number[] = [];
@@ -64,6 +77,7 @@ export function LiveChart({
             tick={{ fill: "var(--color-muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={{ stroke: "var(--color-border)" }}
             tickLine={false}
+            padding={{ left: 0, right: 14 }}
             allowDataOverflow
           />
           <YAxis
@@ -92,7 +106,7 @@ export function LiveChart({
                       normal {p.band[0].toFixed(unit === "kw" ? 2 : 1)} to {p.band[1].toFixed(unit === "kw" ? 2 : 1)}
                     </div>
                   )}
-                  {p.irr !== null && <div className="mt-1 font-medium text-rust">Outside the normal range</div>}
+                  {p.out && <div className="mt-1 font-medium text-rust">Outside the normal range</div>}
                 </div>
               );
             }}
@@ -101,7 +115,31 @@ export function LiveChart({
           {since !== undefined && (
             <ReferenceArea x1={Math.max(first, since / 1000)} x2={last} fill="var(--color-orange-tint)" fillOpacity={0.45} ifOverflow="hidden" />
           )}
-          {since !== undefined && <ReferenceLine x={Math.max(first, since / 1000)} stroke="var(--color-rust)" strokeDasharray="3 3" ifOverflow="hidden" />}
+          {since !== undefined && (
+            <ReferenceLine
+              x={Math.max(first, since / 1000)}
+              stroke="var(--color-rust)"
+              strokeDasharray="3 3"
+              ifOverflow="hidden"
+              label={{
+                value: `Irregular since ${fmtTime(since)}`,
+                position: since / 1000 - first < 150 ? "insideTopLeft" : "insideTopRight",
+                offset: 8,
+                fill: "var(--color-rust)",
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            />
+          )}
+          {rated !== undefined && (
+            <ReferenceLine
+              y={rated * k}
+              stroke="var(--color-rust)"
+              strokeDasharray="6 4"
+              strokeOpacity={0.7}
+              label={{ value: `Rated ${(rated * k).toFixed(unit === "kw" ? 2 : 1)} ${label}`, position: "insideBottomLeft", offset: 6, fill: "var(--color-ink)", fontSize: 11 }}
+            />
+          )}
           {showBand && (
             <Area
               dataKey="band"
@@ -117,32 +155,22 @@ export function LiveChart({
           <Line
             dataKey="irr"
             stroke="var(--color-orange)"
-            strokeWidth={2.4}
+            strokeWidth={2.6}
+            strokeLinecap="round"
             connectNulls={false}
             isAnimationActive={false}
             activeDot={false}
-            dot={{ r: 3, fill: "var(--color-orange)", stroke: "var(--color-rust)", strokeWidth: 1 }}
+            dot={(d: { cx?: number; cy?: number; index?: number; payload?: Point }) =>
+              d.payload?.mark && d.cx != null && d.cy != null ? (
+                <circle key={d.index} cx={d.cx} cy={d.cy} r={3} fill="var(--color-orange)" stroke="var(--color-rust)" strokeWidth={1} />
+              ) : (
+                <g key={d.index} />
+              )
+            }
           />
+          {peak && <ReferenceDot x={peak.t} y={peak.v} r={4.5} fill="var(--color-orange)" stroke="var(--color-rust)" strokeWidth={1.5} ifOverflow="hidden" />}
         </ComposedChart>
       </ResponsiveContainer>
     </div>
   );
-}
-
-export function ChartLegend({ showBand, stroke = "var(--color-green)" }: { showBand: boolean; stroke?: string }) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
-      <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="h-0.5 w-4 rounded" style={{ background: stroke }} /> Live draw
-      </span>
-      {showBand && (
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden className="h-2.5 w-4 rounded-sm bg-green-tint" /> Normal range for this machine
-        </span>
-      )}
-      <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="size-2 rounded-full border border-rust bg-orange" /> Irregular point
-      </span>
-    </div>
-  );
-}
+});

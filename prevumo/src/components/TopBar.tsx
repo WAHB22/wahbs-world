@@ -53,7 +53,7 @@ function LocationSwitcher({ locId }: { locId: string }) {
         <div
           role="listbox"
           aria-label="Switch location"
-          className="toast-in absolute top-11 left-0 z-40 w-72 rounded-[12px] border border-border bg-surface p-1.5 shadow-[0_14px_40px_rgb(31_61_43/0.16)]"
+          className="drop-in origin-top-left absolute top-11 left-0 z-40 w-72 rounded-[12px] border border-border bg-surface p-1.5 shadow-[0_14px_40px_rgb(31_61_43/0.16)]"
         >
           {world.locations.map((l) => {
             const machines = world.machines.filter((m) => m.locationId === l.id);
@@ -185,7 +185,7 @@ export function TopBar({ locId }: { locId?: string }) {
           </button>
         )}
         {menu && locId && (
-          <div className="toast-in absolute inset-x-3 top-[60px] z-40 rounded-[14px] border border-border bg-surface p-2 shadow-[0_14px_40px_rgb(31_61_43/0.16)] md:hidden">
+          <div className="drop-in origin-top-right absolute inset-x-3 top-[60px] z-40 rounded-[14px] border border-border bg-surface p-2 shadow-[0_14px_40px_rgb(31_61_43/0.16)] md:hidden">
             <div className="border-b border-border px-1 pb-2 sm:hidden">
               <LocationSwitcher locId={locId} />
             </div>

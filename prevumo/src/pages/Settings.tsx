@@ -64,6 +64,7 @@ export function Settings() {
     ["Normal range", HELP.band],
     [<StatusBadge status="normal" />, "Running inside its normal range."],
     [<StatusBadge status="irregular" />, "Outside its normal range for a sustained stretch. A rust alert appears at the top."],
+    [<StatusBadge status="critical" label="Overload" />, "Irregular and drawing more than its rated power. Shut it down if it does not settle within a minute."],
     [<StatusBadge status="idle" />, `On, but drawing only standby power. After ${s.idlePromptMin} min you are asked whether to shut it down. On a location card, All idle means nothing is running.`],
     [<StatusBadge status="normal" label="Learning" />, HELP.learning],
     [<StatusBadge status="off" />, "Not powered. Nothing restarts on its own after a shutdown."],
@@ -96,7 +97,7 @@ export function Settings() {
             <Switch checked={sound} onChange={setSoundOn} label="Play a chime for new irregularities" />
             <div>
               <p className="font-medium">Play a chime for new irregularities</p>
-              <p className="text-[14px] text-muted">Two soft notes, once per alert, only while this tab is in front. An overload plays them twice.</p>
+              <p className="text-[14px] text-muted">Two soft notes when a machine looks irregular, only while this tab is in front. An overload plays them twice, and again after 1 and 5 minutes if nobody has decided.</p>
             </div>
           </div>
           <Button size="sm" variant="ghost" disabled={!sound} onClick={() => previewChime("critical")}>

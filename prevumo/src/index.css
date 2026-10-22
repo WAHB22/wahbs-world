@@ -53,6 +53,12 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     line-height: 1.15;
+    text-wrap-style: balance;
+  }
+  p,
+  li,
+  dd {
+    text-wrap-style: pretty;
   }
   :focus-visible {
     outline: 2px solid var(--color-green);
@@ -148,6 +154,16 @@
 }
 .toast-in {
   animation: rise-in 280ms var(--ease-out) both;
+}
+/* Menus drop from the bar that opened them: short, from the top edge. */
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+.drop-in {
+  animation: drop-in 160ms var(--ease-out) both;
 }
 
 /* Prompts and toasts: transitions, so a dismiss halfway through an entrance reverses from where it is. */
@@ -273,12 +289,14 @@ dialog.modal[open] {
 dialog.drawer {
   transform: translateX(100%);
   transition:
-    transform 320ms var(--ease-out),
-    overlay 320ms allow-discrete,
-    display 320ms allow-discrete;
+    transform 200ms var(--ease-out),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
 }
 dialog.drawer[open] {
   transform: none;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 @starting-style {
   dialog.drawer[open] {
@@ -303,11 +321,11 @@ dialog[open]::backdrop {
 
 /* Cards that change section (In use to Off) move on screen, so they glide; leaving ones fade quickly. */
 ::view-transition-group(*) {
-  animation-duration: 300ms;
+  animation-duration: 220ms;
   animation-timing-function: var(--ease-in-out);
 }
 ::view-transition-old(*):only-child {
-  animation-duration: 160ms;
+  animation-duration: 120ms;
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {

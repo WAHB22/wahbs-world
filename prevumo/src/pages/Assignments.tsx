@@ -42,7 +42,7 @@ export function Assignments() {
           const st = STATE[assignmentState(a, now)];
           const machines = world.machines.filter((m) => a.machineIds.includes(m.id));
           return (
-            <Card key={a.id} rail={st.label === "Active now" ? "normal" : "off"} className="toast-in">
+            <Card key={a.id} rail={st.label === "Active now" ? "normal" : "off"} className={now - a.createdAt < 4000 ? "toast-in" : undefined}>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-idle text-ink">
                   <CalendarClock className="size-[18px]" />

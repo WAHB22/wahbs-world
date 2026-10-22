@@ -4,7 +4,8 @@ import { activeSession, health, irregularReason, OUTCOME_LABEL, ordinal, session
 import { TYPES } from "../../sim/catalog";
 import { fmtTime } from "../../lib/time";
 import { CloseButton, Dialog } from "../Dialog";
-import { ChartLegend, LiveChart } from "../LiveChart";
+import { LiveChart } from "../Chart";
+import { ChartLegend } from "../visuals";
 import { Button, OutcomeChip, StatusBadge } from "../ui";
 import { lineFor } from "../style";
 import { Nums } from "../Nums";
@@ -33,7 +34,7 @@ export function AlertModal({ eventId, open }: { eventId?: string; open: boolean 
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              {e.outcome ? <OutcomeChip outcome={e.outcome} /> : <StatusBadge status="irregular" />}
+              {e.outcome ? <OutcomeChip outcome={e.outcome} /> : sev === "critical" ? <StatusBadge status="critical" label="Overload" /> : <StatusBadge status="irregular" />}
               <span className="text-[13px] text-muted">
                 {loc?.name} · {TYPES[m.type].label}
               </span>
@@ -52,7 +53,7 @@ export function AlertModal({ eventId, open }: { eventId?: string; open: boolean 
           <p className="text-[13px] font-medium">Last 10 minutes against its normal range, in kW</p>
           <ChartLegend showBand stroke={lineFor("normal")} />
         </div>
-        <LiveChart samples={live[m.id] ?? []} unit="kw" volts={TYPES[m.type].volts} showBand height={230} stroke={lineFor("normal")} since={e.outcome ? undefined : e.at} />
+        <LiveChart samples={live[m.id] ?? []} unit="kw" volts={TYPES[m.type].volts} showBand height={230} stroke={lineFor("normal")} since={e.outcome ? undefined : e.at} rated={!e.outcome && sev === "critical" ? m.ratedKw : undefined} />
         <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 rounded-[12px] bg-bg/70 px-4 py-3 text-[13px] sm:grid-cols-4">
           <div>
             <dt className="text-muted">In use by</dt>

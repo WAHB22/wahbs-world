@@ -165,5 +165,5 @@ export function whyBest(t: Technician, at: number): string {
     top((x) => replyBy(x, at), true) && "the fastest to reply",
   ].filter(Boolean) as string[];
   const list = extra.length > 1 ? `${extra.slice(0, -1).join(", ")} and ${extra.at(-1)}` : extra[0];
-  return `Covers this machine type${list ? `, and ${list} of your partners` : ""}.`;
+  return `Covers this machine type${list ? `, and is ${list} of your partners` : ""}.`;
 }

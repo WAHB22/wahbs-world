@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { Sample } from "../sim/types";
 import type { TrendPoint } from "../sim/insights";
 import { fmtDate, fmtTime } from "../lib/time";
@@ -24,31 +24,38 @@ export function Wordmark({ className }: { className?: string }) {
   );
 }
 
-function prefersReduced(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
+const reducedMotion = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : undefined;
 
-/** A number that glides to its new value instead of jumping, in the mono face. */
+/** A number that glides to its new value instead of jumping, in the mono face. The glide writes the text directly, so it costs no React renders. */
 export function LiveNumber({ value, digits = 2, className }: { value: number; digits?: number; className?: string }) {
-  const [shown, setShown] = useState(value);
+  const ref = useRef<HTMLSpanElement>(null);
   const shownRef = useRef(value);
-  const reduce = prefersReduced();
-  useEffect(() => {
-    if (reduce) return;
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
     const from = shownRef.current;
+    const write = (v: number) => {
+      shownRef.current = v;
+      const text = v.toFixed(digits);
+      if (el.textContent !== text) el.textContent = text;
+    };
+    if (reducedMotion?.matches || from === value) return write(value);
+    write(from);
     const start = performance.now();
     let raf = 0;
     const step = (t: number) => {
       const k = Math.min(1, (t - start) / 600);
-      const v = from + (value - from) * (1 - Math.pow(1 - k, 3));
-      shownRef.current = v;
-      setShown(v);
+      write(from + (value - from) * (1 - Math.pow(1 - k, 3)));
       if (k < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [value, reduce]);
-  return <span className={cx("num", className)}>{(reduce ? value : shown).toFixed(digits)}</span>;
+  }, [value, digits]);
+  return (
+    <span ref={ref} className={cx("num", className)}>
+      {value.toFixed(digits)}
+    </span>
+  );
 }
 
 function useWidth<T extends HTMLElement>() {
@@ -219,6 +226,24 @@ export function HealthTrend({ points, height = 64 }: { points: TrendPoint[]; hei
           </text>
         </svg>
       )}
+    </div>
+  );
+}
+
+export function ChartLegend({ showBand, stroke = "var(--color-green)" }: { showBand: boolean; stroke?: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+      <span className="inline-flex items-center gap-1.5">
+        <span aria-hidden className="h-0.5 w-4 rounded" style={{ background: stroke }} /> Live draw
+      </span>
+      {showBand && (
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="h-2.5 w-4 rounded-sm bg-green-tint" /> Normal range for this machine
+        </span>
+      )}
+      <span className="inline-flex items-center gap-1.5">
+        <span aria-hidden className="size-2 rounded-full border border-rust bg-orange" /> Irregular point
+      </span>
     </div>
   );
 }

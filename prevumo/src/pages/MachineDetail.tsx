@@ -15,24 +15,29 @@ import {
   sessionUser,
   statusLabel,
   statusOf,
+  toneOf,
+  severity,
   TONE_WORD,
 } from "../sim/insights";
 import { LEARNING_DAYS, replyBy, TECHNICIANS, TYPES } from "../sim/catalog";
 import { SOURCE } from "../sim/attribution";
-import { DAY, fmtClock, fmtDate, fmtSpan, fmtTime, fmtWhen, startOfDay } from "../lib/time";
+import { DAY, fmtClock, fmtDate, fmtSpan, fmtTime, fmtWhen, fmtWhenIn, startOfDay } from "../lib/time";
 import type { Machine } from "../sim/types";
-import { ChartLegend, LiveChart, type Unit } from "../components/LiveChart";
+import { LiveChart } from "../components/Chart";
+import type { Unit } from "../components/LiveChart";
 import { WhoLine } from "../components/MachineCard";
 import { Button, Card, Chip, Field, OutcomeChip, Segmented, StatusBadge } from "../components/ui";
 import { cx, inputCls, lineFor, STROKE, TONE_CHIP } from "../components/style";
-import { HealthRing, HealthTrend, LiveNumber, Trace } from "../components/visuals";
+import { ChartLegend, HealthRing, HealthTrend, LiveNumber, Trace } from "../components/visuals";
 import { Nums } from "../components/Nums";
 import { HelpTip } from "../components/HelpTip";
 import { HELP } from "../components/help";
 
-/** "17:00" today, "tomorrow 09:00" otherwise. */
+/** "17:00" today, "tomorrow 09:00", "yesterday 17:00" or "Fri 23 Oct 09:00". */
 function byText(ts: number, now: number): string {
-  return startOfDay(ts) === startOfDay(now) ? fmtTime(ts) : `tomorrow ${fmtTime(ts)}`;
+  const diff = Math.round((startOfDay(ts) - startOfDay(now)) / DAY);
+  const day = diff === 0 ? "" : diff === 1 ? "tomorrow " : diff === -1 ? "yesterday " : `${fmtDate(ts)} `;
+  return `${day}${fmtTime(ts)}`;
 }
 
 function Step({ done, current, children }: { done?: boolean; current?: boolean; children: ReactNode }) {
@@ -127,6 +132,8 @@ export function MachineDetail() {
   const alert = m.activeAlertId ? world.events.find((e) => e.id === m.activeAlertId) : undefined;
   const req = openRequest(world, m.id);
   const reqTech = req ? TECHNICIANS.find((t) => t.id === req.techId) : undefined;
+  const replyAt = req && reqTech ? replyBy(reqTech, req.at) : 0;
+  const late = !!req && now > replyAt;
   const alertTech = TECHNICIANS.find((t) => t.id === alert?.techId);
   const sessions = world.sessions.filter((x) => x.machineId === m.id && x.start <= now).sort((a, b) => b.start - a.start);
   const shown = sessions.slice(0, more ? 40 : 8);
@@ -150,7 +157,7 @@ export function MachineDetail() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-[30px] font-semibold sm:text-[38px]">{m.name}</h1>
-            <StatusBadge status={status} label={statusLabel(world, m, now)} still={status === "irregular" && !!alert?.outcome} />
+            <StatusBadge status={toneOf(world, m)} label={statusLabel(world, m, now)} still={status === "irregular" && !!alert?.outcome} />
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Chip>{spec.label}</Chip>
@@ -218,16 +225,27 @@ export function MachineDetail() {
             {status === "irregular" && <p className="mt-1 text-[14px] text-muted">Still outside its normal range. Shut it down if it gets worse.</p>}
             <ol className="mt-3 grid gap-1.5 text-[14px]">
               <Step done>
-                Sent <span className="tnum">{fmtWhen(req.at, now)}</span> with machine history
+                Sent <span className="tnum">{fmtWhenIn(req.at, now)}</span> with machine history
               </Step>
               <Step current>
-                Waiting for their reply, typically by <span className="tnum">{byText(replyBy(reqTech, req.at), now)}</span>
+                {late ? (
+                  <>
+                    <span className="font-semibold">No reply yet</span>, expected by <span className="tnum">{byText(replyAt, now)}</span>. Send it again or pick another partner.
+                  </>
+                ) : (
+                  <>
+                    Waiting for their reply, typically by <span className="tnum">{byText(replyAt, now)}</span>
+                  </>
+                )}
               </Step>
               <Step>Visit done: mark it here and the service date resets</Step>
             </ol>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button size="sm" variant="primary" onClick={() => closeTechRequest(req.id, "done")}>
                 Mark visit done
+              </Button>
+              <Button size="sm" variant={late ? "secondary" : "ghost"} onClick={() => openOverlay({ type: "tech", machineId: m.id })}>
+                {late ? "Send again" : "Change partner"}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => closeTechRequest(req.id, "cancelled")}>
                 Cancel request
@@ -250,7 +268,7 @@ export function MachineDetail() {
       )}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <Card className="p-4 sm:p-5">
+        <Card className="flex flex-col p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-[17px] font-semibold">Live {unit === "kw" ? "power" : "current"}</h2>
@@ -278,12 +296,23 @@ export function MachineDetail() {
               {learning ? HELP.learning : HELP.band}
             </HelpTip>
           </div>
-          <div className="relative">
-            <LiveChart samples={samples} unit={unit} volts={spec.volts} showBand={!learning} height={320} stroke={line} since={alert && !alert.outcome ? alert.at : undefined} />
+          <div className="relative min-h-[320px] flex-1">
+            <div className="absolute inset-0">
+              <LiveChart
+                samples={samples}
+                unit={unit}
+                volts={spec.volts}
+                showBand={!learning}
+                height="100%"
+                stroke={line}
+                since={alert && !alert.outcome ? alert.at : undefined}
+                rated={alert && !alert.outcome && severity(alert, m) === "critical" ? m.ratedKw : undefined}
+              />
+            </div>
             {m.power === "off" && offFor > 9 * 60_000 && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <p className="rounded-full border border-border bg-surface px-4 py-2 text-[14px] text-muted">
-                  Off since <span className="tnum text-ink">{fmtWhen(m.offAt!, now)}</span>
+                  Off since <span className="tnum text-ink">{fmtWhenIn(m.offAt!, now)}</span>
                 </p>
               </div>
             )}
@@ -417,7 +446,16 @@ export function MachineDetail() {
               <p className="text-[13px] font-medium">Technician requests</p>
               {requests.map((r) => (
                 <p key={r.id} className="text-[13px] text-muted">
-                  {TECHNICIANS.find((t) => t.id === r.techId)?.name} · <span className="tnum">{fmtWhen(r.at, now)}</span> · {r.status ?? "open"}
+                  {TECHNICIANS.find((t) => t.id === r.techId)?.name} · sent <span className="tnum">{fmtWhenIn(r.at, now)}</span> ·{" "}
+                  {r.status === "done" ? (
+                    <span className="text-green">
+                      visit done <span className="tnum">{fmtWhenIn(r.closedAt ?? r.at, now)}</span>
+                    </span>
+                  ) : r.status === "cancelled" ? (
+                    "cancelled"
+                  ) : (
+                    <span className="text-ink">waiting for a reply</span>
+                  )}
                 </p>
               ))}
             </div>

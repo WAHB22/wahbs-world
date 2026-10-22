@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { FileText, Moon, PowerOff, TriangleAlert } from "lucide-react";
 import { markAllRead, openOverlay, useApp } from "../store/store";
-import { bookingText, irregularReason, machineName } from "../sim/insights";
+import { bookingText, irregularReason, machineName, severity } from "../sim/insights";
+import { TECHNICIANS } from "../sim/catalog";
 import { DAY, fmtDate, fmtSpan, fmtTime, startOfDay } from "../lib/time";
 import type { AppEvent, World } from "../sim/types";
 import { Button, Card, OutcomeChip } from "../components/ui";
@@ -13,8 +14,11 @@ import { Nums } from "../components/Nums";
 function describe(w: World, e: AppEvent, now: number): { title: string; detail: string } {
   const name = machineName(w, e.machineId);
   switch (e.kind) {
-    case "irregular":
-      return { title: `${name} ${e.outcome ? "looked" : "looks"} irregular`, detail: irregularReason(e, now) };
+    case "irregular": {
+      const m = w.machines.find((x) => x.id === e.machineId);
+      const over = m && severity(e, m) === "critical" ? `, over its ${m.ratedKw.toFixed(2)} kW rating` : "";
+      return { title: `${name} ${e.outcome ? "looked" : "looks"} irregular`, detail: irregularReason(e, now) + over };
+    }
     case "idle":
       return {
         title: `${name} was idle for ${fmtSpan((e.outcome === "auto-off" && e.outcomeAt ? e.outcomeAt : e.at) - (e.idleSince ?? e.at))}`,
@@ -27,6 +31,19 @@ function describe(w: World, e: AppEvent, now: number): { title: string; detail: 
     case "report":
       return { title: "Daily report ready", detail: `Usage and energy for ${fmtDate(e.at)}` };
   }
+}
+
+/** The audit line: what was decided, by whom, when, and how long after the alert. */
+function decision(e: AppEvent): string | undefined {
+  if (!e.outcome || e.outcomeAt === undefined || e.kind === "auto-off" || e.kind === "report") return undefined;
+  const at = fmtTime(e.outcomeAt);
+  const after = e.outcomeAt - e.at >= 1000 ? `, ${fmtSpan(e.outcomeAt - e.at)} after the alert` : "";
+  const tech = TECHNICIANS.find((t) => t.id === e.techId)?.name ?? "a technician";
+  if (e.outcome === "auto-off") return `Turned off by the auto shut-off rule at ${at}`;
+  if (e.outcome === "technician") return `You requested ${tech} at ${at}${after}`;
+  if (e.outcome === "shutdown") return `You shut it down at ${at}${after}`;
+  if (e.outcome === "ok") return `You marked it OK at ${at}${after}`;
+  return `You kept it on at ${at}${after}`;
 }
 
 const ICON = { irregular: TriangleAlert, idle: Moon, overrun: Moon, "auto-off": PowerOff, report: FileText } as const;
@@ -48,13 +65,16 @@ export function Notifications() {
   }, [world.events.length]);
 
   const events = [...world.events].sort((a, b) => b.at - a.at);
-  const groups = new Map<number, AppEvent[]>();
+  const waiting = (e: AppEvent) => e.kind === "irregular" && !e.outcome && world.machines.find((m) => m.id === e.machineId)?.power === "on";
+  // Alerts still waiting for a decision come first, whatever their day; the key -1 holds them.
+  const groups = new Map<number, AppEvent[]>(events.some(waiting) ? [[-1, []]] : []);
   for (const e of events) {
-    const d = startOfDay(e.at);
+    const d = waiting(e) ? -1 : startOfDay(e.at);
     groups.set(d, [...(groups.get(d) ?? []), e]);
   }
   const today = startOfDay(now);
   const dayLabel = (d: number) => {
+    if (d === -1) return "Waiting for a decision";
     const diff = Math.round((today - d) / DAY);
     return diff === 0 ? "Today" : diff === 1 ? "Yesterday" : fmtDate(d);
   };
@@ -81,9 +101,12 @@ export function Notifications() {
                   const m = world.machines.find((x) => x.id === e.machineId);
                   const loc = world.locations.find((l) => l.id === e.locationId);
                   const pending = !e.outcome;
+                  const critical = e.kind === "irregular" && !!m && severity(e, m) === "critical";
+                  const audit = decision(e);
+                  const visited = e.outcome === "technician" && world.techRequests.some((r) => r.machineId === e.machineId && r.at >= e.at && r.status === "done");
                   return (
                     <li key={e.id} className={cx("flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 sm:px-5", unread.has(e.id) && "bg-bg/70")}>
-                      <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-full", ICON_TONE[e.kind])}>
+                      <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-full", critical ? "bg-rust text-white" : ICON_TONE[e.kind])}>
                         <Icon className="size-[17px]" />
                       </span>
                       <div className="min-w-0 flex-1 basis-[220px]">
@@ -94,6 +117,11 @@ export function Notifications() {
                         <p className="text-[13px] text-muted sm:truncate">
                           <Nums text={`${fmtTime(e.at)} · ${loc?.name} · ${t.detail}`} />
                         </p>
+                        {audit && (
+                          <p className="text-[13px] text-ink">
+                            <Nums text={audit} />
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         {e.kind === "report" ? (
@@ -109,6 +137,7 @@ export function Notifications() {
                             ) : (
                               <OutcomeChip outcome={e.outcome} />
                             )}
+                            {visited && <span className="inline-flex h-6 items-center rounded-full bg-green-tint px-2.5 text-xs font-medium whitespace-nowrap text-ink">Visit done</span>}
                             {m && (
                               <Link to={`/l/${m.locationId}/m/${m.id}`} aria-label={`Open ${m.name}`} className="text-[13px] font-medium text-green underline-offset-4 hover:underline">
                                 Open machine

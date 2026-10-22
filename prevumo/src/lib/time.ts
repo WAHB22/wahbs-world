@@ -61,6 +61,11 @@ export function fmtWhen(ts: number, now: number): string {
   return `${day} ${fmtTime(ts)}`;
 }
 
+/** fmtWhen for use inside a sentence: "today at 13:45", "yesterday at 09:10" or "Mon 20 Oct 09:10". */
+export function fmtWhenIn(ts: number, now: number): string {
+  return fmtWhen(ts, now).replace(/^(Today|Yesterday) /, (_, d: string) => `${d.toLowerCase()} at `);
+}
+
 /** 00:25:13 */
 export function fmtClock(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));
