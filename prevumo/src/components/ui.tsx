@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { Status } from "../sim/insights";
-import { cx, RAIL } from "./style";
+import { cx, OUTCOME_TONE, RAIL } from "./style";
+import { OUTCOME_LABEL } from "../sim/insights";
 
 type Variant = "primary" | "danger" | "secondary" | "ghost" | "quietDanger" | "onRust";
 
@@ -56,17 +57,24 @@ export function Card({ className, children, rail }: { className?: string; childr
 
 const BADGE: Record<Status, { cls: string; dot: string; label: string }> = {
   normal: { cls: "bg-green-tint text-ink", dot: "bg-green", label: "Normal" },
-  irregular: { cls: "bg-orange-tint text-ink", dot: "bg-orange pulse-dot", label: "Irregular" },
+  irregular: { cls: "bg-orange-tint text-ink", dot: "bg-orange", label: "Irregular" },
   critical: { cls: "bg-rust text-white", dot: "bg-white", label: "Shutting down" },
   idle: { cls: "bg-idle text-ink", dot: "bg-muted", label: "Idle" },
-  off: { cls: "bg-idle text-ink", dot: "bg-muted/60", label: "Off" },
+  off: { cls: "bg-idle text-ink", dot: "border border-idle-mark", label: "Off" },
 };
 
-export function StatusBadge({ status, label, className }: { status: Status; label?: string; className?: string }) {
+/** `still`: a handled state (for example a technician is on it), shown outlined instead of filled. */
+export function StatusBadge({ status, label, className, still }: { status: Status; label?: string; className?: string; still?: boolean }) {
   const b = BADGE[status];
   return (
-    <span className={cx("inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium", b.cls, className)}>
-      <span aria-hidden className={cx("size-1.5 rounded-full", b.dot)} />
+    <span
+      className={cx(
+        "inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium whitespace-nowrap",
+        still ? "bg-surface text-ink ring-1 ring-orange ring-inset" : b.cls,
+        className,
+      )}
+    >
+      <span aria-hidden className={cx("size-1.5 rounded-full", still ? "bg-orange" : b.dot)} />
       {label ?? b.label}
     </span>
   );
@@ -101,7 +109,7 @@ export function Switch({
       onClick={() => onChange(!checked)}
       className={cx(
         "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors duration-200",
-        checked ? "bg-green" : "bg-border",
+        checked ? "bg-green" : "bg-idle-mark",
       )}
     >
       <span
@@ -161,4 +169,20 @@ export function Segmented<T extends string>({
 
 export function SoonBadge() {
   return <span className="inline-flex h-6 items-center rounded-full bg-idle px-2.5 text-xs font-medium text-ink">Coming soon</span>;
+}
+
+/** What the owner decided, in the same colours everywhere. */
+export function OutcomeChip({ outcome }: { outcome?: string }) {
+  if (!outcome)
+    return (
+      <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-orange-tint px-2.5 text-xs font-medium whitespace-nowrap text-ink">
+        <span aria-hidden className="pulse-dot size-1.5 rounded-full bg-orange" />
+        Awaiting decision
+      </span>
+    );
+  return (
+    <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium whitespace-nowrap", OUTCOME_TONE[outcome] ?? "bg-idle text-ink")}>
+      {OUTCOME_LABEL[outcome as keyof typeof OUTCOME_LABEL]}
+    </span>
+  );
 }

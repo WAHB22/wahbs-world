@@ -14,6 +14,10 @@
   --color-orange-tint: #f6d2b4;
   --color-rust: #a63d1f;
   --color-idle: #ede4d3;
+  /* Mixes of brief colours for marks that must reach 3:1 against their ground. */
+  --color-idle-mark: color-mix(in srgb, var(--color-muted) 72%, var(--color-border));
+  --color-green-done: color-mix(in srgb, var(--color-green) 75%, var(--color-surface));
+  --color-field: color-mix(in srgb, var(--color-muted) 62%, var(--color-border));
 
   --font-*: initial;
   --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -54,6 +58,9 @@
     outline-offset: 2px;
     border-radius: 6px;
   }
+  .on-dark :focus-visible {
+    outline-color: var(--color-white);
+  }
   ::selection {
     background: var(--color-green-tint);
   }
@@ -79,8 +86,8 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
   }
-  .hairline {
-    border-color: var(--color-border);
+  .tnum {
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -89,26 +96,43 @@
 .collapse-y {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 320ms var(--ease-out);
+  transition: grid-template-rows 180ms var(--ease-out);
 }
 .collapse-y[data-open="true"] {
   grid-template-rows: 1fr;
+  transition-duration: 260ms;
 }
 .collapse-y > * {
   overflow: hidden;
   min-height: 0;
 }
 
-@keyframes banner-in {
-  from {
-    transform: translateY(-100%);
+/* The alert banner: drops in with the row as it opens, leaves faster than it came. */
+.banner {
+  transform: translateY(-100%);
+  transition: transform 180ms var(--ease-out);
+}
+.collapse-y[data-open="true"] .banner {
+  transform: none;
+  transition-duration: 260ms;
+}
+@keyframes knock {
+  0%,
+  100% {
+    rotate: 0deg;
   }
-  to {
-    transform: translateY(0);
+  20% {
+    rotate: -14deg;
+  }
+  45% {
+    rotate: 10deg;
+  }
+  70% {
+    rotate: -5deg;
   }
 }
-.banner-in {
-  animation: banner-in 420ms var(--ease-out) both;
+.collapse-y[data-open="true"] .banner-icon {
+  animation: knock 420ms var(--ease-in-out) 240ms 1;
 }
 
 @keyframes rise-in {
@@ -125,16 +149,84 @@
   animation: rise-in 280ms var(--ease-out) both;
 }
 
-@keyframes pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-orange) 55%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 7px transparent;
+/* Prompts and toasts: transitions, so a dismiss halfway through an entrance reverses from where it is. */
+.toast {
+  transition:
+    opacity 240ms var(--ease-out),
+    transform 280ms var(--ease-out);
+}
+@starting-style {
+  .toast {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
   }
 }
+.toast[data-leaving="true"] {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition-duration: 160ms;
+  pointer-events: none;
+}
+
+/* Waiting for a decision: a crisp ring that grows and fades, no glow. */
 .pulse-dot {
-  animation: pulse-ring 1.6s var(--ease-out) infinite;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--color-rust);
+}
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1.5px solid var(--color-orange);
+  animation: ping-ring 1.8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+@keyframes ping-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* A new irregularity: the card's outline rings out twice, then stays still. */
+@keyframes attn-ring {
+  from {
+    opacity: 0.9;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.03, 1.08);
+  }
+}
+.attn::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 2px solid var(--color-orange);
+  animation: attn-ring 900ms var(--ease-out) 2 both;
+}
+
+@keyframes bell-ring {
+  20% {
+    transform: rotate(14deg);
+  }
+  45% {
+    transform: rotate(-10deg);
+  }
+  70% {
+    transform: rotate(5deg);
+  }
+}
+.bell-ring {
+  animation: bell-ring 600ms var(--ease-out);
+  transform-origin: 50% 2px;
 }
 
 @keyframes spark-scroll {
@@ -208,22 +300,43 @@ dialog[open]::backdrop {
   }
 }
 
+/* Cards that change section (In use to Off) move on screen, so they glide; leaving ones fade quickly. */
 ::view-transition-group(*) {
-  animation-duration: 380ms;
-  animation-timing-function: var(--ease-out);
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-in-out);
+}
+::view-transition-old(*):only-child {
+  animation-duration: 160ms;
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
 }
 
+/* Reduced motion: no movement, but short fades that help comprehension stay. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
+    transition-delay: 0s !important;
+  }
+  .banner,
+  .toast,
+  .toast[data-leaving="true"],
+  dialog.modal,
+  dialog.drawer {
+    transform: none !important;
+  }
+  .collapse-y {
+    transition: none;
+  }
+  .banner {
+    transition: opacity 200ms ease;
+  }
+  .collapse-y:not([data-open="true"]) .banner {
+    opacity: 0;
   }
 }
 

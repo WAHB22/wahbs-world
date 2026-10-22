@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useLocation, useParams } from "react-router";
 import { startClock, useApp } from "./store/store";
+import { useAlertSignals } from "./lib/useAlertSignals";
 import { AlertBanners, Prompts } from "./components/Alerts";
 import { DemoPanel } from "./components/DemoPanel";
 import { Overlays } from "./components/overlays";
@@ -16,6 +17,7 @@ import { Settings } from "./pages/Settings";
 
 function Shell() {
   const { world } = useApp();
+  useAlertSignals();
   const { locId } = useParams();
   const { pathname } = useLocation();
   useEffect(() => window.scrollTo(0, 0), [pathname]);
@@ -45,7 +47,8 @@ function NotFound() {
   return (
     <main className="mx-auto flex min-h-[60dvh] max-w-[560px] flex-col items-start justify-center px-6">
       <p className="num text-[13px] text-muted">404</p>
-      <h1 className="mt-2 text-[32px] font-semibold">This page is not on any machine.</h1>
+      <h1 className="mt-2 text-[32px] font-semibold">We can't find that page.</h1>
+      <p className="mt-2 text-[15px] text-muted">The link may be old, or the demo data was reset.</p>
       <Link to="/" className="mt-6 inline-flex h-10 items-center rounded-[8px] bg-green px-4 text-sm font-medium text-white">
         Back to your locations
       </Link>

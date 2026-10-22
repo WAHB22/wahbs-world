@@ -1,4 +1,4 @@
-import { Area, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fmtTime } from "../lib/time";
 import type { Sample } from "../sim/types";
 
@@ -26,7 +26,10 @@ export function LiveChart({
   showBand,
   height = 280,
   stroke = "var(--color-green)",
+  since,
 }: {
+  /** When an open irregularity started (ms): shades the stretch since then. */
+  since?: number;
   samples: Sample[];
   unit: Unit;
   volts: number;
@@ -94,6 +97,11 @@ export function LiveChart({
               );
             }}
           />
+          <CartesianGrid vertical={false} stroke="var(--color-border)" strokeDasharray="2 4" />
+          {since !== undefined && (
+            <ReferenceArea x1={Math.max(first, since / 1000)} x2={last} fill="var(--color-orange-tint)" fillOpacity={0.45} ifOverflow="hidden" />
+          )}
+          {since !== undefined && <ReferenceLine x={Math.max(first, since / 1000)} stroke="var(--color-rust)" strokeDasharray="3 3" ifOverflow="hidden" />}
           {showBand && (
             <Area
               dataKey="band"
@@ -105,13 +113,15 @@ export function LiveChart({
               activeDot={false}
             />
           )}
-          <Line dataKey="v" type="linear" stroke={stroke} strokeWidth={1.6} dot={false} isAnimationActive={false} activeDot={{ r: 3.5, fill: stroke, stroke: "var(--color-surface)" }} />
+          <Line dataKey="v" type="linear" stroke={stroke} strokeWidth={1.25} dot={false} isAnimationActive={false} activeDot={{ r: 3.5, fill: stroke, stroke: "var(--color-surface)" }} />
           <Line
             dataKey="irr"
-            stroke="none"
+            stroke="var(--color-orange)"
+            strokeWidth={2.4}
+            connectNulls={false}
             isAnimationActive={false}
             activeDot={false}
-            dot={{ r: 2.6, fill: "var(--color-orange)", stroke: "var(--color-surface)", strokeWidth: 0.8 }}
+            dot={{ r: 3, fill: "var(--color-orange)", stroke: "var(--color-rust)", strokeWidth: 1 }}
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -119,11 +129,11 @@ export function LiveChart({
   );
 }
 
-export function ChartLegend({ showBand }: { showBand: boolean }) {
+export function ChartLegend({ showBand, stroke = "var(--color-green)" }: { showBand: boolean; stroke?: string }) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
       <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="h-0.5 w-4 rounded bg-green" /> Live draw
+        <span aria-hidden className="h-0.5 w-4 rounded" style={{ background: stroke }} /> Live draw
       </span>
       {showBand && (
         <span className="inline-flex items-center gap-1.5">
@@ -131,7 +141,7 @@ export function ChartLegend({ showBand }: { showBand: boolean }) {
         </span>
       )}
       <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="size-2 rounded-full bg-orange" /> Irregular point
+        <span aria-hidden className="size-2 rounded-full border border-rust bg-orange" /> Irregular point
       </span>
     </div>
   );

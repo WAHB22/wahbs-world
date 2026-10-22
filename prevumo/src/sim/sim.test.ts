@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { atTime, HOUR, MIN } from "../lib/time";
 import { attribute } from "./attribution";
-import { backfill, fastForward, markOk, shutdown, tick, triggerIdle, triggerIrregular } from "./engine";
-import { activeSession, irregularReason, isInUse, ordinal, health } from "./insights";
+import { backfill, closeTechRequest, fastForward, logService, markOk, requestTechnician, shutdown, tick, triggerIdle, triggerIrregular } from "./engine";
+import { activeSession, irregularReason, isInUse, ordinal, health, severity } from "./insights";
 import { buildReport, rangeFor } from "./reports";
 import { seedWorld } from "./seed";
 import type { World } from "./types";
@@ -68,7 +68,7 @@ describe("live engine", () => {
     expect(e.factor!).toBeGreaterThan(2.1);
     expect(e.factor!).toBeLessThan(2.5);
     expect(irregularReason(e, NOW + 6000)).toMatch(/^Spiked to 2\.\d× normal for \d s$/);
-    const h = health(world, welder, NOW);
+    const h = health(world, welder, NOW + 6000);
     expect(ordinal(h.irregularMonth)).toBe("3rd");
     expect(h.daysSinceService).toBe(74);
   });
@@ -129,5 +129,38 @@ describe("end of day", () => {
     expect(report.hours).toBeGreaterThan(50);
     expect(report.irregular).toBeGreaterThanOrEqual(2);
     expect(HOUR).toBe(3_600_000);
+  });
+});
+
+describe("maintenance and alerts", () => {
+  it("a logged service clears the age and irregularity penalties", () => {
+    const w0 = seedWorld(NOW);
+    const welder = w0.machines.find((m) => m.id === "ms1-welder-2")!;
+    const before = health(w0, welder, NOW);
+    expect(before.irregularSinceService).toBe(2);
+    const w1 = logService(w0, welder.id, "volt", "Replaced the liner", NOW);
+    const after = health(w1, w1.machines.find((m) => m.id === welder.id)!, NOW + 1000);
+    expect(after.score).toBe(100);
+    expect(after.dueInDays).toBe(90);
+    expect(w1.services.filter((s) => s.machineId === welder.id).at(-1)?.note).toBe("Replaced the liner");
+  });
+
+  it("closing a technician request as done logs the visit as a service", () => {
+    const w0 = requestTechnician(seedWorld(NOW), "ms1-cnc", "rideau", "", undefined, NOW);
+    const req = w0.techRequests[0];
+    expect(req.status).toBe("open");
+    const w1 = closeTechRequest(w0, req.id, "done", NOW + HOUR);
+    expect(w1.techRequests[0].status).toBe("done");
+    expect(w1.services.at(-1)).toMatchObject({ machineId: "ms1-cnc", techId: "rideau" });
+    expect(closeTechRequest(w1, req.id, "cancelled", NOW + 2 * HOUR)).toBe(w1);
+  });
+
+  it("rates a spike past the nameplate as critical and a sag as a warning", () => {
+    const spike = run(triggerIrregular(seedWorld(NOW), "ms1-welder-2", "spike", NOW), NOW, 6).world;
+    const sag = run(triggerIrregular(seedWorld(NOW), "ms1-welder-2", "sag", NOW), NOW, 6).world;
+    const e = (w: World) => w.events.find((x) => x.id === w.machines.find((m) => m.id === "ms1-welder-2")!.activeAlertId)!;
+    const m = (w: World) => w.machines.find((x) => x.id === "ms1-welder-2")!;
+    expect(severity(e(spike), m(spike))).toBe("critical");
+    expect(severity(e(sag), m(sag))).toBe("warning");
   });
 });

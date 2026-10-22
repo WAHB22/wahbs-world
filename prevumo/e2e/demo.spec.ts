@@ -19,7 +19,7 @@ test("the scripted demo path runs end to end", async ({ page }) => {
   await page.getByRole("link", { name: /Makerspace 1/ }).first().click();
 
   // 2. Three machines in use, with live numbers.
-  const inUse = page.getByRole("region", { name: "In use" }).or(page.locator("section[aria-labelledby=in-use]"));
+  const inUse = page.locator("section[aria-labelledby=in-use]");
   await expect(inUse.getByRole("link")).toHaveCount(3);
 
   // 3. Irregularity on Welder 2: the rust banner slides in at the top.

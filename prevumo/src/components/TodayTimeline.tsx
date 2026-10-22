@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useApp } from "../store/store";
-import { sessionUser } from "../sim/insights";
+import { sessionUser, statusOf } from "../sim/insights";
+import { windowOn } from "../sim/attribution";
 import { isAlwaysOn } from "../sim/seed";
 import { atTime, fmtTime, HOUR, startOfDay } from "../lib/time";
 import { cx, RAIL } from "./style";
@@ -23,6 +24,7 @@ export function TodayTimeline({ locId }: { locId: string }) {
   for (let t = from; t <= to; t += HOUR) hours.push(t);
   const step = hours.length > 12 ? 2 : 1;
   const events = world.events.filter((e) => e.at >= day && e.at <= now && e.machineId);
+  const booked = world.assignments.filter((a) => a.removedAt === undefined || a.removedAt > now);
 
   return (
     <section aria-labelledby="today" className="mt-10">
@@ -32,10 +34,13 @@ export function TodayTimeline({ locId }: { locId: string }) {
         </h2>
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
           <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden className="h-2 w-4 rounded-sm bg-green/80" /> Session
+            <span aria-hidden className="h-2.5 w-4 rounded-[3px] border border-dashed border-ink/50" /> Booked
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span aria-hidden className="size-2 rounded-full bg-orange" /> Irregularity
+            <span aria-hidden className="h-2 w-4 rounded-sm bg-green-done" /> What really ran
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="size-2 rounded-full border border-rust bg-orange" /> Irregularity
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span aria-hidden className="h-2.5 w-[3px] rounded-sm bg-rust" /> Shut down
@@ -46,18 +51,25 @@ export function TodayTimeline({ locId }: { locId: string }) {
         <div className="min-w-[680px] px-4 pt-3 pb-2 sm:px-5">
           <div className="relative ml-[128px] h-5 text-[11px] text-muted">
             {hours.map((t, i) =>
-              i % step === 0 ? (
+              i % step === 0 && Math.abs(t - now) > 0.6 * HOUR * step ? (
                 <span key={t} className="num absolute -translate-x-1/2" style={{ left: x(t) }}>
                   {fmtTime(t)}
                 </span>
               ) : null,
             )}
+            <span className="num absolute -translate-x-1/2 rounded-full bg-ink px-1.5 leading-[18px] text-white" style={{ left: x(now) }}>
+              {fmtTime(now)}
+            </span>
           </div>
           <div className="relative">
             <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 left-[128px]">
               {hours.map((t) => (
                 <span key={t} className="absolute inset-y-0 w-px bg-border/70" style={{ left: x(t) }} />
               ))}
+              <span
+                className="absolute inset-y-0 right-0"
+                style={{ left: x(now), backgroundImage: "repeating-linear-gradient(135deg, var(--color-border) 0 1px, transparent 1px 7px)" }}
+              />
               <span className="absolute -top-1 bottom-0 w-px bg-ink" style={{ left: x(now) }}>
                 <span className="absolute -top-1 -left-[3px] size-[7px] rounded-full bg-ink" />
               </span>
@@ -65,14 +77,26 @@ export function TodayTimeline({ locId }: { locId: string }) {
             {machines.map((m) => {
               const mine = sessions.filter((s) => s.machineId === m.id);
               const marks = events.filter((e) => e.machineId === m.id);
+              const st = statusOf(world, m);
               return (
                 <Link
                   key={m.id}
                   to={`/l/${locId}/m/${m.id}`}
                   className="group relative flex h-7 items-center rounded-[6px] transition-colors hover:bg-bg/70"
                 >
-                  <span className={cx("w-[128px] shrink-0 truncate pr-3 text-[12.5px]", mine.length ? "text-ink" : "text-muted")}>{m.name}</span>
+                  <span className={cx("w-[128px] shrink-0 truncate pr-3 text-[13px]", mine.length ? "text-ink" : "text-muted")}>{m.name}</span>
                   <span className="relative h-full flex-1">
+                    {booked.map((a) => {
+                      const win = a.machineIds.includes(m.id) ? windowOn(a.frame, now) : null;
+                      return win ? (
+                        <span
+                          key={a.id}
+                          title={`Booked for ${a.name}, ${fmtTime(win.start)} to ${fmtTime(win.end)}`}
+                          className="absolute top-1/2 h-5 -translate-y-1/2 rounded-[4px] border border-dashed border-ink/50"
+                          style={{ left: x(win.start), width: w(win.start, win.end) }}
+                        />
+                      ) : null;
+                    })}
                     {mine.map((s) => {
                       const running = s.end === undefined;
                       const who = sessionUser(world, s);
@@ -80,10 +104,7 @@ export function TodayTimeline({ locId }: { locId: string }) {
                         <span
                           key={s.id}
                           title={`${who.label} · ${fmtTime(s.start)} to ${running ? "now" : fmtTime(s.end!)} · ${s.kwh.toFixed(2)} kWh`}
-                          className={cx(
-                            "absolute top-1/2 h-3 -translate-y-1/2 rounded-[3px]",
-                            !running ? "bg-green/55" : m.mode === "idle" ? RAIL.idle : "bg-green",
-                          )}
+                          className={cx("absolute top-1/2 h-3 -translate-y-1/2 rounded-[3px]", running ? RAIL[st] : "bg-green-done")}
                           style={{ left: x(s.start), width: w(s.start, s.end ?? now), minWidth: 3 }}
                         />
                       );
@@ -93,7 +114,7 @@ export function TodayTimeline({ locId }: { locId: string }) {
                         <span
                           key={e.id}
                           title={`Irregularity at ${fmtTime(e.at)}`}
-                          className={cx("absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-orange", !e.outcome && "pulse-dot")}
+                          className={cx("absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-rust bg-orange", !e.outcome && "pulse-dot")}
                           style={{ left: x(e.at) }}
                         />
                       ) : e.outcome === "shutdown" || e.outcome === "auto-off" ? (

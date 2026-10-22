@@ -128,7 +128,7 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
       <div className="flex items-start gap-3 border-b border-border px-5 pt-5 pb-4 sm:px-6">
         <div className="min-w-0 flex-1">
           <h2 className="text-[22px] font-semibold">{editing ? "Edit assignment" : "Assign a user"}</h2>
-          <p className="mt-0.5 text-[13.5px] text-muted">Sessions on these machines in this time frame count for them.</p>
+          <p className="mt-0.5 text-[14px] text-muted">Sessions on these machines in this time frame count for them.</p>
         </div>
         <CloseButton onClick={closeOverlay} />
       </div>
@@ -144,6 +144,7 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
         <Field label="Name or company" htmlFor="as-name">
           <input
             id="as-name"
+            maxLength={80}
             list="as-known"
             autoComplete="off"
             value={d.name}
@@ -165,7 +166,7 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
         </Field>
 
         <Field label="Email" htmlFor="as-email" hint="Optional. Used for their usage summary.">
-          <input id="as-email" type="email" value={d.email} onChange={(e) => set({ email: e.target.value })} placeholder="shop@beta-inc.example" className={inputCls} />
+          <input id="as-email" type="email" maxLength={254} value={d.email} onChange={(e) => set({ email: e.target.value })} placeholder="shop@beta-inc.example" className={inputCls} />
           {tried && errors.email && <p className="text-xs text-rust">{errors.email}</p>}
         </Field>
 
@@ -268,7 +269,7 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
               {tried && errors.frame && <p className="text-xs text-rust">{errors.frame}</p>}
             </>
           ) : (
-            <p className="text-[13.5px] text-muted">Every session on these machines without a PIN counts for them until you remove this.</p>
+            <p className="text-[14px] text-muted">Every session on these machines without a PIN counts for them until you remove this.</p>
           )}
         </fieldset>
 

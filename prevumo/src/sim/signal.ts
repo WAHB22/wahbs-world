@@ -73,3 +73,16 @@ export function sampleAt(m: Pick<Machine, "type" | "ratedKw" | "seed">, t: numbe
 }
 
 export const WINDOW_SEC = 600;
+
+/** About 600 readings down to about 120, keeping band extremes and any irregular reading per bucket. */
+export function freeze(samples: Sample[], points = 120): Sample[] {
+  const step = Math.max(1, Math.ceil(samples.length / points));
+  const dev = (s: Sample) => Math.abs(s.kw - (s.lo + s.hi) / 2);
+  const out: Sample[] = [];
+  for (let i = 0; i < samples.length; i += step) {
+    const g = samples.slice(i, i + step);
+    const p = g.reduce((a, s) => (dev(s) > dev(a) ? s : a));
+    out.push({ t: g[0].t, kw: p.kw, lo: Math.min(...g.map((s) => s.lo)), hi: Math.max(...g.map((s) => s.hi)), out: g.some((s) => s.out) });
+  }
+  return out;
+}

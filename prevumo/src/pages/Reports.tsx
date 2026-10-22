@@ -4,7 +4,8 @@ import { FileDown, Printer } from "lucide-react";
 import { useApp } from "../store/store";
 import { buildReport, rangeFor, type RangeKind } from "../sim/reports";
 import { TYPES } from "../sim/catalog";
-import { addDays, dayKey, fmtTime, fmtDate } from "../lib/time";
+import { SOURCE } from "../sim/attribution";
+import { addDays, DAY, dayKey, fmtTime, fmtDate } from "../lib/time";
 import { download, toCsv } from "../lib/csv";
 import { Button, Card, Segmented } from "../components/ui";
 import { cx, inputCls } from "../components/style";
@@ -32,6 +33,14 @@ export function Reports() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [world.sessions.length, world.events.length, world.clockOffset, locId, kind, custom.from, custom.to, minute],
   );
+  // The same span just before, so every total has a baseline.
+  const span = kind === "today" ? DAY : kind === "week" ? 7 * DAY : range.to - range.from;
+  const prev = useMemo(
+    () => buildReport(world, locId, { ...range, from: range.from - span, to: range.to - span }, now),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [world.sessions.length, world.events.length, world.clockOffset, locId, kind, custom.from, custom.to, minute],
+  );
+  const vs = kind === "today" ? "yesterday" : kind === "week" ? "last week" : "the period before";
   if (!loc) return <Navigate to="/locations" replace />;
 
   const closedAt = world.closedDays[dayKey(now)];
@@ -64,8 +73,8 @@ export function Reports() {
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div>
           <h1 className="text-[30px] font-semibold sm:text-[38px]">{title}</h1>
-          <p className="mt-1 text-[14.5px] text-muted">
-            {loc.name} · <span className="num">{range.label}</span>
+          <p className="mt-1 text-[15px] text-muted">
+            {loc.name} · <span className="tnum">{range.label}</span>
           </p>
           {isDaily && (
             <p className={cx("mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px]", closedAt ? "bg-green-tint" : "bg-idle")}>
@@ -118,16 +127,23 @@ export function Reports() {
 
       <Card className="print-plain mt-6 grid grid-cols-2 divide-border md:grid-cols-4 md:divide-x">
         {[
-          { label: "Machine hours", value: report.hours.toFixed(1), unit: "h" },
-          { label: "Energy", value: report.kwh.toFixed(1), unit: "kWh" },
-          { label: "Irregularities", value: String(report.irregular), unit: "", tone: report.irregular ? "text-rust" : "" },
-          { label: "Idle shut-offs", value: String(report.idleOffs), unit: "" },
+          { label: "Machine hours", value: report.hours.toFixed(1), prev: prev.hours.toFixed(1), unit: "h" },
+          { label: "Energy", value: report.kwh.toFixed(1), prev: prev.kwh.toFixed(1), unit: "kWh" },
+          { label: "Irregularities", value: String(report.irregular), prev: String(prev.irregular), unit: "", tone: report.irregular ? "text-rust" : "" },
+          { label: "Idle shut-offs", value: String(report.idleOffs), prev: String(prev.idleOffs), unit: "" },
         ].map((t, i) => (
           <div key={t.label} className={cx("px-5 py-4 sm:px-6 sm:py-5", i < 2 && "border-b border-border md:border-b-0", i % 2 === 1 && "border-l border-border md:border-l-0")}>
             <p className="text-[13px] text-muted">{t.label}</p>
             <p className={cx("num mt-1 text-[30px] leading-none sm:text-[36px]", t.tone)}>
               {t.value}
               {t.unit && <span className="ml-1 text-[14px] text-muted">{t.unit}</span>}
+            </p>
+            <p className="mt-2 text-[13px] text-muted">
+              <span className="tnum text-ink">
+                {t.prev}
+                {t.unit && ` ${t.unit}`}
+              </span>{" "}
+              {vs}
             </p>
           </div>
         ))}
@@ -137,14 +153,14 @@ export function Reports() {
         <Card className="print-plain overflow-hidden">
           <h2 className="px-5 pt-5 pb-3 text-[17px] font-semibold">Per machine</h2>
           <div className="overflow-x-auto border-t border-border">
-            <table className="w-full min-w-[560px] text-[13.5px]">
+            <table className="w-full min-w-[560px] text-[14px]">
               <thead>
                 <tr className="text-left text-[12px] text-muted">
                   <th className="px-5 py-2 font-medium">Machine</th>
                   <th className="px-3 py-2 text-right font-medium">Hours</th>
                   <th className="px-3 py-2 font-medium">kWh</th>
                   <th className="px-3 py-2 text-right font-medium">Sessions</th>
-                  <th className="px-5 py-2 text-right font-medium">Irregular</th>
+                  <th className="px-5 py-2 text-right font-medium">Irregularities</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -152,17 +168,19 @@ export function Reports() {
                   <tr key={r.machine.id}>
                     <td className="px-5 py-2.5">
                       <span className="font-medium">{r.machine.name}</span>
-                      <span className="ml-1.5 text-[12px] text-muted">{TYPES[r.machine.type].label}</span>
+                      {!r.machine.name.toLowerCase().startsWith(TYPES[r.machine.type].label.toLowerCase()) && (
+                        <span className="ml-1.5 text-[12px] text-muted">{TYPES[r.machine.type].label}</span>
+                      )}
                     </td>
-                    <td className="num px-3 py-2.5 text-right">{r.alwaysOn ? <span className="text-muted">always on</span> : r.hours.toFixed(1)}</td>
-                    <td className="num px-3 py-2.5">
+                    <td className="tnum px-3 py-2.5 text-right">{r.alwaysOn ? <span className="text-muted">always on</span> : r.hours.toFixed(1)}</td>
+                    <td className="tnum px-3 py-2.5">
                       <span className="inline-flex items-center gap-2.5">
                         <span className="w-12 text-right">{r.kwh.toFixed(1)}</span>
                         <Bar value={r.kwh} max={maxKwh} />
                       </span>
                     </td>
-                    <td className="num px-3 py-2.5 text-right">{r.alwaysOn ? "" : r.sessions}</td>
-                    <td className="num px-5 py-2.5 text-right">
+                    <td className="tnum px-3 py-2.5 text-right">{r.alwaysOn ? "" : r.sessions}</td>
+                    <td className="tnum px-5 py-2.5 text-right">
                       {r.irregular ? <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-orange-tint px-2">{r.irregular}</span> : <span className="text-muted">0</span>}
                     </td>
                   </tr>
@@ -175,7 +193,7 @@ export function Reports() {
         <Card className="print-plain overflow-hidden">
           <h2 className="px-5 pt-5 pb-3 text-[17px] font-semibold">Per member</h2>
           <div className="overflow-x-auto border-t border-border">
-            <table className="w-full min-w-[480px] text-[13.5px]">
+            <table className="w-full min-w-[480px] text-[14px]">
               <thead>
                 <tr className="text-left text-[12px] text-muted">
                   <th className="px-5 py-2 font-medium">User</th>
@@ -189,13 +207,13 @@ export function Reports() {
                   <tr key={p.key} className={p.kind === "unassigned" ? "bg-bg/50" : undefined}>
                     <td className="px-5 py-2.5">
                       <span className={p.kind === "unassigned" ? "text-muted" : "font-medium"}>{p.label}</span>
-                      {p.kind !== "unassigned" && <span className="ml-1.5 text-[11.5px] text-muted">{p.kind === "pin" ? "PIN" : "assigned"}</span>}
+                      {p.kind !== "unassigned" && <span className="ml-1.5 text-[12px] text-muted">{SOURCE[p.kind]}</span>}
                     </td>
                     <td className="px-3 py-2.5 text-muted">
                       {p.machines.length ? (p.machines.length > 2 ? `${p.machines.slice(0, 2).join(", ")} +${p.machines.length - 2}` : p.machines.join(", ")) : "None"}
                     </td>
-                    <td className="num px-3 py-2.5 text-right">{p.hours.toFixed(1)}</td>
-                    <td className="num px-5 py-2.5 text-right">{p.kwh.toFixed(1)}</td>
+                    <td className="tnum px-3 py-2.5 text-right">{p.hours.toFixed(1)}</td>
+                    <td className="tnum px-5 py-2.5 text-right">{p.kwh.toFixed(1)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -203,7 +221,7 @@ export function Reports() {
           </div>
         </Card>
       </div>
-      <p className="mt-4 text-[12.5px] text-muted">
+      <p className="mt-4 text-[13px] text-muted">
         Fridges and freezers are always on, so they count toward energy only. Sessions are attributed by PIN first, then by manual assignment, otherwise Unassigned.
       </p>
       <p className="print-only mt-6 text-[11px] text-muted">

@@ -381,6 +381,7 @@ export function requestTechnician(
   note: string,
   eventId: string | undefined,
   now: number,
+  packet?: { snapshot: Sample[]; items: string[] },
 ): World {
   const d = new Draft(world);
   if (eventId) {
@@ -388,8 +389,26 @@ export function requestTechnician(
     const e = d.event(eventId);
     if (e) e.techId = techId;
   }
-  d.w.techRequests = [...d.w.techRequests, { id: uid("t"), machineId, techId, note, at: now, eventId }];
+  d.w.techRequests = [...d.w.techRequests, { id: uid("t"), machineId, techId, note, at: now, eventId, ...packet, status: "open" }];
   return d.w;
+}
+
+/** A service resets the service date and leaves a record in the history. */
+export function logService(world: World, machineId: string, techId: string | undefined, note: string, now: number): World {
+  if (!world.machines.some((m) => m.id === machineId)) return world;
+  return {
+    ...world,
+    machines: world.machines.map((m) => (m.id === machineId ? { ...m, lastServiceAt: now } : m)),
+    services: [...world.services, { id: uid("sv"), machineId, at: now, techId, note: note.trim() || undefined }],
+  };
+}
+
+/** Closing a request as done logs the visit as a service, by that technician. */
+export function closeTechRequest(world: World, id: string, how: "done" | "cancelled", now: number): World {
+  const r = world.techRequests.find((x) => x.id === id);
+  if (!r || (r.status ?? "open") !== "open") return world;
+  const w = { ...world, techRequests: world.techRequests.map((x) => (x.id === id ? { ...x, status: how, closedAt: now } : x)) };
+  return how === "done" ? logService(w, r.machineId, r.techId, "Visit after a request", now) : w;
 }
 
 export function markAllRead(world: World): World {

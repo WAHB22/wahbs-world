@@ -1,10 +1,12 @@
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router";
 import { CalendarDays, Eye, EyeOff, LogOut, Plus, RotateCcw } from "lucide-react";
 import { addMachine, addMember, logOut, resetDemo, setNeverAutoOff, toast, updateSettings, useApp } from "../store/store";
 import { LEARNING_DAYS, TYPES } from "../sim/catalog";
 import type { MachineType } from "../sim/types";
-import { Button, Card, Field, SoonBadge, Switch } from "../components/ui";
+import { Button, Card, Field, SoonBadge, StatusBadge, Switch } from "../components/ui";
+import { HELP } from "../components/help";
+import { previewChime, setSoundOn, useSoundOn } from "../lib/chime";
 import { cx, inputCls } from "../components/style";
 
 function Section({ title, lead, children }: { title: string; lead: string; children: ReactNode }) {
@@ -47,6 +49,15 @@ export function Settings() {
   const nav = useNavigate();
   const { world } = useApp();
   const s = world.settings;
+  const sound = useSoundOn();
+  const glossary: [ReactNode, string][] = [
+    [<StatusBadge status="normal" />, "Running inside its green band."],
+    [<StatusBadge status="irregular" />, "Outside its green band for a sustained stretch. A rust alert appears at the top."],
+    [<StatusBadge status="idle" />, `On, but drawing only standby power. After ${s.idlePromptMin} min you are asked whether to shut it down. On a location card, All idle means nothing is running.`],
+    [<StatusBadge status="normal" label="Learning" />, HELP.learning],
+    [<StatusBadge status="off" />, "Not powered. Nothing restarts on its own after a shutdown."],
+    ["Unassigned", "Running with no PIN typed and no assignment covering that time."],
+  ];
   const [shown, setShown] = useState<Set<string>>(new Set());
   const [mName, setMName] = useState("");
   const [mType, setMType] = useState<MachineType>("printer");
@@ -63,14 +74,29 @@ export function Settings() {
   return (
     <main className="mx-auto max-w-[1100px] px-4 pt-7 pb-24 sm:px-6 lg:px-8 lg:pt-10">
       <h1 className="text-[30px] font-semibold sm:text-[38px]">Settings</h1>
-      <p className="mt-1 mb-8 text-[14.5px] text-muted">Rules apply to every location of uOttawa Engineering.</p>
+      <p className="mt-1 mb-8 text-[15px] text-muted">Rules apply to every location of uOttawa Engineering.</p>
+
+      <Section title="Alerts" lead="The banner, the bell and the tab title always show a new irregularity. Sound is extra and only on this device.">
+        <Card className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <Switch checked={sound} onChange={setSoundOn} label="Play a chime for new irregularities" />
+            <div>
+              <p className="font-medium">Play a chime for new irregularities</p>
+              <p className="text-[14px] text-muted">Two soft notes, once per alert, only while this tab is in front. An overload plays them twice.</p>
+            </div>
+          </div>
+          <Button size="sm" variant="ghost" disabled={!sound} onClick={() => previewChime("critical")}>
+            Hear an overload
+          </Button>
+        </Card>
+      </Section>
 
       <Section title="Auto shut-off rules" lead="Nothing restarts on its own after a shutdown. Machines on the never list are only ever watched.">
         <Card className="divide-y divide-border">
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0">
               <p className="font-medium">Ask me when a machine is idle</p>
-              <p className="text-[13.5px] text-muted">On, but drawing only standby power, or still on after its booking ended.</p>
+              <p className="text-[14px] text-muted">On, but drawing only standby power, or still on after its booking ended.</p>
             </div>
             <label className="flex items-center gap-2 text-[14px]">
               after <NumberField id="idle-prompt" value={s.idlePromptMin} min={5} max={240} suffix="min" onChange={(v) => updateSettings({ ...s, idlePromptMin: v })} />
@@ -98,7 +124,7 @@ export function Settings() {
               <Switch checked={s.dailyShutdown.enabled} onChange={(v) => updateSettings({ ...s, dailyShutdown: { ...s.dailyShutdown, enabled: v } })} label="Shut everything down daily" />
               <div>
                 <p className="font-medium">Shut everything down daily</p>
-                <p className="text-[13.5px] text-muted">The daily report is generated at the same time.</p>
+                <p className="text-[14px] text-muted">The daily report is generated at the same time.</p>
               </div>
             </div>
             <label className={cx("flex items-center gap-2 text-[14px]", !s.dailyShutdown.enabled && "opacity-50")}>
@@ -113,7 +139,7 @@ export function Settings() {
           </div>
           <div className="px-5 py-4">
             <p className="font-medium">Never auto shut off</p>
-            <p className="text-[13.5px] text-muted">Fridges, freezers and anything that must stay on.</p>
+            <p className="text-[14px] text-muted">Fridges, freezers and anything that must stay on.</p>
             <div className="mt-3 space-y-3">
               {world.locations.map((l) => (
                 <div key={l.id}>
@@ -167,7 +193,7 @@ export function Settings() {
             }}
           >
             <Field label="Name" htmlFor="m-name">
-              <input id="m-name" value={mName} onChange={(e) => setMName(e.target.value)} placeholder="3D printer 7" className={inputCls} />
+              <input id="m-name" maxLength={80} value={mName} onChange={(e) => setMName(e.target.value)} placeholder="3D printer 7" className={inputCls} />
               {mTried && !mName.trim() && <p className="text-xs text-rust">Give the machine a name.</p>}
             </Field>
             <Field label="Type" htmlFor="m-type">
@@ -233,8 +259,8 @@ export function Settings() {
                       .slice(0, 2)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[14.5px] font-medium">{m.name}</p>
-                    <p className="truncate text-[12.5px] text-muted">{m.email}</p>
+                    <p className="truncate text-[15px] font-medium">{m.name}</p>
+                    <p className="truncate text-[13px] text-muted">{m.email}</p>
                   </div>
                   <span className="num w-14 text-right text-[16px] tracking-[0.18em]" aria-label={open ? `PIN ${m.pin.split("").join(" ")}` : "PIN hidden"}>
                     {open ? m.pin : "••••"}
@@ -264,13 +290,13 @@ export function Settings() {
               e.preventDefault();
               if (!newName.trim()) return;
               const m = addMember(newName.trim(), newEmail.trim());
-              toast(`${m.name} added with PIN ${m.pin}`);
+              toast(`${m.name} added. Their PIN is in the list, hidden until you reveal it.`);
               setNewName("");
               setNewEmail("");
             }}
           >
-            <input aria-label="New member name" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Name" className={cx(inputCls, "h-10 min-w-0 flex-1 basis-40")} />
-            <input aria-label="New member email" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="Email (optional)" className={cx(inputCls, "h-10 min-w-0 flex-1 basis-48")} />
+            <input aria-label="New member name" maxLength={80} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Name" className={cx(inputCls, "h-10 min-w-0 flex-1 basis-40")} />
+            <input aria-label="New member email" type="email" maxLength={254} value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="Email (optional)" className={cx(inputCls, "h-10 min-w-0 flex-1 basis-48")} />
             <Button type="submit" disabled={!newName.trim()}>
               <Plus className="size-4" /> Add member
             </Button>
@@ -292,10 +318,32 @@ export function Settings() {
                 <SoonBadge />
               </div>
               <p className="mt-3 font-medium">{x.name}</p>
-              <p className="text-[13.5px] text-muted">{x.text}</p>
+              <p className="text-[14px] text-muted">{x.text}</p>
             </Card>
           ))}
         </div>
+      </Section>
+
+      <Section title="Help" lead="What the words on screen mean, and who to contact.">
+        <Card className="divide-y divide-border text-[14px]">
+          <dl className="grid items-center gap-x-6 gap-y-3 px-5 py-4 sm:grid-cols-[170px_minmax(0,1fr)]">
+            {glossary.map(([t, d], i) => (
+              <Fragment key={i}>
+                <dt className="font-medium">{t}</dt>
+                <dd className="text-muted">{d}</dd>
+              </Fragment>
+            ))}
+          </dl>
+          <div className="px-5 py-4">
+            <p className="font-medium">Try it</p>
+            <p className="text-muted">Open Demo at the bottom left, or press Shift D, to start a session, trigger an irregularity or an idle prompt, or skip to the end of the day.</p>
+          </div>
+          <div className="px-5 py-4">
+            <p className="font-medium">Contact</p>
+            <p className="text-muted">help@prevumo.example, weekdays 9:00 to 17:00</p>
+            <p className="mt-1 text-xs text-muted">Demo contact. This address is not monitored.</p>
+          </div>
+        </Card>
       </Section>
 
       <Section title="Demo data" lead="Puts every location, machine, member and 30 days of history back to the start of the demo.">

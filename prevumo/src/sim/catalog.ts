@@ -1,3 +1,4 @@
+import { atTime, DAY, HOUR } from "../lib/time";
 import type { MachineType } from "./types";
 
 /** How a machine draws power while it is doing normal work, as fractions of its rated power. */
@@ -146,4 +147,23 @@ export type Technician = (typeof TECHNICIANS)[number];
 
 export function bestTechnician(type: MachineType): Technician {
   return TECHNICIANS.find((t) => t.fits.includes(type)) ?? TECHNICIANS[0];
+}
+
+/** When a partner typically replies, from their stated response time. */
+export function replyBy(t: Technician, at: number): number {
+  if (t.id === "volt") return at + 2 * HOUR;
+  if (t.id === "rideau") return Math.max(at + HOUR, atTime(at, "17:00"));
+  return atTime(at + DAY, "09:00");
+}
+
+/** Why the best match is the best match, from real fields only. */
+export function whyBest(t: Technician, at: number): string {
+  const top = (f: (x: Technician) => number, low: boolean) => f(t) === (low ? Math.min : Math.max)(...TECHNICIANS.map(f));
+  const extra = [
+    top((x) => x.km, true) && "the closest",
+    top((x) => x.rating, false) && "the highest rated",
+    top((x) => replyBy(x, at), true) && "the fastest to reply",
+  ].filter(Boolean) as string[];
+  const list = extra.length > 1 ? `${extra.slice(0, -1).join(", ")} and ${extra.at(-1)}` : extra[0];
+  return `Covers this machine type${list ? `, and ${list} of your partners` : ""}.`;
 }

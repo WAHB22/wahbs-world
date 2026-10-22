@@ -1,6 +1,11 @@
+const FORMULA = /^[=+\-@\t\r]/;
+const PLAIN_NUMBER = /^-?\d+(\.\d+)?$/;
+
+/** Text that a spreadsheet would run as a formula gets a leading quote. */
 function cell(v: string | number): string {
-  const s = String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  let s = String(v);
+  if (typeof v === "string" && FORMULA.test(s) && !PLAIN_NUMBER.test(s)) s = `'${s}`;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 export function toCsv(sections: { title: string; header: string[]; rows: (string | number)[][] }[]): string {

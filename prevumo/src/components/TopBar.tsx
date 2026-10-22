@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { Bell, Check, ChevronDown, Menu, X } from "lucide-react";
 import { useApp } from "../store/store";
-import { isInUse } from "../sim/insights";
+import { isInUse, openIrregular } from "../sim/insights";
+import { fmtDate, fmtTime, pad } from "../lib/time";
+import type { AppEvent } from "../sim/types";
 import { Wordmark } from "./visuals";
 import { cx } from "./style";
 
@@ -42,7 +44,7 @@ function LocationSwitcher({ locId }: { locId: string }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 min-w-0 items-center gap-1.5 rounded-[8px] px-2.5 text-sm font-medium text-ink transition-colors hover:bg-idle"
+        className="flex h-9 min-w-0 items-center gap-1.5 rounded-[8px] border border-border bg-surface/70 px-2.5 text-sm font-medium text-ink transition-colors hover:bg-idle"
       >
         <span className="truncate">{current?.name ?? "Locations"}</span>
         <ChevronDown className={cx("size-4 shrink-0 text-muted transition-transform duration-200", open && "rotate-180")} />
@@ -87,19 +89,29 @@ function LocationSwitcher({ locId }: { locId: string }) {
   );
 }
 
+/** The bell turns rust only while a decision is waiting; plain unread items show in ink. */
 export function BellLink({ locId }: { locId?: string }) {
-  const { world } = useApp();
+  const { world, now } = useApp();
+  const open = openIrregular(world);
   const unread = world.events.filter((e) => !e.read).length;
+  const newest = open.reduce<AppEvent | undefined>((a, e) => (!a || e.at > a.at ? e : a), undefined);
+  const count = open.length || unread;
   return (
     <Link
       to={`/l/${locId ?? world.locations[0].id}/notifications`}
-      aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
+      aria-label={open.length ? `Notifications, ${open.length} waiting for a decision` : unread ? `Notifications, ${unread} unread` : "Notifications"}
       className="relative inline-flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-idle"
     >
-      <Bell className="size-[19px]" />
-      {unread > 0 && (
-        <span key={unread} className="toast-in num absolute top-1 right-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-rust px-1 text-[11px] font-medium text-white">
-          {unread > 99 ? "99+" : unread}
+      <Bell key={newest?.id} className={cx("size-[19px]", newest && now - newest.at < 6000 && "bell-ring")} />
+      {count > 0 && (
+        <span
+          key={count}
+          className={cx(
+            "toast-in num absolute top-1 right-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[11px] font-medium text-white",
+            open.length ? "bg-rust" : "bg-ink",
+          )}
+        >
+          {count > 99 ? "99+" : count}
         </span>
       )}
     </Link>
@@ -107,6 +119,7 @@ export function BellLink({ locId }: { locId?: string }) {
 }
 
 export function TopBar({ locId }: { locId?: string }) {
+  const { now } = useApp();
   const [menu, setMenu] = useState(false);
   const ref = useDismiss(menu, () => setMenu(false));
   return (
@@ -121,6 +134,12 @@ export function TopBar({ locId }: { locId?: string }) {
             <div className="hidden min-w-0 sm:block">
               <LocationSwitcher locId={locId} />
             </div>
+            <p className="ml-2 hidden items-baseline gap-2 text-[13px] text-muted lg:flex">
+              {fmtDate(now)}
+              <span className="num text-[14px] text-ink">
+                {fmtTime(now)}:{pad(new Date(now).getSeconds())}
+              </span>
+            </p>
           </>
         )}
         <div className="flex-1" />

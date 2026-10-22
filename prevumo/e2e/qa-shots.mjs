@@ -3,7 +3,9 @@ import { chromium } from "@playwright/test";
 
 const [base = "http://localhost:5181", out = "shots", w = "1440", h = "900"] = process.argv.slice(2);
 const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || undefined });
-const page = await browser.newPage({ viewport: { width: +w, height: +h }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: +w, height: +h }, deviceScaleFactor: 1, timezoneId: process.env.QA_TIME ? "America/Toronto" : undefined });
+// QA_TIME pins the browser clock (for example 2026-10-22T14:18:00-04:00), so screenshots show a realistic day.
+if (process.env.QA_TIME) await page.clock.install({ time: new Date(process.env.QA_TIME) });
 const errors = [];
 page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 page.on("pageerror", (e) => errors.push(String(e)));

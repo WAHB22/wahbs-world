@@ -104,7 +104,7 @@ export function DemoPanel({ locId }: { locId?: string }) {
                 <option value="">No PIN (assignment or Unassigned)</option>
                 {world.members.map((m) => (
                   <option key={m.id} value={m.id}>
-                    PIN {m.pin} · {m.name}
+                    {m.name}
                   </option>
                 ))}
               </select>

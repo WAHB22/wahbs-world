@@ -2,9 +2,9 @@ import { useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import * as engine from "../sim/engine";
 import type { Live } from "../sim/engine";
-import { LEARNING_DAYS } from "../sim/catalog";
+import { LEARNING_DAYS, TYPES } from "../sim/catalog";
 import { seedWorld, uid, WORLD_VERSION } from "../sim/seed";
-import type { AnomalyKind, Assignment, Machine, MachineType, Member, Settings, World } from "../sim/types";
+import type { AnomalyKind, Assignment, Machine, MachineType, Member, Sample, Settings, World } from "../sim/types";
 import { DAY } from "../lib/time";
 
 export type Overlay =
@@ -31,12 +31,44 @@ export interface AppState {
 
 const KEY = "prevumo:world";
 
+const isNum = (v: unknown) => typeof v === "number" && Number.isFinite(v);
+
+/** Use a stored world only when its shape matches this build; anything else starts a fresh demo. */
+function isWorld(v: unknown): v is World {
+  if (!v || typeof v !== "object") return false;
+  const w = v as Record<string, unknown>;
+  const s = w.settings as Settings | undefined;
+  return (
+    w.version === WORLD_VERSION &&
+    isNum(w.lastTick) &&
+    isNum(w.clockOffset) &&
+    [w.locations, w.machines, w.members, w.assignments, w.sessions, w.events, w.techRequests, w.services].every(Array.isArray) &&
+    !!w.closedDays &&
+    typeof w.closedDays === "object" &&
+    !!s &&
+    isNum(s.idlePromptMin) &&
+    !!s.autoOffIdle &&
+    !!s.dailyShutdown &&
+    typeof s.dailyShutdown.time === "string" &&
+    (w.machines as Machine[]).every((m) => !!m && typeof m.id === "string" && typeof m.name === "string" && Object.hasOwn(TYPES, m.type)) &&
+    (w.members as Member[]).every((m) => !!m && typeof m.name === "string" && typeof m.pin === "string")
+  );
+}
+
 function load(): World {
   try {
+    const url = new URL(location.href);
+    if (url.searchParams.has("reset")) {
+      // Escape hatch: open any page with ?reset to start the demo again.
+      localStorage.removeItem(KEY);
+      url.searchParams.delete("reset");
+      history.replaceState(null, "", url);
+    }
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const w = JSON.parse(raw) as World;
-      if (w.version === WORLD_VERSION) return w;
+      const w: unknown = JSON.parse(raw);
+      if (isWorld(w)) return w;
+      localStorage.removeItem(KEY);
     }
   } catch {
     /* fall through to a fresh demo */
@@ -52,11 +84,23 @@ function save(w: World) {
   }
 }
 
-function init(): AppState {
-  const world = load();
+function boot(world: World): AppState {
   const now = Date.now() + world.clockOffset;
   const caught = engine.tick(world, engine.backfill(world, Math.min(now, world.lastTick)), now);
   return { world: caught.world, live: engine.backfill(caught.world, now), now, overlay: null, toasts: [], demoOpen: false };
+}
+
+function init(): AppState {
+  try {
+    return boot(load());
+  } catch {
+    try {
+      localStorage.removeItem(KEY);
+    } catch {
+      /* ignore */
+    }
+    return boot(seedWorld(Date.now()));
+  }
 }
 
 let state: AppState = init();
@@ -117,7 +161,14 @@ export function startClock() {
       lastSave = Date.now();
     }
   };
-  timer = window.setInterval(step, 250);
+  // Fire just after each whole second, when the new sample exists, so the sparklines never stall.
+  const schedule = () => {
+    timer = window.setTimeout(() => {
+      step();
+      schedule();
+    }, 1000 - (simNow() % 1000) + 10);
+  };
+  schedule();
   const flush = () => save(state.world);
   window.addEventListener("pagehide", flush);
   document.addEventListener("visibilitychange", () => document.hidden && flush());
@@ -192,8 +243,20 @@ export function keepOn(eventId: string) {
   apply(engine.keepOn(state.world, eventId, simNow()));
 }
 
-export function requestTechnician(machineId: string, techId: string, note: string, eventId?: string) {
-  apply(engine.requestTechnician(state.world, machineId, techId, note, eventId, simNow()));
+export function requestTechnician(machineId: string, techId: string, note: string, eventId?: string, packet?: { snapshot: Sample[]; items: string[] }) {
+  apply(engine.requestTechnician(state.world, machineId, techId, note, eventId, simNow(), packet));
+}
+
+export function closeTechRequest(id: string, how: "done" | "cancelled") {
+  apply(engine.closeTechRequest(state.world, id, how, simNow()));
+  toast(how === "done" ? "Visit logged. The service date is set to today." : "Request cancelled");
+}
+
+export function logService(machineId: string, techId: string | undefined, note: string) {
+  const m = state.world.machines.find((x) => x.id === machineId);
+  if (!m) return;
+  apply(engine.logService(state.world, machineId, techId, note, simNow()));
+  toast(`${m.name} service logged. Next one due in ${TYPES[m.type].serviceDays} days.`);
 }
 
 export function markAllRead() {
@@ -239,7 +302,7 @@ export function addMachine(input: { name: string; type: MachineType; locationId:
   return machine;
 }
 
-export function updateMachine(id: string, patch: Partial<Pick<Machine, "name" | "ratedKw" | "neverAutoOff" | "lastServiceAt">>) {
+export function updateMachine(id: string, patch: Partial<Pick<Machine, "name" | "ratedKw" | "neverAutoOff">>) {
   apply({ ...state.world, machines: state.world.machines.map((m) => (m.id === id ? { ...m, ...patch } : m)) });
 }
 

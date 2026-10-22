@@ -36,6 +36,9 @@ export function attribute(
   return { kind: "unassigned", label: "Unassigned", key: "unassigned" };
 }
 
+/** How a session got its name, worded the same everywhere. */
+export const SOURCE: Record<Attribution["kind"], string> = { pin: "PIN", assigned: "Assigned", unassigned: "No PIN or assignment" };
+
 export function frameText(frame: Frame): string {
   if (frame.kind === "always") return "Until removed";
   const days = describeDays(frame.days);

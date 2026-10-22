@@ -22,7 +22,7 @@ export function Assignments() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-[640px]">
           <h1 className="text-[30px] font-semibold sm:text-[38px]">Assignments</h1>
-          <p className="mt-1 text-[14.5px] text-muted">
+          <p className="mt-1 text-[15px] text-muted">
             Give a person or a company machines for a time frame. Sessions on those machines in that time count for them. A PIN typed on the box always wins.
           </p>
         </div>
@@ -33,7 +33,10 @@ export function Assignments() {
 
       <div className="mt-7 grid gap-3">
         {list.length === 0 && (
-          <div className="rounded-[var(--radius-card)] border border-dashed border-border px-6 py-10 text-center text-[14px] text-muted">No assignments yet.</div>
+          <div className="rounded-[var(--radius-card)] border border-dashed border-border px-6 py-10 text-center text-[14px] text-muted">
+            <p className="font-display text-[18px] font-semibold text-ink">No assignments yet</p>
+            <p className="mt-1">Assign a person or company to machines for a time frame, so sessions without a PIN still get a name.</p>
+          </div>
         )}
         {list.map((a) => {
           const st = STATE[assignmentState(a, now)];
@@ -54,7 +57,7 @@ export function Assignments() {
                 </div>
                 <div className="flex min-w-0 flex-1 basis-[220px] flex-wrap gap-1.5">
                   {machines.map((m) => (
-                    <span key={m.id} className="inline-flex h-7 items-center rounded-full border border-border bg-bg/60 px-2.5 text-[12.5px]">
+                    <span key={m.id} className="inline-flex h-7 items-center rounded-full border border-border bg-bg/60 px-2.5 text-[13px]">
                       {m.name}
                     </span>
                   ))}

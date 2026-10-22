@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Power } from "lucide-react";
-import { closeOverlay, shutdownMachine, toast, updateMachine, useApp, type Overlay } from "../../store/store";
+import { closeOverlay, logService, shutdownMachine, toast, updateMachine, useApp, type Overlay } from "../../store/store";
 import { activeSession, sessionUser } from "../../sim/insights";
 import { TYPES } from "../../sim/catalog";
 import { fmtDate } from "../../lib/time";
@@ -48,7 +48,7 @@ function ShutdownConfirm({ machineId, open }: { machineId?: string; open: boolea
 }
 
 function MachineSettings({ machineId, open }: { machineId?: string; open: boolean }) {
-  const { world, now } = useApp();
+  const { world } = useApp();
   const m = world.machines.find((x) => x.id === machineId);
   const [name, setName] = useState("");
   const [kw, setKw] = useState("");
@@ -79,16 +79,18 @@ function MachineSettings({ machineId, open }: { machineId?: string; open: boolea
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <h2 className="text-[22px] font-semibold">Machine settings</h2>
-            <p className="text-[13.5px] text-muted">{TYPES[m.type].label}</p>
+            <p className="text-[14px] text-muted">{TYPES[m.type].label}</p>
           </div>
           <CloseButton onClick={closeOverlay} />
         </div>
         <div className="mt-5 grid gap-4">
           <Field label="Name" htmlFor="ms-name">
             <input id="ms-name" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+            {!name.trim() && <p className="text-xs text-rust">Give the machine a name.</p>}
           </Field>
           <Field label="Rated power (kW)" htmlFor="ms-kw" hint="From the machine's nameplate.">
             <input id="ms-kw" type="number" step="0.05" min="0.01" value={kw} onChange={(e) => setKw(e.target.value)} className={`${inputCls} num`} />
+            {!(kwNum > 0 && kwNum < 100) && <p className="text-xs text-rust">Enter a rated power between 0.01 and 100 kW.</p>}
           </Field>
           <div className="flex items-center justify-between gap-4 rounded-[10px] border border-border px-4 py-3">
             <div>
@@ -100,16 +102,13 @@ function MachineSettings({ machineId, open }: { machineId?: string; open: boolea
           <div className="flex items-center justify-between gap-4 rounded-[10px] border border-border px-4 py-3">
             <div>
               <p className="text-[14px] font-medium">Last service</p>
-              <p className="num text-[13px] text-muted">{fmtDate(m.lastServiceAt)}</p>
+              <p className="tnum text-[13px] text-muted">{fmtDate(m.lastServiceAt)}</p>
             </div>
             <Button
               size="sm"
-              onClick={() => {
-                updateMachine(m.id, { lastServiceAt: now });
-                toast(`${m.name} marked as serviced today`);
-              }}
+              onClick={() => logService(m.id, undefined, "")}
             >
-              Mark serviced today
+              Log a service today
             </Button>
           </div>
         </div>

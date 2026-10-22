@@ -24,7 +24,10 @@ export function Dialog({
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    if (open && !d.open) d.showModal();
+    if (open && !d.open) {
+      d.showModal();
+      d.querySelector<HTMLElement>("[data-autofocus]")?.focus({ preventScroll: true });
+    }
     if (!open && d.open) d.close();
   }, [open]);
   return (
@@ -66,7 +69,7 @@ export function CloseButton({ onClick, label = "Close" }: { onClick: () => void;
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="inline-flex size-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-idle hover:text-ink"
+      className="inline-flex size-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-idle hover:text-ink sm:size-9"
     >
       <X className="size-[18px]" />
     </button>

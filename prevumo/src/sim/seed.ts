@@ -1,9 +1,9 @@
 import { addDays, atTime, dayKey, DAY, HOUR, MIN, startOfDay } from "../lib/time";
 import { covers, windowOn } from "./attribution";
-import { TYPES, meanFrac } from "./catalog";
+import { bestTechnician, TYPES, meanFrac } from "./catalog";
 import type { AnomalyKind, AppEvent, Assignment, Location, Machine, MachineType, Member, Outcome, Session, World } from "./types";
 
-export const WORLD_VERSION = 3;
+export const WORLD_VERSION = 4;
 
 /** Small seeded generator so every reset produces the same story. */
 export function makeRng(seed: number) {
@@ -355,6 +355,14 @@ export function seedWorld(now: number): World {
     sessions,
     events,
     techRequests: [],
+    services: machines.flatMap((m) => {
+      const techId = bestTechnician(m.type).id;
+      const prev = m.lastServiceAt - Math.round(TYPES[m.type].serviceDays * 0.95) * DAY;
+      return [
+        { id: uid("sv"), machineId: m.id, at: prev, techId },
+        { id: uid("sv"), machineId: m.id, at: m.lastServiceAt, techId },
+      ];
+    }),
     settings: {
       idlePromptMin: 30,
       autoOffIdle: { enabled: true, minutes: 60 },

@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Sample } from "../sim/types";
+import type { TrendPoint } from "../sim/insights";
+import { fmtDate, fmtTime } from "../lib/time";
 import { cx } from "./style";
 
 export function Mark({ className }: { className?: string }) {
@@ -90,6 +92,7 @@ export function Sparkline({
     pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p.hi).toFixed(1)}`).join("") +
     [...pts].reverse().map((p, j) => `L${x(n - 1 - j).toFixed(1)},${y(p.lo).toFixed(1)}`).join("") +
     "Z";
+  const outLine = pts.map((p, i) => (p.out ? `${i && pts[i - 1].out ? "L" : "M"}${x(i).toFixed(1)},${y(p.kw).toFixed(1)}` : "")).join("");
   const last = pts[n - 1];
   return (
     <div ref={ref} className="relative w-full overflow-hidden" style={{ height }}>
@@ -98,8 +101,9 @@ export function Sparkline({
           <g key={last.t} className="spark-scroll" style={{ ["--step" as string]: `${step}px` }}>
             {showBand && <path d={band} fill="var(--color-green-tint)" opacity={0.85} />}
             <path d={line} fill="none" stroke={stroke} strokeWidth={1.75} strokeLinejoin="round" strokeLinecap="round" />
+            {outLine && <path d={outLine} fill="none" stroke="var(--color-orange)" strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" />}
             {pts.map((p, i) =>
-              p.out ? <circle key={p.t} cx={x(i)} cy={y(p.kw)} r={2.4} fill="var(--color-orange)" /> : null,
+              p.out ? <circle key={p.t} cx={x(i)} cy={y(p.kw)} r={2.4} fill="var(--color-orange)" stroke="var(--color-rust)" strokeWidth={1} /> : null,
             )}
           </g>
         </svg>
@@ -109,12 +113,12 @@ export function Sparkline({
 }
 
 /** Health as a ring of ticks, filled up to the score in the status colour. */
-export function HealthRing({ score, color, size = 132 }: { score: number; color: string; size?: number }) {
+export function HealthRing({ score, color, size = 132, label }: { score: number; color: string; size?: number; label?: string }) {
   const ticks = 60;
   const r = size / 2;
   const filled = Math.round((score / 100) * ticks);
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="relative" role="img" aria-label={label ?? `Health ${score} of 100`} style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
         {Array.from({ length: ticks }, (_, i) => {
           const a = (i / ticks) * Math.PI * 2 - Math.PI / 2;
@@ -139,6 +143,76 @@ export function HealthRing({ score, color, size = 132 }: { score: number; color:
         <span className="num text-[34px] font-medium leading-none text-ink">{score}</span>
         <span className="mt-1 text-xs text-muted">of 100</span>
       </div>
+    </div>
+  );
+}
+
+/** A frozen power trace, for the record (what was sent with a technician request). It does not scroll. */
+export function Trace({ samples, height = 64 }: { samples: Sample[]; height?: number }) {
+  const [ref, width] = useWidth<HTMLDivElement>();
+  const n = samples.length;
+  const max = Math.max(0.001, ...samples.map((p) => Math.max(p.kw, p.hi))) * 1.12;
+  const x = (i: number) => (i / Math.max(1, n - 1)) * width;
+  const y = (v: number) => height - 3 - (v / max) * (height - 6);
+  const path = (k: "kw" | "hi") => samples.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join("");
+  const band =
+    path("hi") +
+    samples
+      .map((_, j) => n - 1 - j)
+      .map((i) => `L${x(i).toFixed(1)},${y(samples[i].lo).toFixed(1)}`)
+      .join("") +
+    "Z";
+  return (
+    <div>
+      <div ref={ref} style={{ height }}>
+        {width > 0 && n > 2 && (
+          <svg width={width} height={height} role="img" aria-label={`Power before the request, ${samples.filter((p) => p.out).length} readings outside the normal range`}>
+            <path d={band} fill="var(--color-green-tint)" />
+            <path d={path("kw")} fill="none" stroke="var(--color-ink)" strokeWidth={1.5} strokeLinejoin="round" />
+            {samples.map((p, i) => p.out && <circle key={p.t} cx={x(i)} cy={y(p.kw)} r={2.4} fill="var(--color-orange)" stroke="var(--color-rust)" strokeWidth={1} />)}
+          </svg>
+        )}
+      </div>
+      {n > 1 && (
+        <p className="num mt-1 flex justify-between text-[11px] text-muted">
+          <span>{fmtTime(samples[0].t * 1000)}</span>
+          <span>{fmtTime(samples[n - 1].t * 1000)}</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Health over the last 30 days: steps down at irregularities, drifts with age, jumps back at each service. */
+export function HealthTrend({ points, height = 64 }: { points: TrendPoint[]; height?: number }) {
+  const [ref, width] = useWidth<HTMLDivElement>();
+  const n = points.length;
+  const p = 6;
+  const last = points[n - 1];
+  const x = (i: number) => p + (i / Math.max(1, n - 1)) * (width - p * 2 - 26);
+  const y = (v: number) => p + (1 - v / 100) * (height - p * 2);
+  return (
+    <div ref={ref} style={{ height }}>
+      {width > 0 && n > 1 && (
+        <svg width={width} height={height} role="img" aria-label={`Health went from ${points[0].score} to ${last.score} over ${n} days`}>
+          {[75, 50].map((v) => (
+            <line key={v} x1={p} x2={x(n - 1)} y1={y(v)} y2={y(v)} stroke="var(--color-border)" strokeDasharray="2 3" />
+          ))}
+          <path d={points.map((q, i) => `${i ? "L" : "M"}${x(i)},${y(q.score)}`).join("")} fill="none" stroke="var(--color-ink)" strokeWidth={2} strokeLinejoin="round" />
+          {points.map((q, i) => (
+            <g key={q.at}>
+              {q.serviced && <line x1={x(i)} x2={x(i)} y1={p} y2={height - p} stroke="var(--color-green)" strokeWidth={2} />}
+              {q.irregular > 0 && <circle cx={x(i)} cy={y(q.score)} r={4} fill="var(--color-orange)" stroke="var(--color-surface)" strokeWidth={2} />}
+              <rect x={x(i) - 5} width={10} height={height} fill="transparent">
+                <title>{`${fmtDate(q.at)}: ${q.score}${q.irregular ? ", irregular" : ""}${q.serviced ? ", serviced" : ""}`}</title>
+              </rect>
+            </g>
+          ))}
+          <text x={x(n - 1) + 6} y={y(last.score) + 4} fontSize={12} className="num" fill="var(--color-ink)">
+            {last.score}
+          </text>
+        </svg>
+      )}
     </div>
   );
 }

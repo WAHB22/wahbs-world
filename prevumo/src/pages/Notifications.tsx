@@ -5,16 +5,16 @@ import { markAllRead, openOverlay, useApp } from "../store/store";
 import { bookingText, irregularReason, machineName } from "../sim/insights";
 import { DAY, fmtDate, fmtSpan, fmtTime, startOfDay } from "../lib/time";
 import type { AppEvent, World } from "../sim/types";
-import { Button, Card } from "../components/ui";
+import { Button, Card, OutcomeChip } from "../components/ui";
 import { cx } from "../components/style";
-import { OutcomeChip } from "./MachineDetail";
+
 import { Nums } from "../components/Nums";
 
 function describe(w: World, e: AppEvent, now: number): { title: string; detail: string } {
   const name = machineName(w, e.machineId);
   switch (e.kind) {
     case "irregular":
-      return { title: `${name} looked irregular`, detail: irregularReason(e, now) };
+      return { title: `${name} ${e.outcome ? "looked" : "looks"} irregular`, detail: irregularReason(e, now) };
     case "idle":
       return {
         title: `${name} was idle for ${fmtSpan((e.outcome === "auto-off" && e.outcomeAt ? e.outcomeAt : e.at) - (e.idleSince ?? e.at))}`,
@@ -62,9 +62,14 @@ export function Notifications() {
   return (
     <main className="mx-auto max-w-[920px] px-4 pt-7 pb-24 sm:px-6 lg:pt-10">
       <h1 className="text-[30px] font-semibold sm:text-[38px]">Notifications</h1>
-      <p className="mt-1 text-[14.5px] text-muted">Every alert and idle prompt across your locations, with what was decided.</p>
+      <p className="mt-1 text-[15px] text-muted">Every alert and idle prompt across your locations, with what was decided.</p>
 
       <div className="mt-7 space-y-7">
+        {groups.size === 0 && (
+          <p className="rounded-[var(--radius-card)] border border-dashed border-border px-6 py-10 text-center text-[14px] text-muted">
+            No alerts or idle prompts in the last 30 days. When a machine looks irregular or sits idle, it shows up here with what you decided.
+          </p>
+        )}
         {[...groups.entries()].map(([d, list]) => (
           <section key={d} aria-label={dayLabel(d)}>
             <h2 className="mb-2 text-[14px] font-semibold text-muted">{dayLabel(d)}</h2>
@@ -82,11 +87,11 @@ export function Notifications() {
                         <Icon className="size-[17px]" />
                       </span>
                       <div className="min-w-0 flex-1 basis-[220px]">
-                        <p className="flex items-center gap-2 text-[14.5px] font-medium">
+                        <p className="flex items-center gap-2 text-[15px] font-medium">
                           {unread.has(e.id) && <span aria-label="Unread" className="size-1.5 shrink-0 rounded-full bg-rust" />}
                           {t.title}
                         </p>
-                        <p className="truncate text-[12.5px] text-muted">
+                        <p className="truncate text-[13px] text-muted">
                           <Nums text={`${fmtTime(e.at)} · ${loc?.name} · ${t.detail}`} />
                         </p>
                       </div>
@@ -105,8 +110,8 @@ export function Notifications() {
                               <OutcomeChip outcome={e.outcome} />
                             )}
                             {m && (
-                              <Link to={`/l/${m.locationId}/m/${m.id}`} className="text-[13px] font-medium text-green underline-offset-4 hover:underline">
-                                Machine
+                              <Link to={`/l/${m.locationId}/m/${m.id}`} aria-label={`Open ${m.name}`} className="text-[13px] font-medium text-green underline-offset-4 hover:underline">
+                                Open machine
                               </Link>
                             )}
                           </>

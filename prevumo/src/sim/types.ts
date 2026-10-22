@@ -112,6 +112,20 @@ export interface TechRequest {
   note: string;
   at: number;
   eventId?: string;
+  /** The power trace and summary sent with the request, frozen when it was sent. */
+  snapshot?: Sample[];
+  items?: string[];
+  /** Undefined reads as open. */
+  status?: "open" | "done" | "cancelled";
+  closedAt?: number;
+}
+
+export interface ServiceRecord {
+  id: string;
+  machineId: string;
+  at: number;
+  techId?: string;
+  note?: string;
 }
 
 export interface Settings {
@@ -132,6 +146,7 @@ export interface World {
   sessions: Session[];
   events: AppEvent[];
   techRequests: TechRequest[];
+  services: ServiceRecord[];
   settings: Settings;
   /** Day key (YYYY-MM-DD) to the time its daily report was generated. */
   closedDays: Record<string, number>;
