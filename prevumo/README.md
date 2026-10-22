@@ -73,6 +73,7 @@ Open the demo controls with the small **Demo** button (bottom left) or **Shift+D
 
 * Prices, technicians and their ratings are illustrative. Volt Repair Ottawa, Rideau Shop Services and Capital Lab Equipment are made up for the demo.
 * Members, emails and PINs are fictional. Emails use the reserved `example` domain.
+* PINs sit in plain text in this browser's storage, which is fine for public demo PINs. A real product would keep only salted hashes on the server and show a PIN once, when it is created.
 * Fonts are the Google Fonts families (Space Grotesk, Inter, JetBrains Mono), self-hosted through Fontsource so the demo works on classroom Wi-Fi with no external requests.
 * Booking integrations (Skedda, Google Calendar) are shown as Coming soon.
 
