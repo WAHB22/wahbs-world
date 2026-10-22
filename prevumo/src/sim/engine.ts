@@ -1,4 +1,4 @@
-import { atTime, dayKey, HOUR, MIN } from "../lib/time";
+import { addDays, atTime, dayKey, HOUR, MIN, startOfDay } from "../lib/time";
 import { attribute, windowOn } from "./attribution";
 import { meanFrac, TYPES } from "./catalog";
 import { fillBookedWindows, generateSessions, isAlwaysOn, makeRng, uid } from "./seed";
@@ -118,7 +118,8 @@ function stop(d: Draft, m: Machine, at: number, how: "owner" | "auto" | "end", r
       if (e.kind === "overrun" && !e.outcome && e.machineId === m.id) resolve(d, e.id, outcome, at);
     }
   }
-  if (how === "auto" && reason === "daily") {
+  // Every automatic stop leaves a record; an idle stop with a prompt is recorded on the prompt itself.
+  if (how === "auto" && (reason === "daily" || !m.activeIdleId)) {
     d.addEvent({
       id: uid("e"),
       kind: "auto-off",
@@ -126,7 +127,7 @@ function stop(d: Draft, m: Machine, at: number, how: "owner" | "auto" | "end", r
       locationId: m.locationId,
       machineId: m.id,
       sessionId: s?.id,
-      autoReason: "daily",
+      autoReason: reason,
       outcome: "auto-off",
       outcomeAt: at,
       read: false,
@@ -143,14 +144,24 @@ function stop(d: Draft, m: Machine, at: number, how: "owner" | "auto" | "end", r
   m.activeIdleId = undefined;
 }
 
+/** End of day: the daily report always, the shutdown only when the owner has it on. */
 function closeDay(d: Draft, at: number) {
   const w = d.w;
-  for (const m of w.machines) {
-    if (m.power === "on" && !isAlwaysOn(m) && !m.neverAutoOff) stop(d, m, at, "auto", "daily");
+  if (w.settings.dailyShutdown.enabled) {
+    for (const m of w.machines) if (m.power === "on" && !isAlwaysOn(m) && !m.neverAutoOff) stop(d, m, at, "auto", "daily");
   }
   w.closedDays[dayKey(at)] = at;
   for (const l of w.locations) {
     d.addEvent({ id: uid("e"), kind: "report", at, locationId: l.id, outcome: "generated", outcomeAt: at, read: false });
+  }
+}
+
+/** Energy for sessions already running at `from`, at each machine's typical draw, for a stretch not simulated second by second. */
+function accrue(d: Draft, from: number, to: number) {
+  for (const m of d.w.machines) {
+    const s = m.power === "on" && !isAlwaysOn(m) ? d.activeSession(m.id) : undefined;
+    if (!s || s.start >= from) continue;
+    s.kwh += (m.mode === "idle" ? TYPES[m.type].idleFrac : meanFrac(m.type)) * m.ratedKw * ((to - from) / HOUR);
   }
 }
 
@@ -257,10 +268,13 @@ function stepSecond(d: Draft, live: Live, t: number, prevMs: number) {
 
   const ds = w.settings.dailyShutdown;
   const close = atTime(ms, ds.time);
-  if (ds.enabled && ms >= close && prevMs < close && !w.closedDays[dayKey(ms)]) closeDay(d, close);
+  if (ms >= close && prevMs < close && !w.closedDays[dayKey(ms)]) closeDay(d, close);
 
   for (const id in live) if (live[id].length > WINDOW_SEC) live[id] = live[id].slice(-WINDOW_SEC);
 }
+
+/** Any power change, including stopping to off, so a card leaving In use morphs instead of snapping. */
+const powers = (w: World) => w.machines.map((m) => m.power).join();
 
 export interface TickResult {
   world: World;
@@ -274,25 +288,30 @@ export function tick(world: World, live: Live, now: number): TickResult {
   const to = Math.floor(now / 1000);
   if (to < from) return { world, live, powerChanged: false };
   const d = new Draft(world);
-  const before = world.machines.map((m) => m.power === "on").join();
+  const before = powers(world);
   const next: Live = {};
   for (const id in live) next[id] = live[id].slice();
 
   const gap = to - from;
   if (gap > 120) {
-    for (const m of d.w.machines) {
-      const s = m.power === "on" && !isAlwaysOn(m) ? d.activeSession(m.id) : undefined;
-      if (s) s.kwh += (m.mode === "idle" ? TYPES[m.type].idleFrac : meanFrac(m.type)) * m.ratedKw * (gap / 3600);
+    // Close every day whose closing time passed while the tab slept, then bridge the rest.
+    let at = world.lastTick;
+    for (let day = startOfDay(at); day <= now; day = addDays(day, 1)) {
+      const close = atTime(day, d.w.settings.dailyShutdown.time);
+      if (close <= at || close > now || d.w.closedDays[dayKey(close)]) continue;
+      accrue(d, at, close);
+      closeDay(d, close);
+      at = close;
     }
-    stepSecond(d, next, to, world.lastTick);
+    accrue(d, at, to * 1000);
+    stepSecond(d, next, to, at);
     const rebuilt = backfill(d.w, now);
     d.w.lastTick = to * 1000;
     return { world: d.w, live: rebuilt, powerChanged: true };
   }
   for (let t = from; t <= to; t++) stepSecond(d, next, t, (t - 1) * 1000);
   d.w.lastTick = to * 1000;
-  const after = d.w.machines.map((m) => m.power === "on").join();
-  return { world: d.w, live: next, powerChanged: before !== after };
+  return { world: d.w, live: next, powerChanged: before !== powers(d.w) };
 }
 
 /* Owner and demo actions. Each returns a new world. */
@@ -438,6 +457,8 @@ export function fastForward(world: World, now: number): { world: World; closeAt:
       end = Math.min(close - MIN, Math.max(now + MIN, m.modeSince + w.settings.autoOffIdle.minutes * MIN));
       if (s) s.kwh += TYPES[m.type].idleFrac * m.ratedKw * ((end - now) / HOUR);
       stop(d, m, end, "auto", "idle");
+    } else if (m.mode === "idle" || d.w.events.some((e) => e.kind === "overrun" && !e.outcome && e.machineId === m.id)) {
+      continue; // an open prompt: left on for the daily shutdown (or the owner) to decide
     } else {
       if (s) s.kwh += meanFrac(m.type) * m.ratedKw * ((end - now) / HOUR);
       stop(d, m, end, "end");
@@ -471,11 +492,7 @@ export function fastForward(world: World, now: number): { world: World; closeAt:
     d.addSession({ id: uid("s"), machineId: printer.id, start, kwh: meanFrac("printer") * printer.ratedKw * ((close - start) / HOUR) });
   }
 
-  for (const m of w.machines) {
-    const s = m.power === "on" && !isAlwaysOn(m) ? d.activeSession(m.id) : undefined;
-    if (s && s.start < now) s.kwh += meanFrac(m.type) * m.ratedKw * ((close - now) / HOUR);
-  }
-
+  accrue(d, now, close);
   closeDay(d, close);
   for (const m of w.machines) {
     const last = d.w.sessions.filter((s) => s.machineId === m.id && s.end !== undefined).reduce((a, s) => Math.max(a, s.end!), 0);

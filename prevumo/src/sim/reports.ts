@@ -131,3 +131,8 @@ export function buildReport(w: World, locationId: string, range: Range, now: num
 export function isWholeDay(range: Range): boolean {
   return range.to - range.from <= DAY;
 }
+
+/** Energy used today at one location: the same figure as the daily report, always-on machines included. */
+export function todayKwh(w: World, locationId: string, now: number): number {
+  return buildReport(w, locationId, rangeFor("today", now), now).kwh;
+}

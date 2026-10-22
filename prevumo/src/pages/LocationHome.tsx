@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { openOverlay, useApp } from "../store/store";
-import { dueSoon, healthTone, isInUse, serviceText, todayKwh } from "../sim/insights";
+import { dueSoon, healthTone, isInUse, serviceText } from "../sim/insights";
+import { todayKwh } from "../sim/reports";
 import { isAlwaysOn } from "../sim/seed";
 import { AlwaysOnCard, InUseCard, OffCard } from "../components/MachineCard";
 import { TodayTimeline } from "../components/TodayTimeline";
@@ -24,7 +25,7 @@ export function LocationHome() {
   const alwaysOn = machines.filter(isAlwaysOn);
   const rest = machines.filter((m) => !isInUse(m) && !isAlwaysOn(m));
   const kw = machines.reduce((a, m) => a + (m.power === "on" ? (live[m.id]?.at(-1)?.kw ?? 0) : 0), 0);
-  const kwh = todayKwh(world, machines, now);
+  const kwh = todayKwh(world, locId, now);
   const due = dueSoon(world, machines, now);
 
   return (

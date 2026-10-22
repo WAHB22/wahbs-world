@@ -207,18 +207,6 @@ export const OUTCOME_LABEL: Record<NonNullable<AppEvent["outcome"]>, string> = {
   generated: "Report generated",
 };
 
-/** Energy used today by these machines, counting the part of each session that falls in today. */
-export function todayKwh(w: World, machines: Machine[], now: number): number {
-  const today = startOfDay(now);
-  const ids = new Set(machines.map((m) => m.id));
-  return w.sessions
-    .filter((s) => ids.has(s.machineId) && (s.end ?? now) > today && s.start <= now)
-    .reduce((a, s) => {
-      const end = Math.min(s.end ?? now, now);
-      return a + (s.kwh * (end - Math.max(s.start, today))) / Math.max(1, end - s.start);
-    }, 0);
-}
-
 export function machineName(w: World, id: string | undefined): string {
   return w.machines.find((m) => m.id === id)?.name ?? "Machine";
 }

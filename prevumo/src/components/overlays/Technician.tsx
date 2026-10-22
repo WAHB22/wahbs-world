@@ -42,17 +42,8 @@ export function TechnicianPanel({ machineId, eventId, open }: { machineId?: stri
   const [picked, setPicked] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [sent, setSent] = useState<Sent | null>(null);
-  const [snap, setSnap] = useState<Sample[]>([]);
-  const [lastKey, setLastKey] = useState<string | undefined>(undefined);
-  const key = open ? `${machineId}:${eventId}` : undefined;
-  if (key && key !== lastKey) {
-    setLastKey(key);
-    setPicked(null);
-    setNote("");
-    setSent(null);
-    // Freeze the trace when the panel opens, so the preview is exactly what gets sent.
-    setSnap(freeze(live[machineId ?? ""] ?? []));
-  }
+  // Frozen when the panel opens, so the preview is exactly what gets sent.
+  const [snap] = useState(() => freeze(live[machineId ?? ""] ?? []));
   const techId = picked ?? best.id;
   if (!m) return <Dialog open={false} onClose={closeOverlay} label="Call technician" kind="drawer"><div /></Dialog>;
   const items = attachments(world, m, eventId, now);

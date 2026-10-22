@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Power } from "lucide-react";
 import { closeOverlay, logService, shutdownMachine, toast, updateMachine, useApp, type Overlay } from "../../store/store";
 import { activeSession, sessionUser } from "../../sim/insights";
@@ -11,13 +11,21 @@ import { AlertModal } from "./AlertModal";
 import { AssignPanel } from "./AssignPanel";
 import { TechnicianPanel } from "./Technician";
 
-/** Remember the last payload of each overlay type so it can animate closed with its content. */
+/**
+ * Keeps the last payload while a panel animates closed, then drops it so closed panels render nothing live.
+ * `n` counts openings: used as a key, every opening starts from fresh state.
+ */
 function useLast<T extends NonNullable<Overlay>["type"]>(overlay: Overlay, type: T) {
   type P = Extract<NonNullable<Overlay>, { type: T }>;
   const current = overlay?.type === type ? (overlay as P) : undefined;
-  const [last, setLast] = useState<P | undefined>(current);
-  if (current && current !== last) setLast(current);
-  return { open: !!current, last: current ?? last };
+  const [last, setLast] = useState<{ p?: P; n: number }>({ n: 0 });
+  if (current && current !== last.p) setLast({ p: current, n: last.n + 1 });
+  useEffect(() => {
+    if (current) return;
+    const t = window.setTimeout(() => setLast((l) => ({ n: l.n })), 400);
+    return () => window.clearTimeout(t);
+  }, [current]);
+  return { open: !!current, last: current ?? last.p, n: last.n };
 }
 
 function ShutdownConfirm({ machineId, open }: { machineId?: string; open: boolean }) {
@@ -50,17 +58,9 @@ function ShutdownConfirm({ machineId, open }: { machineId?: string; open: boolea
 function MachineSettings({ machineId, open }: { machineId?: string; open: boolean }) {
   const { world } = useApp();
   const m = world.machines.find((x) => x.id === machineId);
-  const [name, setName] = useState("");
-  const [kw, setKw] = useState("");
-  const [never, setNever] = useState(false);
-  const [lastKey, setLastKey] = useState<string | undefined>(undefined);
-  const key = open ? machineId : undefined;
-  if (key && key !== lastKey && m) {
-    setLastKey(key);
-    setName(m.name);
-    setKw(String(m.ratedKw));
-    setNever(m.neverAutoOff);
-  }
+  const [name, setName] = useState(m?.name ?? "");
+  const [kw, setKw] = useState(m ? String(m.ratedKw) : "");
+  const [never, setNever] = useState(m?.neverAutoOff ?? false);
   if (!m) return <Dialog open={false} onClose={closeOverlay} label="Machine settings"><div /></Dialog>;
   const kwNum = Number(kw);
   const valid = name.trim().length > 0 && kwNum > 0 && kwNum < 100;
@@ -136,9 +136,9 @@ export function Overlays() {
     <>
       <AlertModal open={alert.open} eventId={alert.last?.eventId} />
       <ShutdownConfirm open={shut.open} machineId={shut.last?.machineId} />
-      <TechnicianPanel open={tech.open} machineId={tech.last?.machineId} eventId={tech.last?.eventId} />
-      <AssignPanel open={assign.open} assignmentId={assign.last?.assignmentId} machineIds={assign.last?.machineIds} />
-      <MachineSettings open={machine.open} machineId={machine.last?.machineId} />
+      <TechnicianPanel key={`tech${tech.n}`} open={tech.open} machineId={tech.last?.machineId} eventId={tech.last?.eventId} />
+      <AssignPanel key={`assign${assign.n}`} open={assign.open} assignmentId={assign.last?.assignmentId} machineIds={assign.last?.machineIds} />
+      <MachineSettings key={`machine${machine.n}`} open={machine.open} machineId={machine.last?.machineId} />
     </>
   );
 }

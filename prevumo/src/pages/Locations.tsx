@@ -1,7 +1,8 @@
 import { Link, Navigate } from "react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useApp } from "../store/store";
-import { dueSoon, isInUse, statusOf, todayKwh, type Status } from "../sim/insights";
+import { dueSoon, isInUse, statusOf, type Status } from "../sim/insights";
+import { todayKwh } from "../sim/reports";
 import { Card } from "../components/ui";
 import { cx, RAIL } from "../components/style";
 import { LiveNumber } from "../components/visuals";
@@ -30,7 +31,7 @@ export function Locations() {
           const inUse = ms.filter(isInUse).length;
           const alerts = world.events.filter((e) => e.kind === "irregular" && !e.outcome && e.locationId === l.id).length;
           const kw = ms.reduce((a, m) => a + (m.power === "on" ? (live[m.id]?.at(-1)?.kw ?? 0) : 0), 0);
-          const kwh = todayKwh(world, ms, now);
+          const kwh = todayKwh(world, l.id, now);
           const dueWeek = dueSoon(world, ms, now).filter((x) => x.h.dueInDays <= 7).length;
           return (
             <Link key={l.id} to={`/l/${l.id}`} className="group block rounded-[var(--radius-card)]">

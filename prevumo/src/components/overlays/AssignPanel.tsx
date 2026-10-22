@@ -58,13 +58,6 @@ export function AssignPanel({ assignmentId, machineIds, open }: { assignmentId?:
   const editing = world.assignments.find((a) => a.id === assignmentId);
   const [d, setD] = useState<Draft>(() => initial(now, editing, machineIds));
   const [tried, setTried] = useState(false);
-  const [lastKey, setLastKey] = useState<string | undefined>(undefined);
-  const key = open ? `${assignmentId ?? "new"}:${machineIds?.join()}` : undefined;
-  if (key && key !== lastKey) {
-    setLastKey(key);
-    setD(initial(now, editing, machineIds));
-    setTried(false);
-  }
   const set = (patch: Partial<Draft>) => setD((x) => ({ ...x, ...patch }));
 
   const known = [...new Map([...world.assignments.map((a) => [a.name, a.email] as const), ...world.members.map((m) => [m.name, m.email] as const)]).entries()];

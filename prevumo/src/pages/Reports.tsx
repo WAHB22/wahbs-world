@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { FileDown, Printer } from "lucide-react";
 import { useApp } from "../store/store";
@@ -26,20 +26,10 @@ export function Reports() {
   const [custom, setCustom] = useState({ from: dayKey(addDays(now, -7)), to: dayKey(now) });
   const loc = world.locations.find((l) => l.id === locId);
   const range = rangeFor(kind, now, custom);
-  const minute = Math.floor(now / 60_000);
-  // Rebuild once a minute (or when the data changes shape), not every second.
-  const report = useMemo(
-    () => buildReport(world, locId, range, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [world.sessions.length, world.events.length, world.clockOffset, locId, kind, custom.from, custom.to, minute],
-  );
+  const report = buildReport(world, locId, range, now);
   // The same span just before, so every total has a baseline.
   const span = kind === "today" ? DAY : kind === "week" ? 7 * DAY : range.to - range.from;
-  const prev = useMemo(
-    () => buildReport(world, locId, { ...range, from: range.from - span, to: range.to - span }, now),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [world.sessions.length, world.events.length, world.clockOffset, locId, kind, custom.from, custom.to, minute],
-  );
+  const prev = buildReport(world, locId, { ...range, from: range.from - span, to: range.to - span }, now);
   const vs = kind === "today" ? "yesterday" : kind === "week" ? "last week" : "the period before";
   if (!loc) return <Navigate to="/locations" replace />;
 

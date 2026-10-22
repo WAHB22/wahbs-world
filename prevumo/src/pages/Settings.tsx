@@ -25,6 +25,13 @@ const selectCls = cx(inputCls, "appearance-none bg-[length:16px] bg-[right_12px_
 const CHEVRON = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B6B5F' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`;
 
 function NumberField({ id, value, onChange, min, max, suffix }: { id: string; value: number; onChange: (v: number) => void; min: number; max: number; suffix: string }) {
+  // Typing edits a draft; the rule changes once, on blur or Enter, clamped to its range.
+  const [draft, setDraft] = useState<string | null>(null);
+  const commit = () => {
+    const v = Math.round(Number(draft));
+    if (draft && Number.isFinite(v)) onChange(Math.min(max, Math.max(min, v)));
+    setDraft(null);
+  };
   return (
     <span className="inline-flex items-center gap-2">
       <input
@@ -32,11 +39,10 @@ function NumberField({ id, value, onChange, min, max, suffix }: { id: string; va
         type="number"
         min={min}
         max={max}
-        value={value}
-        onChange={(e) => {
-          const v = Math.round(Number(e.target.value));
-          if (Number.isFinite(v)) onChange(Math.min(max, Math.max(min, v)));
-        }}
+        value={draft ?? value}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => e.key === "Enter" && commit()}
         className={cx(inputCls, "num h-10 w-20 text-center")}
       />
       <span className="text-[14px] text-muted">{suffix}</span>
