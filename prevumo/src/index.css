@@ -1,0 +1,265 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-bg: #f3ebdd;
+  --color-surface: #fffdf8;
+  --color-border: #e3d6c0;
+  --color-ink: #1f3d2b;
+  --color-muted: #5b6b5f;
+  --color-green: #2f6b45;
+  --color-green-tint: #d6e4d3;
+  --color-orange: #e07a2e;
+  --color-orange-tint: #f6d2b4;
+  --color-rust: #a63d1f;
+  --color-idle: #ede4d3;
+
+  --font-*: initial;
+  --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-card: 12px;
+  --radius-btn: 8px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100dvh;
+    font-feature-settings: "cv11", "ss01";
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-green);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: var(--color-green-tint);
+  }
+  button,
+  [role="button"] {
+    cursor: pointer;
+    user-select: none;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  input,
+  select,
+  textarea {
+    font: inherit;
+    font-size: max(16px, 1em);
+  }
+}
+
+@layer utilities {
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .hairline {
+    border-color: var(--color-border);
+  }
+}
+
+/* Motion: everything here is short, tied to a state change, and off under reduced motion. */
+
+.collapse-y {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms var(--ease-out);
+}
+.collapse-y[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.collapse-y > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@keyframes banner-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.banner-in {
+  animation: banner-in 420ms var(--ease-out) both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.toast-in {
+  animation: rise-in 280ms var(--ease-out) both;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-orange) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+.pulse-dot {
+  animation: pulse-ring 1.6s var(--ease-out) infinite;
+}
+
+@keyframes spark-scroll {
+  from {
+    transform: translateX(var(--step));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.spark-scroll {
+  animation: spark-scroll 1000ms linear both;
+}
+
+@keyframes live-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+.live-blink {
+  animation: live-blink 2s steps(2, jump-none) infinite;
+}
+
+dialog.modal {
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 260ms var(--ease-out),
+    overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+dialog.modal[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  dialog.modal[open] {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+}
+dialog.drawer {
+  transform: translateX(100%);
+  transition:
+    transform 320ms var(--ease-out),
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+dialog.drawer[open] {
+  transform: none;
+}
+@starting-style {
+  dialog.drawer[open] {
+    transform: translateX(100%);
+  }
+}
+dialog::backdrop {
+  background: rgb(31 61 43 / 0);
+  transition:
+    background 240ms var(--ease-out),
+    overlay 240ms allow-discrete,
+    display 240ms allow-discrete;
+}
+dialog[open]::backdrop {
+  background: rgb(31 61 43 / 0.32);
+}
+@starting-style {
+  dialog[open]::backdrop {
+    background: rgb(31 61 43 / 0);
+  }
+}
+
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Print: the report only, on white. */
+.print-only {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    font-size: 11pt;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-plain {
+    background: #fff !important;
+    border-color: #d9cdb6 !important;
+    box-shadow: none !important;
+  }
+  table {
+    break-inside: auto;
+  }
+  tr {
+    break-inside: avoid;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
