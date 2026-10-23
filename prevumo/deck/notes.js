@@ -62,7 +62,7 @@ Before you click: "Here is the owner app. Everything you'll see works today."
 [0:35] Meanwhile, a 3D printer has been idle for 45 minutes, still drawing power. One tap shuts it down, for good.
 [0:46] The owner gives Beta Inc. the laser cutter for this afternoon.
 [0:56] And at the end of the day, the report builds itself, per machine and per member, ready to export.
-[1:05] That's the loop: warning, decision, record. Scan the QR code to try it yourself.
+[1:05] That's the loop: warning, decision, record.
 
 TRANSITION (B): C, who else is going to want this?
 C: Let's talk about the market.
@@ -126,7 +126,7 @@ Skedda tells you who booked it.
 [pause]
 PREVUMO tells you who used it, and when it's about to fail.
 [pause]
-Thank you. We'd love your questions, and you can try the app right now with this QR code.`,
+Thank you. We'd love your questions.`,
 
   a1: `APPENDIX, for Q&A only. Remote shutdown hardware.
 

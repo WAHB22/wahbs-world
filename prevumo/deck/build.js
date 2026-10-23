@@ -329,9 +329,8 @@ const DEMO_SLIDE = 6;
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.7, y: 1.5, w: vw + 0.1, h: vh + 0.1, rectRadius: 0.1, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Video frame" });
   s.addMedia({ type: "video", path: VIDEO, x: 0.75, y: 1.55, w: vw, h: vh, cover: A.poster, objectName: "Owner app demo, 67 s, no audio" });
   text(s, "Owner side prototype. Simulated boxes, real flow. Click to play.", { x: 0.75, y: 6.55, w: 8, h: 0.3, fontSize: 11, color: C.text2 });
-  text(s, "Try it yourself", { x: 10.25, y: 1.55, w: 2.35, h: 0.45, fontFace: HEAD, fontSize: 20, bold: true, color: C.text1 });
-  qrSlot(s, { x: 10.25, y: 2.15, w: 2.3, h: 2.3 }, false);
-  text(s, "Login, alert, technician, idle shutdown, assign, daily report.", { x: 10.25, y: 4.65, w: 2.35, h: 1.2, fontSize: 13, color: C.text2, valign: "top" });
+  text(s, "In the video", { x: 10.25, y: 1.55, w: 2.35, h: 0.45, fontFace: HEAD, fontSize: 20, bold: true, color: C.text1 });
+  text(s, "Login, alert, technician, idle shutdown, assign, daily report.", { x: 10.25, y: 2.15, w: 2.35, h: 1.2, fontSize: 13, color: C.text2, valign: "top" });
   notes(s, "s6");
 
   /* 7. Market */
@@ -459,8 +458,6 @@ const DEMO_SLIDE = 6;
     { text: "PREVUMO tells you who used it, and when it's about to fail.", options: { color: HEX.bg } },
   ], { x: 0.75, y: 0.8, w: 11.2, h: 2.4, fontFace: HEAD, fontSize: 38, bold: true, valign: "top", paraSpaceAfter: 8 });
   text(s, "Thank you. Questions?", { x: 0.75, y: 5.95, w: 7, h: 0.7, fontFace: HEAD, fontSize: 30, bold: true, color: HEX.orange });
-  qrSlot(s, { x: 10.95, y: 5.15, w: 1.65, h: 1.65 }, true);
-  text(s, "Try the app", { x: 8.6, y: 6.35, w: 2.1, h: 0.4, fontSize: 13, color: HEX.greenTint, align: "right" });
   notes(s, "s11");
 
   /* Appendix */
