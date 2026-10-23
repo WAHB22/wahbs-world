@@ -24,6 +24,8 @@ npm run e2e          # builds, then runs the scripted demo at 1440x900 and 390px
 
 ## Deploy
 
+Live demo: https://prevumo.vercel.app (Vercel project `prevumo`, built from `claude/wahb-satisfaction-skill-45vtx4` with Root Directory `prevumo`). The project is not linked to Git, so a new push needs a new deployment.
+
 The build is a static site, so any static host works. Routes are client side, so the host must send every path to `index.html`; both configs are included.
 
 **Vercel:** import the repository, set **Root Directory** to `prevumo`, keep the Vite preset (build `npm run build`, output `dist`). `vercel.json` adds the rewrite.
