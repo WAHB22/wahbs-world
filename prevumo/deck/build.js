@@ -395,7 +395,24 @@ const DEMO_SLIDE = 6;
     ["Partners", 0, 0, 1, 2], ["Activities", 1, 0, 1, 1], ["Resources", 1, 1, 1, 1], ["Value", 2, 0, 1, 2],
     ["Relations", 3, 0, 1, 1], ["Channels", 3, 1, 1, 1], ["Segments", 4, 0, 1, 2], ["Costs", 0, 2, 2.5, 1], ["Revenue", 2.5, 2, 2.5, 1],
   ];
-  const canvas = (x0, y0, w, h, title, sub, changed, dim) => {
+  // Each block: plain words, with the parts that are new in Plan B in bold.
+  const PLAN_A = {
+    Partners: "Component suppliers, electricians", Activities: "Box + app, billing reports", Resources: "Usage data per user",
+    Value: "Bill each user for energy", Relations: "Self-service app", Channels: "Website, outreach",
+    Segments: "Coworking, makerspaces, kitchens, labs", Costs: "Box, install, hosting", Revenue: "~$150 box + ~$10/machine/mo",
+  };
+  const PLAN_B = {
+    Partners: [["Suppliers, "], ["technician network", 1], [", booking platforms"]],
+    Activities: [["Box + app, "], ["AI curve learning, alerts", 1]],
+    Resources: [["Anomaly model, irregularity history", 1]],
+    Value: [["Warn before failure", 1], [", remote shutdown, idle shut-off"]],
+    Relations: [["App + "], ["alert follow-up", 1]],
+    Channels: [["Website, outreach, "], ["partner referrals", 1]],
+    Segments: [["Makerspaces, labs", 1], [" first, then kitchens"]],
+    Costs: [["Box, install, hosting + "], ["AI development", 1]],
+    Revenue: [["~$300 box + ~$25/machine/mo + referral"]],
+  };
+  const canvas = (x0, y0, w, h, title, sub, changed, dim, content) => {
     text(s, title, { x: x0, y: y0, w, h: 0.4, fontFace: HEAD, fontSize: 18, bold: true, color: dim ? HEX.muted : HEX.ink });
     text(s, sub, { x: x0, y: y0 + 0.4, w, h: 0.35, fontSize: 13, color: HEX.muted });
     const gx = x0, gy = y0 + 0.9, cw = w / 5, ch = (h - 0.9) / 3;
@@ -405,49 +422,63 @@ const DEMO_SLIDE = 6;
         x: gx + c * cw, y: gy + r * ch, w: cs * cw, h: rs * ch,
         fill: { color: hot ? HEX.orangeTint : dim ? HEX.idle : HEX.surface }, line: { color: hot ? HEX.orange : HEX.border, width: hot ? 1.5 : 0.75 },
       });
-      text(s, label, { x: gx + c * cw + 0.08, y: gy + r * ch + 0.07, w: cs * cw - 0.16, h: 0.5, fontSize: 10, bold: hot, color: hot ? HEX.ink : HEX.muted, valign: "top" });
+      text(s, label, { x: gx + c * cw + 0.06, y: gy + r * ch + 0.07, w: cs * cw - 0.12, h: 0.22, fontSize: 10, bold: hot, color: hot ? HEX.ink : HEX.muted, valign: "top" });
+      const body = content[label];
+      const runs = typeof body === "string" ? [{ text: body, options: {} }] : body.map(([t, b]) => ({ text: t, options: { bold: !!b } }));
+      text(s, runs, { x: gx + c * cw + 0.05, y: gy + r * ch + 0.3, w: cs * cw - 0.1, h: rs * ch - 0.34, fontSize: 8.5, color: dim ? HEX.muted : HEX.ink, valign: "top", objectName: `${title} ${label}` });
     });
   };
-  canvas(0.75, 1.55, 4.6, 3.55, "Plan A (PD A)", "Usage tracker and billing", [], true);
-  canvas(5.75, 1.55, 4.6, 3.55, "Plan B (now)", "Safety and predictive maintenance", ["Value", "Partners", "Revenue"], false);
-  text(s, "Orange = changed", { x: 5.75, y: 5.15, w: 4.6, h: 0.3, fontSize: 11, color: HEX.muted });
+  canvas(0.75, 1.55, 4.75, 3.55, "Plan A (PD A)", "Usage tracker and billing", [], true, PLAN_A);
+  canvas(5.7, 1.55, 4.75, 3.55, "Plan B (now)", "Safety and predictive maintenance", ["Value", "Activities", "Resources", "Partners", "Segments", "Revenue"], false, PLAN_B);
+  text(s, "Orange = changed", { x: 5.7, y: 5.15, w: 4.75, h: 0.3, fontSize: 11, color: HEX.muted });
   card(s, { x: 10.7, y: 1.55, w: 1.9, h: 4.85, objectName: "Revenue" });
   text(s, "Revenue (assumptions)", { x: 10.85, y: 1.7, w: 1.65, h: 0.55, fontSize: 11, color: HEX.muted, valign: "top" });
-  text(s, [{ text: "$300", options: { fontFace: MONO, fontSize: 28, breakLine: true } }, { text: "box per machine, one time", options: { fontSize: 12, color: HEX.muted } }], { x: 10.85, y: 2.3, w: 1.65, h: 1.2, color: HEX.ink, valign: "top" });
-  text(s, [{ text: "$25", options: { fontFace: MONO, fontSize: 28, breakLine: true } }, { text: "per machine per month", options: { fontSize: 12, color: HEX.muted } }], { x: 10.85, y: 3.55, w: 1.65, h: 1.2, color: HEX.ink, valign: "top" });
-  text(s, "+ possible referral fee on technician jobs", { x: 10.85, y: 4.8, w: 1.65, h: 1.0, fontSize: 12, color: HEX.ink, valign: "top" });
-  text(s, "Key partners: electricians and technicians, component suppliers, booking platforms. Per machine pricing inspired by Fabman.", {
-    x: 0.75, y: 5.6, w: 9.6, h: 0.75, fontSize: 14, color: C.text1, valign: "top",
-  });
+  text(s, [{ text: "$300", options: { fontFace: MONO, fontSize: 26, breakLine: true } }, { text: "box per machine, one time", options: { fontSize: 11, color: HEX.muted } }], { x: 10.85, y: 2.2, w: 1.65, h: 0.95, color: HEX.ink, valign: "top" });
+  text(s, [{ text: "$25", options: { fontFace: MONO, fontSize: 26, breakLine: true } }, { text: "per machine per month", options: { fontSize: 11, color: HEX.muted } }], { x: 10.85, y: 3.15, w: 1.65, h: 0.95, color: HEX.ink, valign: "top" });
+  text(s, "+ possible referral fee on technician jobs", { x: 10.85, y: 4.1, w: 1.65, h: 0.6, fontSize: 11, color: HEX.ink, valign: "top" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 10.8, y: 4.8, w: 1.7, h: 1.5, rectRadius: 0.08, fill: { color: HEX.greenTint }, line: { color: HEX.greenTint }, objectName: "Expected revenue" });
+  text(s, [
+    { text: "Per machine, year 1", options: { fontSize: 10, bold: true, breakLine: true } },
+    { text: "$300 box + $300 subscription", options: { fontSize: 10, breakLine: true } },
+    { text: "= $600 revenue", options: { fontFace: MONO, fontSize: 15, bold: true, breakLine: true } },
+    { text: "Assumptions to validate", options: { fontSize: 9, color: HEX.muted } },
+  ], { x: 10.9, y: 4.9, w: 1.5, h: 1.3, color: HEX.ink, valign: "top", paraSpaceAfter: 2 });
+  text(s, [
+    { text: "Why it changed: ", options: { bold: true } },
+    { text: "Every owner we asked bundles electricity into rent or membership, so per-user billing isn't the pain. Breakdowns and equipment left on are." },
+  ], { x: 0.75, y: 5.6, w: 9.6, h: 0.75, fontSize: 14, color: C.text1, valign: "top" });
   notes(s, "s9");
 
   /* 10. Progress and validation */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Pitch" });
   s.addText("What we've tested so far", { placeholder: "title" });
-  [["3", "competitors reverse engineered"], ["2", "business model canvases"], ["49", "outreach emails, Canada, US, Europe"], ["[N]", "interviews [FILL IN]"]].forEach(([n, t], i) => {
+  [["6", "competitors reverse engineered"], ["2", "business model canvases"], ["49", "outreach emails, Canada, US, Europe"], ["10", "interviews"]].forEach(([n, t], i) => {
     const x = 0.75 + i * 2.25;
-    text(s, n, { x, y: 1.45, w: 2.1, h: 0.75, fontFace: MONO, fontSize: 40, color: n === "[N]" ? HEX.orange : HEX.ink, valign: "bottom" });
-    text(s, t, { x, y: 2.25, w: 2.0, h: 0.6, fontSize: 12, color: HEX.muted, valign: "top" });
+    text(s, n, { x, y: 1.45, w: 2.1, h: 0.75, fontFace: MONO, fontSize: 40, color: HEX.ink, valign: "bottom" });
+    text(s, t, { x, y: 2.25, w: 2.0, h: 0.45, fontSize: 12, color: HEX.muted, valign: "top" });
+    if (n === "49") text(s, "replies still coming in", { x, y: 2.68, w: 2.0, h: 0.25, fontSize: 11, italic: true, color: HEX.ink, valign: "top" });
   });
   card(s, { x: 9.85, y: 1.45, w: 2.75, h: 1.45, objectName: "Pivot" });
   text(s, [{ text: "The pivot", options: { fontFace: MONO, fontSize: 11, color: HEX.orange, breakLine: true } }, { text: "Billing → predictive maintenance", options: { fontFace: HEAD, fontSize: 16, bold: true } }], {
     x: 10.05, y: 1.6, w: 2.4, h: 1.2, color: HEX.ink, valign: "top",
   });
   s.addImage({ data: A.quote, x: 0.75, y: 3.1, w: 0.38, h: 0.38 });
-  text(s, "“Managing equipment is one of the biggest tasks we have.”", { x: 1.25, y: 3.05, w: 5.4, h: 0.85, fontFace: HEAD, fontSize: 18, bold: true, color: HEX.ink, valign: "top" });
-  text(s, "“We are currently working on a system to track electricity usage on the welders…”", { x: 1.25, y: 3.9, w: 5.4, h: 0.85, fontFace: HEAD, fontSize: 15, color: HEX.ink, valign: "top" });
-  text(s, "Executive Director, Ontario makerspace", { x: 1.25, y: 4.75, w: 5.4, h: 0.3, fontSize: 11, color: HEX.muted });
+  text(s, "“Managing equipment is one of the biggest tasks we have.”", { x: 1.25, y: 3.05, w: 5.4, h: 0.62, fontFace: HEAD, fontSize: 18, bold: true, color: HEX.ink, valign: "top" });
+  text(s, "Executive Director, Ontario makerspace", { x: 1.25, y: 3.68, w: 5.4, h: 0.25, fontSize: 11, color: HEX.muted });
+  s.addImage({ data: A.quote, x: 0.75, y: 4.1, w: 0.38, h: 0.38 });
+  text(s, "“I pay all the electricity and build that price into my monthly rent. Simple, easy, fair.”", { x: 1.25, y: 4.05, w: 5.4, h: 0.55, fontFace: HEAD, fontSize: 15, bold: true, color: HEX.ink, valign: "top" });
+  text(s, "Owner, Manitoba shared kitchen", { x: 1.25, y: 4.62, w: 5.4, h: 0.25, fontSize: 11, color: HEX.muted });
   const vb = [
     [head("Assumption"), head("Method"), head("Result")],
-    [cell("Owners bill electricity per user", { fontSize: 12 }), cell("Interviews", { fontSize: 12 }), cell("Invalidated", { fontSize: 12, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
-    [cell("Owners want warning before failures", { fontSize: 12 }), cell("Interviews", { fontSize: 12 }), cell("[FILL IN]", { fontSize: 12, color: HEX.orange })],
-    [cell("Kitchens will pay to cut idle energy", { fontSize: 12 }), cell("49 emails", { fontSize: 12 }), cell("Pending", { fontSize: 12, fill: { color: HEX.idle } })],
+    [cell("Owners bill electricity per user", { fontSize: 11 }), cell("Interviews", { fontSize: 11 }), cell("Invalidated", { fontSize: 11, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
+    [cell("Owners want warning before failures", { fontSize: 11 }), cell("Interviews", { fontSize: 11 }), cell("Partly supported", { fontSize: 11, bold: true, fill: { color: HEX.orangeTint } })],
+    [cell("Staff switch equipment off at closing", { fontSize: 11 }), cell("Café interviews", { fontSize: 11 }), cell("Invalidated: control must sit with the owner", { fontSize: 11, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
   ];
-  s.addTable(vb, { x: 7.0, y: 3.05, w: 5.6, colW: [3.0, 1.35, 1.25], rowH: 0.42, fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.05, 0.1, 0.05, 0.1], valign: "middle", objectName: "Validation board" });
-  text(s, "Owners don't bill electricity per user, it's built into membership fees. So the headline moved to predictive maintenance. Billing stays as a bonus.", {
-    x: 0.75, y: 5.4, w: 11.8, h: 0.75, fontSize: 15, color: C.text1, valign: "top",
+  s.addTable(vb, { x: 7.0, y: 3.05, w: 5.6, colW: [2.35, 1.3, 1.95], rowH: [0.36, 0.5, 0.5, 0.5], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.05, 0.1, 0.05, 0.1], valign: "middle", objectName: "Validation board" });
+  text(s, "Every owner we asked builds electricity into rent or membership, so the headline moved from billing to predictive maintenance. And café staff forget equipment on, so we added scheduled shutdowns.", {
+    x: 0.75, y: 5.45, w: 11.8, h: 0.8, fontSize: 15, color: C.text1, valign: "top",
   });
-  text(s, "Full validation board in the appendix.", { x: 7.0, y: 4.85, w: 5.6, h: 0.3, fontSize: 11, color: HEX.muted });
+  text(s, "Full validation board in the appendix.", { x: 7.0, y: 5.0, w: 5.6, h: 0.3, fontSize: 11, color: HEX.muted });
   notes(s, "s10");
 
   /* 11. Closing */
@@ -498,13 +529,15 @@ const DEMO_SLIDE = 6;
 
   s = appx("Validation board", "a3");
   const full = [
-    [head("Customer"), head("Problem"), head("Core assumption"), head("Method"), head("Success criterion"), head("Result")],
-    [cell("Makerspace owners", { fontSize: 12 }), cell("Electricity costs per member are invisible", { fontSize: 12 }), cell("Owners want to bill electricity per user", { fontSize: 12 }), cell("Interviews", { fontSize: 12 }), cell("[FILL IN]", { fontSize: 12, color: HEX.orange }), cell("Invalidated: built into membership fees", { fontSize: 12, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
-    [cell("Makerspace and lab managers", { fontSize: 12 }), cell("Machines fail without warning, no history", { fontSize: 12 }), cell("Owners want warning before a failure", { fontSize: 12 }), cell("Interviews", { fontSize: 12 }), cell("[FILL IN]", { fontSize: 12, color: HEX.orange }), cell("[FILL IN]", { fontSize: 12, color: HEX.orange })],
-    [cell("Shared kitchen operators", { fontSize: 12 }), cell("Idle equipment wastes energy", { fontSize: 12 }), cell("Kitchens will pay to cut idle energy", { fontSize: 12 }), cell("49 outreach emails", { fontSize: 12 }), cell("[FILL IN]", { fontSize: 12, color: HEX.orange }), cell("Pending", { fontSize: 12, fill: { color: HEX.idle } })],
-    [cell("[FILL IN]", { fontSize: 12, color: HEX.orange }), cell("", {}), cell("", {}), cell("", {}), cell("", {}), cell("", {})],
+    [head("Customer"), head("Problem"), head("Core assumption"), head("Method"), head("Success criterion"), head("Result after this week")],
+    [cell("Makerspace and kitchen owners", { fontSize: 10.5 }), cell("Energy cost per user is invisible", { fontSize: 10.5 }), cell("Owners want to bill electricity per user", { fontSize: 10.5 }), cell("Interviews: 3 owners, Magna, IEEE", { fontSize: 10.5 }), cell("Owners charge members for energy", { fontSize: 10.5 }), cell("Invalidated: 3 of 3 owners bundle it into rent or fees", { fontSize: 10.5, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
+    [cell("Makerspace, manufacturing, café", { fontSize: 10.5 }), cell("Breakdowns cost money and time", { fontSize: 10.5 }), cell("Breakdowns are a costly, frequent pain", { fontSize: 10.5 }), cell("Interviews", { fontSize: 10.5 }), cell("6 of 10 describe a costly breakdown", { fontSize: 10.5 }), cell("Partly supported: makerspace and Magna give costs, 3 café staff; 6 of 10 not met yet", { fontSize: 10.5, bold: true, fill: { color: HEX.orangeTint } })],
+    [cell("Makerspace and lab managers", { fontSize: 10.5 }), cell("Failures come without warning", { fontSize: 10.5 }), cell("Owners want warning before a failure", { fontSize: 10.5 }), cell("Interviews", { fontSize: 10.5 }), cell("Failures are noticed too late", { fontSize: 10.5 }), cell("Partly supported: café staff notice only once it stops", { fontSize: 10.5, bold: true, fill: { color: HEX.orangeTint } })],
+    [cell("Cafés and kitchens", { fontSize: 10.5 }), cell("Equipment left on after closing", { fontSize: 10.5 }), cell("Owners need idle and scheduled shutdown", { fontSize: 10.5 }), cell("Café interviews, manager field notes", { fontSize: 10.5 }), cell("Equipment found on after closing", { fontSize: 10.5 }), cell("Supported, new: something left on almost every night", { fontSize: 10.5, bold: true, fill: { color: HEX.greenTint } })],
+    [cell("Café staff", { fontSize: 10.5 }), cell("Nobody owns switching off", { fontSize: 10.5 }), cell("Staff switch equipment off at closing", { fontSize: 10.5 }), cell("Café interviews", { fontSize: 10.5 }), cell("Staff switch off reliably", { fontSize: 10.5 }), cell("Invalidated: control must sit with the owner", { fontSize: 10.5, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
+    [cell("University student spaces", { fontSize: 10.5 }), cell("Who used which machine", { fontSize: 10.5 }), cell("Open-access spaces need per-machine tracking", { fontSize: 10.5 }), cell("IEEE uOttawa interview", { fontSize: 10.5 }), cell("They track use per machine", { fontSize: 10.5 }), cell("Invalidated: RFID sign-in only, free equipment not tracked", { fontSize: 10.5, bold: true, color: HEX.surface, fill: { color: HEX.rust } })],
   ];
-  s.addTable(full, { x: 0.75, y: 1.6, w: 11.8, colW: [1.85, 2.3, 2.3, 1.55, 1.7, 2.1], rowH: [0.45, 0.85, 0.85, 0.85, 0.55], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.06, 0.1, 0.06, 0.1], valign: "middle", objectName: "Full validation board" });
+  s.addTable(full, { x: 0.75, y: 1.55, w: 11.8, colW: [1.85, 1.95, 2.25, 1.75, 1.85, 2.15], rowH: [0.4, 0.72, 0.72, 0.72, 0.72, 0.72, 0.72], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.05, 0.08, 0.05, 0.08], valign: "middle", objectName: "Full validation board" });
 
   s = appx("Q&A prep", "a4");
   const qa = [
@@ -514,7 +547,7 @@ const DEMO_SLIDE = 6;
     ["How does it know normal?", "About 7 days of the machine's own current, then it flags sustained changes."],
     ["Can a non-profit pay $25?", "One avoided emergency call ($754) covers about 2.5 machine-years. Price still to validate."],
     ["Versus Fabman?", "Fabman knows who switched it on. We add machine health, idle and technicians."],
-    ["What did interviews change?", "No per user billing, so predictive maintenance became the headline."],
+    ["What did interviews change?", "Every owner we asked bundles electricity into rent, so we dropped per-user billing as the headline and made predictive maintenance the core."],
   ];
   qa.forEach(([q, a], i) => {
     const col = i < 4 ? 0 : 1;
@@ -527,7 +560,7 @@ const DEMO_SLIDE = 6;
 
   s = appx("Sources", "a5");
   const src = [
-    "Makerspace director and Executive Director, Ontario makerspace: Group 10 interviews, 2026. Quotes anonymized.",
+    "Group 10 interviews, Oct 21 to 23, 2026 (makerspace, two shared kitchens, manufacturing, café staff, university student office). Quotes anonymized.",
     "Emergency repair call average, $754: 86 Repairs, 2024, via Envigilance.",
     "31 shared-use commercial kitchens in Ontario: poidata.io, August 2025.",
     "Predictive maintenance saves about 30 to 40% versus reactive maintenance: U.S. Department of Energy, Operations & Maintenance Best Practices Guide.",
@@ -542,7 +575,7 @@ const DEMO_SLIDE = 6;
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
   await playVideoOnClick(OUT, DEMO_SLIDE);
-  console.log(`wrote ${OUT}${URL_LIVE ? ` with QR for ${URL_LIVE}` : " (QR slots marked [LIVE APP URL])"}`);
+  console.log(`wrote ${OUT}${URL_LIVE ? ` with QR for ${URL_LIVE}` : ""}`);
 })().catch((e) => {
   console.error(e);
   process.exit(1);

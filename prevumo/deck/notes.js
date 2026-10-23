@@ -23,7 +23,7 @@ CUE: click on "warning signs for weeks".`,
 
   s3: `SPEAKER A · 0:45 to 1:45 (60 s, about 130 words)
 
-More and more makerspaces, university labs and shared kitchens now rent out expensive electric equipment. We talked to the people who run them, and three pains kept coming up.
+More and more makerspaces, university labs and shared kitchens now rent out expensive electric equipment. We wrote to forty nine of the people who run them. Here's what the first answers, and the industry data, tell us.
 First, repairs. A makerspace director told us a breakdown costs "hundreds if not thousands of dollars." Industry data puts the average emergency repair call at seven hundred and fifty four dollars.
 Second, lost customers. When machines keep breaking, members cancel, and each member is worth six hundred to six thousand dollars to that space.
 Third, the blind spot. Booking tools only work, in his words, "when people actually use the software." And no sensor is watching the machine itself. So when it fails, there is no history to learn from.
@@ -97,13 +97,10 @@ CUE: D clicks on "our model".`,
 
   s9: `SPEAKER D · 5:45 to 6:45 (60 s, about 125 words)
 
-Our business model changed a lot.
-On the left is our first canvas, Plan A: a usage tracker that bills members for the electricity they use. On the right is today's canvas, Plan B: safety and predictive maintenance. The orange blocks are the ones that changed.
-Revenue is a box at about three hundred dollars per machine, one time, plus a subscription of about twenty five dollars per machine per month. We took the per machine idea from Fabman's pricing. A possible extra is a referral fee on the technician jobs we send out.
-To be clear, these prices are assumptions we still have to validate.
-Our key partners are electricians and technicians, component suppliers, and booking platforms like Skedda.
-
-[FILL IN: confirm with the team which BMC blocks changed between Plan A and Plan B; the slide highlights value proposition, key partners and revenue streams.]
+Our business model changed, and the interviews are why.
+Plan A, on the left, billed each member for the electricity they use. Then three owners told us how they charge for it: an Ontario makerspace and two shared kitchens, in Manitoba and Toronto. All three build electricity into membership or rent. Per user billing isn't their pain. Breakdowns and equipment left on are.
+So Plan B is safety and predictive maintenance. The orange blocks changed: the value, the AI behind it, a technician network, makerspaces and labs first, and the revenue.
+For one machine in year one: a three hundred dollar box plus three hundred dollars of subscription, six hundred dollars of revenue. These prices are still assumptions to validate.
 
 TRANSITION (D): E, what have we learned so far?
 E: More than we expected.
@@ -112,13 +109,12 @@ CUE: E clicks on "more than we expected".`,
 
   s10: `SPEAKER E · 6:45 to 7:40 (55 s, about 115 words)
 
-Here's where we are. We reverse engineered three competitors, built two business model canvases, sent forty nine outreach emails to kitchens and makerspaces in Canada, the US and Europe, and ran [FILL IN: N] interviews.
-The executive director of an Ontario makerspace told us: "Managing equipment is one of the biggest tasks we have." He also said they are "currently working on a system to track electricity usage on the welders."
-So the problem is real. But one of our assumptions failed. Owners don't bill electricity per user, because it's built into membership fees. So we moved our headline from billing to predictive maintenance. Billing stays as a bonus.
+Here's where we are. We reverse engineered six competitors, from Skedda and Fabman to MachineMetrics. We built two business model canvases and sent forty nine emails to kitchens and makerspaces in Canada, the US and Europe. We're still waiting on replies to some of them. And we ran ten interviews.
+An Ontario makerspace director told us: "Managing equipment is one of the biggest tasks we have."
+A Manitoba kitchen owner told us: "I pay all the electricity and build that price into my monthly rent. Simple, easy, fair."
+So per user billing is invalidated. Warning before failures is partly supported. And café staff forget equipment on, so we added scheduled shutdowns, controlled by the owner.
 
-[FILL IN: only name the interviewee if he agrees; otherwise keep "Executive Director, Ontario makerspace".]
-
-CUE: click on "Billing stays as a bonus".`,
+CUE: click on "controlled by the owner".`,
 
   s11: `SPEAKER E · 7:40 to 8:00 (20 s, about 40 words)
 
@@ -138,9 +134,10 @@ The AI needs about 7 days of normal use to learn a new machine's current pattern
 
   a3: `APPENDIX, for Q&A only. Full validation board.
 
-[FILL IN: success criteria for each row, the interview count, and the result for the second row once the team agrees.]
-[FILL IN: confirm the problem wording in each row against the team's board.]
-Only the first row's result is stated in our research: owners don't bill electricity per user, so that assumption is invalidated.`,
+Six assumptions, tested through ten interviews (nine people plus a café manager's field notes) and forty nine outreach emails, with replies still coming in.
+Invalidated: owners billing electricity per user, staff switching equipment off at closing, and per machine tracking in open access spaces.
+Partly supported: breakdowns are costly, and owners want warning before a failure. Our six of ten criterion for costly breakdowns is not met yet.
+Supported, and new: equipment is left on after closing, so idle and scheduled shutdowns matter.`,
 
   a4: `APPENDIX, Q&A prep. Short answers, then the fuller version.
 
@@ -163,7 +160,7 @@ That's about $300 per machine per year. One avoided emergency repair call averag
 Fabman controls access and knows who switched a machine on. PREVUMO also learns each machine's normal current, flags irregularities before a breakdown, detects idle machines and connects the owner to a technician with the machine's history.
 
 7. "What did the interviews change?"
-We started with billing members for the electricity they use. Owners told us they don't bill electricity per user, it's built into membership fees. So we moved the headline to predictive maintenance and kept billing as a bonus.`,
+Every owner we asked bundles electricity into rent or membership, so we dropped per user billing as the headline and made predictive maintenance the core. Café staff also told us equipment gets left on at closing, so we added scheduled shutdowns that the owner controls.`,
 
   a5: `APPENDIX. Sources for every number in the deck. Prices for PREVUMO are assumptions to validate.`,
 };
