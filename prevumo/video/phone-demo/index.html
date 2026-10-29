@@ -113,6 +113,28 @@
   #end .rule { margin: 44px 0 40px; height: 4px; width: 120px; border-radius: 2px; background: var(--ink); transform-origin: left center; }
 
   #grain { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: 0.07; }
+
+  /* Wide layout (?layout=wide), 1920x1080 for a computer screen: phone on the right, clock and captions on the left */
+  #side { display: none; }
+  html.wide, html.wide body, html.wide #stage { width: 1920px; height: 1080px; }
+  .wide #stage { background: radial-gradient(90% 120% at 40% 45%, #FBF7F1 0%, var(--bg) 60%, #EFE7DB 100%); }
+  .wide #wordmark { left: 150px; right: auto; top: 84px; text-align: left; font-size: 40px; padding-left: 0; }
+  .wide #title { left: 150px; right: 150px; top: 290px; }
+  .wide #end { left: 150px; right: 150px; top: 290px; }
+  .wide #phone { left: 1070px; top: -290px; }
+  .wide #touch { width: 64px; height: 64px; margin: -32px 0 0 -32px; border-width: 3px; }
+  .wide #ripple { width: 64px; height: 64px; margin: -32px 0 0 -32px; border-width: 3px; }
+  .wide #side { display: block; position: absolute; left: 150px; top: 0; width: 860px; height: 1080px; }
+  #bigclock { position: absolute; top: 280px; left: 0; display: flex; align-items: center; gap: 30px; }
+  #bigclock .ic { position: relative; width: 104px; height: 104px; flex: none; }
+  #bigclock .ic svg { position: absolute; inset: 0; width: 104px; height: 104px; }
+  #bigclock .t { font-size: 172px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  #caps { position: absolute; top: 530px; left: 0; width: 860px; height: 380px; }
+  .cap { position: absolute; inset: 0; overflow: hidden; }
+  .cap .in { display: block; }
+  .cap .m { font-size: 84px; line-height: 1.06; text-wrap: balance; }
+  .cap .m .on { color: var(--green); }
+  .cap .s { margin-top: 26px; font-size: 40px; color: var(--ink-2); font-weight: 500; text-wrap: balance; }
 </style>
 </head>
 <body>
@@ -163,12 +185,31 @@
     <p class="meta">PREVUMO · student prototype · University of Ottawa</p>
   </div>
 
+  <div id="side">
+    <div id="bigclock">
+      <span class="ic">
+        <svg id="sun" viewBox="0 0 48 48" fill="none" stroke="#3A2519" stroke-width="3.2" stroke-linecap="round"><circle cx="24" cy="24" r="9"/><path d="M24 5v5M24 38v5M5 24h5M38 24h5M10.6 10.6l3.5 3.5M33.9 33.9l3.5 3.5M10.6 37.4l3.5-3.5M33.9 14.1l3.5-3.5"/></svg>
+        <svg id="moon" viewBox="0 0 48 48" fill="none" stroke="#3A2519" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M40 29A17 17 0 0 1 19 8a17 17 0 1 0 21 21z"/></svg>
+      </span>
+      <span class="t num" id="bigtime">5:29</span>
+    </div>
+    <div id="caps"><div class="cap" id="capA"><div class="in"></div></div><div class="cap" id="capB"><div class="in"></div></div></div>
+  </div>
+
   <div id="touch"></div><div id="ripple"></div>
 
   <svg id="grain" width="1080" height="1920"><filter id="n"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="1" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
 </div>
 
 <script>
+// ---------- options: ?layout=wide (1920x1080) and ?timeline=loop (6 s loop for the email GIF) ----------
+const Q = new URLSearchParams(location.search);
+const WIDE = Q.get("layout") === "wide";
+const LOOP = Q.get("timeline") === "loop";
+if (WIDE) document.documentElement.classList.add("wide");
+if (Q.get("grain") === "0") document.getElementById("grain").style.display = "none";
+const L = WIDE ? { scale: 0.6, rise: 1250, start: [1680, 1000] } : { scale: 1, rise: 1500, start: [880, 1720] };
+
 // ---------- helpers ----------
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const prog = (t, a, b) => clamp((t - a) / (b - a));
@@ -183,6 +224,7 @@ const mix = (c1, c2, k) => {
 };
 const $ = (s) => document.querySelector(s);
 const C = { ink: "#3A2519", track: "#D9CDBF", green: "#2E7D4F", line: "#E8DED2", tint: "#E2F0E6", hl: "#F6E7CF" };
+const fmt = (mins) => `${Math.floor(mins / 60) % 24}:${String(mins % 60).padStart(2, "0")}`;
 
 // ---------- icons (simple line drawings, no brands) ----------
 const S = (d) => `<svg viewBox="0 0 48 48" fill="none" stroke="#3A2519" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
@@ -196,15 +238,16 @@ const ICON = {
 const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="#2E7D4F" stroke-width="2.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 const CHECK = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#2E7D4F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
+// on: switch on time in the 20 s film; offL and onL: switch off and back on in the 6 s loop
 const MACHINES = [
-  { id: "espresso", name: "Espresso machine", on: 7.7, warm: true },
-  { id: "grinder", name: "Grinder", on: 7.95 },
-  { id: "oven", name: "Oven", on: 8.2 },
-  { id: "water", name: "Hot-water tower", on: 8.45 },
+  { id: "espresso", name: "Espresso machine", on: 7.7, warm: true, offL: 2.35, onL: 4.6 },
+  { id: "grinder", name: "Grinder", on: 7.95, offL: 2.5, onL: 4.75 },
+  { id: "oven", name: "Oven", on: 8.2, offL: 2.65, onL: 4.9 },
+  { id: "water", name: "Hot-water tower", on: 8.45, offL: 2.8, onL: 5.05 },
   { id: "fridge", name: "Fridge", always: true },
 ];
 
-// ---------- timeline constants ----------
+// ---------- 20 s timeline constants ----------
 const T = {
   tick: 7.4,            // 5:29 -> 5:30
   ffA: 14.0, ffB: 15.0, // clock fast forward 5:30 -> 18:00
@@ -218,6 +261,19 @@ let ovenOffT = T.ffB;
 for (let t = T.ffA; t <= T.ffB; t += 1 / 300) if (ffMinutes(t) >= 960) { ovenOffT = t; break; }
 T.offs.oven = ovenOffT;
 
+// Captions beside the phone in the wide layout (short, plain, nothing the prototype has not shown)
+const CAPS_FULL = [
+  { at: 3.1, m: "Every machine has its own schedule.", s: "Set the times once, change them any time." },
+  { at: 7.3, m: '<span class="on">On</span> at 5:30, before you open.', s: "Warm before the first customer walks in." },
+  { at: 11.0, m: "Change a time in one tap.", s: "The oven now switches off at 16:00." },
+  { at: 14.0, m: "Off at close.", s: "Everything but the fridge." },
+];
+const CAPS_LOOP = [
+  { at: -1, m: '<span class="on">On</span> at a set time<br>every morning.' },
+  { at: 1.6, m: "Off at a set time<br>after close." },
+  { at: 3.9, m: '<span class="on">On</span> at a set time<br>every morning.' },
+];
+
 // ---------- build rows ----------
 const rowsEl = $("#rows");
 for (const m of MACHINES) {
@@ -229,7 +285,7 @@ for (const m of MACHINES) {
         <div class="txt"><p class="name">${m.name}</p><p class="sched">${sched}</p></div>
         <div class="toggle"><div class="knob">${m.always ? LOCK : ""}</div></div>
       </div>
-      ${m.warm ? `<div class="warm"><div class="inner"><div class="labels"><span class="a"></span><span class="b num"></span></div><div class="track"><div class="fill"></div></div></div></div>` : ""}
+      ${m.warm ? `<div class="warm"><div class="inner"><div class="labels"><span class="a"></span></div><div class="track"><div class="fill"></div></div></div></div>` : ""}
     </div>`);
 }
 document.querySelectorAll(".sched .lock svg").forEach((s) => { s.style.width = "26px"; s.style.height = "26px"; s.style.verticalAlign = "-3px"; });
@@ -237,23 +293,70 @@ document.querySelectorAll(".sched .lock svg").forEach((s) => { s.style.width = "
 // rolling digit: shows `from` sliding up to `to` as k goes 0 -> 1
 const roll = (from, to, k) => `<span class="roll"><span class="strip" style="transform:translateY(${-outCubic(k) * 1.05}em)"><span>${from}</span><span>${to}</span></span></span>`;
 
-function onState(m, t) {
-  if (m.always) return 1;
-  const off = T.offs[m.id];
-  const kOn = outBack(prog(t, m.on, m.on + 0.32), 1.2);
-  const kOff = off !== undefined ? outCubic(prog(t, off, off + 0.3)) : 0;
-  return t < off || off === undefined ? kOn : 1 - kOff;
+// ---------- painters shared by both timelines ----------
+function paintClock(html, sec, blur, statusText, pulse, handAngle) {
+  $("#ctime").innerHTML = `${html}<span class="sec">:${String(sec).padStart(2, "0")}</span>`;
+  $("#ctime").style.filter = blur ? "blur(0.6px)" : "none";
+  $("#stime").textContent = statusText;
+  $("#clock").style.background = mix("#F3ECE2", "#E2F0E6", clamp(pulse));
+  $("#hand-m").setAttribute("transform", `rotate(${handAngle} 12 12)`);
+  $("#hand-h").setAttribute("transform", `rotate(${handAngle / 12} 12 12)`);
+  if (WIDE) {
+    $("#bigtime").innerHTML = html;
+    $("#bigtime").style.filter = blur ? "blur(1.5px)" : "none";
+  }
+}
+function paintToggle(m, k, flash) {
+  const row = $(`#row-${m.id}`);
+  const tog = row.querySelector(".toggle");
+  tog.style.background = mix(C.track, C.green, clamp(k));
+  tog.querySelector(".knob").style.transform = `translateX(${k * 48}px)`;
+  row.style.borderColor = mix(C.line, "#9CC9AB", clamp(flash));
+}
+// warm-up line: the schedule switched it on early; no temperature or percentage, because the prototype measures neither
+function paintWarm(open, fill, ready) {
+  const warm = $("#row-espresso .warm");
+  warm.style.height = `${open * 92}px`;
+  warm.style.opacity = String(clamp(open * 1.4));
+  warm.querySelector(".fill").style.transform = `scaleX(${fill})`;
+  const a = warm.querySelector(".a");
+  a.innerHTML = ready > 0.5 ? `${CHECK}<span style="color:#2E7D4F">Ready by 6:00</span>` : `<span style="color:#6E5646">Warming up</span>`;
+  a.style.opacity = String(ready > 0 && ready < 1 ? Math.abs(ready - 0.5) * 2 : 1);
+}
+const capHTML = (c) => `<p class="m serif">${c.m}</p>${c.s ? `<p class="s">${c.s}</p>` : ""}`;
+function paintSide(t, caps, night, visible) {
+  if (!WIDE) return;
+  $("#side").style.opacity = String(visible);
+  $("#sun").style.opacity = String(1 - night);
+  $("#sun").style.transform = `rotate(${night * 90}deg) scale(${1 - night * 0.4})`;
+  $("#moon").style.opacity = String(night);
+  $("#moon").style.transform = `scale(${0.6 + night * 0.4})`;
+  // the current caption rises out of its mask while the previous one lifts away
+  let i = -1;
+  caps.forEach((c, j) => { if (t >= c.at) i = j; });
+  const A = $("#capA .in"), B = $("#capB .in");
+  if (i < 0) { A.innerHTML = ""; B.innerHTML = ""; return; }
+  const cur = caps[i], prev = caps[i - 1];
+  const k = outCubic(prog(t, cur.at, cur.at + 0.55));
+  B.innerHTML = capHTML(cur);
+  B.style.transform = `translateY(${(1 - k) * 400}px)`;
+  A.innerHTML = prev && k < 1 ? capHTML(prev) : "";
+  A.style.transform = `translateY(${-k * 220}px)`;
+  A.style.opacity = String(1 - clamp(k * 2.2));
+}
+function placePhone(inK, outK, opacity, visible) {
+  const phone = $("#phone");
+  phone.style.transform = `translateY(${(1 - inK) * L.rise + outK * 220 * L.scale}px) scale(${L.scale * (1 - outK * 0.06)})`;
+  phone.style.opacity = String(opacity);
+  phone.style.visibility = visible ? "visible" : "hidden";
 }
 
-// ---------- render one frame at time t (seconds) ----------
-function render(t) {
-  // grain: a new seed every two frames
+// ---------- the 20 s film ----------
+function renderFull(t) {
   $("#turb").setAttribute("seed", String(1 + (Math.floor(t * 15) % 9)));
-
-  // wordmark, present until the end card takes over
   $("#wordmark").style.opacity = String(1 - prog(t, 16.8, 17.1));
 
-  // title card: on screen from frame 0, underline draws, settles, then lifts away as the phone rises
+  // title card: on screen from frame 0, underline draws, then it lifts away before the phone rises
   const exit = inOutCubic(prog(t, 2.2, 2.65));
   const title = $("#title");
   title.style.opacity = String(1 - prog(t, 2.25, 2.6));
@@ -263,69 +366,46 @@ function render(t) {
   kick.style.opacity = String(outCubic(prog(t, 0.9, 1.5)));
   kick.style.transform = `translateY(${(1 - outCubic(prog(t, 0.9, 1.5))) * 18}px)`;
 
-  // phone: rises in under the title, leaves before the end card
-  const phone = $("#phone");
-  const inK = outBack(prog(t, 2.6, 3.4), 0.9);
-  const outK = inOutCubic(prog(t, 16.75, 17.2));
-  phone.style.transform = `translateY(${(1 - inK) * 1500 + outK * 220}px) scale(${1 - outK * 0.06})`;
-  phone.style.opacity = String(1 - prog(t, 16.8, 17.15));
-  phone.style.visibility = t < 2.55 || t > 17.2 ? "hidden" : "visible";
+  placePhone(outBack(prog(t, 2.6, 3.4), 0.9), inOutCubic(prog(t, 16.75, 17.2)), 1 - prog(t, 16.8, 17.15), !(t < 2.55 || t > 17.2));
 
   // clock
-  let timeHTML, sec = "";
+  let html, sec;
   if (t < T.tick) {
-    timeHTML = "5:29";
+    html = "5:29";
     sec = 56 + clamp(Math.floor((t - 3.2) / 1.05), 0, 3);
   } else if (t < T.ffA) {
     const k = prog(t, T.tick, T.tick + 0.35);
-    timeHTML = k < 1 ? `5:${roll("2", "3", k)}${roll("9", "0", k)}` : "5:30";
+    html = k < 1 ? `5:${roll("2", "3", k)}${roll("9", "0", k)}` : "5:30";
     sec = clamp(Math.floor(t - T.tick), 0, 59);
   } else {
-    const mins = ffMinutes(t);
-    timeHTML = `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, "0")}`;
+    html = fmt(ffMinutes(t));
     sec = 0;
   }
-  const ff = t >= T.ffA && t < T.ffB + 0.05;
-  $("#ctime").innerHTML = `${timeHTML}<span class="sec">:${String(sec).padStart(2, "0")}</span>`;
-  $("#ctime").style.filter = ff ? "blur(0.6px)" : "none";
-  $("#stime").textContent = t < T.tick ? "5:29" : t < T.ffA ? "5:30" : $("#ctime").firstChild.textContent;
-  const clockPulse = Math.max(prog(t, T.tick, T.tick + 0.15) - prog(t, T.tick + 0.15, T.tick + 0.6), prog(t, T.ffB, T.ffB + 0.15) - prog(t, T.ffB + 0.15, T.ffB + 0.7));
-  $("#clock").style.background = mix("#F3ECE2", "#E2F0E6", clockPulse);
-  const handAngle = (t < T.ffA ? 0 : inOutCubic(prog(t, T.ffA, T.ffB)) * 360 * 12.5);
-  $("#hand-m").setAttribute("transform", `rotate(${handAngle} 12 12)`);
-  $("#hand-h").setAttribute("transform", `rotate(${handAngle / 12} 12 12)`);
+  const pulse = Math.max(prog(t, T.tick, T.tick + 0.15) - prog(t, T.tick + 0.15, T.tick + 0.6), prog(t, T.ffB, T.ffB + 0.15) - prog(t, T.ffB + 0.15, T.ffB + 0.7));
+  const status = t < T.tick ? "5:29" : t < T.ffA ? "5:30" : fmt(ffMinutes(t));
+  paintClock(html, sec, t >= T.ffA && t < T.ffB + 0.05, status, pulse, t < T.ffA ? 0 : inOutCubic(prog(t, T.ffA, T.ffB)) * 360 * 12.5);
 
-  // rows and toggles
+  // toggles: on one by one at 5:30, the oven off as the clock passes 16:00, the rest at 18:00
   for (const m of MACHINES) {
-    const row = $(`#row-${m.id}`);
-    const k = onState(m, t);
-    const kc = clamp(k);
-    const tog = row.querySelector(".toggle");
-    tog.style.background = mix(C.track, C.green, kc);
-    tog.querySelector(".knob").style.transform = `translateX(${k * 48}px)`;
-    // a short green flash on the card border when it switches
-    const flashOn = m.on ? prog(t, m.on, m.on + 0.12) - prog(t, m.on + 0.3, m.on + 0.9) : 0;
-    row.style.borderColor = mix(C.line, "#9CC9AB", Math.max(0, flashOn));
-    if (m.always) row.style.borderColor = mix(C.line, "#9CC9AB", prog(t, 15.9, 16.1) - prog(t, 16.4, 16.9));
+    let k = 1, flash = 0;
+    if (!m.always) {
+      const off = T.offs[m.id];
+      const kOn = outBack(prog(t, m.on, m.on + 0.32), 1.2);
+      k = t < off ? kOn : 1 - outCubic(prog(t, off, off + 0.3));
+      flash = prog(t, m.on, m.on + 0.12) - prog(t, m.on + 0.3, m.on + 0.9);
+    } else {
+      flash = prog(t, 15.9, 16.1) - prog(t, 16.4, 16.9);
+    }
+    paintToggle(m, k, flash);
   }
 
-  // espresso warm-up area: opens, fills, says ready, collapses at closing
-  const warm = $("#row-espresso .warm");
+  // espresso: warming up, then ready by opening; folds away when it switches off at close
   const open = outCubic(prog(t, 7.75, 8.15)) * (1 - inOutCubic(prog(t, T.offs.espresso, T.offs.espresso + 0.35)));
-  warm.style.height = `${open * 92}px`;
-  warm.style.opacity = String(clamp(open * 1.4));
-  const fill = inOutCubic(prog(t, 8.05, 9.45));
-  warm.querySelector(".fill").style.transform = `scaleX(${fill})`;
-  const ready = prog(t, 9.5, 9.8);
-  warm.querySelector(".a").innerHTML = ready > 0.5 ? `${CHECK}<span style="color:#2E7D4F">Ready by 6:00</span>` : `<span style="color:#6E5646">Warming up</span>`;
-  warm.querySelector(".a").style.opacity = String(ready > 0 && ready < 1 ? Math.abs(ready - 0.5) * 2 : 1);
-  warm.querySelector(".b").textContent = ready > 0.5 ? "" : `${Math.round(fill * 100)}%`;
-  warm.querySelector(".b").style.color = "#6E5646";
+  paintWarm(open, inOutCubic(prog(t, 8.05, 9.45)), prog(t, 9.5, 9.8));
 
   // oven schedule edit
   const ovenRow = $("#row-oven");
-  const saved = t >= T.save + 0.12;
-  ovenRow.querySelector(".offt").textContent = saved ? "16:00" : "18:00";
+  ovenRow.querySelector(".offt").textContent = t >= T.save + 0.12 ? "16:00" : "18:00";
   const hl = prog(t, T.save + 0.12, T.save + 0.3) - prog(t, T.save + 0.8, 14.6);
   ovenRow.querySelector(".hl").style.background = mix("#FFFFFF", C.hl, clamp(hl));
   const press = prog(t, T.tapRow - 0.05, T.tapRow + 0.05) - prog(t, T.tapRow + 0.15, T.tapRow + 0.4);
@@ -345,40 +425,35 @@ function render(t) {
   $("#save").style.background = mix("#3A2519", "#2B1C14", sk);
 
   // closing card
-  const cardK = outBack(prog(t, T.card, T.card + 0.45), 1.1);
-  $("#card").style.transform = `translateY(${(1 - cardK) * 160}%)`;
+  $("#card").style.transform = `translateY(${(1 - outBack(prog(t, T.card, T.card + 0.45), 1.1)) * 160}%)`;
 
-  // touch indicator: finger moves to the oven row, opens the editor, taps minus twice, then Save
+  // touch indicator: to the oven, open the editor, minus twice, then Save
   const stageBox = $("#stage").getBoundingClientRect();
-  const center = (el, dx = 0, dy = 0) => { const r = el.getBoundingClientRect(); return [r.left - stageBox.left + r.width / 2 + dx, r.top - stageBox.top + r.height / 2 + dy]; };
+  const center = (el, dx = 0, dy = 0) => { const r = el.getBoundingClientRect(); return [r.left - stageBox.left + r.width / 2 + dx * L.scale, r.top - stageBox.top + r.height / 2 + dy * L.scale]; };
   const pRow = center(ovenRow.querySelector(".tile"), 10, 10);
   const pMinus = center($("#minus"));
   const pSave = center($("#save"), 60, 0);
-  // sheet targets measured in their final (open) position
-  const sheetOpenY = (1 - sheetK) * $("#sheet").offsetHeight * 1.1;
+  const sheetOpenY = (1 - sheetK) * $("#sheet").offsetHeight * 1.1 * L.scale;
   pMinus[1] -= sheetOpenY; pSave[1] -= sheetOpenY;
-  const start = [880, 1720];
-  const path = [
-    [11.0, start], [11.45, pRow], [11.95, pRow], [12.3, pMinus], [12.95, pMinus], [13.2, pSave], [13.6, pSave],
-  ];
-  let pos = start;
+  const path = [[11.0, L.start], [11.45, pRow], [11.95, pRow], [12.3, pMinus], [12.95, pMinus], [13.2, pSave], [13.6, pSave]];
+  let pos = L.start;
   for (let i = 0; i < path.length - 1; i++) {
     const [ta, a] = path[i], [tb, b] = path[i + 1];
     if (t >= ta) { const k = inOutCubic(prog(t, ta, tb)); pos = [lerp(a[0], b[0], k), lerp(a[1], b[1], k)]; }
   }
-  const touch = $("#touch");
   const touchOn = prog(t, 11.0, 11.2) * (1 - prog(t, 13.45, 13.75));
-  const taps = [T.tapRow, T.minus1, T.minus2, T.save];
   let squash = 0, rip = null;
-  for (const at of taps) {
+  for (const at of [T.tapRow, T.minus1, T.minus2, T.save]) {
     squash = Math.max(squash, prog(t, at - 0.06, at) - prog(t, at + 0.05, at + 0.18));
     if (t >= at && t < at + 0.45) rip = prog(t, at, at + 0.45);
   }
-  touch.style.opacity = String(touchOn);
-  touch.style.transform = `translate(${pos[0]}px, ${pos[1]}px) scale(${1 - squash * 0.18})`;
-  const ripple = $("#ripple");
-  ripple.style.opacity = rip === null ? "0" : String((1 - rip) * touchOn);
-  ripple.style.transform = `translate(${pos[0]}px, ${pos[1]}px) scale(${rip === null ? 1 : 1 + outCubic(rip) * 0.9})`;
+  $("#touch").style.opacity = String(touchOn);
+  $("#touch").style.transform = `translate(${pos[0]}px, ${pos[1]}px) scale(${1 - squash * 0.18})`;
+  $("#ripple").style.opacity = rip === null ? "0" : String((1 - rip) * touchOn);
+  $("#ripple").style.transform = `translate(${pos[0]}px, ${pos[1]}px) scale(${rip === null ? 1 : 1 + outCubic(rip) * 0.9})`;
+
+  // side column (wide): clock with sun or moon, and the caption for this step
+  paintSide(t, CAPS_FULL, inOutCubic(prog(t, 14.5, 15.0)), prog(t, 2.9, 3.4) * (1 - prog(t, 16.75, 17.1)));
 
   // end card: wordmark, rule, two lines masked up from the baseline, then the credit line
   const end = $("#end");
@@ -396,8 +471,53 @@ function render(t) {
   end.querySelector(".meta").style.transform = `translateY(${(1 - meta) * 16}px)`;
 }
 
-window.render = render;
-render(0);
+// ---------- the 6 s loop for the email: morning on, close off, next morning on; the last frame equals the first ----------
+function renderLoop(t) {
+  $("#turb").setAttribute("seed", String(1 + (Math.floor(t * 15) % 9)));
+  $("#wordmark").style.opacity = "1";
+  $("#title").style.opacity = "0";
+  $("#end").style.visibility = "hidden";
+  $("#touch").style.opacity = "0";
+  $("#ripple").style.opacity = "0";
+  $("#dim").style.opacity = "0";
+  $("#sheet").style.transform = "translateY(110%)";
+  $("#card").style.transform = "translateY(160%)";
+  placePhone(1, 0, 1, true);
+
+  // clock: 5:30 -> 18:00 (1.6 to 2.2 s), 18:00 -> 5:30 next morning (3.9 to 4.5 s)
+  const k1 = inOutCubic(prog(t, 1.6, 2.2)), k2 = inOutCubic(prog(t, 3.9, 4.5));
+  const mins = t < 3.9 ? Math.floor(lerp(330, 1080, k1)) : Math.floor(lerp(1080, 1770, k2)) % 1440;
+  const moving = (t >= 1.6 && t < 2.2) || (t >= 3.9 && t < 4.5);
+  const pulse = Math.max(prog(t, 2.2, 2.35) - prog(t, 2.35, 2.8), prog(t, 4.5, 4.65) - prog(t, 4.65, 5.1));
+  paintClock(fmt(mins), 0, moving, fmt(mins), pulse, (k1 * 12.5 + k2 * 11.5) * 360);
+
+  for (const m of MACHINES) {
+    let k = 1, flash = 0;
+    if (!m.always) {
+      k = t < m.offL ? 1 : t < m.onL ? 1 - outCubic(prog(t, m.offL, m.offL + 0.3)) : outBack(prog(t, m.onL, m.onL + 0.32), 1.2);
+      flash = prog(t, m.onL, m.onL + 0.12) - prog(t, m.onL + 0.3, m.onL + 0.9);
+    } else {
+      flash = prog(t, 3.0, 3.2) - prog(t, 3.5, 3.9); // the fridge stays on through the night
+    }
+    paintToggle(m, k, flash);
+  }
+  const e = MACHINES[0];
+  const open = t < e.onL ? 1 - inOutCubic(prog(t, e.offL, e.offL + 0.35)) : outCubic(prog(t, e.onL + 0.05, e.onL + 0.35));
+  const fill = t < e.onL ? 1 : inOutCubic(prog(t, e.onL + 0.2, 5.5));
+  const ready = t < e.onL ? 1 : prog(t, 5.5, 5.75);
+  paintWarm(open, fill, ready);
+  $("#row-oven .offt").textContent = "18:00";
+  $("#row-oven .hl").style.background = "#FFFFFF";
+  $("#row-oven").style.background = "#FFFFFF";
+
+  const night = t < 3.9 ? inOutCubic(prog(t, 1.75, 2.2)) : 1 - inOutCubic(prog(t, 4.05, 4.5));
+  paintSide(t, CAPS_LOOP, night, 1);
+}
+
+window.render = LOOP ? renderLoop : renderFull;
+window.DURATION = LOOP ? 6 : 20;
+window.SIZE = WIDE ? [1920, 1080] : [1080, 1920];
+window.render(0);
 </script>
 </body>
 </html>
