@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PREVUMO phone demo</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Space Grotesk"; src: url("../../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2") format("woff2"); font-weight: 300 700; }
+
+  :root {
+    --bg: #F6F1E9;
+    --paper: #FFFDF9;
+    --ink: #3A2519;
+    --ink-2: #6E5646;
+    --line: #E8DED2;
+    --tile: #F3ECE2;
+    --track: #D9CDBF;
+    --green: #2E7D4F;
+    --green-tint: #E2F0E6;
+    --frame: #2B1C14;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: radial-gradient(120% 80% at 50% 38%, #FBF7F1 0%, var(--bg) 60%, #EFE7DB 100%); }
+
+  .serif { font-family: "Liberation Serif", "Times New Roman", serif; font-weight: 700; letter-spacing: -0.025em; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Wordmark */
+  #wordmark { position: absolute; top: 78px; left: 0; right: 0; text-align: center; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 46px; letter-spacing: 0.16em; padding-left: 0.16em; }
+
+  /* Title card */
+  #title { position: absolute; left: 96px; right: 96px; top: 690px; }
+  #title .line { overflow: hidden; padding-bottom: 26px; margin-bottom: -20px; }
+  #title .line span { display: inline-block; font-size: 104px; line-height: 1.04; }
+  #title .q { color: var(--ink-2); font-size: 92px !important; }
+  #title .warmword { position: relative; }
+  #title .underline { position: absolute; left: 2px; right: 6px; top: calc(100% + 2px); height: 12px; border-radius: 6px; background: var(--green); transform-origin: left center; }
+  #title .kicker { margin-top: 56px; font-size: 38px; color: var(--ink-2); font-weight: 500; }
+
+  /* Phone */
+  #phone { position: absolute; left: 140px; top: 190px; width: 800px; height: 1660px; border-radius: 104px; background: var(--frame); padding: 17px; border: 3px solid #4A3428;
+    box-shadow: 0 60px 90px -30px rgba(58, 37, 25, 0.45), 0 18px 30px -12px rgba(58, 37, 25, 0.35); will-change: transform; }
+  #screen { position: relative; width: 760px; height: 1620px; border-radius: 86px; background: var(--paper); overflow: hidden; }
+  #island { position: absolute; top: 22px; left: 50%; width: 210px; height: 58px; margin-left: -105px; border-radius: 30px; background: #120C08; }
+  #status { position: absolute; top: 30px; left: 64px; right: 56px; height: 44px; display: flex; align-items: center; justify-content: space-between; font-size: 32px; font-weight: 650; }
+  #status .glyphs { display: flex; align-items: center; gap: 12px; }
+  .bars { display: flex; align-items: flex-end; gap: 4px; height: 26px; }
+  .bars i { display: block; width: 6px; border-radius: 2px; background: var(--ink); }
+  .battery { width: 52px; height: 26px; border: 3px solid var(--ink); border-radius: 8px; padding: 3px; position: relative; }
+  .battery::after { content: ""; position: absolute; right: -8px; top: 7px; width: 4px; height: 8px; border-radius: 2px; background: var(--ink); }
+  .battery b { display: block; height: 100%; width: 78%; border-radius: 3px; background: var(--ink); }
+
+  #app { position: absolute; inset: 104px 24px 0 24px; }
+  #header { display: flex; justify-content: space-between; align-items: flex-start; padding: 22px 8px 0 8px; }
+  #header .label { font-size: 32px; color: var(--ink-2); font-weight: 500; }
+  #header h1 { font-family: "Space Grotesk", sans-serif; font-size: 72px; line-height: 1.05; letter-spacing: -0.02em; margin-top: 6px; }
+  #clock { margin-top: 4px; display: flex; align-items: center; gap: 12px; padding: 14px 22px 14px 18px; border-radius: 26px; background: var(--tile); }
+  #clock svg { width: 36px; height: 36px; }
+  #clock .time { font-size: 50px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: baseline; }
+  #clock .sec { font-size: 28px; font-weight: 600; color: var(--ink-2); margin-left: 4px; width: 46px; }
+  .roll { display: inline-block; height: 1.05em; overflow: hidden; vertical-align: top; position: relative; }
+  .roll .strip { display: flex; flex-direction: column; }
+  .roll .strip span { height: 1.05em; line-height: 1.05em; }
+  #sub { padding: 20px 8px 0 8px; font-size: 34px; color: var(--ink-2); }
+
+  #rows { margin-top: 34px; display: flex; flex-direction: column; gap: 20px; }
+  .row { background: #FFFFFF; border: 2px solid var(--line); border-radius: 36px; padding: 32px 26px; position: relative; }
+  .row .main { display: flex; align-items: center; gap: 20px; }
+  .tile { width: 88px; height: 88px; border-radius: 24px; background: var(--tile); display: flex; align-items: center; justify-content: center; flex: none; }
+  .tile svg { width: 56px; height: 56px; }
+  .txt { flex: 1; min-width: 0; }
+  .name { font-size: 43px; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; }
+  .sched { margin-top: 8px; font-size: 36px; color: var(--ink-2); white-space: nowrap; }
+  .sched b { font-weight: 650; color: var(--ink); }
+  .sched .hl { border-radius: 10px; padding: 0 6px; margin: 0 -6px; }
+  .toggle { width: 116px; height: 68px; border-radius: 34px; background: var(--track); position: relative; flex: none; }
+  .toggle .knob { position: absolute; top: 6px; left: 6px; width: 56px; height: 56px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 3px 8px rgba(58, 37, 25, 0.25); display: flex; align-items: center; justify-content: center; }
+  .toggle .knob svg { width: 26px; height: 26px; }
+  .warm { overflow: hidden; }
+  .warm .inner { padding-top: 22px; }
+  .warm .labels { display: flex; justify-content: space-between; align-items: center; font-size: 35px; font-weight: 600; }
+  .warm .labels .a, .warm .labels .b { display: flex; align-items: center; gap: 10px; }
+  .warm .track { margin-top: 14px; height: 18px; border-radius: 9px; background: var(--tile); overflow: hidden; }
+  .warm .fill { height: 100%; border-radius: 9px; background: var(--green); transform-origin: left center; }
+
+  #dim { position: absolute; inset: 0; background: rgba(43, 28, 20, 0.32); opacity: 0; }
+  #sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 640px; background: #FFFFFF; border-radius: 52px 52px 0 0; padding: 22px 44px 0 44px; box-shadow: 0 -20px 50px rgba(43, 28, 20, 0.18); transform: translateY(110%); }
+  #sheet .handle { width: 92px; height: 10px; border-radius: 5px; background: var(--line); margin: 0 auto; }
+  #sheet h2 { margin-top: 34px; font-family: "Space Grotesk", sans-serif; font-size: 52px; letter-spacing: -0.02em; }
+  #sheet .lbl { margin-top: 8px; font-size: 32px; color: var(--ink-2); }
+  #sheet .picker { margin-top: 30px; display: flex; align-items: center; justify-content: space-between; }
+  #sheet .step { width: 112px; height: 112px; border-radius: 50%; border: 3px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: 500; line-height: 1; color: var(--ink); }
+  #sheet .big { font-size: 132px; font-weight: 700; letter-spacing: -0.03em; display: flex; }
+  #sheet .save { margin-top: 44px; height: 116px; border-radius: 58px; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 650; }
+
+  #card { position: absolute; left: 34px; right: 34px; bottom: 64px; border-radius: 36px; background: var(--ink); color: var(--paper); padding: 30px 34px; display: flex; align-items: center; gap: 22px; transform: translateY(160%); }
+  #card svg { width: 54px; height: 54px; flex: none; }
+  #card p { font-size: 38px; font-weight: 600; line-height: 1.25; text-wrap: balance; }
+  #homebar { position: absolute; bottom: 18px; left: 50%; width: 260px; height: 10px; margin-left: -130px; border-radius: 5px; background: var(--ink); opacity: 0.85; }
+
+  #touch { position: absolute; left: 0; top: 0; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%; background: rgba(58, 37, 25, 0.26); border: 5px solid rgba(255, 253, 249, 0.95); box-shadow: 0 8px 24px rgba(43, 28, 20, 0.28); opacity: 0; }
+  #ripple { position: absolute; left: 0; top: 0; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%; border: 4px solid rgba(58, 37, 25, 0.5); opacity: 0; }
+
+  /* End card */
+  #end { position: absolute; left: 96px; right: 72px; top: 650px; }
+  #end .mark { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 84px; letter-spacing: 0.16em; }
+  #end .line { overflow: hidden; padding-bottom: 8px; }
+  #end .line span { display: inline-block; font-size: 112px; line-height: 1.04; }
+  #end .on { color: var(--green); }
+  #end .meta { margin-top: 72px; font-size: 35px; white-space: nowrap; color: var(--ink-2); font-weight: 500; line-height: 1.4; }
+  #end .rule { margin: 44px 0 40px; height: 4px; width: 120px; border-radius: 2px; background: var(--ink); transform-origin: left center; }
+
+  #grain { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: 0.07; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wordmark">PREVUMO</div>
+
+  <div id="title">
+    <div class="line"><span class="serif q">Opener running late?</span></div>
+    <div class="line"><span class="serif">Your machines are</span></div>
+    <div class="line"><span class="serif warmword">already warm.<i class="underline"></i></span></div>
+    <p class="kicker">They switch on by themselves, on schedule.</p>
+  </div>
+
+  <div id="phone">
+    <div id="screen">
+      <div id="island"></div>
+      <div id="status"><span class="num" id="stime">5:29</span><span class="glyphs"><span class="bars"><i style="height:9px"></i><i style="height:14px"></i><i style="height:19px"></i><i style="height:24px"></i></span><span class="battery"><b></b></span></span></div>
+      <div id="app">
+        <div id="header">
+          <div><p class="label">Café floor · Thursday</p><h1>Machines</h1></div>
+          <div id="clock"><svg viewBox="0 0 24 24" fill="none" stroke="#3A2519" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path id="hand-m" d="M12 12V6.5"/><path id="hand-h" d="M12 12l3.5 2"/></svg><span class="time num" id="ctime"></span></div>
+        </div>
+        <p id="sub">Opens at 6:00 · 5 machines</p>
+        <div id="rows"></div>
+      </div>
+      <div id="dim"></div>
+      <div id="card"><svg viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><p>All machines off · closed for the night</p></div>
+      <div id="sheet">
+        <div class="handle"></div>
+        <h2>Oven</h2>
+        <p class="lbl">Switch off at</p>
+        <div class="picker">
+          <div class="step" id="minus">−</div>
+          <div class="big num" id="sheettime"></div>
+          <div class="step" id="plus">+</div>
+        </div>
+        <div class="save" id="save">Save</div>
+      </div>
+      <div id="homebar"></div>
+    </div>
+  </div>
+
+  <div id="end">
+    <div class="mark">PREVUMO</div>
+    <div class="rule"></div>
+    <div class="line"><span class="serif"><span class="on">On</span> when you open.</span></div>
+    <div class="line"><span class="serif">Off when you close.</span></div>
+    <p class="meta">PREVUMO · student prototype · University of Ottawa</p>
+  </div>
+
+  <div id="touch"></div><div id="ripple"></div>
+
+  <svg id="grain" width="1080" height="1920"><filter id="n"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="1" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+</div>
+
+<script>
+// ---------- helpers ----------
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const outCubic = (k) => 1 - Math.pow(1 - k, 3);
+const inOutCubic = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const outBack = (k, s = 1.4) => 1 + (s + 1) * Math.pow(k - 1, 3) + s * Math.pow(k - 1, 2);
+const mix = (c1, c2, k) => {
+  const p = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  const a = p(c1), b = p(c2);
+  return `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], k))).join(",")})`;
+};
+const $ = (s) => document.querySelector(s);
+const C = { ink: "#3A2519", track: "#D9CDBF", green: "#2E7D4F", line: "#E8DED2", tint: "#E2F0E6", hl: "#F6E7CF" };
+
+// ---------- icons (simple line drawings, no brands) ----------
+const S = (d) => `<svg viewBox="0 0 48 48" fill="none" stroke="#3A2519" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICON = {
+  espresso: S('<path d="M10 20h22v8a9 9 0 0 1-9 9h-4a9 9 0 0 1-9-9z"/><path d="M32 23h3a4 4 0 0 1 0 8h-3"/><path d="M8 41h28"/><path d="M17 8c-2 3 2 5 0 8M24 8c-2 3 2 5 0 8"/>'),
+  grinder: S('<path d="M14 7h20l-4 11H18z"/><rect x="13" y="18" width="22" height="14" rx="3"/><path d="M19 32v5h10v-5"/><path d="M11 41h26"/>'),
+  oven: S('<rect x="6" y="9" width="36" height="30" rx="4"/><path d="M6 17h36"/><rect x="12" y="22" width="24" height="12" rx="2"/><circle cx="13" cy="13" r="1.2"/><circle cx="20" cy="13" r="1.2"/><path d="M28 13h8"/>'),
+  water: S('<path d="M15 9h18v26a4 4 0 0 1-4 4H19a4 4 0 0 1-4-4z"/><path d="M15 16h18"/><path d="M33 26h4v4"/><path d="M37 33v2"/><path d="M20 22h8"/>'),
+  fridge: S('<rect x="12" y="5" width="24" height="38" rx="4"/><path d="M12 19h24"/><path d="M17 10v5M17 24v7"/>'),
+};
+const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="#2E7D4F" stroke-width="2.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#2E7D4F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+const MACHINES = [
+  { id: "espresso", name: "Espresso machine", on: 7.7, warm: true },
+  { id: "grinder", name: "Grinder", on: 7.95 },
+  { id: "oven", name: "Oven", on: 8.2 },
+  { id: "water", name: "Hot-water tower", on: 8.45 },
+  { id: "fridge", name: "Fridge", always: true },
+];
+
+// ---------- timeline constants ----------
+const T = {
+  tick: 7.4,            // 5:29 -> 5:30
+  ffA: 14.0, ffB: 15.0, // clock fast forward 5:30 -> 18:00
+  offs: { espresso: 15.15, grinder: 15.35, water: 15.55 },
+  card: 15.85,
+  tapRow: 11.55, minus1: 12.4, minus2: 12.75, save: 13.3,
+};
+const ffMinutes = (t) => Math.floor(lerp(330, 1080, inOutCubic(prog(t, T.ffA, T.ffB))));
+// The moment the fast-forwarding clock passes 16:00, when the oven's new rule switches it off.
+let ovenOffT = T.ffB;
+for (let t = T.ffA; t <= T.ffB; t += 1 / 300) if (ffMinutes(t) >= 960) { ovenOffT = t; break; }
+T.offs.oven = ovenOffT;
+
+// ---------- build rows ----------
+const rowsEl = $("#rows");
+for (const m of MACHINES) {
+  const sched = m.always ? `<span class="lock">${LOCK}</span> Always on` : `<b>ON</b> 5:30 · <span class="hl"><b>OFF</b> <span class="offt">18:00</span></span>`;
+  rowsEl.insertAdjacentHTML("beforeend", `
+    <div class="row" id="row-${m.id}">
+      <div class="main">
+        <div class="tile">${ICON[m.id]}</div>
+        <div class="txt"><p class="name">${m.name}</p><p class="sched">${sched}</p></div>
+        <div class="toggle"><div class="knob">${m.always ? LOCK : ""}</div></div>
+      </div>
+      ${m.warm ? `<div class="warm"><div class="inner"><div class="labels"><span class="a"></span><span class="b num"></span></div><div class="track"><div class="fill"></div></div></div></div>` : ""}
+    </div>`);
+}
+document.querySelectorAll(".sched .lock svg").forEach((s) => { s.style.width = "26px"; s.style.height = "26px"; s.style.verticalAlign = "-3px"; });
+
+// rolling digit: shows `from` sliding up to `to` as k goes 0 -> 1
+const roll = (from, to, k) => `<span class="roll"><span class="strip" style="transform:translateY(${-outCubic(k) * 1.05}em)"><span>${from}</span><span>${to}</span></span></span>`;
+
+function onState(m, t) {
+  if (m.always) return 1;
+  const off = T.offs[m.id];
+  const kOn = outBack(prog(t, m.on, m.on + 0.32), 1.2);
+  const kOff = off !== undefined ? outCubic(prog(t, off, off + 0.3)) : 0;
+  return t < off || off === undefined ? kOn : 1 - kOff;
+}
+
+// ---------- render one frame at time t (seconds) ----------
+function render(t) {
+  // grain: a new seed every two frames
+  $("#turb").setAttribute("seed", String(1 + (Math.floor(t * 15) % 9)));
+
+  // wordmark, present until the end card takes over
+  $("#wordmark").style.opacity = String(1 - prog(t, 16.8, 17.1));
+
+  // title card: on screen from frame 0, underline draws, settles, then lifts away as the phone rises
+  const exit = inOutCubic(prog(t, 2.2, 2.65));
+  const title = $("#title");
+  title.style.opacity = String(1 - prog(t, 2.25, 2.6));
+  title.style.transform = `translateY(${-exit * 120 + (1 - outCubic(prog(t, 0, 1.2))) * 16}px)`;
+  $("#title .underline").style.transform = `scaleX(${outCubic(prog(t, 0.35, 1.25))})`;
+  const kick = $("#title .kicker");
+  kick.style.opacity = String(outCubic(prog(t, 0.9, 1.5)));
+  kick.style.transform = `translateY(${(1 - outCubic(prog(t, 0.9, 1.5))) * 18}px)`;
+
+  // phone: rises in under the title, leaves before the end card
+  const phone = $("#phone");
+  const inK = outBack(prog(t, 2.6, 3.4), 0.9);
+  const outK = inOutCubic(prog(t, 16.75, 17.2));
+  phone.style.transform = `translateY(${(1 - inK) * 1500 + outK * 220}px) scale(${1 - outK * 0.06})`;
+  phone.style.opacity = String(1 - prog(t, 16.8, 17.15));
+  phone.style.visibility = t < 2.55 || t > 17.2 ? "hidden" : "visible";
+
+  // clock
+  let timeHTML, sec = "";
+  if (t < T.tick) {
+    timeHTML = "5:29";
+    sec = 56 + clamp(Math.floor((t - 3.2) / 1.05), 0, 3);
+  } else if (t < T.ffA) {
+    const k = prog(t, T.tick, T.tick + 0.35);
+    timeHTML = k < 1 ? `5:${roll("2", "3", k)}${roll("9", "0", k)}` : "5:30";
+    sec = clamp(Math.floor(t - T.tick), 0, 59);
+  } else {
+    const mins = ffMinutes(t);
+    timeHTML = `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, "0")}`;
+    sec = 0;
+  }
+  const ff = t >= T.ffA && t < T.ffB + 0.05;
+  $("#ctime").innerHTML = `${timeHTML}<span class="sec">:${String(sec).padStart(2, "0")}</span>`;
+  $("#ctime").style.filter = ff ? "blur(0.6px)" : "none";
+  $("#stime").textContent = t < T.tick ? "5:29" : t < T.ffA ? "5:30" : $("#ctime").firstChild.textContent;
+  const clockPulse = Math.max(prog(t, T.tick, T.tick + 0.15) - prog(t, T.tick + 0.15, T.tick + 0.6), prog(t, T.ffB, T.ffB + 0.15) - prog(t, T.ffB + 0.15, T.ffB + 0.7));
+  $("#clock").style.background = mix("#F3ECE2", "#E2F0E6", clockPulse);
+  const handAngle = (t < T.ffA ? 0 : inOutCubic(prog(t, T.ffA, T.ffB)) * 360 * 12.5);
+  $("#hand-m").setAttribute("transform", `rotate(${handAngle} 12 12)`);
+  $("#hand-h").setAttribute("transform", `rotate(${handAngle / 12} 12 12)`);
+
+  // rows and toggles
+  for (const m of MACHINES) {
+    const row = $(`#row-${m.id}`);
+    const k = onState(m, t);
+    const kc = clamp(k);
+    const tog = row.querySelector(".toggle");
+    tog.style.background = mix(C.track, C.green, kc);
+    tog.querySelector(".knob").style.transform = `translateX(${k * 48}px)`;
+    // a short green flash on the card border when it switches
+    const flashOn = m.on ? prog(t, m.on, m.on + 0.12) - prog(t, m.on + 0.3, m.on + 0.9) : 0;
+    row.style.borderColor = mix(C.line, "#9CC9AB", Math.max(0, flashOn));
+    if (m.always) row.style.borderColor = mix(C.line, "#9CC9AB", prog(t, 15.9, 16.1) - prog(t, 16.4, 16.9));
+  }
+
+  // espresso warm-up area: opens, fills, says ready, collapses at closing
+  const warm = $("#row-espresso .warm");
+  const open = outCubic(prog(t, 7.75, 8.15)) * (1 - inOutCubic(prog(t, T.offs.espresso, T.offs.espresso + 0.35)));
+  warm.style.height = `${open * 92}px`;
+  warm.style.opacity = String(clamp(open * 1.4));
+  const fill = inOutCubic(prog(t, 8.05, 9.45));
+  warm.querySelector(".fill").style.transform = `scaleX(${fill})`;
+  const ready = prog(t, 9.5, 9.8);
+  warm.querySelector(".a").innerHTML = ready > 0.5 ? `${CHECK}<span style="color:#2E7D4F">Ready by 6:00</span>` : `<span style="color:#6E5646">Warming up</span>`;
+  warm.querySelector(".a").style.opacity = String(ready > 0 && ready < 1 ? Math.abs(ready - 0.5) * 2 : 1);
+  warm.querySelector(".b").textContent = ready > 0.5 ? "" : `${Math.round(fill * 100)}%`;
+  warm.querySelector(".b").style.color = "#6E5646";
+
+  // oven schedule edit
+  const ovenRow = $("#row-oven");
+  const saved = t >= T.save + 0.12;
+  ovenRow.querySelector(".offt").textContent = saved ? "16:00" : "18:00";
+  const hl = prog(t, T.save + 0.12, T.save + 0.3) - prog(t, T.save + 0.8, 14.6);
+  ovenRow.querySelector(".hl").style.background = mix("#FFFFFF", C.hl, clamp(hl));
+  const press = prog(t, T.tapRow - 0.05, T.tapRow + 0.05) - prog(t, T.tapRow + 0.15, T.tapRow + 0.4);
+  ovenRow.style.background = mix("#FFFFFF", "#F3ECE2", clamp(press));
+
+  const sheetK = outCubic(prog(t, 11.7, 12.05)) * (1 - inOutCubic(prog(t, T.save + 0.1, T.save + 0.45)));
+  $("#sheet").style.transform = `translateY(${(1 - sheetK) * 110}%)`;
+  $("#dim").style.opacity = String(sheetK);
+  const h1 = prog(t, T.minus1, T.minus1 + 0.28), h2 = prog(t, T.minus2, T.minus2 + 0.28);
+  const ones = h2 > 0 ? roll("7", "6", h2) : h1 > 0 ? roll("8", "7", h1) : "8";
+  $("#sheettime").innerHTML = `1${ones}:00`;
+  const btn = (el, at) => { const k = prog(t, at - 0.04, at + 0.04) - prog(t, at + 0.14, at + 0.34); el.style.background = mix("#FFFFFF", "#F3ECE2", clamp(k)); el.style.transform = `scale(${1 - clamp(k) * 0.06})`; };
+  btn($("#minus"), T.minus1 + 0.02);
+  if (t > T.minus1 + 0.2) btn($("#minus"), T.minus2 + 0.02);
+  const sk = clamp(prog(t, T.save - 0.04, T.save + 0.04) - prog(t, T.save + 0.12, T.save + 0.3));
+  $("#save").style.transform = `scale(${1 - sk * 0.04})`;
+  $("#save").style.background = mix("#3A2519", "#2B1C14", sk);
+
+  // closing card
+  const cardK = outBack(prog(t, T.card, T.card + 0.45), 1.1);
+  $("#card").style.transform = `translateY(${(1 - cardK) * 160}%)`;
+
+  // touch indicator: finger moves to the oven row, opens the editor, taps minus twice, then Save
+  const stageBox = $("#stage").getBoundingClientRect();
+  const center = (el, dx = 0, dy = 0) => { const r = el.getBoundingClientRect(); return [r.left - stageBox.left + r.width / 2 + dx, r.top - stageBox.top + r.height / 2 + dy]; };
+  const pRow = center(ovenRow.querySelector(".tile"), 10, 10);
+  const pMinus = center($("#minus"));
+  const pSave = center($("#save"), 60, 0);
+  // sheet targets measured in their final (open) position
+  const sheetOpenY = (1 - sheetK) * $("#sheet").offsetHeight * 1.1;
+  pMinus[1] -= sheetOpenY; pSave[1] -= sheetOpenY;
+  const start = [880, 1720];
+  const path = [
+    [11.0, start], [11.45, pRow], [11.95, pRow], [12.3, pMinus], [12.95, pMinus], [13.2, pSave], [13.6, pSave],
+  ];
+  let pos = start;
+  for (let i = 0; i < path.length - 1; i++) {
+    const [ta, a] = path[i], [tb, b] = path[i + 1];
+    if (t >= ta) { const k = inOutCubic(prog(t, ta, tb)); pos = [lerp(a[0], b[0], k), lerp(a[1], b[1], k)]; }
+  }
+  const touch = $("#touch");
+  const touchOn = prog(t, 11.0, 11.2) * (1 - prog(t, 13.45, 13.75));
+  const taps = [T.tapRow, T.minus1, T.minus2, T.save];
+  let squash = 0, rip = null;
+  for (const at of taps) {
+    squash = Math.max(squash, prog(t, at - 0.06, at) - prog(t, at + 0.05, at + 0.18));
+    if (t >= at && t < at + 0.45) rip = prog(t, at, at + 0.45);
+  }
+  touch.style.opacity = String(touchOn);
+  touch.style.transform = `translate(${pos[0]}px, ${pos[1]}px) scale(${1 - squash * 0.18})`;
+  const ripple = $("#ripple");
+  ripple.style.opacity = rip === null ? "0" : String((1 - rip) * touchOn);
+  ripple.style.transform = `translate(${pos[0]}px, ${pos[1]}px) scale(${rip === null ? 1 : 1 + outCubic(rip) * 0.9})`;
+
+  // end card: wordmark, rule, two lines masked up from the baseline, then the credit line
+  const end = $("#end");
+  end.style.visibility = t < 17.15 ? "hidden" : "visible";
+  const mk = outCubic(prog(t, 17.2, 17.6));
+  end.querySelector(".mark").style.opacity = String(mk);
+  end.querySelector(".mark").style.transform = `translateY(${(1 - mk) * 24}px)`;
+  end.querySelector(".rule").style.transform = `scaleX(${outCubic(prog(t, 17.3, 17.75))})`;
+  end.querySelectorAll(".line > span").forEach((s, i) => {
+    const k = outCubic(prog(t, 17.3 + i * 0.2, 17.8 + i * 0.2));
+    s.style.transform = `translateY(${(1 - k) * 110}%)`;
+  });
+  const meta = outCubic(prog(t, 17.75, 18.2));
+  end.querySelector(".meta").style.opacity = String(meta);
+  end.querySelector(".meta").style.transform = `translateY(${(1 - meta) * 16}px)`;
+}
+
+window.render = render;
+render(0);
+</script>
+</body>
+</html>
