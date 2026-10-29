@@ -11,6 +11,51 @@
         ],
         "createdAt": "2026-10-29T18:57:45.984Z",
         "reason": "Claude triage: offset elevation shadows tinted espresso on an off-white (#F6F1E9) page for the PREVUMO phone video; the page is light, there is no zero-offset halo"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "prevumo/video/phone-demo/index.html"
+        ],
+        "createdAt": "2026-10-29T19:04:55.217Z",
+        "reason": "Claude triage: fixed 1080x1920 video frame; the clips are the frame edge, the phone screen and the baseline mask reveals, with no tooltips or menus"
+      },
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "files": [
+          "prevumo/video/phone-demo/index.html"
+        ],
+        "createdAt": "2026-10-29T19:04:55.228Z",
+        "reason": "PREVUMO brand face set in the original PREVUMO brief (Space Grotesk, Inter, JetBrains Mono)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "prevumo/video/phone-demo/index.html"
+        ],
+        "createdAt": "2026-10-29T19:04:55.239Z",
+        "reason": "PREVUMO brand face set in the original PREVUMO brief (Space Grotesk, Inter, JetBrains Mono)"
+      },
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "prevumo/video/phone-demo/index.html"
+        ],
+        "createdAt": "2026-10-29T19:04:55.252Z",
+        "reason": "Claude triage: the outer container is a phone mockup frame around the app screen, not a card"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "prevumo/video/phone-demo/index.html"
+        ],
+        "createdAt": "2026-10-29T19:04:55.264Z",
+        "reason": "User's brief for this video asked for an off-white background with espresso text"
       }
     ]
   }
