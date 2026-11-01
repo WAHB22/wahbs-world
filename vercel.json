@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "ignoreCommand": "if [ -n \"$VERCEL_PROJECT_PRODUCTION_URL\" ] && [ \"$VERCEL_PROJECT_PRODUCTION_URL\" != \"wahb-finance.vercel.app\" ]; then exit 0; fi; exit 1",
+  "functions": { "api/read.js": { "maxDuration": 120 } },
+  "headers": [
+    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "private, no-store" }] },
+    { "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }, { "key": "Referrer-Policy", "value": "no-referrer" }] }
+  ]
+}

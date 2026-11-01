@@ -1,0 +1,19 @@
+# Money data never goes to GitHub
+backup-*.json
+*.csv
+*.pdf
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.heic
+.data/
+# Build and tooling
+node_modules/
+dist/
+.vercel/
+.env
+.env.*
+coverage/
+test-results/
+playwright-report/
