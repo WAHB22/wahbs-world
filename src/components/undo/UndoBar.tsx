@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, m } from 'motion/react';
-import { Undo2 } from 'lucide-react';
 import { useFinance } from '@/lib/store';
-import { Button } from '@/components/ui/button';
 
 /** How long the bar stays when nothing holds it. */
 const SHOW_MS = 8000;
 /** After the pointer or focus lets go, at least this long before it leaves, so it never vanishes under the hand. */
 const RESUME_MIN_MS = 1000;
-const EASE_OUT_QUINT = [0.22, 1, 0.36, 1] as const;
+/** The guide's one ease out, 200 ms in; leaving is quicker. */
+const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const EASE_IN = [0.55, 0, 1, 0.45] as const;
 
 /**
@@ -40,10 +39,11 @@ function useAutoDismiss(id: string | null, paused: boolean, onDone: (id: string)
 }
 
 /**
- * "Deleted Costco $182.40 · Undo". Floats above the bottom action bar after
- * every undoable change, for 8 seconds; holding the pointer over it or moving
- * focus into it stops the clock. Ink on paper inverted, so it reads in light
- * and dark mode alike.
+ * "Deleted Costco $182.40 · Undo". An ink strip with paper text and an Undo
+ * text button, 3 px corners, that slides up over 200 ms above the bottom
+ * action bar after every undoable change, for 8 seconds; holding the pointer
+ * over it or moving focus into it stops the clock. Ink and paper swap in dark
+ * mode (a cream strip with night text), so it reads in both.
  */
 export function UndoBar() {
   const entry = useFinance((s) => s.lastUndo);
@@ -75,9 +75,9 @@ export function UndoBar() {
           <m.div
             key="undo-bar"
             initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1, transition: { duration: 0.22, ease: EASE_OUT_QUINT } }}
-            exit={{ y: '100%', opacity: 0, transition: { duration: 0.16, ease: EASE_IN } }}
-            className="pointer-events-auto flex w-full max-w-[34rem] items-center gap-1 rounded-[var(--radius-lg)] bg-ink-strong py-1 pl-4 pr-1 text-paper shadow-lift"
+            animate={{ y: 0, opacity: 1, transition: { duration: 0.2, ease: EASE_OUT } }}
+            exit={{ y: '100%', opacity: 0, transition: { duration: 0.15, ease: EASE_IN } }}
+            className="pointer-events-auto flex min-h-14 w-full max-w-[34rem] items-center gap-2 rounded-[3px] bg-[color:var(--ink-brand)] py-1.5 pl-4 pr-1.5 text-paper shadow-lift"
             onPointerEnter={() => setHovered(true)}
             onPointerLeave={() => setHovered(false)}
             onFocus={() => setFocused(true)}
@@ -97,16 +97,13 @@ export function UndoBar() {
             >
               {entry.note}
             </m.p>
-            <span aria-hidden className="mx-1 h-6 w-px shrink-0 bg-paper/25" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="shrink-0 font-semibold text-paper hover:bg-paper/10 hover:text-paper focus-visible:outline-paper"
+            <button
+              type="button"
+              className="inline-flex min-h-11 shrink-0 items-center rounded-[3px] px-3.5 text-sm font-semibold uppercase tracking-[0.14em] text-paper underline decoration-paper/45 underline-offset-[5px] transition-[transform,background-color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-paper/10 active:scale-[0.97] focus-visible:outline-paper"
               onClick={() => undo(entry.id)}
             >
-              <Undo2 aria-hidden />
               Undo
-            </Button>
+            </button>
           </m.div>
         )}
       </AnimatePresence>

@@ -4,8 +4,8 @@ import { useFinance } from '@/lib/store';
 import { useUI } from '@/lib/ui-store';
 import { money, moneyShort } from '@/lib/format';
 import { Button } from '@/components/ui/button';
-import { Empty, RowButton, Section } from '@/components/ui/bits';
-import { OliveSprig } from '@/components/ui/ornaments';
+import { Section } from '@/components/ui/bits';
+import { LedgerEmpty, LedgerRow } from '@/components/bills/ledger';
 import { PaySheet } from './PaySheet';
 import { PayPlanSheet } from './PayPlanSheet';
 import { payRows, planHint, type PayRow } from './pays.logic';
@@ -27,7 +27,7 @@ export function Pays() {
             type="button"
             onClick={() => useUI.getState().open('pay-plan', undefined, month)}
             aria-label={`Planned pay, about ${moneyShort(plan)} each. Change it`}
-            className="num -my-3 inline-flex min-h-11 items-center text-left text-ink-soft underline decoration-ink-mute/50 decoration-dotted underline-offset-4 transition-colors hover:text-cobalt hover:decoration-cobalt"
+            className="num -my-3 inline-flex min-h-11 items-center text-left text-ink-soft underline decoration-ink-mute/60 decoration-dotted underline-offset-4 hover:text-[color:var(--ink-brand)] hover:decoration-[color:var(--ink-brand)]"
           >
             {planHint(plan)}
           </button>
@@ -40,12 +40,11 @@ export function Pays() {
             ))}
           </div>
         ) : (
-          <Empty>
-            <span className="flex items-center gap-2.5">
-              <OliveSprig className="h-5 shrink-0 opacity-80" />
-              No paycheques logged this month.
-            </span>
-          </Empty>
+          <LedgerEmpty>
+            No paycheques logged this month.
+            <br />
+            Tap Log paycheque.
+          </LedgerEmpty>
         )}
         <Button variant="quiet" size="sm" className="-ml-3 mt-1" onClick={() => useUI.getState().open('pay', undefined, month)}>
           <Plus />
@@ -58,14 +57,14 @@ export function Pays() {
   );
 }
 
+/** One pay as a ledger line: Bobino pay or the income's name, then date · hours · note. */
 function PayLine({ r, month }: { r: PayRow; month: string }) {
   return (
-    <RowButton onClick={() => useUI.getState().open('pay', r.pay.id, month)}>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[0.9375rem] font-medium text-ink-strong">{r.title}</p>
-        <p className="truncate text-sm text-ink-mute">{r.sub}</p>
-      </div>
-      <span className="num whitespace-nowrap text-[0.9375rem] font-medium text-aegean">{money(Number(r.pay.amt) || 0)}</span>
-    </RowButton>
+    <LedgerRow
+      onOpen={() => useUI.getState().open('pay', r.pay.id, month)}
+      title={r.title}
+      sub={r.sub}
+      amount={money(Number(r.pay.amt) || 0)}
+    />
   );
 }

@@ -1,128 +1,119 @@
-@import '@fontsource/gfs-didot/latin-400.css';
-@import '@fontsource-variable/commissioner/index.css';
+@import '@fontsource-variable/bodoni-moda/index.css';
+@import '@fontsource-variable/inter/index.css';
 @import 'tailwindcss';
 
 /*
- * Theme tokens. One ultramarine ink on cream (refs: Minos motifs, engraved
- * caryatids, Museo Didone). Aegean cyan for good news,
- * kiln orange for attention. Status colours (laurel, kiln, vase red) are kept
- * because the limit bars need green, orange and red.
- * Stage 6 retheming should only need to touch this block.
+ * Theme tokens from docs/style/STYLE_GUIDE.md (the only source for the look).
+ * One ink on cream paper like an engraved museum print. Section bands: sand,
+ * sage, scroll. Limit bars: olive, ochre, terracotta. White only for sheets.
+ * Older token names (cobalt, kiln, laurel, vase, aegean) are kept as aliases so
+ * components keep working; they now point at the guide's colours.
  */
 :root {
-  --paper: #f3efe6;
-  --paper-2: #e9e3d5;
-  --surface: #fbf9f4;
-  --ink: #1b2a8c;
-  --ink-strong: #121c66;
-  --ink-soft: #3a4aa6;
-  --ink-mute: #5c67ab;
-  --rule: #c8c6dc;
-  --rule-soft: #dfdbe2;
-  --cobalt: #2b3fd1;
-  --cobalt-press: #2233b0;
-  --on-cobalt: #fbf9f4;
-  --cobalt-wash: #e4e3f3;
-  --hero-bg: #2b3fd1;
-  --hero-ink: #f3efe6;
-  --hero-soft: #d5d8f6;
-  --aegean: #076d8c;
-  --aegean-wash: #dcecee;
-  --kiln: #a8460e;
-  --kiln-wash: #f6e3d3;
-  --laurel: #2f7342;
-  --laurel-wash: #dfeadb;
-  --vase: #b02f25;
-  --vase-wash: #f5dcd6;
-  --bar-track: #e2ded3;
-  --bar-none: #b9b6cf;
-  --fill-green: #3a8a50;
-  --fill-orange: #d06a1c;
-  --fill-red: #c3352a;
-  --shadow: 0 1px 2px rgb(18 28 102 / 0.06), 0 8px 24px rgb(18 28 102 / 0.08);
-  --shadow-lift: 0 2px 4px rgb(18 28 102 / 0.08), 0 18px 40px rgb(18 28 102 / 0.18);
-  --scrim: rgb(18 28 102 / 0.36);
+  --paper: #f3f0e4;
+  --paper-2: #e9e5d6;
+  --surface: #ffffff;
+  --ink-brand: #1b33b2;
+  --ink-brand-2: #4055bb;
+  --text: #1c1c1a;
+  --text-2: #4a4a45;
+  --text-3: #6b6a62;
+  --sand: #d0cbad;
+  --sage: #a2b3a1;
+  --scroll: #e1c7b8;
+  --stone: #9d755b;
+  --olive: #3f7d4f;
+  --ochre: #a8700f;
+  --terra: #a33b2a;
+  --aegean-ink: #2e6694;
+
+  /* Aliases used by components */
+  --ink: var(--text);
+  --ink-strong: var(--ink-brand);
+  --ink-soft: var(--text-2);
+  --ink-mute: var(--text-3);
+  --rule: rgb(27 51 178 / 0.22);
+  --rule-soft: rgb(27 51 178 / 0.12);
+  --cobalt: var(--ink-brand);
+  --cobalt-press: #142790;
+  --on-cobalt: #f3f0e4;
+  --cobalt-wash: #e2e1e0;
+  --hero-bg: var(--paper);
+  --hero-ink: var(--ink-brand);
+  --hero-soft: var(--text-2);
+  --aegean: var(--aegean-ink);
+  --aegean-wash: #dfe5e3;
+  --kiln: #7d5309;
+  --kiln-wash: #efe4c9;
+  --laurel: #2f6340;
+  --laurel-wash: #dfe7d9;
+  --vase: var(--terra);
+  --vase-wash: #f1ddd3;
+  --bar-track: #fbfaf5;
+  --bar-none: #cfcabb;
+  --fill-green: var(--olive);
+  --fill-orange: var(--ochre);
+  --fill-red: var(--terra);
+  --shadow: 0 1px 2px rgb(28 28 26 / 0.06), 0 8px 24px rgb(28 28 26 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(28 28 26 / 0.08), 0 18px 40px rgb(28 28 26 / 0.18);
+  --scrim: rgb(28 28 26 / 0.4);
+  --noise-opacity: 0.035;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --paper: #0c1140;
-    --paper-2: #121852;
-    --surface: #151c5e;
-    --ink: #efebe2;
-    --ink-strong: #fbf9f4;
-    --ink-soft: #c9cbea;
-    --ink-mute: #9ca2d8;
-    --rule: #2e3780;
-    --rule-soft: #1f276b;
-    --cobalt: #a7b3ff;
-    --cobalt-press: #c0c8ff;
-    --on-cobalt: #0c1140;
-    --cobalt-wash: #1d2570;
-    --hero-bg: #efebe2;
-    --hero-ink: #2b3fd1;
-    --hero-soft: #4a58b8;
-    --aegean: #5cc8e8;
-    --aegean-wash: #0f3346;
-    --kiln: #f39a5c;
-    --kiln-wash: #3a2416;
-    --laurel: #7ccf8f;
-    --laurel-wash: #16341f;
-    --vase: #f08a80;
-    --vase-wash: #3d1c1d;
-    --bar-track: #1f276b;
-    --bar-none: #3d478f;
-    --fill-green: #6cc383;
-    --fill-orange: #f0924f;
-    --fill-red: #ee7268;
+    --paper: #10163a;
+    --paper-2: #151c45;
+    --surface: #18204a;
+    --ink-brand: #e9e4d2;
+    --ink-brand-2: #c9c4b4;
+    --text: #e9e4d2;
+    --text-2: #c9c4b4;
+    --text-3: #a6a291;
+    --sand: #1e2550;
+    --sage: #17304a;
+    --scroll: #2a2142;
+    --stone: #b8957b;
+    --olive: #6faf7f;
+    --ochre: #d9a042;
+    --terra: #e07763;
+    --aegean-ink: #8fb6d6;
+    --rule: rgb(233 228 210 / 0.2);
+    --rule-soft: rgb(233 228 210 / 0.1);
+    --cobalt-press: #ffffff;
+    --on-cobalt: #10163a;
+    --cobalt-wash: #1e2652;
+    --aegean-wash: #18304a;
+    --kiln: #e2ae5a;
+    --kiln-wash: #33291a;
+    --laurel: #8fd09f;
+    --laurel-wash: #18301f;
+    --vase-wash: #3a1f22;
+    --bar-track: #10163a;
+    --bar-none: #3a4170;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
     --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 18px 40px rgb(0 0 0 / 0.5);
-    --scrim: rgb(3 5 30 / 0.6);
+    --scrim: rgb(3 5 20 / 0.6);
+    --noise-opacity: 0.05;
     color-scheme: dark;
   }
-}
-
-:root[data-theme='dark'] {
-  --paper: #0c1140;
-  --paper-2: #121852;
-  --surface: #151c5e;
-  --ink: #efebe2;
-  --ink-strong: #fbf9f4;
-  --ink-soft: #c9cbea;
-  --ink-mute: #9ca2d8;
-  --rule: #2e3780;
-  --rule-soft: #1f276b;
-  --cobalt: #a7b3ff;
-  --cobalt-press: #c0c8ff;
-  --on-cobalt: #0c1140;
-  --cobalt-wash: #1d2570;
-  --hero-bg: #efebe2;
-  --hero-ink: #2b3fd1;
-  --hero-soft: #4a58b8;
-  --aegean: #5cc8e8;
-  --aegean-wash: #0f3346;
-  --kiln: #f39a5c;
-  --kiln-wash: #3a2416;
-  --laurel: #7ccf8f;
-  --laurel-wash: #16341f;
-  --vase: #f08a80;
-  --vase-wash: #3d1c1d;
-  --bar-track: #1f276b;
-  --bar-none: #3d478f;
-  --fill-green: #6cc383;
-  --fill-orange: #f0924f;
-  --fill-red: #ee7268;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 18px 40px rgb(0 0 0 / 0.5);
-  --scrim: rgb(3 5 30 / 0.6);
-  color-scheme: dark;
 }
 
 @theme inline {
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
   --color-surface: var(--surface);
+  --color-sand: var(--sand);
+  --color-sage: var(--sage);
+  --color-scroll: var(--scroll);
+  --color-stone: var(--stone);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-olive: var(--olive);
+  --color-ochre: var(--ochre);
+  --color-terra: var(--terra);
   --color-ink: var(--ink);
   --color-ink-strong: var(--ink-strong);
   --color-ink-soft: var(--ink-soft);
@@ -152,23 +143,22 @@
   --color-scrim: var(--scrim);
   --shadow-card: var(--shadow);
   --shadow-lift: var(--shadow-lift);
-  --font-display: 'GFS Didot', 'Didot', 'Bodoni 72', Georgia, serif;
-  --font-sans: 'Commissioner Variable', 'Commissioner', ui-sans-serif, system-ui, sans-serif;
-  /* Type scale, ratio about 1.2, fixed rem (product UI). */
+  --font-display: 'Bodoni Moda Variable', 'Bodoni Moda', 'Bodoni 72', Didot, Georgia, serif;
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
   --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.1875rem;
-  --text-xl: 1.4375rem;
-  --text-2xl: 1.75rem;
-  --text-3xl: 2.125rem;
-  --text-hero: 3.5rem;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
-  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --text-xl: 1.375rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-hero: 6rem;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 14px;
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -181,26 +171,27 @@
   body {
     margin: 0;
     min-height: 100dvh;
-    background: var(--paper);
-    color: var(--ink);
+    background-color: var(--paper);
+    /* 3% paper grain, as in the style guide preview. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    color: var(--text);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.5;
-    font-optical-sizing: auto;
+    font-size: 0.9375rem;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
-    caret-color: var(--cobalt);
+    caret-color: var(--ink-brand);
   }
   ::selection {
-    background: var(--cobalt);
-    color: var(--on-cobalt);
+    background: var(--ink-brand);
+    color: var(--paper);
   }
   :focus-visible {
-    outline: 2px solid var(--cobalt);
+    outline: 2px solid var(--ink-brand);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: 3px;
   }
   button,
   [role='button'],
@@ -216,7 +207,7 @@
     text-wrap: balance;
   }
   a {
-    color: var(--cobalt);
+    color: var(--ink-brand);
     text-underline-offset: 3px;
   }
   * {
@@ -227,10 +218,30 @@
     font-variant-numeric: tabular-nums lining-nums;
     font-feature-settings: 'tnum' 1, 'lnum' 1;
   }
+  /* Spaced small caps label (Inter 11 to 12 px, 0.16em, ink). */
+  .caps {
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-brand);
+  }
   input[type='number']::-webkit-inner-spin-button,
   input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+  }
+}
+
+@keyframes jar-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes wreath-draw {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 

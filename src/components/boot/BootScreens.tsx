@@ -2,13 +2,13 @@ import type { ReactNode } from 'react';
 import { useFinance } from '@/lib/store';
 import { Page } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
-import { EngravedTemple, OliveSprig, TornEdge } from '@/components/ui/ornaments';
+import { ArchWindow, EngravedTemple, OwlCoin, Wordmark } from '@/components/ui/motifs';
 import { cn } from '@/lib/utils';
 
 /**
- * What shows before the page has data: a skeleton while loading, and a calm
- * full page when this device has no key, a refused key, or nothing loaded.
- * No data and no controls beyond Try again.
+ * What shows before the page has data: a still copy of the top of the page
+ * while loading, and a calm full page when this device has no key, a refused
+ * key, or nothing loaded. No data and no controls beyond Try again.
  */
 export function BootScreen() {
   const boot = useFinance((s) => s.boot);
@@ -32,9 +32,9 @@ export function BootScreen() {
       );
     case 'error':
       return (
-        <Notice title="Something went wrong">
+        <Notice title="Your data did not load">
           <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-soft">
-            {sync.kind === 'error' && sync.message ? sync.message : 'Your data did not load.'}
+            {sync.kind === 'error' && sync.message ? sync.message : 'Check the connection and try again.'}
           </p>
           <Button variant="primary" className="mt-6 min-w-32" onClick={() => void init()}>
             Try again
@@ -47,65 +47,84 @@ export function BootScreen() {
   }
 }
 
-/** A quiet page: olive sprig, a Didone heading, a few plain words. Sits a little above the middle. */
+/**
+ * A quiet page laid out like the Welcome to Greece poster: the wordmark where
+ * the header puts it, an arch window (the empty state drawing), a Bodoni
+ * heading and a few plain words, and the engraved temple bleeding off the
+ * bottom right corner.
+ */
 function Notice({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[40rem] flex-col justify-center px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
-      <div className="max-w-[22rem] pb-[14vh]">
-        <OliveSprig className="h-7" />
-        <h1 className="mt-5 font-display text-3xl leading-[1.1] text-ink-strong">{title}</h1>
-        {children}
+    <div className="relative min-h-dvh overflow-hidden">
+      <div className="pointer-events-none absolute -right-10 bottom-0 h-[264px] w-[220px]" aria-hidden>
+        <EngravedTemple className="h-full w-full" />
       </div>
-    </main>
+      <div className="relative mx-auto flex min-h-dvh w-full max-w-[40rem] flex-col px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+        <header>
+          <Wordmark className="h-7" />
+        </header>
+        <main className="flex flex-1 flex-col justify-center pb-[30vh] pt-12">
+          <div className="max-w-[22rem]">
+            <ArchWindow className="size-14 text-[color:var(--ink-brand)]" />
+            <h1 className="mt-5 font-display text-[2rem] font-bold leading-[1.08] tracking-[-0.01em] text-[color:var(--ink-brand)]">{title}</h1>
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }
 
 function Bone({ className }: { className?: string }) {
-  return <div className={cn('rounded-full bg-ink/10', className)} />;
+  return <div className={cn('rounded-[3px] bg-cobalt/10', className)} />;
 }
 
 /**
- * Static stand in for the header and the Safe to spend band, built on the same
- * boxes so nothing jumps when the real page arrives. Nothing moves.
+ * Still stand in for the header and the Safe to spend hero, built on the same
+ * boxes (Header.tsx, SafeToSpend.tsx) so nothing jumps when the real page
+ * arrives: the wordmark, the month line, the caps label, a block where the big
+ * number goes, the owl coin and the temple. Nothing moves.
  */
 function LoadingSkeleton() {
   return (
     <Page>
       <div role="status" aria-label="Loading">
-        <header className="pb-5" aria-hidden>
+        <header className="pb-2" aria-hidden>
           <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="font-display text-3xl leading-none text-ink-strong">Finance</span>
-              <OliveSprig className="h-6 shrink-0" />
-            </div>
+            <Wordmark className="h-7" />
             <Bone className="h-3 w-24" />
           </div>
-          <div className="mt-4 flex items-center justify-between gap-2 border-y border-rule-soft py-1">
+          <div className="mt-5 flex items-center justify-between gap-2">
             <div className="size-11" />
-            <Bone className="h-4 w-32" />
+            <Bone className="h-8 w-56" />
             <div className="size-11" />
           </div>
         </header>
-        <div className="-mx-4" aria-hidden>
-          <div className="relative overflow-hidden bg-hero-bg px-5 pb-6 pt-6 text-hero-ink">
-            <div className="pointer-events-none absolute -bottom-2 right-0 h-[125%] translate-x-[18%] opacity-[0.26]">
-              <EngravedTemple />
+        <div className="relative -mx-4 overflow-hidden px-4 pb-10 pt-8" aria-hidden>
+          <div className="pointer-events-none absolute -right-10 bottom-0 h-[264px] w-[220px]">
+            <EngravedTemple className="h-full w-full" />
+          </div>
+          <p className="caps relative">Safe to spend today</p>
+          <div className="relative">
+            {/* Same type boxes as the real number and payday line, kept invisible, so the heights match exactly. */}
+            <div className="relative mt-2">
+              <p className="invisible font-display text-hero font-bold">$00</p>
+              <Bone className="absolute left-0 top-1/2 h-[4.5rem] w-40 -translate-y-1/2" />
             </div>
-            <div className="relative">
-              <div className="flex h-14 items-end gap-2">
-                <div className="h-12 w-28 rounded-[var(--radius-md)] bg-hero-ink/20" />
-                <div className="mb-0.5 h-5 w-14 rounded-full bg-hero-ink/20" />
+            <div className="relative mt-2 max-w-[12.5rem] text-sm leading-snug">
+              <p className="invisible">Payday in 0 days · Nov 0 (estimate)</p>
+              <div className="absolute inset-0 flex flex-col justify-center gap-2">
+                <Bone className="h-3.5 w-[92%]" />
+                <Bone className="h-3.5 w-[55%]" />
               </div>
-              <div className="mt-3 max-w-[16rem] space-y-2 py-0.5">
-                <div className="h-3.5 w-[92%] rounded-full bg-hero-ink/20" />
-                <div className="h-3.5 w-[60%] rounded-full bg-hero-ink/20" />
-              </div>
-              <div className="mt-2 flex min-h-11 items-center">
-                <div className="h-3 w-44 rounded-full bg-hero-ink/15" />
-              </div>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <OwlCoin className="opacity-40" />
+            </div>
+            <div className="mt-3 flex min-h-11 items-center">
+              <Bone className="h-3 w-44" />
             </div>
           </div>
-          <TornEdge />
         </div>
       </div>
     </Page>

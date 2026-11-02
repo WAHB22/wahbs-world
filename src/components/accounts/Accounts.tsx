@@ -6,7 +6,12 @@ import { cn } from '@/lib/utils';
 import { accountRows } from './accounts.logic';
 import { AccountSheet } from './AccountSheet';
 
-/** Balances he types in from the bank app: Chequing, Savings, Visa owing. */
+/**
+ * Balances he types in from the bank app: Chequing, Savings, Visa owing.
+ * Sits on the sage band under the jars, as plain rows: small text in the text
+ * colour (the band swaps ink-strong and ink-mute), tags on a paper label so
+ * they stay readable on sage.
+ */
 export function Accounts() {
   const data = useFinance((s) => s.data)!;
   const rows = useMemo(() => accountRows(data), [data]);
@@ -17,12 +22,12 @@ export function Accounts() {
       ) : (
         <div>
           {rows.map((r) => (
-            <RowButton key={r.id} label={r.label} onClick={() => useUI.getState().open('account', r.id)}>
+            <RowButton key={r.id} label={r.label} onClick={() => useUI.getState().open('account', r.id)} className="border-rule hover:bg-paper/25 active:bg-paper/45">
               <div className="min-w-0 flex-1">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="truncate text-[0.9375rem] text-ink-strong">{r.name}</span>
                   {r.tag && (
-                    <Tag tone={r.tag.tone} className="shrink-0">
+                    <Tag tone={r.tag.tone} className="shrink-0 bg-paper">
                       {r.tag.text}
                     </Tag>
                   )}

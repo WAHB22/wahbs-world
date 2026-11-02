@@ -11,9 +11,10 @@ import { Bar } from '@/components/ui/bits';
 import { cn } from '@/lib/utils';
 import { coverView, findItem, movedIntoText, raiseButton, suggestAfterCover } from './budget.logic';
 import { useSheetForm } from './use-sheet-form';
+import { PourJars } from './PourJars';
 
 const close = () => useUI.getState().close();
-const EASE = [0.22, 1, 0.36, 1] as const;
+const EASE = [0.23, 1, 0.32, 1] as const;
 
 type CoverForm = {
   itemId: string;
@@ -96,14 +97,15 @@ export function CoverSheet() {
         )
       }
     >
-      <AnimatePresence mode="wait" initial={false}>
+      {/* No initial={false} here: it would also stop the pour from playing when the sheet opens. */}
+      <AnimatePresence mode="wait">
         {raising ? (
           <m.div
             key="raise"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, transition: { duration: 0.12 } }}
-            transition={{ duration: 0.24, ease: EASE }}
+            transition={{ duration: 0.2, ease: EASE }}
           >
             <p className="mt-1 flex items-center gap-2 text-[0.9375rem] text-aegean">
               <Check className="size-[1.125rem] shrink-0" aria-hidden />
@@ -114,7 +116,10 @@ export function CoverSheet() {
           </m.div>
         ) : view ? (
           <m.div key="plan" exit={{ opacity: 0, transition: { duration: 0.12 } }}>
-            <p className="num mt-1 text-[0.9375rem] font-medium text-ink-strong">{view.lead}</p>
+            <div className="mt-1 flex items-center justify-between gap-4">
+              <p className="num min-w-0 text-pretty text-[0.9375rem] font-medium leading-snug text-ink-strong">{view.lead}</p>
+              <PourJars className="-my-1 shrink-0" />
+            </div>
             <ul className="mt-2">
               {view.donors.map((d) => (
                 <li key={d.id} className="flex items-baseline justify-between gap-3 border-t border-rule-soft py-2.5 first:border-t-0">
@@ -130,9 +135,7 @@ export function CoverSheet() {
             <div className="mt-4 border-t border-rule pt-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="min-w-0 truncate text-sm text-ink-soft">After the move</span>
-                <span className="num whitespace-nowrap text-sm text-ink-mute">
-                  <span className="font-medium text-ink-strong">{view.after.spentText}</span> {view.after.limitText}
-                </span>
+                <span className="num whitespace-nowrap text-sm text-ink-soft">{view.after.amountText}</span>
               </div>
               <Bar pct={view.after.width} status={view.after.status} label={view.after.label} />
               <p className={cn('mt-2 text-sm', view.partial ? 'text-kiln' : 'text-ink-soft')}>{view.partial ?? view.effect}</p>

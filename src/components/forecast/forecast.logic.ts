@@ -11,10 +11,17 @@ import { money, moneyShort } from '@/lib/format';
 import { shortDate } from '@/lib/dates';
 import { hasDot } from './chart.logic';
 
-/** 'Today to Nov 30 · dashed line is an estimate'. */
-export function forecastHint(f: Pick<ForecastOk, 'end'>): string {
-  return `Today to ${shortDate(f.end)} · dashed line is an estimate`;
+/**
+ * 'Today to Nov 30, an estimate · dotted after payday'. The thread is solid up
+ * to payday and dotted after it; with no payday before the end, no dotted part.
+ */
+export function forecastHint(f: Pick<ForecastOk, 'end' | 'next'>): string {
+  const head = `Today to ${shortDate(f.end)}, an estimate`;
+  return f.next && f.next.date < f.end ? `${head} · dotted after payday` : head;
 }
+
+/** Optional one line story under the chart, first week only (STYLE_GUIDE.md). */
+export const FORECAST_STORY = 'Lachesis measured the thread. This one measures your month.';
 
 /** 'Visa owing $345.50, due date not set', or null when a due day is set (or nothing is owed). */
 export function visaLine(f: Pick<ForecastOk, 'visaUnscheduled'>): string | null {

@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const control =
-  'min-h-12 w-full min-w-0 rounded-[var(--radius-md)] border border-rule bg-paper px-3.5 text-base text-ink-strong placeholder:text-ink-mute transition-[border-color,box-shadow] duration-150 focus:border-cobalt focus:outline-none focus:ring-2 focus:ring-cobalt/25 aria-[invalid=true]:border-vase';
+  'min-h-12 w-full min-w-0 rounded-[var(--radius-md)] border border-rule bg-paper px-3.5 text-base text-ink placeholder:text-ink-mute transition-[border-color,box-shadow] duration-150 focus:border-cobalt focus:outline-none focus:ring-2 focus:ring-cobalt/25 aria-[invalid=true]:border-vase';
 
 export interface FieldProps {
   label: string;

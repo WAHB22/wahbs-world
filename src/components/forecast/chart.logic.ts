@@ -7,6 +7,7 @@
 import type { ForecastEvent, ForecastOk, ForecastPoint } from '@/lib/forecast';
 import type { ISODate } from '@/lib/types';
 import { shortDate } from '@/lib/dates';
+import { moneyShort } from '@/lib/format';
 
 export const CHART_HEIGHT = 180;
 /** Half of a 44 px tap target: a tap this close (in x) to a marked day selects it. */
@@ -172,6 +173,43 @@ export function stepTarget(order: number[], current: number | null, dir: 1 | -1)
   return current;
 }
 
+/** Length of the polyline linePath draws (same rounded points), in px. For the draw on. */
+export function polylineLength(pts: XY[]): number {
+  let len = 0;
+  for (let k = 1; k < pts.length; k++) {
+    len += Math.hypot(r2(pts[k].x) - r2(pts[k - 1].x), r2(pts[k].y) - r2(pts[k - 1].y));
+  }
+  return r2(len);
+}
+
+/** A small text label on the chart. `x` is its centre. */
+export interface Mark {
+  x: number;
+  y: number;
+  text: string;
+}
+
+/** About half the width of an 11 px Inter label, generous, so it never runs off the chart. */
+export function labelHalf(text: string): number {
+  return Math.ceil(text.length * 3.2);
+}
+
+/** Keeps a centred label of half width `half` inside 0..width, as near to x as it can. */
+export function clampLabelX(x: number, width: number, half: number): number {
+  if (width <= half * 2) return width / 2;
+  return Math.min(Math.max(x, half + 1), width - half - 1);
+}
+
+/** 'Lowest $34 · Nov 19', or 'Lowest $521 · Today' when today is the lowest day. Whole dollars. */
+export function lowestText(bal: number, date: ISODate, isToday: boolean): string {
+  return `Lowest ${moneyShort(Math.round(bal))} · ${isToday ? 'Today' : shortDate(date)}`;
+}
+
+/** 'Pay Nov 20', or 'Pay today'. */
+export function payText(date: ISODate, isToday: boolean): string {
+  return `Pay ${isToday ? 'today' : shortDate(date)}`;
+}
+
 const DOT_KINDS = new Set<ForecastEvent['kind']>(['bill', 'late-bill', 'pay', 'planned-pay', 'visa']);
 
 /** A day gets a dot when a bill, a pay, a planned pay or the Visa payment falls on it (not daily spending). */
@@ -205,7 +243,31 @@ export interface ChartModel {
   lowest: number;
   payday: { x: number; anchor: Anchor; estimate: boolean } | null;
   ticks: { i: number; x: number; label: string; anchor: Anchor }[];
+  /**
+   * The Fates' thread, solid from today up to payday (the whole line when no
+   * payday is on the chart). Empty when payday is today.
+   */
+  toPay: string;
+  /** Dotted after payday, where the 30 day spending estimate takes over. */
+  afterPay: string;
+  /** Length of the solid part in px, for the draw on. */
+  toPayLength: number;
+  /** 'Lowest $34 · Nov 19' under the lowest ring. */
+  lowMark: Mark;
+  /** 'Pay Nov 20' above the payday point. */
+  payMark: Mark | null;
+  /** '$0' at one end of the zero line: the right, or the left when the lowest label is in the way. */
+  zeroMark: Mark & { anchor: Anchor };
+  /** The fine dashed $0 line, leaving room for its label. */
+  zeroLine: { x1: number; x2: number };
 }
+
+/** Gap between a point and the baseline of the label under it (ring, then 11 px text). */
+const LOW_LABEL_DROP = 20;
+/** Gap between a point and the baseline of the label above it. */
+const PAY_LABEL_RISE = 10;
+/** Room the '$0' label takes at the end of the zero line. */
+const ZERO_LABEL_ROOM = 18;
 
 /** Everything the SVG draws, for one forecast at one pixel width. */
 export function buildChart(f: Pick<ForecastOk, 'points' | 'lowest' | 'next'>, width: number, height = CHART_HEIGHT): ChartModel {
@@ -231,6 +293,36 @@ export function buildChart(f: Pick<ForecastOk, 'points' | 'lowest' | 'next'>, wi
 
   const tickIdx = tickIndexes(pts.length, sc.step);
   const last = pts.length - 1;
+
+  // Solid up to payday, dotted after it. No payday on the chart: solid all the way.
+  const toPayPts = payIdx >= 0 ? pts.slice(0, payIdx + 1) : pts;
+  const afterPayPts = payIdx >= 0 ? pts.slice(payIdx) : [];
+
+  const low = pts[lowest];
+  const lowText = lowestText(low.bal, low.date, lowest === 0);
+  const lowHalf = labelHalf(lowText);
+  const below = low.y + LOW_LABEL_DROP;
+  const lowMark: Mark = {
+    x: r2(clampLabelX(low.x, box.width, lowHalf)),
+    y: r2(below <= box.height - 3 ? below : low.y - PAY_LABEL_RISE - 1),
+    text: lowText,
+  };
+
+  let payMark: Mark | null = null;
+  if (payIdx >= 0) {
+    const p = pts[payIdx];
+    const text = payText(p.date, payIdx === 0);
+    payMark = { x: r2(clampLabelX(p.x, box.width, labelHalf(text))), y: r2(Math.max(11, p.y - PAY_LABEL_RISE)), text };
+  }
+
+  // '$0' sits on the zero line at the right end, unless the lowest label covers that spot.
+  const zeroY = sc.zeroY;
+  const lowTop = lowMark.y - 9;
+  const coversRight = lowMark.x + lowHalf > sc.plotRight - 22 && zeroY + 5 > lowTop && zeroY - 5 < lowMark.y + 2;
+  const zeroMark = coversRight
+    ? { x: sc.plotLeft, y: r2(zeroY + 3.5), text: '$0', anchor: 'start' as const }
+    : { x: sc.plotRight, y: r2(zeroY + 3.5), text: '$0', anchor: 'end' as const };
+  const zeroLine = coversRight ? { x1: sc.plotLeft + ZERO_LABEL_ROOM, x2: sc.plotRight } : { x1: sc.plotLeft, x2: sc.plotRight - ZERO_LABEL_ROOM };
 
   return {
     box,
@@ -260,5 +352,12 @@ export function buildChart(f: Pick<ForecastOk, 'points' | 'lowest' | 'next'>, wi
       label: i === 0 ? 'Today' : shortDate(pts[i].date),
       anchor: i === 0 ? 'start' : i === last ? 'end' : 'middle',
     })),
+    toPay: linePath(toPayPts),
+    afterPay: linePath(afterPayPts),
+    toPayLength: polylineLength(toPayPts),
+    lowMark,
+    payMark,
+    zeroMark,
+    zeroLine,
   };
 }

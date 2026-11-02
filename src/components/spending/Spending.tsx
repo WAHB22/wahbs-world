@@ -2,9 +2,8 @@ import { useMemo } from 'react';
 import { useFinance } from '@/lib/store';
 import { useUI } from '@/lib/ui-store';
 import { money } from '@/lib/format';
-import { cn } from '@/lib/utils';
-import { Empty, RowButton, Section } from '@/components/ui/bits';
-import { OliveSprig } from '@/components/ui/ornaments';
+import { Section } from '@/components/ui/bits';
+import { LedgerEmpty, LedgerRow } from '@/components/bills/ledger';
 import { ExpenseSheet } from './ExpenseSheet';
 import { loggedHint, txRows, type TxRow } from './expense.logic';
 
@@ -24,12 +23,11 @@ export function Spending() {
             ))}
           </div>
         ) : (
-          <Empty>
-            <span className="flex items-center gap-2.5">
-              <OliveSprig className="h-5 shrink-0 opacity-80" />
-              Nothing logged yet. Tap Add expense or Import.
-            </span>
-          </Empty>
+          <LedgerEmpty>
+            Nothing logged yet.
+            <br />
+            Tap Add expense or Import.
+          </LedgerEmpty>
         )}
       </Section>
       <ExpenseSheet />
@@ -37,15 +35,17 @@ export function Spending() {
   );
 }
 
+/** One expense as a ledger line: category, then date · merchant or note · account, amount on the right. */
 function TxLine({ r, month }: { r: TxRow; month: string }) {
+  // A refund is money back: the softer ink, so it reads apart from spending.
   const refund = r.tx.amt < 0;
   return (
-    <RowButton onClick={() => useUI.getState().open('expense', r.tx.id, month)}>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[0.9375rem] font-medium text-ink-strong">{r.title}</p>
-        <p className="truncate text-sm text-ink-mute">{r.sub}</p>
-      </div>
-      <span className={cn('num whitespace-nowrap text-[0.9375rem] font-medium', refund ? 'text-aegean' : 'text-ink-strong')}>{money(r.tx.amt)}</span>
-    </RowButton>
+    <LedgerRow
+      onOpen={() => useUI.getState().open('expense', r.tx.id, month)}
+      title={r.title}
+      sub={r.sub}
+      amount={money(r.tx.amt)}
+      amountClassName={refund ? 'text-aegean' : undefined}
+    />
   );
 }

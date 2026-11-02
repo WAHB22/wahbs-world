@@ -8,23 +8,23 @@ import { cn } from '@/lib/utils';
  * so taps feel physical without waiting on anything.
  */
 const buttonVariants = cva(
-  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-medium transition-[transform,background-color,color,box-shadow] duration-150 ease-[var(--ease-out-quint)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[1.125rem] [&_svg]:shrink-0',
+  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-semibold transition-[transform,background-color,color,box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-[1.125rem] [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primary: 'bg-cobalt text-on-cobalt shadow-card hover:bg-cobalt-press',
-        secondary: 'border border-rule bg-surface text-ink hover:bg-cobalt-wash',
+        primary: 'bg-cobalt text-on-cobalt hover:bg-cobalt-press',
+        secondary: 'border border-cobalt bg-transparent text-cobalt hover:bg-cobalt-wash',
         ghost: 'text-ink-soft hover:bg-cobalt-wash hover:text-ink',
         quiet: 'text-cobalt hover:bg-cobalt-wash',
         danger: 'text-vase hover:bg-vase-wash',
-        attention: 'bg-kiln-wash text-kiln hover:brightness-95',
+        attention: 'border border-cobalt bg-transparent text-cobalt hover:bg-cobalt-wash',
       },
       size: {
-        md: 'min-h-11 rounded-[var(--radius-md)] px-4 text-[0.9375rem]',
-        sm: 'min-h-11 rounded-[var(--radius-md)] px-3 text-sm',
-        lg: 'min-h-12 rounded-[var(--radius-lg)] px-5 text-base',
+        md: 'min-h-11 rounded-[3px] px-4 text-sm',
+        sm: 'min-h-11 rounded-[3px] px-3.5 text-[0.8125rem]',
+        lg: 'min-h-12 rounded-[3px] px-5 text-[0.9375rem]',
         icon: 'size-11 rounded-full',
-        pill: 'min-h-12 rounded-full px-5 text-[0.9375rem]',
+        pill: 'min-h-12 rounded-[3px] px-5 text-sm',
       },
     },
     defaultVariants: { variant: 'secondary', size: 'md' },

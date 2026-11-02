@@ -140,28 +140,63 @@ function savedPayMatch(r: ReviewRow, saved: Pay[]): ReviewMatch | null {
 const fileOf = (row: ReadRow) => row.fileId ?? row.fileName ?? '';
 const timeOf = (row: ReadRow) => (row.time ?? '').replace(/\s+/g, '').toLowerCase();
 
-function sameLine(a: ReadRow, b: ReadRow): boolean {
-  if (fileOf(a) === fileOf(b)) return false; // two equal lines in one file are real repeats
-  if (a.date !== b.date || a.direction !== b.direction || toCents(a.amount) !== toCents(b.amount)) return false;
-  if (timeOf(a) && timeOf(b) && timeOf(a) !== timeOf(b)) return false;
-  return normalizeMerchant(a.merchant) === normalizeMerchant(b.merchant) || similarMerchant(a.merchant, b.merchant);
+/**
+ * Days between two reads of the same purchase from two files of this import, or null when
+ * they are not the same purchase. Same direction, same cents and a similar merchant within
+ * 3 days (a statement posts a day or two after the notification). Rows of one file never
+ * match each other: the bank listed them twice because they happened twice (his Oct 31
+ * screenshot has two Payments of $100.00). When both rows show a time they are two
+ * notifications, so they match only on the same day at the same time.
+ */
+function sameLine(a: ReadRow, b: ReadRow): number | null {
+  if (fileOf(a) === fileOf(b)) return null;
+  if (a.direction !== b.direction || toCents(a.amount) !== toCents(b.amount)) return null;
+  const gap = gapDays(a.date, b.date);
+  if (gap > 3) return null;
+  if (timeOf(a) && timeOf(b) && (gap > 0 || timeOf(a) !== timeOf(b))) return null;
+  const sameDayName = gap === 0 && normalizeMerchant(a.merchant) === normalizeMerchant(b.merchant);
+  return sameDayName || similarMerchant(a.merchant, b.merchant) ? gap : null;
 }
 
-/** The same line read from another file earlier in this import (or the same bill ticked twice). */
-function importMatch(r: ReviewRow, earlier: ReviewRow[]): ReviewMatch | null {
-  const hit = earlier.find(
-    (e) => e.kind !== 'not-spending' && (sameLine(r.row, e.row) || (r.kind === 'bill' && e.kind === 'bill' && !!r.billKey && e.billKey === r.billKey)),
-  );
+/** Earlier row id to the files whose rows already matched it, so each line is matched once per file. */
+type Claims = Map<string, Set<string>>;
+
+/**
+ * The same purchase read from another file earlier in this import, the closest in days, or
+ * the same bill ticked twice. A line already matched by a row of this file is left for the
+ * next one: one statement line and one notification are one purchase, not two.
+ */
+function importMatch(r: ReviewRow, earlier: ReviewRow[], claims: Claims): ReviewMatch | null {
+  const file = fileOf(r.row);
+  let hit = r.kind === 'bill' && r.billKey ? earlier.find((e) => e.kind === 'bill' && e.billKey === r.billKey) : undefined;
+  if (!hit) {
+    let best: { e: ReviewRow; gap: number } | null = null;
+    for (const e of earlier) {
+      if (e.kind === 'not-spending' || claims.get(e.id)?.has(file)) continue;
+      const gap = sameLine(r.row, e.row);
+      if (gap !== null && (!best || gap < best.gap)) best = { e, gap };
+    }
+    if (best) {
+      hit = best.e;
+      claims.set(hit.id, (claims.get(hit.id) ?? new Set<string>()).add(file));
+    }
+  }
   if (!hit) return null;
   const b = hit.row;
   return { label: `${tidyMerchant(b.merchant)} ${money(b.amount)} on ${shortDate(b.date)} (also in this import)`, where: 'this-import' };
 }
 
-function duplicateOf(data: FinanceData, r: ReviewRow, earlier: ReviewRow[], saved: { tx: Tx[]; pays: Pay[] }): ReviewMatch | null {
+function duplicateOf(
+  data: FinanceData,
+  r: ReviewRow,
+  earlier: ReviewRow[],
+  saved: { tx: Tx[]; pays: Pay[] },
+  claims: Claims,
+): ReviewMatch | null {
   if (r.kind === 'not-spending' || r.status === 'duplicate') return null;
-  if (r.kind === 'pay' || r.kind === 'income') return savedPayMatch(r, saved.pays) ?? importMatch(r, earlier);
-  if (r.kind === 'bill') return importMatch(r, earlier);
-  return savedTxMatch(data, r, saved.tx) ?? importMatch(r, earlier);
+  if (r.kind === 'pay' || r.kind === 'income') return savedPayMatch(r, saved.pays) ?? importMatch(r, earlier, claims);
+  if (r.kind === 'bill') return importMatch(r, earlier, claims);
+  return savedTxMatch(data, r, saved.tx) ?? importMatch(r, earlier, claims);
 }
 
 /* ---------- review sheet ---------- */
@@ -170,12 +205,13 @@ function duplicateOf(data: FinanceData, r: ReviewRow, earlier: ReviewRow[], save
 export function buildReview(data: FinanceData, rows: ReadRow[], opts: { today: ISODate; makeId?: () => string }): ReviewRow[] {
   const makeId = opts.makeId ?? uid;
   const saved = { tx: allTx(data), pays: allPays(data) };
+  const claims: Claims = new Map();
   const out: ReviewRow[] = [];
   for (const read of rows) {
     // A line whose date could not be read is shown on today rather than dropped.
     const row = isISODate(read.date) ? read : { ...read, date: opts.today };
     const r = classify(data, row, makeId());
-    const match = duplicateOf(data, r, out, saved);
+    const match = duplicateOf(data, r, out, saved, claims);
     out.push(match ? { ...r, status: 'duplicate', ticked: false, match, hint: 'Possible duplicate' } : r);
   }
   return out;

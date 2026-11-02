@@ -17,3 +17,4 @@ dist/
 coverage/
 test-results/
 playwright-report/
+docs/refs/

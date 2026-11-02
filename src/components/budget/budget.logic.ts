@@ -7,7 +7,7 @@ import type { BudgetItem, FinanceData, ISODate, MonthKey } from '@/lib/types';
 import { allItems, barWidth, effectiveLimits, limitStatus, monthData, spentByItem, type LimitStatus } from '@/lib/limits';
 import { applyCover, coverPlan, raiseNote, raiseSuggestion, type CoverPlan, type RaiseSuggestion } from '@/lib/cover';
 import { cents, money, moneyShort, parseAmount, toCents } from '@/lib/format';
-import { monthKey, monthLabel } from '@/lib/dates';
+import { listAnd, monthKey, monthLabel } from '@/lib/dates';
 import { uid } from '@/lib/ids';
 
 // ---------- shared form helpers ----------
@@ -30,7 +30,7 @@ export const STATUS_WORDS: Record<LimitStatus, string> = {
   none: 'no limit',
 };
 
-export type CoverState = { kind: 'plan'; plan: CoverPlan } | { kind: 'no-room' } | null;
+export type CoverState = { kind: 'plan'; plan: CoverPlan; /** 'Cover it · move room from Volleyball' */ button: string } | { kind: 'no-room' } | null;
 
 export interface LimitRow {
   id: string;
@@ -40,13 +40,11 @@ export interface LimitRow {
   limit: number;
   status: LimitStatus;
   width: number;
-  /** '$248.00' */
-  spentText: string;
-  /** '/ $400.00' or '· no limit' */
-  limitText: string;
+  /** '$310 of $400', or '$38 · no limit' for limit 0. */
+  amountText: string;
   /** '+$40 moved in', '$40 moved out', or both. null when nothing moved. */
   movedText: string | null;
-  /** Past month, limit held to month end: real progress, gets a Sparkle. */
+  /** Past month, limit held to month end: real progress, gets an olive wreath. */
   held: boolean;
   cover: CoverState;
   /** Bar's accessible label. */
@@ -58,7 +56,7 @@ export interface LimitRow {
 export interface LimitGroup {
   id: string;
   name: string;
-  /** '$648.00 / $700.00' */
+  /** '$648 of $700', or '$38 · no limit' when no item in the group has a limit. */
   totalText: string;
   rows: LimitRow[];
 }
@@ -83,10 +81,21 @@ export function movedText(moved: { in: number; out: number }): string | null {
   return parts.length ? parts.join(', ') : null;
 }
 
+/** '$310 of $400', or '$38 · no limit' when there is no limit. */
+export function amountText(spent: number, limit: number): string {
+  return limit > 0 ? `${moneyShort(spent)} of ${moneyShort(limit)}` : `${moneyShort(spent)} · no limit`;
+}
+
+/** Button on a row: 'Cover it · move room from Volleyball' (donor names from the plan). */
+export function coverButton(data: FinanceData, plan: CoverPlan): string {
+  const names = plan.donors.map((d) => String(findItem(data, d.itemId)?.name ?? ''));
+  return `Cover it · move room from ${listAnd(names)}`;
+}
+
 /**
  * Cover it is offered on orange and red bars of this month and later months.
  * A past month is closed: moving room into it after the fact would rewrite a
- * month that is over (and fake a "limit held" Sparkle).
+ * month that is over (and fake a "limit held" wreath).
  */
 function coverState(data: FinanceData, month: MonthKey, today: ISODate, itemId: string, status: LimitStatus): CoverState {
   if (status !== 'orange' && status !== 'red') return null;
@@ -94,7 +103,7 @@ function coverState(data: FinanceData, month: MonthKey, today: ISODate, itemId: 
   // Already covered this month and now only orange: do not offer it again (red still gets it).
   if (status === 'orange' && monthData(data, month).moves.some((mv) => mv.to === itemId)) return null;
   const plan = coverPlan(data, month, itemId);
-  return plan ? { kind: 'plan', plan } : { kind: 'no-room' };
+  return plan ? { kind: 'plan', plan, button: coverButton(data, plan) } : { kind: 'no-room' };
 }
 
 export function budgetView(data: FinanceData, month: MonthKey, today: ISODate): LimitGroup[] {
@@ -114,7 +123,6 @@ export function budgetView(data: FinanceData, month: MonthKey, today: ISODate): 
       spentC += toCents(spent);
       if (limit > 0) limitC += toCents(limit);
       const spentText = money(spent);
-      const limitText = limit > 0 ? `/ ${money(limit)}` : '· no limit';
       const moved = movedText(movedFor(data, month, i.id));
       // A month with nothing logged earns nothing: no data is not a held limit.
       const held = past && hasSpending && limit > 0 && status !== 'red';
@@ -128,8 +136,7 @@ export function budgetView(data: FinanceData, month: MonthKey, today: ISODate): 
         limit,
         status,
         width: barWidth(limit, spent),
-        spentText,
-        limitText,
+        amountText: amountText(spent, limit),
         movedText: moved,
         held,
         cover: coverState(data, month, today, i.id, status),
@@ -137,8 +144,21 @@ export function budgetView(data: FinanceData, month: MonthKey, today: ISODate): 
         label,
       };
     });
-    return { id: g.id, name: String(g.name ?? ''), totalText: `${money(spentC / 100)} / ${money(limitC / 100)}`, rows };
+    return { id: g.id, name: String(g.name ?? ''), totalText: amountText(spentC / 100, limitC / 100), rows };
   });
+}
+
+/**
+ * The reward line for a past month: '13 of 14 limits held to the end of
+ * October', or 'Every limit held to the end of October'. null when no limit
+ * was held (or nothing was logged), so there is nothing to celebrate.
+ */
+export function heldSummary(groups: LimitGroup[], month: MonthKey): string | null {
+  const withLimit = groups.flatMap((g) => g.rows).filter((r) => r.limit > 0);
+  const held = withLimit.filter((r) => r.held).length;
+  if (held === 0) return null;
+  const name = monthLabel(month).split(' ')[0];
+  return held === withLimit.length ? `Every limit held to the end of ${name}` : `${held} of ${withLimit.length} limits held to the end of ${name}`;
 }
 
 // ---------- find by id ----------
@@ -331,7 +351,7 @@ export function applyAddItem(draft: Draft<FinanceData>, values: AddItemValues, m
 
 export interface CoverView {
   name: string;
-  /** 'Groceries is $37.50 over its $400.00 limit.' */
+  /** 'Groceries is $37.50 over its $400 limit.' */
   situation: string;
   /** 'Move $40 from Dates with Kylie' */
   lead: string;
@@ -342,7 +362,8 @@ export interface CoverView {
   partial: string | null;
   /** 'For November only. Your monthly limits stay the same.' */
   scope: string;
-  after: { spentText: string; limitText: string; status: LimitStatus; width: number; label: string };
+  /** The bar once the room has moved: '$437.50 of $440'. */
+  after: { amountText: string; status: LimitStatus; width: number; label: string };
   /** 'Move $40' */
   button: string;
 }
@@ -356,8 +377,8 @@ export function coverView(data: FinanceData, month: MonthKey, plan: CoverPlan): 
   const status = limitStatus(limit, spent);
   const situation =
     status === 'red'
-      ? `${name} is ${money(spent - limit)} over its ${money(limit)} limit.`
-      : `${name} has used ${Math.floor((spent / limit) * 100)}% of its ${money(limit)} limit.`;
+      ? `${name} is ${moneyShort(cents(spent - limit))} over its ${moneyShort(limit)} limit.`
+      : `${name} has used ${Math.floor((spent / limit) * 100)}% of its ${moneyShort(limit)} limit.`;
 
   const donors = plan.donors.map((d) => {
     const dl = limits[d.itemId] ?? 0;
@@ -367,7 +388,7 @@ export function coverView(data: FinanceData, month: MonthKey, plan: CoverPlan): 
       id: d.itemId,
       name: String(findItem(data, d.itemId)?.name ?? ''),
       amt: moneyShort(d.amt),
-      after: roomAfter > 0 ? `${money(roomAfter)} of room left after` : 'No room left after',
+      after: roomAfter > 0 ? `${moneyShort(roomAfter)} of room left after` : 'No room left after',
     };
   });
 
@@ -393,8 +414,7 @@ export function coverView(data: FinanceData, month: MonthKey, plan: CoverPlan): 
     partial,
     scope,
     after: {
-      spentText: money(spent),
-      limitText: `/ ${money(newLimit)}`,
+      amountText: amountText(spent, newLimit),
       status: afterStatus,
       width: barWidth(newLimit, spent),
       label: `After the move: ${money(spent)} of ${money(newLimit)}, ${STATUS_WORDS[afterStatus]}`,

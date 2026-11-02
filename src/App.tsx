@@ -16,7 +16,7 @@ import { ActionBar, ImportSheet, DropZone } from './components/import/ImportFlow
 import { HistorySheet } from './components/history/History';
 import { UndoBar } from './components/undo/UndoBar';
 import { BootScreen } from './components/boot/BootScreens';
-import { Meander } from './components/ui/bits';
+import { Band } from './components/ui/motifs';
 
 export default function App() {
   const boot = useFinance((s) => s.boot);
@@ -41,17 +41,30 @@ export default function App() {
         <Page>
           <Header />
           <main>
+            {/* Band order from STYLE_GUIDE.md: hero (paper), limits (sand), bills (paper), jars (sage), forecast (scroll). */}
             <SafeToSpend />
             <Totals />
-            <Forecast />
-            <Meander className="mt-9" />
-            <Bills />
-            <Budget />
-            <Spending />
-            <Pays />
-            <Meander className="mt-9" />
-            <Accounts />
-            <Jars />
+            <Band tone="sand" torn id="limits">
+              <Budget />
+            </Band>
+            <Band tone="paper">
+              <Bills />
+              <div className="mt-10">
+                <Spending />
+              </div>
+              <div className="mt-10">
+                <Pays />
+              </div>
+            </Band>
+            <Band tone="sage" torn id="jars">
+              <Jars />
+              <div className="mt-10">
+                <Accounts />
+              </div>
+            </Band>
+            <Band tone="scroll" id="forecast">
+              <Forecast />
+            </Band>
           </main>
           <Footer />
         </Page>

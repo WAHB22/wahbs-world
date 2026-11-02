@@ -1,15 +1,21 @@
-import { useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type RefObject } from 'react';
 import { m, useReducedMotion } from 'motion/react';
 import type { ForecastOk } from '@/lib/forecast';
 import type { ISODate } from '@/lib/types';
 import { Tag } from '@/components/ui/bits';
 import { cn } from '@/lib/utils';
-import { buildChart, CHART_HEIGHT, nearestTarget, stepTarget } from './chart.logic';
+import { buildChart, CHART_HEIGHT, nearestTarget, stepTarget, type ChartModel } from './chart.logic';
 import { chartSummary, dayView, readoutDays } from './forecast.logic';
 
-const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+/** The draw on from the style guide preview: ease out, after a short beat. */
+const DRAW = { duration: 1.1, delay: 0.3, ease: [0.23, 1, 0.32, 1] as const };
+/** The date the thread last drew on, so it draws at most once a day. */
+const DRAWN_KEY = 'finance-thread-drawn';
 
-/** Outline pill, so it still reads on the quiet panel (same look as the top band's estimate). */
+/** Chart labels keep a band coloured halo, so a line passing behind never cuts the text. */
+const HALO: CSSProperties = { paintOrder: 'stroke' };
+
+/** Outline tag, so it reads on the scroll band. */
 function EstimateTag() {
   return <Tag className="shrink-0 border border-rule bg-transparent px-1.5 py-0 text-ink-soft">estimate</Tag>;
 }
@@ -30,25 +36,89 @@ function useWidth() {
   return [ref, width] as const;
 }
 
+type DrawPhase = 'wait' | 'draw' | 'done';
+
+function drawnToday(today: ISODate): boolean {
+  try {
+    return localStorage.getItem(DRAWN_KEY) === today;
+  } catch {
+    return true;
+  }
+}
+
 /**
- * Hand drawn line chart of the chequing balance, today to the end of the
- * horizon: a dashed ultramarine line (estimate days) over an engraved hatch,
- * turning vase red under the zero line. Dots mark bills, pays and the Visa
- * payment; a ring marks the lowest point. Tap near a dot (or use the arrow
- * keys) to read that day below the chart.
+ * The solid part of the thread draws on the first time it scrolls into view
+ * each day. Already drawn today, reduced motion, or no IntersectionObserver:
+ * it is simply there.
+ */
+function useDrawOnce(ref: RefObject<HTMLElement | null>, today: ISODate, reduce: boolean) {
+  const [phase, setPhase] = useState<DrawPhase>(() =>
+    reduce || typeof IntersectionObserver === 'undefined' || drawnToday(today) ? 'done' : 'wait',
+  );
+  const done = phase === 'done';
+  useEffect(() => {
+    if (reduce && !done) setPhase('done');
+  }, [reduce, done]);
+  useEffect(() => {
+    if (phase !== 'wait') return;
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        try {
+          localStorage.setItem(DRAWN_KEY, today);
+        } catch {
+          // Private mode: it may draw again tomorrow, which is fine.
+        }
+        setPhase('draw');
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [phase, ref, today]);
+  return [phase, () => setPhase('done')] as const;
+}
+
+/** The solid part of the thread: drawn on with stroke dashoffset while drawing, plain after. */
+function SpunPath({ c, phase, onDrawn }: { c: ChartModel; phase: DrawPhase; onDrawn?: () => void }) {
+  if (!c.toPay || phase === 'wait') return null;
+  if (phase === 'done') return <path d={c.toPay} />;
+  const len = c.toPayLength;
+  return (
+    <m.path
+      key={c.toPay}
+      d={c.toPay}
+      style={{ strokeDasharray: len }}
+      initial={{ strokeDashoffset: len }}
+      animate={{ strokeDashoffset: 0 }}
+      transition={DRAW}
+      onAnimationComplete={onDrawn}
+    />
+  );
+}
+
+/**
+ * The chequing balance as the Fates' thread, after the style guide preview:
+ * one ink line, solid from today to payday and dotted after it, where the 30
+ * day spending estimate takes over; a fine dashed $0 line; the lowest point as
+ * a paper ring with its label; the part under zero in terracotta. Beads mark
+ * bills, pays and the Visa payment. Tap near a bead (or use the arrow keys) to
+ * read that day below the chart.
  */
 export function ForecastChart({ f, today }: { f: ForecastOk; today: ISODate }) {
   const [ref, width] = useWidth();
-  const reduce = useReducedMotion();
-  // After the draw in, the mask comes off, so the line can never stay half hidden.
-  const [drawn, setDrawn] = useState(false);
+  const reduce = useReducedMotion() ?? false;
+  const [phase, finishDraw] = useDrawOnce(ref, today, reduce);
   const [selDate, setSelDate] = useState<ISODate | null>(null);
   const c = useMemo(() => (width > 0 ? buildChart(f, width) : null), [f, width]);
   const summary = useMemo(() => chartSummary(f, today), [f, today]);
   const readout = useMemo(() => readoutDays(f, today), [f, today]);
 
   const uid = useId();
-  const id = { above: `${uid}a`, below: `${uid}b`, hatch: `${uid}h`, draw: `${uid}d` };
+  const id = { above: `${uid}a`, below: `${uid}b` };
 
   const sel = selDate ? f.points.findIndex((p) => p.date === selDate) : -1;
   const selPoint = sel >= 0 ? c?.pts[sel] : undefined;
@@ -81,7 +151,8 @@ export function ForecastChart({ f, today }: { f: ForecastOk; today: ISODate }) {
     });
   };
 
-  const dotFill = (below: boolean) => (below ? 'fill-vase' : 'fill-cobalt');
+  const beadFill = (below: boolean) => (below ? 'fill-vase' : 'fill-cobalt');
+  const low = c ? c.pts[c.lowest] : null;
 
   return (
     <div>
@@ -95,121 +166,91 @@ export function ForecastChart({ f, today }: { f: ForecastOk; today: ISODate }) {
         className="relative w-full cursor-pointer touch-manipulation select-none"
         style={{ height: CHART_HEIGHT }}
       >
-        {c && (
-          <svg width={c.box.width} height={c.box.height} viewBox={`0 0 ${c.box.width} ${c.box.height}`} role="img" aria-label={summary} className="block">
+        {c && low && (
+          <svg width={c.box.width} height={c.box.height} viewBox={`0 0 ${c.box.width} ${c.box.height}`} role="img" aria-label={summary} className="block overflow-visible">
             <defs>
               <clipPath id={id.above}>
-                <rect x={0} y={0} width={c.box.width} height={c.zeroY} />
+                <rect x={-4} y={-4} width={c.box.width + 8} height={c.zeroY + 4} />
               </clipPath>
               <clipPath id={id.below}>
-                <rect x={0} y={c.zeroY} width={c.box.width} height={Math.max(0, c.box.height - c.zeroY)} />
+                <rect x={-4} y={c.zeroY} width={c.box.width + 8} height={Math.max(0, c.box.height - c.zeroY + 4)} />
               </clipPath>
-              {/* Line screen, after the engraved caryatid poster. */}
-              <pattern id={id.hatch} width={3} height={4} patternUnits="userSpaceOnUse">
-                <rect width={1} height={4} className="fill-cobalt" />
-              </pattern>
-              {/* The line draws in once: a white stroke along the same path reveals the dashed line under it. */}
-              {!drawn && (
-                <mask id={id.draw} maskUnits="userSpaceOnUse" x={0} y={0} width={c.box.width} height={c.box.height}>
-                  <m.path
-                    d={c.full}
-                    fill="none"
-                    stroke="white"
-                    strokeWidth={12}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: reduce ? 1 : 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: reduce ? 0 : 0.6, ease: EASE_OUT }}
-                    onAnimationComplete={() => setDrawn(true)}
-                  />
-                </mask>
-              )}
             </defs>
 
-            {c.above && <path d={c.above} fill={`url(#${id.hatch})`} opacity={0.11} />}
-            {c.below && <path d={c.below} className="fill-vase-wash" />}
+            {/* The fine dashed $0 line. */}
+            <line x1={c.zeroLine.x1} x2={c.zeroLine.x2} y1={c.zeroY} y2={c.zeroY} className="stroke-ink" strokeWidth={0.75} strokeDasharray="2 3" />
+            <text x={c.zeroMark.x} y={c.zeroMark.y} textAnchor={c.zeroMark.anchor} className="num fill-ink-soft text-2xs">
+              {c.zeroMark.text}
+            </text>
 
-            <line x1={c.box.left} x2={c.box.width - c.box.right} y1={c.zeroY} y2={c.zeroY} className="stroke-rule" strokeWidth={1} />
-
-            {c.payday && (
-              <g className="stroke-ink-mute fill-ink-mute">
-                <line
-                  x1={c.payday.x}
-                  x2={c.payday.x}
-                  y1={c.plotTop - 4}
-                  y2={c.plotBottom}
-                  strokeWidth={1}
-                  strokeOpacity={0.6}
-                  strokeDasharray={c.payday.estimate ? '2 3' : undefined}
-                />
-                <text x={c.payday.x} y={c.plotTop - 9} textAnchor={c.payday.anchor} stroke="none" className="text-2xs">
-                  payday
-                </text>
-              </g>
-            )}
-
-            {selPoint && (
-              <line x1={selPoint.x} x2={selPoint.x} y1={c.plotTop - 4} y2={c.plotBottom} className="stroke-cobalt" strokeOpacity={0.35} strokeWidth={1} />
-            )}
-
-            <g mask={drawn ? undefined : `url(#${id.draw})`} fill="none" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            {/* The thread: ink above $0, terracotta under it. Solid to payday, dotted after. */}
+            <g fill="none" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <g clipPath={`url(#${id.above})`} className="stroke-cobalt">
-                {c.solid && <path d={c.solid} />}
-                {c.dashed && <path d={c.dashed} strokeDasharray="3.5 5" />}
+                <SpunPath c={c} phase={phase} onDrawn={finishDraw} />
+                {c.afterPay && <path d={c.afterPay} strokeDasharray="1 5" />}
               </g>
               {c.anyBelow && (
                 <g clipPath={`url(#${id.below})`} className="stroke-vase">
-                  {c.solid && <path d={c.solid} />}
-                  {c.dashed && <path d={c.dashed} strokeDasharray="3.5 5" />}
+                  <SpunPath c={c} phase={phase} />
+                  {c.afterPay && <path d={c.afterPay} strokeDasharray="1 5" />}
                 </g>
               )}
             </g>
 
-            {(() => {
-              const low = c.pts[c.lowest];
-              return <circle cx={low.x} cy={low.y} r={7} fill="none" strokeWidth={1.5} className={low.below ? 'stroke-vase' : 'stroke-ink-strong'} />;
-            })()}
-
             {c.dots.map((i) => {
+              if (i === c.lowest) return null;
               const p = c.pts[i];
-              return <circle key={p.date} cx={p.x} cy={p.y} r={3.5} strokeWidth={2} className={cn('stroke-paper', dotFill(p.below))} />;
+              return <circle key={p.date} cx={p.x} cy={p.y} r={2.75} className={beadFill(p.below)} />;
             })}
 
-            {selPoint && <circle cx={selPoint.x} cy={selPoint.y} r={5} strokeWidth={2} className={cn('stroke-paper', dotFill(selPoint.below))} />}
+            {/* Lowest point: a paper filled ring. */}
+            <circle cx={low.x} cy={low.y} r={4} strokeWidth={1.6} className={cn('fill-paper', low.below ? 'stroke-vase' : 'stroke-cobalt')} />
 
-            {c.ticks.map((t) => (
-              <text key={t.i} x={t.x} y={c.box.height - 7} textAnchor={t.anchor} className="num fill-ink-mute text-2xs">
-                {t.label}
+            {selPoint && <circle cx={selPoint.x} cy={selPoint.y} r={4.5} className={beadFill(selPoint.below)} />}
+
+            <text x={c.lowMark.x} y={c.lowMark.y} textAnchor="middle" strokeWidth={3} strokeLinejoin="round" style={HALO} className="num fill-cobalt stroke-scroll text-2xs font-medium">
+              {c.lowMark.text}
+            </text>
+            {c.payMark && (
+              <text x={c.payMark.x} y={c.payMark.y} textAnchor="middle" strokeWidth={3} strokeLinejoin="round" style={HALO} className="fill-cobalt stroke-scroll text-2xs font-medium">
+                {c.payMark.text}
               </text>
-            ))}
+            )}
           </svg>
         )}
       </div>
 
-      <div aria-live="polite" className="mt-1">
+      <div aria-live="polite" className="mt-2">
         {day ? (
-          <div className="rounded-[var(--radius-md)] bg-paper-2 px-3 py-2.5">
+          <m.div
+            key={day.date}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, ease: DRAW.ease }}
+            className="border-t border-rule pt-2.5"
+          >
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-sm font-medium text-ink-strong">{day.title}</span>
-              <span className={cn('num whitespace-nowrap text-sm font-medium', selPoint?.below ? 'text-vase' : 'text-ink-strong')}>{day.balance}</span>
+              <span className="caps">{day.title}</span>
+              <span className={cn('num whitespace-nowrap font-display text-xl font-bold leading-none', selPoint?.below ? 'text-vase' : 'text-ink-strong')}>
+                {day.balance}
+              </span>
             </div>
             <div className="flex min-h-6 items-center justify-between gap-3">
               <span className="text-xs text-ink-mute">Balance at end of day</span>
               {day.estimate && <EstimateTag />}
             </div>
             {day.events.length > 0 && (
-              <ul className="mt-1.5 border-t border-rule-soft pt-1.5">
+              <ul className="mt-1 border-t border-rule-soft pt-1">
                 {day.events.map((e) => (
                   <li key={e.key} className="flex min-h-7 items-center gap-2 text-sm">
                     <span className="min-w-0 truncate text-ink">{e.label}</span>
                     {e.estimate && <EstimateTag />}
-                    <span className={cn('num ml-auto shrink-0 whitespace-nowrap', e.inflow ? 'text-aegean' : 'text-ink-strong')}>{e.amount}</span>
+                    <span className={cn('num ml-auto shrink-0 whitespace-nowrap', e.inflow ? 'font-medium text-ink-strong' : 'text-ink-soft')}>{e.amount}</span>
                   </li>
                 ))}
               </ul>
             )}
-          </div>
+          </m.div>
         ) : (
           <p className="text-xs text-ink-mute">Tap a dot to see that day.</p>
         )}

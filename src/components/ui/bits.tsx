@@ -1,8 +1,8 @@
 import { animate, m, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
-import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { LimitStatus } from '@/lib/limits';
+import { ColumnIcon } from './motifs';
 
 /** Section on the page: display heading, optional hint, optional action on the right. */
 export function Section({
@@ -21,13 +21,13 @@ export function Section({
   id?: string;
 }) {
   return (
-    <section id={id} aria-labelledby={id ? `${id}-h` : undefined} className={cn('mt-9 first:mt-0', className)}>
+    <section id={id} aria-labelledby={id ? `${id}-h` : undefined} className={cn('mt-0', className)}>
       <div className="mb-3 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 id={id ? `${id}-h` : undefined} className="font-display text-2xl leading-none text-ink-strong">
+          <h2 id={id ? `${id}-h` : undefined} className="font-display text-2xl font-medium leading-tight text-[color:var(--ink-brand)]">
             {title}
           </h2>
-          {hint && <p className="mt-1.5 text-sm text-ink-mute">{hint}</p>}
+          {hint && <p className="mt-1 text-sm text-ink-mute">{hint}</p>}
         </div>
         {action}
       </div>
@@ -45,10 +45,10 @@ export function Tag({ tone = 'mute', children, className }: { tone?: 'late' | 's
     info: 'bg-aegean-wash text-aegean',
     mute: 'bg-paper-2 text-ink-soft',
   } as const;
-  return <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium leading-4', tones[tone], className)}>{children}</span>;
+  return <span className={cn('inline-flex items-center rounded-[3px] px-1.5 py-0.5 text-xs font-medium leading-4', tones[tone], className)}>{children}</span>;
 }
 
-/** Round tick for "paid". 44 px tap area around a 26 px box. */
+/** Paid mark for a bill: an Ionic column, filled when paid, outline when not. 44 px tap area. */
 export function Tick({ checked, onToggle, label }: { checked: boolean; onToggle: () => void; label: string }) {
   return (
     <button
@@ -60,42 +60,39 @@ export function Tick({ checked, onToggle, label }: { checked: boolean; onToggle:
         e.stopPropagation();
         onToggle();
       }}
-      className="-m-2 grid size-11 shrink-0 place-items-center rounded-full active:scale-[0.94] transition-transform duration-150"
+      className="-m-2 grid size-11 shrink-0 place-items-center rounded-[3px] transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97]"
     >
-      <span
-        className={cn(
-          'grid size-[26px] place-items-center rounded-[8px] border-[1.5px] transition-[background-color,border-color] duration-200',
-          checked ? 'border-laurel bg-laurel text-white' : 'border-ink-mute/70 bg-surface',
-        )}
-      >
-        {checked && (
-          <m.span initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}>
-            <Check className="size-4" strokeWidth={3} />
-          </m.span>
-        )}
-      </span>
+      <ColumnIcon filled={checked} />
     </button>
   );
 }
 
 const FILL: Record<LimitStatus, string> = {
-  green: 'bg-fill-green',
-  orange: 'bg-fill-orange',
-  red: 'bg-fill-red',
-  none: 'bg-bar-none',
+  green: 'var(--fill-green)',
+  orange: 'var(--fill-orange)',
+  red: 'var(--fill-red)',
+  none: 'var(--bar-none)',
 };
 
-/** Limit bar. Fills with a transform (no layout work) on first show and whenever the value changes. */
+/**
+ * Limit bar, 12 px with a fine ink border, like the style guide. The fill has
+ * a faint vertical stripe (the meander texture at bar scale) and grows with a
+ * transform over 300 ms on first show and whenever the value changes.
+ */
 export function Bar({ pct, status, label }: { pct: number; status: LimitStatus; label: string }) {
   const reduce = useReducedMotion();
   const w = Math.max(0, Math.min(100, pct)) / 100;
+  const color = FILL[status];
   return (
-    <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-bar-track" role="img" aria-label={label}>
+    <div className="mt-1.5 h-3 overflow-hidden rounded-[2px] border border-rule bg-bar-track" role="img" aria-label={label}>
       <m.div
-        className={cn('h-full origin-left rounded-full', FILL[status])}
+        className="h-full origin-left"
+        style={{
+          background: status === 'none' ? color : `repeating-linear-gradient(90deg, ${color} 0 9px, color-mix(in srgb, ${color} 78%, white) 9px 10px)`,
+        }}
         initial={{ scaleX: reduce ? w : 0 }}
         animate={{ scaleX: w }}
-        transition={{ duration: reduce ? 0 : 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: reduce ? 0 : 0.3, ease: [0.23, 1, 0.32, 1] }}
       />
     </div>
   );
@@ -113,7 +110,7 @@ export function CountUp({ value, format, className }: { value: number; format: (
       mv.set(value);
       return;
     }
-    const c = animate(mv, value, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
+    const c = animate(mv, value, { duration: 0.4, ease: [0.23, 1, 0.32, 1] });
     return () => c.stop();
   }, [value, reduce, mv]);
   return <m.span className={cn('num', className)}>{text}</m.span>;

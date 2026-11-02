@@ -4,8 +4,7 @@ import { useFinance } from '@/lib/store';
 import { useSheet, useUI, type OpenSheet } from '@/lib/ui-store';
 import { Sheet } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Tag } from '@/components/ui/bits';
-import { OliveSprig } from '@/components/ui/ornaments';
+import { ArchWindow } from '@/components/ui/motifs';
 import { cn } from '@/lib/utils';
 import { HISTORY_COPY as C, historyRows, planRestore, restoreErrorText, type HistoryRow } from './history.logic';
 
@@ -13,6 +12,9 @@ type List = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; rows: His
 type RowNote = { id: string; text: string; tone: 'error' | 'info' };
 
 const close = () => useUI.getState().close();
+
+/** The preview's rule between rows: ink at 18% (cream at 18% in dark mode). */
+const HAIRLINE = 'border-[color:color-mix(in_srgb,var(--ink-brand)_18%,transparent)]';
 
 /**
  * The last saves kept on the server, newest first, each with Restore this
@@ -103,15 +105,15 @@ export function HistorySheet() {
       )}
 
       {list.kind === 'ready' && list.rows.length === 0 && (
-        <div className="flex items-center gap-3 py-3">
-          <OliveSprig className="h-6 shrink-0" />
-          <p className="text-[0.9375rem] text-ink-mute">{C.empty}</p>
+        <div className="flex items-center gap-4 py-4">
+          <ArchWindow className="size-12 shrink-0 text-[color:var(--ink-brand)]" />
+          <p className="text-[0.9375rem] text-ink-soft">{C.empty}</p>
         </div>
       )}
 
       {list.kind === 'ready' && list.rows.length > 0 && (
         <>
-          <ol>
+          <ol className={cn('border-b', HAIRLINE)}>
             {list.rows.map((row) => (
               <Row
                 key={row.id}
@@ -123,7 +125,7 @@ export function HistorySheet() {
               />
             ))}
           </ol>
-          {list.rows.length === 1 && <p className="mt-1 text-sm text-ink-mute">{C.onlyCurrent}</p>}
+          {list.rows.length === 1 && <p className="mt-3 text-sm text-ink-soft">{C.onlyCurrent}</p>}
         </>
       )}
     </Sheet>
@@ -145,8 +147,8 @@ function Row({
 }) {
   const base = `history-${row.id.replace(/[^\w]/g, '_')}`;
   return (
-    <li className="border-t border-rule-soft py-2.5 first:border-t-0" aria-current={row.current ? 'true' : undefined}>
-      <p id={`${base}-note`} className="num line-clamp-2 break-words pt-0.5 text-[0.9375rem] font-medium leading-snug text-ink-strong">
+    <li className={cn('border-t pt-2.5 first:border-t-0', HAIRLINE)} aria-current={row.current ? 'true' : undefined}>
+      <p id={`${base}-note`} className="num line-clamp-2 break-words pt-0.5 text-[0.9375rem] leading-snug text-ink">
         {row.note}
       </p>
       <div className="flex min-h-11 flex-wrap items-center justify-between gap-x-3">
@@ -154,9 +156,7 @@ function Row({
           {row.when}
         </span>
         {row.current ? (
-          <Tag tone="info" className="ml-auto">
-            {C.current}
-          </Tag>
+          <span className="caps ml-auto">{C.current}</span>
         ) : (
           <Button
             variant="quiet"
@@ -171,7 +171,7 @@ function Row({
         )}
       </div>
       {note && (
-        <p role={note.tone === 'error' ? 'alert' : 'status'} className={cn('pb-1 text-sm', note.tone === 'error' ? 'text-vase' : 'text-ink-soft')}>
+        <p role={note.tone === 'error' ? 'alert' : 'status'} className={cn('pb-2 text-sm', note.tone === 'error' ? 'text-vase' : 'text-ink-soft')}>
           {note.text}
         </p>
       )}
@@ -181,18 +181,18 @@ function Row({
 
 const SKELETON_WIDTHS = ['72%', '54%', '80%', '46%'];
 
-/** Static placeholder rows shaped like the list. No shimmer: nothing loops. */
+/** Static placeholder rows shaped like the list, in faint ink. No shimmer: nothing loops. */
 function SkeletonRows() {
   return (
     <div role="status" aria-label={C.loading}>
       {SKELETON_WIDTHS.map((w, i) => (
-        <div key={i} aria-hidden className="border-t border-rule-soft py-2.5 first:border-t-0">
+        <div key={i} aria-hidden className={cn('border-t pt-2.5 first:border-t-0', HAIRLINE)}>
           <div className="flex h-[1.375rem] items-center">
-            <div className="h-3.5 rounded-full bg-ink/10" style={{ width: w }} />
+            <div className="h-3.5 rounded-[2px] bg-cobalt/10" style={{ width: w }} />
           </div>
           <div className="flex min-h-11 items-center justify-between gap-3">
-            <div className="h-3 w-24 rounded-full bg-ink/10" />
-            {i > 0 && <div className="h-3 w-32 rounded-full bg-cobalt/15" />}
+            <div className="h-3 w-24 rounded-[2px] bg-cobalt/10" />
+            {i > 0 && <div className="h-3 w-32 rounded-[2px] bg-cobalt/15" />}
           </div>
         </div>
       ))}

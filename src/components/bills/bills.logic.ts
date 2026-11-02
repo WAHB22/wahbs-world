@@ -6,14 +6,20 @@
 import type { Draft } from 'immer';
 import type { Bill, FinanceData, Freq, ISODate, MonthData, MonthKey } from '@/lib/types';
 import { billTag, isPaid, monthOccurrences, type Occurrence } from '@/lib/bills';
-import { isISODate, shortDate } from '@/lib/dates';
+import { daysBetween, isISODate, shortDate } from '@/lib/dates';
 import { cents, parseAmount } from '@/lib/format';
 
 export interface BillRow {
   o: Occurrence;
   paid: boolean;
   tag: 'late' | 'soon' | null;
-  /** Second line: 'Nov 16', 'every 2 weeks · Nov 12' or 'no date set', then the note. */
+  /** 'Nov 16', 'every 2 weeks · Nov 12' or 'no date set'. */
+  when: string;
+  /** 'paid', 'late', 'due today', 'due tomorrow', 'in 2 days', or null when there is nothing to say. */
+  status: string | null;
+  /** The bill's note, trimmed ('' when none). */
+  note: string;
+  /** Whole second line: 'Nov 16 · in 2 days', 'Nov 1 · paid', then the note. */
   sub: string;
 }
 
@@ -23,16 +29,31 @@ export function billWhen(o: Occurrence): string {
   return (o.bill.freq === 'biweekly' ? 'every 2 weeks · ' : '') + shortDate(o.date);
 }
 
+/** Plain status for the second line: 'paid', 'late', 'due today', 'due tomorrow', 'in 2 days', or null. */
+export function billStatus(o: Occurrence, paid: boolean, tag: 'late' | 'soon' | null, today: ISODate): string | null {
+  if (paid) return 'paid';
+  if (tag === 'late') return 'late';
+  if (tag === 'soon') {
+    const n = daysBetween(today, o.date);
+    return n <= 0 ? 'due today' : n === 1 ? 'due tomorrow' : `in ${n} days`;
+  }
+  return null;
+}
+
 /** Every occurrence in the month, dated by date, undated last. */
 export function billRows(data: FinanceData, month: MonthKey, today: ISODate): BillRow[] {
   return monthOccurrences(data.bills ?? [], month).map((o) => {
     const paid = isPaid(data, o);
+    const tag = billTag(o, paid, today);
     const note = typeof o.bill.note === 'string' ? o.bill.note.trim() : '';
-    return { o, paid, tag: billTag(o, paid, today), sub: note ? `${billWhen(o)} · ${note}` : billWhen(o) };
+    const when = billWhen(o);
+    const status = billStatus(o, paid, tag, today);
+    const sub = [when, status, note].filter(Boolean).join(' · ');
+    return { o, paid, tag, when, status, note, sub };
   });
 }
 
-/** Ticked on or before the due date: real progress, worth a sparkle. Undated bills have no due date. */
+/** Ticked on or before the due date: a real win, worth the olive wreath. Undated bills have no due date. */
 export function paidOnTime(o: Occurrence, today: ISODate): boolean {
   return o.dated && today <= o.date;
 }

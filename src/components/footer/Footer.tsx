@@ -1,14 +1,24 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import { Download, History, Upload } from 'lucide-react';
 import { useFinance } from '@/lib/store';
 import { useUI } from '@/lib/ui-store';
 import { Button } from '@/components/ui/button';
-import { Waves } from '@/components/ui/ornaments';
 import { BAD_FILE, RESTORE_NOTE, backupFileName, backupJson, readBackup } from './footer.logic';
 
-const tool = 'h-auto min-h-16 flex-col justify-start gap-1 whitespace-normal px-1 pb-2 pt-2.5 text-[0.8125rem] leading-tight';
+/** Quiet ink text button, 44 px tall, tight sides so the three fit one row at 390 px. */
+const tool = 'px-2';
 
-/** History, backup download and restore, and the one rule about transfers. */
+function Dot() {
+  return (
+    <span aria-hidden className="select-none text-ink-mute">
+      ·
+    </span>
+  );
+}
+
+/**
+ * On paper below the bands: History, backup download and restore as quiet ink
+ * text buttons in one row, and the one rule about transfers.
+ */
 export function Footer() {
   const data = useFinance((s) => s.data);
   const today = useFinance((s) => s.today);
@@ -46,26 +56,25 @@ export function Footer() {
   };
 
   return (
-    <footer className="mt-12">
-      <Waves />
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        <Button variant="ghost" className={tool} onClick={() => useUI.getState().open('history')}>
-          <History aria-hidden />
+    <footer className="mt-10 pt-2">
+      <div className="flex flex-wrap items-center justify-center gap-x-1">
+        <Button variant="quiet" size="sm" className={tool} onClick={() => useUI.getState().open('history')}>
           History
         </Button>
-        <Button variant="ghost" className={tool} onClick={download} disabled={!data}>
-          <Download aria-hidden />
+        <Dot />
+        <Button variant="quiet" size="sm" className={tool} onClick={download} disabled={!data}>
           Download backup
         </Button>
+        <Dot />
         <Button
-          variant="ghost"
+          variant="quiet"
+          size="sm"
           className={tool}
           onClick={() => {
             setError(null);
             fileRef.current?.click();
           }}
         >
-          <Upload aria-hidden />
           Restore backup
         </Button>
       </div>
@@ -75,7 +84,7 @@ export function Footer() {
           {error}
         </p>
       )}
-      <p className="mx-auto mt-4 max-w-[19rem] text-center text-xs leading-relaxed text-ink-mute">
+      <p className="mx-auto mt-3 max-w-[21rem] text-balance text-center text-[0.8125rem] leading-relaxed text-ink-soft">
         Transfers between your own accounts and Visa payments are not spending. Only log real purchases.
       </p>
     </footer>
