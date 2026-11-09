@@ -3,3 +3,6 @@ dist/
 test-results/
 playwright-report/
 *.tsbuildinfo
+welder/build/
+welder/.film.html
+welder/.page.html

@@ -112,3 +112,22 @@ FFMPEG=<path to ffmpeg with libx264> node video/record.mjs flags deliverables
 ```
 
 The recorder pins the browser clock to a weekday afternoon in Ottawa, draws a cursor, hides the demo controls and writes a 1920x1080 H.264 file.
+
+## Welder module prototype (PD B2 concept)
+
+`welder/` holds a 3D concept of the welder module: one box per welder that reads the current and switches both the power and the gas. It is a drawing of an idea, not a built or tested device.
+
+| File | What it is |
+|---|---|
+| `welder/index.html` | The interactive prototype: assembled, in pieces with a parts list, on the welder, and the six steps of how it works. Drag to turn it, scroll to zoom |
+| `welder/record.mjs` | Renders the 62 s animation frame by frame to `deliverables/prevumo-welder-module.mp4`, or stills with `--stills 16.4,22.4` |
+| `welder/make-artifact.mjs` | Writes `welder/artifact.html`, the same page with three.js and the fonts from public CDNs, for sharing |
+
+```bash
+cd prevumo/welder
+node record.mjs --stills 16.4,22.4   # quick look, into welder/build/stills
+node record.mjs                      # full film, about 8 minutes
+node make-artifact.mjs
+```
+
+What the concept takes from the deck: keypad, current sensor, ESP32 with Wi-Fi; for 240 V the box drives a contactor installed by a licensed electrician; CSA certification before sale; nothing restarts on its own. What is new for welders: a normally closed gas valve on the shielding gas hose, opened only during a session. The chart and the alert in the animation are illustrations, not measured data.
