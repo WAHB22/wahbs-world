@@ -131,3 +131,11 @@ node make-artifact.mjs
 ```
 
 What the concept takes from the deck: keypad, current sensor, ESP32 with Wi-Fi; for 240 V the box drives a contactor installed by a licensed electrician; CSA certification before sale; nothing restarts on its own. What is new for welders: a normally closed gas valve on the shielding gas hose, opened only during a session. The chart and the alert in the animation are illustrations, not measured data.
+
+## 3D printer module prototype (PD B2 concept)
+
+`printer/` is the same kind of concept for a 3D printer, built with the same tools as `welder/` (`index.html`, `record.mjs`, `make-artifact.mjs`; the film goes to `deliverables/prevumo-printer-module.mp4`).
+
+* A printer is a 120 V machine, so the box's own certified relay (up to 15 A at 120 V, from the deck) switches it directly: the box plugs into a normal outlet and the printer plugs into the box. No contactor, no gas.
+* The warm-up is flagged as normal. A printer draws the most current while its bed and nozzle heat up after it turns on. The learned normal range is higher during that warm-up, so the line stays green, the status light stays green and the display says "Normal for this printer". Only current that stays high after the warm-up is flagged as irregular.
+* The chart and the alert are illustrations, not measured data, and the film runs as a time-lapse.
