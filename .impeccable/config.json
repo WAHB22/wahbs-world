@@ -56,6 +56,51 @@
         ],
         "createdAt": "2026-10-29T19:04:55.264Z",
         "reason": "User's brief for this video asked for an off-white background with espresso text"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "tailor-video/scenes/index.html"
+        ],
+        "createdAt": "2026-11-09T03:09:42.022Z",
+        "reason": "Claude triage: fixed 1920x1080 video frame; the clips are the frame edge, the browser windows that crop Ken Burns screenshots, and the text masks; no tooltips or menus"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "tailor-video/scenes/index.html"
+        ],
+        "createdAt": "2026-11-09T03:11:22.164Z",
+        "reason": "Claude triage: the flagged element is the 46px mock browser title bar; its URL pill is vertically centred by design"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "tailor-video/scenes/index.html"
+        ],
+        "createdAt": "2026-11-09T03:11:22.183Z",
+        "reason": "Claude triage: the flagged line heights belong to a single decorative quote glyph and one-line display numerals, not multi-line text"
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "tailor-video/scenes/index.html"
+        ],
+        "createdAt": "2026-11-09T03:11:22.192Z",
+        "reason": "Claude triage: the 5:30 app image starts at opacity 0 and is crossfaded in at 134.8 s"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "tailor-video/scenes/index.html"
+        ],
+        "createdAt": "2026-11-09T03:11:22.202Z",
+        "reason": "User's video brief for this assignment specifies Inter for body text"
       }
     ]
   }

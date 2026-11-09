@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Tailor Brands case video, Team 10</title>
+<style>
+  @font-face { font-family: "DM Serif Display"; src: url("../node_modules/@fontsource/dm-serif-display/files/dm-serif-display-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "DM Serif Display"; font-style: italic; src: url("../node_modules/@fontsource/dm-serif-display/files/dm-serif-display-latin-400-italic.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Inter"; src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+
+  :root {
+    --navy: #0E1A2B; --blue: #1F6FEB; --red: #D93F3F; --green: #1F9D55;
+    --muted: #556479; --line: #E2E7EF; --soft: #F4F6FA;
+    --blue-t: #E9F1FE; --red-t: #FDEDED; --green-t: #E7F5EC;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #fff; }
+  body { font-family: "Inter", sans-serif; color: var(--navy); -webkit-font-smoothing: antialiased; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #fff; }
+  #bg { position: absolute; inset: -40px; background-image: radial-gradient(circle, #DCE3EE 1.4px, transparent 1.6px); background-size: 34px 34px; opacity: 0.55; }
+  .scene { position: absolute; inset: 0; }
+  .abs { position: absolute; }
+  .serif { font-family: "DM Serif Display", serif; font-weight: 400; letter-spacing: -0.01em; line-height: 1.06; }
+  .h1 { font-size: 72px; }
+  .lbl { font-size: 32px; line-height: 1.3; }
+  .muted { color: var(--muted); }
+  .strong { font-weight: 650; }
+  .num { font-variant-numeric: tabular-nums; }
+  .mask { overflow: hidden; padding-bottom: 6px; }
+  .mask > * { display: inline-block; }
+  .pill { display: inline-flex; align-items: center; gap: 12px; height: 56px; padding: 0 26px; border-radius: 28px; font-size: 32px; font-weight: 650; }
+  .pill.blue { background: var(--blue); color: #fff; }
+  .pill.red { background: var(--red); color: #fff; }
+  .pill.green { background: var(--green); color: #fff; }
+  .pill.navy { background: var(--navy); color: #fff; }
+  .chip { display: inline-flex; align-items: center; gap: 16px; padding: 16px 28px; border-radius: 22px; background: #fff; border: 2px solid var(--line); font-size: 32px; font-weight: 600; box-shadow: 0 10px 24px -14px rgba(14, 26, 43, 0.35); }
+  .chip svg { width: 40px; height: 40px; flex: none; }
+  .card { background: #fff; border: 2px solid var(--line); border-radius: 28px; box-shadow: 0 24px 50px -30px rgba(14, 26, 43, 0.45); }
+  .rule { height: 6px; width: 140px; border-radius: 3px; background: var(--blue); transform-origin: left center; }
+  .ico { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* browser window around the website captures */
+  .browser { position: absolute; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 34px 70px -30px rgba(14, 26, 43, 0.5), 0 0 0 2px rgba(14, 26, 43, 0.08); }
+  .browser .bar { height: 46px; background: #EDF0F5; display: flex; align-items: center; gap: 10px; padding: 0 18px; }
+  .browser .bar i { width: 13px; height: 13px; border-radius: 50%; background: #C9D0DB; display: block; }
+  .browser .bar .url { margin-left: 18px; height: 28px; border-radius: 14px; background: #fff; padding: 0 16px; display: flex; align-items: center; font-size: 18px; color: var(--muted); }
+  .browser .view { position: relative; overflow: hidden; }
+  .browser .kb { position: relative; width: 100%; will-change: transform; }
+  .browser .kb img { display: block; width: 100%; }
+  .yeartag { position: absolute; right: 16px; bottom: 16px; background: var(--navy); color: #fff; font-size: 26px; font-weight: 600; padding: 8px 18px; border-radius: 12px; z-index: 3; }
+  .hl { position: absolute; border: 5px solid var(--blue); border-radius: 12px; z-index: 2; }
+
+  /* timeline across the top of the Tailor Brands part */
+  #timeline { position: absolute; left: 150px; right: 150px; top: 34px; height: 92px; }
+  #timeline .track { position: absolute; left: 0; right: 0; top: 52px; height: 4px; border-radius: 2px; background: var(--line); }
+  #timeline .fill { position: absolute; left: 0; top: 52px; height: 4px; border-radius: 2px; background: var(--blue); }
+  #timeline .yr { position: absolute; top: 66px; transform: translateX(-50%); font-size: 22px; color: var(--muted); font-weight: 500; }
+  #timeline .tick { position: absolute; top: 47px; width: 2px; height: 14px; margin-left: -1px; background: #C5CEDB; }
+  #timeline .dot { position: absolute; top: 42px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: var(--blue); border: 5px solid #fff; box-shadow: 0 0 0 2px var(--blue); }
+  #timeline .now { position: absolute; top: 0; transform: translateX(-50%); font-size: 30px; font-weight: 750; color: var(--blue); }
+  #projlabel { position: absolute; left: 150px; top: 52px; display: flex; align-items: center; gap: 14px; font-size: 28px; font-weight: 650; color: var(--muted); }
+  #projlabel b { width: 14px; height: 14px; border-radius: 50%; background: var(--green); display: block; }
+
+  #source { position: absolute; left: 60px; bottom: 20px; font-size: 22px; color: var(--muted); }
+  #caption { position: absolute; left: 0; right: 0; bottom: 62px; display: flex; justify-content: center; pointer-events: none; }
+  #caption span { max-width: 1420px; background: rgba(14, 26, 43, 0.88); color: #fff; font-size: 34px; line-height: 1.32; font-weight: 500; padding: 12px 28px; border-radius: 14px; text-align: center; text-wrap: balance; }
+
+  /* this-or-that widget (Ash) */
+  .tot { position: absolute; display: flex; gap: 34px; }
+  .tot .opt { position: relative; width: 230px; height: 230px; border-radius: 26px; background: #fff; border: 3px solid var(--line); display: flex; align-items: center; justify-content: center; }
+  .tot .opt svg { width: 150px; height: 150px; }
+  .tot .opt .ok { position: absolute; right: -14px; top: -14px; width: 54px; height: 54px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; }
+  .tot .opt .ok svg { width: 30px; height: 30px; }
+  .tot.small .opt { width: 150px; height: 150px; border-radius: 20px; }
+  .tot.small .opt svg { width: 96px; height: 96px; }
+  .tot.small .opt .ok { width: 42px; height: 42px; right: -10px; top: -10px; }
+  .tot.small .opt .ok svg { width: 24px; height: 24px; }
+
+  /* charts */
+  .barrow { position: absolute; left: 0; display: flex; align-items: center; height: 64px; }
+  .barrow .name { width: 240px; font-size: 32px; font-weight: 650; }
+  .barrow .track { position: relative; width: 560px; height: 30px; }
+  .barrow .rng { position: absolute; top: 0; height: 30px; border-radius: 15px; background: var(--blue); transform-origin: left center; }
+  .barrow .val { margin-left: 26px; font-size: 30px; color: var(--muted); white-space: nowrap; font-weight: 600; }
+  .axis { position: absolute; font-size: 22px; color: var(--muted); transform: translateX(-50%); }
+  .gridline { position: absolute; width: 2px; background: var(--line); }
+
+  .tile { position: absolute; width: 250px; height: 176px; border-radius: 24px; background: #fff; border: 2px solid var(--line); padding: 20px 20px; box-shadow: 0 14px 30px -20px rgba(14, 26, 43, 0.4); }
+  .tile svg { width: 54px; height: 54px; color: var(--blue); }
+  .tile p { margin-top: 12px; font-size: 32px; font-weight: 650; line-height: 1.1; }
+
+  .step { position: absolute; width: 290px; padding: 26px 24px; border-radius: 24px; background: #fff; border: 2px solid var(--line); box-shadow: 0 14px 30px -20px rgba(14, 26, 43, 0.4); }
+  .step .pill { height: 48px; font-size: 28px; padding: 0 20px; }
+  .step p { margin-top: 18px; font-size: 32px; font-weight: 650; line-height: 1.2; }
+  .step.dashed { border: 3px dashed #AFC0D6; box-shadow: none; background: transparent; }
+
+  .phone { position: absolute; width: 344px; height: 714px; }
+  .phone img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 30px 40px rgba(14, 26, 43, 0.3)); }
+
+  /* PREVUMO alert card, in the app's own palette */
+  .alert { position: absolute; width: 820px; border-radius: 26px; overflow: hidden; background: #FFFDF8; border: 2px solid #E3D6C0; box-shadow: 0 30px 60px -30px rgba(14, 26, 43, 0.5); font-family: "Inter", sans-serif; }
+  .alert .top { background: #A63D1F; color: #fff; padding: 20px 28px; display: flex; align-items: center; gap: 16px; font-size: 34px; font-weight: 700; }
+  .alert .top svg { width: 40px; height: 40px; }
+  .alert .body { padding: 22px 28px 26px; color: #1F3D2B; }
+  .alert .body .why { font-size: 30px; color: #5B6B5F; }
+  .alert .btns { margin-top: 22px; display: flex; gap: 16px; }
+  .alert .btn { position: relative; height: 66px; padding: 0 26px; border-radius: 33px; display: flex; align-items: center; font-size: 30px; font-weight: 700; }
+  .alert .btn.ok { background: #EDE4D3; color: #1F3D2B; }
+  .alert .btn.off { background: #A63D1F; color: #fff; }
+  .alert .btn.tech { background: #2F6B45; color: #fff; }
+  .alert .ring { position: absolute; inset: -6px; border-radius: 40px; border: 5px solid var(--blue); }
+  .alert .upd { margin-top: 18px; display: flex; align-items: center; gap: 12px; font-size: 30px; font-weight: 650; color: #2F6B45; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+
+  <div id="timeline">
+    <div class="track"></div><div class="fill"></div>
+    <div class="dot"></div><div class="now num"></div>
+  </div>
+  <div id="projlabel"><b></b>Our project · PREVUMO</div>
+
+  <!-- 1. Intro -->
+  <section class="scene" id="s1" data-in="0" data-out="11.2" data-fx="fade" data-d="0.01">
+    <div class="abs" style="left:140px; top:230px; width:1060px">
+      <span class="pill blue" data-in="0.15">Team 10</span>
+      <div class="mask" style="margin-top:34px"><h1 class="serif" style="font-size:118px" data-in="0.4" data-fx="mask">Tailor Brands:</h1></div>
+      <div class="mask"><h2 class="serif" style="font-size:70px; color:var(--blue)" data-in="0.75" data-fx="mask">Artificial Intelligence&#8209;Driven Branding</h2></div>
+      <div class="rule" style="margin:34px 0 30px" data-in="1.25" data-fx="grow"></div>
+      <p class="lbl strong" style="font-size:38px" data-in="1.5">Mohamed Wahb Berguia · Student ID <span data-personal="studentId"></span></p>
+      <p class="lbl muted" style="margin-top:8px" data-in="1.85">GNG 4120 · Technology Entrepreneurship · uOttawa</p>
+      <p class="lbl muted" style="margin-top:26px" data-in="7.9">Case by Jill Avery, Harvard Business School (9-519-017)</p>
+    </div>
+    <div class="abs" id="gen" style="left:1290px; top:250px; width:500px; height:500px"></div>
+  </section>
+
+  <!-- 2. 2014 founding and the market gap -->
+  <section class="scene" id="s2" data-in="11.4" data-out="29.0" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:165px"><h1 class="serif h1" data-in="11.6" data-fx="mask">Founded in 2014</h1></div>
+    <div class="abs card" style="left:140px; top:290px; width:430px; height:180px; padding:28px; display:flex; gap:24px; align-items:center" data-in="14.3">
+      <div style="width:96px;height:96px;border-radius:50%;background:var(--blue-t);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:750;flex:none">YS</div>
+      <div><p class="lbl strong" style="font-size:36px">Yali Saar</p><p class="lbl muted">CEO</p></div>
+    </div>
+    <div class="abs card" style="left:595px; top:290px; width:430px; height:180px; padding:28px; display:flex; gap:24px; align-items:center" data-in="15.2">
+      <div style="width:96px;height:96px;border-radius:50%;background:var(--blue-t);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:750;flex:none">NS</div>
+      <div><p class="lbl strong" style="font-size:36px">Nadav Shatz</p><p class="lbl muted">CTO</p></div>
+    </div>
+    <div class="abs card" style="left:1050px; top:290px; width:430px; height:180px; padding:28px; display:flex; gap:24px; align-items:center" data-in="16.2">
+      <div style="width:96px;height:96px;border-radius:50%;background:var(--blue-t);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:750;flex:none">TL</div>
+      <div><p class="lbl strong" style="font-size:36px">Tom Lahat</p><p class="lbl muted">Designer</p></div>
+    </div>
+    <p class="abs lbl muted" style="left:1515px; top:318px; width:300px" data-in="17.4">Launched at TechCrunch's startup competition</p>
+
+    <div class="abs card" style="left:140px; top:510px; width:820px; height:350px; padding:40px 44px" data-in="20.3">
+      <p class="lbl muted strong">Agency brand</p>
+      <p class="num" style="margin-top:18px; font-size:84px; font-weight:800; letter-spacing:-0.02em">$1,000 <span class="muted" style="font-weight:600; font-size:56px">to</span> <span class="count" data-from="1000" data-to="50000" data-at="22.9" data-dur="1.9" data-fmt="money">$50,000</span></p>
+      <p class="lbl muted" style="margin-top:18px">A professional brand from an agency</p>
+    </div>
+    <div class="abs card" style="left:1000px; top:510px; width:800px; height:350px; padding:34px 40px; display:flex; gap:44px; align-items:center" data-in="26.6">
+      <div id="dots" style="display:grid; grid-template-columns:repeat(10, 22px); gap:8px; flex:none"></div>
+      <div><p class="num" style="font-size:96px; font-weight:800; color:var(--blue); line-height:1">10%</p><p class="lbl" style="margin-top:12px; font-weight:600">Only 10% of the market well served</p></div>
+    </div>
+  </section>
+
+  <!-- 3. Value proposition and Ash -->
+  <section class="scene" id="s3" data-in="29.1" data-out="50.9" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:120px; top:165px"><h1 class="serif h1" data-in="29.3" data-fx="mask">Value proposition</h1></div>
+    <div class="browser" style="left:120px; top:280px; width:1040px" data-in="29.5" data-fx="up">
+      <div class="bar"><i></i><i></i><i></i><span class="url">tailorbrands.com</span></div>
+      <div class="view"><div class="kb" data-kb="29.5,50.9,1.0,1.18,30,70,26,64">
+        <img src="../screens/tb-2015.png" />
+        <div class="hl" style="left:19.8%; top:58.5%; width:30%; height:20.5%" data-in="30.8" data-out="37.6"></div>
+      </div><span class="yeartag">tailorbrands.com · 2015</span></div>
+    </div>
+    <div class="abs" style="left:1230px; top:280px; width:600px">
+      <div class="chip" data-in="31.4" data-out="37.7"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>Pro logo in 5 minutes</div><br>
+      <div class="chip" style="margin-top:22px" data-in="34.2" data-out="37.7"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12l9-9h8v8l-9 9z"/><circle cx="16" cy="8" r="1.6"/></svg>Up to 1/10 the cost</div><br>
+      <div class="chip" style="margin-top:22px" data-in="35.7" data-out="37.7"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>AI, not templates</div>
+    </div>
+    <div class="abs" style="left:1230px; top:270px; width:600px">
+      <div class="mask"><h2 class="serif" style="font-size:72px" data-in="38.0" data-out="44.2" data-fx="mask">Meet Ash</h2></div>
+      <p class="lbl" style="margin-top:6px; font-weight:600" data-in="38.4" data-out="44.2">Learns from every choice and edit</p>
+      <div class="tot" id="tot1" style="top:170px" data-in="38.8" data-out="44.2"></div>
+      <div class="abs" style="top:440px; display:flex; gap:8px" id="learn1" data-in="39.0" data-out="44.2"></div>
+    </div>
+    <div class="abs" style="left:1230px; top:280px; width:600px">
+      <p class="lbl muted strong" data-in="44.5">Customers</p>
+      <p class="lbl" style="font-size:38px; font-weight:650; margin-top:6px" data-in="44.8">Small businesses and first&#8209;time founders</p>
+      <p class="num" style="margin-top:44px; font-size:150px; font-weight:800; color:var(--blue); line-height:1" data-in="49.5"><span class="count" data-from="0" data-to="5" data-at="49.8" data-dur="1.0" data-fmt="m">5M+</span></p>
+      <p class="lbl" style="margin-top:8px; font-weight:600" data-in="49.9">businesses served by 2018</p>
+    </div>
+  </section>
+
+  <!-- 4. First problem: competitor prices, then the 2017 subscription -->
+  <section class="scene" id="s4" data-in="51.0" data-out="67.2" data-fx="fade" data-d="0.4">
+    <div class="abs" style="left:140px; top:160px; display:flex; align-items:center; gap:24px">
+      <span class="pill red" data-in="51.2">Problem</span>
+      <div class="mask"><h1 class="serif" style="font-size:68px" data-in="51.4" data-fx="mask">A logo is a one&#8209;time purchase</h1></div>
+    </div>
+    <div class="abs" style="left:140px; top:290px; width:1000px; height:500px" id="chart" data-in="54.2">
+      <p class="lbl muted strong">Competitor logo prices, one-time</p>
+    </div>
+    <div class="browser" style="left:1210px; top:300px; width:600px" data-in="58.3" data-fx="right">
+      <div class="bar"><i></i><i></i><i></i><span class="url">tailorbrands.com</span></div>
+      <div class="view"><div class="kb" data-kb="58.3,60.4,1.0,1.04,50,50,50,45;60.6,63.4,1.04,2.1,50,45,58,38">
+        <img src="../screens/tb-2017.png" />
+        <div class="hl" style="left:53.6%; top:35.4%; width:9.4%; height:6.4%" data-in="61.0"></div>
+      </div><span class="yeartag">tailorbrands.com · 2017</span></div>
+    </div>
+    <div class="abs chip" style="left:1210px; top:600px; width:600px; display:block" data-in="60.5">
+      <p style="font-size:32px; font-weight:700">2017: subscription</p>
+      <p class="num" style="font-size:36px; font-weight:700; color:var(--blue); margin-top:4px">$9.99 to $49.99 / month</p>
+    </div>
+    <div class="abs chip" style="left:1210px; top:762px; width:600px" data-in="62.1">2018: about 10 new tools</div>
+  </section>
+
+  <!-- 5. Expansion -->
+  <section class="scene" id="s5" data-in="67.3" data-out="87.4" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:120px; top:165px"><h1 class="serif h1" data-in="67.5" data-fx="mask">An automated branding agency</h1></div>
+    <div class="abs" style="left:1330px; top:150px; padding:14px 26px; border:5px solid var(--blue); border-radius:16px; color:var(--blue); transform-origin:center" data-in="67.75" data-fx="stamp">
+      <p class="num" style="font-size:46px; font-weight:800">$15.5M Series B</p><p style="font-size:30px; font-weight:650">May 2018</p>
+    </div>
+    <div class="browser" style="left:120px; top:290px; width:820px" data-in="68.4" data-fx="up">
+      <div class="bar"><i></i><i></i><i></i><span class="url">tailorbrands.com</span></div>
+      <div class="view" style="height:380px"><div class="kb" data-kb="68.4,87.4,1.05,1.05,50,0,50,100" data-pan="0,-14">
+        <img src="../screens/tb-2019.png" />
+      </div><span class="yeartag">tailorbrands.com · 2019</span></div>
+    </div>
+    <p class="abs lbl muted strong" style="left:1000px; top:292px" data-in="70.6">Generated from your logo</p>
+    <div class="tile" style="left:1000px; top:350px" data-in="71.18" data-fx="scale"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><p>Social posts</p></div>
+    <div class="tile" style="left:1270px; top:350px" data-in="72.88" data-fx="scale"><svg class="ico" viewBox="0 0 24 24"><path d="M3 10v4h3l7 5V5L6 10z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg><p>Facebook ads</p></div>
+    <div class="tile" style="left:1540px; top:350px" data-in="74.2" data-fx="scale"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><p>Weekly planner</p></div>
+    <div class="tile" style="left:1135px; top:546px" data-in="76.1" data-fx="scale"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><p>Analytics</p></div>
+    <div class="tile" style="left:1405px; top:546px" data-in="77.14" data-fx="scale"><svg class="ico" viewBox="0 0 24 24"><path d="M4 4h11a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M4 16a4 4 0 0 1 4-4h11"/></svg><p>Brand book</p></div>
+    <p class="abs lbl strong" style="left:120px; top:752px" data-in="80.2">To grow:</p>
+    <div class="abs chip" style="left:280px; top:738px" data-in="81.38"><svg class="ico" viewBox="0 0 24 24" style="color:var(--green)"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/></svg>5,000 free logos for nonprofits</div>
+    <div class="abs chip" style="left:860px; top:738px" data-in="83.66"><svg class="ico" viewBox="0 0 24 24" style="color:var(--green)"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>30% affiliate commission</div>
+    <div class="abs chip" style="left:1380px; top:738px" data-in="85.12"><svg class="ico" viewBox="0 0 24 24" style="color:var(--green)"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/></svg>$10 referral credit</div>
+  </section>
+
+  <!-- 6. Split reviews -->
+  <section class="scene" id="s6" data-in="87.5" data-out="97.0" data-fx="fade" data-d="0.4">
+    <div class="abs" style="left:0; top:280px; width:960px; height:600px; background:var(--green-t)" data-in="90.9" data-fx="left">
+      <div class="abs" style="left:110px; top:90px; width:760px">
+        <svg class="ico" viewBox="0 0 24 24" style="width:84px;height:84px;color:var(--green)"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
+        <p class="serif" style="font-size:72px; color:#17804A; margin-top:20px">Full brand in under 10 minutes</p>
+        <p class="lbl muted strong" style="margin-top:22px">Website Builder Expert</p>
+      </div>
+    </div>
+    <div class="abs" style="left:960px; top:280px; width:960px; height:600px; background:var(--red-t)" data-in="92.5" data-fx="right">
+      <div class="abs" style="left:110px; top:70px; width:760px">
+        <p class="num" style="font-size:220px; font-weight:850; color:var(--red); line-height:1; letter-spacing:-0.04em"><span class="count" data-from="0" data-to="12" data-at="95.9" data-dur="0.6" data-fmt="int">12</span><span style="color:#E58C8C"> / 30</span></p>
+        <p class="lbl muted strong" style="margin-top:22px">Award&#8209;winning designer, Luminus</p>
+      </div>
+    </div>
+    <div class="abs mask" style="left:0; right:0; top:165px; text-align:center"><h1 class="serif" style="font-size:80px" data-in="87.75" data-fx="mask">Reviews were split</h1></div>
+  </section>
+
+  <!-- 7. Second shift -->
+  <section class="scene" id="s7" data-in="97.1" data-out="113.3" data-fx="fade" data-d="0.4">
+    <div class="abs" style="left:140px; top:160px; display:flex; align-items:center; gap:24px">
+      <span class="pill red" data-in="97.25">Problem</span>
+      <div class="mask"><h1 class="serif" style="font-size:72px" data-in="97.4" data-fx="mask">A bigger problem appeared</h1></div>
+    </div>
+    <div class="abs card" style="left:240px; top:300px; width:1440px; padding:50px 70px 46px" data-in="99.3" data-out="104.8">
+      <p class="serif" style="font-size:150px; color:var(--blue); line-height:0.6; height:70px">“</p>
+      <p class="serif" style="font-size:60px; line-height:1.15">Even after founders had the logo, their businesses were not up and running.</p>
+      <p class="lbl muted strong" style="margin-top:26px">Yali Saar, CEO · CTech by Calcalist, 2021</p>
+    </div>
+    <div class="abs card" style="left:140px; top:300px; width:560px; padding:22px" data-in="105.0" data-out="109.8" data-fx="left">
+      <span class="pill navy" style="height:46px; font-size:28px">2017</span>
+      <div style="margin-top:16px; height:150px; border-radius:14px; background:url(../screens/tb-2017.png) no-repeat; background-size:1060px auto; background-position:-300px -100px"></div>
+      <p class="lbl strong" style="margin-top:14px">Design a Logo</p>
+    </div>
+    <svg class="abs ico" viewBox="0 0 24 24" style="left:712px; top:480px; width:70px; height:70px; color:var(--blue)" data-in="105.4" data-out="109.8"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+    <div class="browser" style="left:800px; top:290px; width:1000px" data-in="105.1" data-fx="right">
+      <div class="bar"><i></i><i></i><i></i><span class="url">tailorbrands.com</span></div>
+      <div class="view"><div class="kb" data-kb="105.1,106.6,1.0,1.0,50,50,50,50;106.6,109.5,1.0,1.45,50,50,66,22">
+        <img src="../screens/tb-2026.png" />
+        <div class="hl" style="left:58.4%; top:15.4%; width:8.2%; height:5.4%" data-in="106.9"></div>
+      </div><span class="yeartag">tailorbrands.com · 2026</span></div>
+    </div>
+    <div class="abs card" style="left:140px; top:300px; width:600px; height:540px; padding:34px 40px" data-in="110.0" data-fx="left">
+      <svg id="donut" viewBox="0 0 200 200" style="width:250px; height:250px; display:block; margin:0 auto">
+        <circle cx="100" cy="100" r="78" fill="none" stroke="#E2E7EF" stroke-width="30"/>
+        <circle id="donutArc" cx="100" cy="100" r="78" fill="none" stroke="#1F6FEB" stroke-width="30" stroke-linecap="butt" transform="rotate(-90 100 100)" stroke-dasharray="0 490"/>
+        <text x="100" y="114" text-anchor="middle" font-family="Inter" font-weight="800" font-size="42" fill="#0E1A2B">≈10%</text>
+      </svg>
+      <p class="lbl" style="margin-top:22px; font-weight:700; text-align:center">Logos ≈ 10% of revenue today</p>
+      <p class="lbl muted" style="margin-top:12px; text-align:center" data-in="110.9">≈ 2% of new US business registrations</p>
+    </div>
+  </section>
+
+  <!-- 8. Key learning -->
+  <section class="scene" id="s8" data-in="113.4" data-out="124.5" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:165px"><h1 class="serif" style="font-size:84px" data-in="113.6" data-fx="mask">Key learning</h1></div>
+    <p class="abs lbl muted strong" style="left:140px; top:268px; font-size:38px" data-in="114.3">Tailor Brands grew by doing two things</p>
+    <div class="abs card" style="left:140px; top:350px; width:800px; height:520px; padding:40px" data-in="119.2" data-fx="up">
+      <div style="display:flex; gap:22px; align-items:center"><span class="pill blue" style="width:62px; justify-content:center; padding:0">1</span><p class="serif" style="font-size:50px; text-wrap:balance">Let people try before they pay</p></div>
+      <div class="view" style="margin-top:34px; height:300px; border-radius:18px; overflow:hidden; position:relative">
+        <div class="kb" data-kb="119.2,124.5,1.0,1.12,50,50,62,46" style="width:100%; height:100%; background:url(../screens/tb-2017.png) no-repeat; background-size:1300px auto; background-position:-380px -120px"></div>
+        <div class="hl" style="left:43.5%; top:21%; width:17.5%; height:12%" data-in="120.0"></div>
+      </div>
+    </div>
+    <div class="abs card" style="left:980px; top:350px; width:800px; height:520px; padding:40px" data-in="121.9" data-fx="up">
+      <div style="display:flex; gap:22px; align-items:center"><span class="pill blue" style="width:62px; justify-content:center; padding:0">2</span><p class="serif" style="font-size:50px; text-wrap:balance">Let every user action teach the product</p></div>
+      <div class="tot small" id="tot2" style="left:130px; top:250px"></div>
+      <div class="abs" style="left:520px; top:300px; display:flex; flex-direction:column; gap:8px" id="learn2"></div>
+    </div>
+  </section>
+
+  <!-- 9. PREVUMO path -->
+  <section class="scene" id="s9" data-in="124.6" data-out="148.6" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:165px"><h1 class="serif h1" data-in="124.8" data-fx="mask">PREVUMO: a similar path</h1></div>
+    <div class="abs" id="pathline" style="left:290px; top:455px; height:6px; width:930px; border-radius:3px; background:var(--blue); transform-origin:left center"></div>
+    <div class="step" style="left:140px; top:360px" data-in="128.2"><span class="pill navy">Plan A</span><p>Electricity billing per user</p></div>
+    <p class="abs lbl strong" style="left:140px; top:640px; width:300px; color:var(--red)" data-in="131.6">✕ Billing wasn't their problem</p>
+    <div class="step" style="left:460px; top:360px" data-in="134.6"><span class="pill green">PD B1</span><p>Preventive maintenance</p></div>
+    <div class="step" style="left:780px; top:360px" data-in="136.2"><span class="pill blue">PD B2</span><p>One module per machine (gas + electric)</p></div>
+    <div class="step dashed" style="left:1100px; top:360px" data-in="143.8"><span class="pill" style="background:#fff; color:var(--blue); border:3px dashed var(--blue)">Next</span><p>We keep shifting</p></div>
+    <p class="abs lbl muted" style="left:780px; top:680px; width:600px" data-in="137.4">Makerspaces need more than electricity, like gas control on welders</p>
+    <div class="phone" style="left:1480px; top:160px" data-in="125.4" data-fx="up">
+      <img src="../prevumo/prevumo-app-529.jpg" id="ph529" />
+      <img src="../prevumo/prevumo-app-530.jpg" id="ph530" style="opacity:0" />
+    </div>
+  </section>
+
+  <!-- 10. Problem 1: price -->
+  <section class="scene" id="s10" data-in="148.7" data-out="173.3" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:165px"><h1 class="serif h1" data-in="148.9" data-out="151.5" data-fx="mask">Two problems the case helps solve</h1></div>
+    <div class="abs" style="left:140px; top:160px; display:flex; align-items:center; gap:24px">
+      <span class="pill red" data-in="151.7">Problem 1</span>
+      <div class="mask"><h1 class="serif h1" data-in="151.9" data-fx="mask">Price</h1></div>
+    </div>
+    <div class="abs" style="left:140px; top:300px">
+      <p class="num" id="price" style="font-size:96px; font-weight:800; letter-spacing:-0.02em; position:relative; display:inline-block" data-in="153.9">$300 box + $25/month<span id="strike" style="position:absolute; left:-10px; right:-10px; top:52%; height:10px; border-radius:5px; background:var(--red); transform-origin:left center; transform:scaleX(0)"></span></p>
+      <p class="num" style="margin-top:22px; font-size:76px; font-weight:800; color:var(--green); letter-spacing:-0.02em" data-in="167.9">30-day free trial · welder module</p>
+      <p class="lbl strong" style="margin-top:10px; font-size:36px" data-in="169.9">To a makerspace · they pay only if they keep it</p>
+    </div>
+    <p class="abs lbl muted strong" style="left:140px; top:680px" data-in="156.7">Supervisors we interviewed:</p>
+    <div class="abs chip" style="left:140px; top:735px; border-color:#F2C4C4" data-in="158.1"><svg class="ico" viewBox="0 0 24 24" style="color:var(--red)"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Can't approve purchases</div>
+    <div class="abs chip" style="left:640px; top:735px; border-color:#F2C4C4" data-in="159.9"><svg class="ico" viewBox="0 0 24 24" style="color:var(--red)"><path d="M9 3h6M10 3v6L4 19a1.5 1.5 0 0 0 1.3 2h13.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/></svg>Test on one machine first</div>
+    <div class="abs card" style="left:1250px; top:290px; width:560px; padding:30px" data-in="161.9" data-fx="right" data-out="166.2">
+      <p class="lbl muted strong">Like Tailor Brands</p>
+      <div style="margin-top:16px; height:170px; border-radius:14px; background:url(../screens/tb-2017.png) no-repeat; background-size:1250px auto; background-position:-450px -120px; position:relative"><div class="hl" style="left:43.5%; top:33%; width:23%; height:22%; border-width:4px" data-in="162.4"></div></div>
+      <p class="lbl strong" style="margin-top:16px">Design free, pay only if you are happy</p>
+    </div>
+  </section>
+
+  <!-- 11. Problem 2: false alarms -->
+  <section class="scene" id="s11" data-in="173.4" data-out="199.05" data-fx="fade" data-d="0.4">
+    <div class="abs" style="left:140px; top:160px; display:flex; align-items:center; gap:24px">
+      <span class="pill red" data-in="173.55">Problem 2</span>
+      <div class="mask"><h1 class="serif h1" data-in="174.5" data-fx="mask">False alarms</h1></div>
+    </div>
+    <div class="abs card" style="left:140px; top:280px; width:820px; padding:26px 32px; background:var(--red-t); border-color:#F2C4C4; box-shadow:none" data-in="175.4">
+      <p class="serif" style="font-size:42px; line-height:1.15; text-wrap:balance">“If alerts are wrong, staff stop paying attention.”</p>
+      <p class="lbl muted strong" style="margin-top:10px">Two supervisors we interviewed</p>
+    </div>
+    <div class="abs chip" style="left:140px; top:506px" data-in="181.2"><svg class="ico" viewBox="0 0 24 24" style="color:var(--blue)"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/></svg>Like Ash: every edit is a lesson</div>
+    <div class="alert" style="left:140px; top:604px" data-in="185.2" data-fx="up">
+      <div class="top"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>Unusual current · Welder</div>
+      <div class="body">
+        <div style="position:relative; height:40px"><p class="why" id="why" style="position:absolute">Outside its normal range</p>
+        <p class="upd" id="upd" style="position:absolute; margin:0; opacity:0"><svg class="ico" viewBox="0 0 24 24" style="width:34px;height:34px;stroke-width:3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Normal range updated</p></div>
+        <div class="btns"><div class="btn ok" id="markok">Mark OK<div class="ring" id="okring"></div></div><div class="btn off">Shut down</div><div class="btn tech">Call technician</div></div>
+      </div>
+    </div>
+    <div class="abs card" style="left:1040px; top:280px; width:760px; height:350px; padding:24px 34px" data-in="189.5">
+      <div style="display:flex; justify-content:space-between; align-items:center"><p class="lbl strong">False alarms per week</p><span class="pill" style="height:40px; font-size:24px; background:var(--soft); color:var(--muted)">illustrative</span></div>
+      <svg id="falsechart" viewBox="0 0 680 250" style="width:690px; height:240px; margin-top:8px; overflow:visible">
+        <line x1="40" y1="220" x2="660" y2="220" stroke="#E2E7EF" stroke-width="2"/>
+        <path id="fline" d="" fill="none" stroke="#1F6FEB" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <g id="fdots"></g><g id="fx"></g>
+      </svg>
+    </div>
+    <div class="abs" style="left:1040px; top:654px; width:760px; padding:20px 28px; border-radius:22px; background:var(--green-t); display:flex; gap:18px; align-items:center" data-in="192.1">
+      <svg class="ico" viewBox="0 0 24 24" style="width:46px; height:46px; color:var(--green); flex:none"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg>
+      <p class="lbl" style="font-weight:650">Weeks 1-2: learning mode, log only, no shutdowns</p>
+    </div>
+    <p class="abs serif" style="left:1040px; top:800px; width:780px; font-size:40px; color:#17804A; text-wrap:balance" data-in="196.3">By the time PREVUMO acts, it knows the machine.</p>
+  </section>
+
+  <!-- 12. Outro -->
+  <section class="scene" id="s12" data-in="199.15" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:120px"><h1 class="serif" style="font-size:104px" data-in="199.35" data-fx="mask">Thank you</h1></div>
+    <p class="abs lbl strong" style="left:140px; top:272px" data-in="199.6">References</p>
+    <ol class="abs" id="refs" style="left:140px; top:322px; width:1640px; font-size:27px; line-height:1.38; color:var(--navy); padding-left:34px" data-in="199.75">
+      <li>Avery, J. (2018, rev. 2020). <i>Tailor Brands: Artificial Intelligence-Driven Branding.</i> Harvard Business School, 9-519-017.</li>
+      <li>Matias, M. (2021, March 21). Interview with Yali Saar. <i>CTech by Calcalist.</i></li>
+      <li>TechCrunch (2021, July 22). Tailor Brands raises $50M, aims to be one-stop shop for small businesses to launch.</li>
+      <li>Stone, E. (2026, May 1). The Tailor Brands pivot. <i>NY Post / AOL.</i></li>
+      <li>tailorbrands.com, captures from 2015, 2017, 2019 and 2026.</li>
+      <li>Group 10 (2026). PD B1 and B2 customer interviews, GNG 4120.</li>
+    </ol>
+    <p class="abs" style="left:140px; top:770px; font-size:40px; font-weight:700; color:var(--blue)" data-in="200.0">Contact: <span data-personal="email"></span></p>
+    <p class="abs lbl muted" style="left:140px; top:830px" data-in="200.2">Team 10 · Mohamed Wahb Berguia · GNG 4120 · uOttawa</p>
+  </section>
+
+  <div id="source"></div>
+  <div id="caption"><span></span></div>
+</div>
+
+<script src="captions.js"></script>
+<script src="personal.js"></script>
+<script>
+// personal details live in personal.js, which stays out of git
+document.querySelectorAll("[data-personal]").forEach((el) => { el.textContent = (window.PERSONAL || {})[el.dataset.personal] || ""; });
+</script>
+<script>
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const outCubic = (k) => 1 - Math.pow(1 - k, 3);
+const inOut = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const outBack = (k, s = 1.5) => 1 + (s + 1) * Math.pow(k - 1, 3) + s * Math.pow(k - 1, 2);
+const $ = (s) => document.querySelector(s);
+const END = 204.8;
+
+// ---------- built pieces ----------
+// intro: a grid of simple marks that an "AI" keeps choosing between (no real logos)
+const MARKS = [
+  '<circle cx="50" cy="50" r="30" fill="#1F6FEB"/>',
+  '<rect x="22" y="22" width="56" height="56" rx="14" fill="#0E1A2B"/>',
+  '<path d="M50 18L82 78H18z" fill="#1F9D55"/>',
+  '<text x="50" y="68" text-anchor="middle" font-family="DM Serif Display" font-size="56" fill="#0E1A2B">A</text>',
+  '<circle cx="38" cy="50" r="22" fill="none" stroke="#1F6FEB" stroke-width="8"/><circle cx="62" cy="50" r="22" fill="none" stroke="#0E1A2B" stroke-width="8"/>',
+  '<path d="M20 70L50 25L80 70" fill="none" stroke="#0E1A2B" stroke-width="10" stroke-linejoin="round"/>',
+  '<text x="50" y="66" text-anchor="middle" font-family="Inter" font-weight="800" font-size="44" fill="#1F6FEB">b.</text>',
+  '<rect x="24" y="30" width="52" height="12" rx="6" fill="#0E1A2B"/><rect x="24" y="52" width="36" height="12" rx="6" fill="#1F6FEB"/>',
+  '<path d="M50 20a30 30 0 1 0 30 30H50z" fill="#D93F3F"/>',
+];
+const gen = $("#gen");
+MARKS.forEach((m, i) => {
+  gen.insertAdjacentHTML("beforeend", `<div class="gm" style="position:absolute; left:${(i % 3) * 172}px; top:${Math.floor(i / 3) * 172}px; width:150px; height:150px; border-radius:26px; background:#fff; border:3px solid #E2E7EF; display:flex; align-items:center; justify-content:center; box-shadow:0 14px 30px -20px rgba(14,26,43,.45)"><svg viewBox="0 0 100 100" style="width:96px;height:96px">${m}</svg></div>`);
+});
+
+// 100 dots, 10 lit
+const dots = $("#dots");
+for (let i = 0; i < 100; i++) dots.insertAdjacentHTML("beforeend", `<i style="width:22px;height:22px;border-radius:50%;background:#D8DEE8;display:block"></i>`);
+
+// this-or-that rounds
+const PAIRS = [
+  [MARKS[0], MARKS[3]], [MARKS[6], MARKS[1]], [MARKS[2], MARKS[7]], [MARKS[4], MARKS[8]],
+];
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function buildTot(el) {
+  el.innerHTML = [0, 1].map((j) => `<div class="opt"><svg viewBox="0 0 100 100"></svg><div class="ok">${CHECK}</div></div>`).join("");
+}
+buildTot($("#tot1")); buildTot($("#tot2"));
+for (const id of ["#learn1", "#learn2"]) for (let i = 0; i < 8; i++) $(id).insertAdjacentHTML("beforeend", `<i style="width:${id === "#learn1" ? 60 : 160}px;height:${id === "#learn1" ? 14 : 16}px;border-radius:8px;background:#E2E7EF;display:block"></i>`);
+// picks: [time, side]
+const PICKS1 = [[40.5, 0], [42.3, 1], [43.6, 0]];
+const PICKS2 = [[122.9, 1], [123.9, 0]];
+function paintTot(el, learnEl, picks, t, cells) {
+  let round = 0;
+  picks.forEach(([at], i) => { if (t >= at + 0.75) round = i + 1; });
+  const pair = PAIRS[round % PAIRS.length];
+  const opts = el.querySelectorAll(".opt");
+  opts.forEach((o, j) => {
+    o.querySelector("svg").innerHTML = pair[j];
+    const p = picks[round];
+    let chosen = 0, other = 0;
+    if (p && t >= p[0]) { const k = outBack(prog(t, p[0], p[0] + 0.3), 2); if (j === p[1]) chosen = k; else other = prog(t, p[0], p[0] + 0.3); }
+    o.style.borderColor = chosen > 0.05 ? "#1F6FEB" : "#E2E7EF";
+    o.style.transform = `scale(${1 + 0.06 * chosen})`;
+    o.style.opacity = String(1 - 0.55 * other);
+    o.querySelector(".ok").style.transform = `scale(${clamp(chosen, 0, 1.2)})`;
+    // a new pair slides in after each pick
+    const swap = picks[round - 1] ? outCubic(prog(t, picks[round - 1][0] + 0.75, picks[round - 1][0] + 1.05)) : 1;
+    o.style.translate = `0 ${(1 - swap) * 16}px`;
+  });
+  const done = picks.filter(([at]) => t >= at + 0.2).length;
+  learnEl.querySelectorAll("i").forEach((c, i) => { c.style.background = i < done * cells ? "#1F6FEB" : "#E2E7EF"; });
+}
+
+// competitor price chart (Avery, Exhibit 2)
+const PRICES = [["LogoAI", 29, 99, "$29 to $99"], ["BrandMark", 25, 175, "$25 to $175"], ["Logojoy", 20, 195, "$20 to $195"], ["Squarespace", 10, 10, "$10"], ["Hatchful", 0, 0, "Free"]];
+const chart = $("#chart");
+const AX = (v) => 240 + (v / 200) * 560;
+[0, 50, 100, 150, 200].forEach((v) => {
+  chart.insertAdjacentHTML("beforeend", `<div class="gridline" style="left:${AX(v)}px; top:58px; height:360px"></div><div class="axis" style="left:${AX(v)}px; top:424px">$${v}</div>`);
+});
+PRICES.forEach(([n, lo, hi, txt], i) => {
+  const left = (lo / 200) * 560, w = Math.max(30, ((hi - lo) / 200) * 560);
+  chart.insertAdjacentHTML("beforeend", `<div class="barrow" style="top:${70 + i * 70}px"><div class="name">${n}</div><div class="track"><div class="rng" style="left:${left}px; width:${w}px; ${hi === 0 ? "background:#1F9D55" : ""}"></div></div><div class="val num">${txt}</div></div>`);
+});
+const CHART_AT = [54.6, 55.15, 55.7, 56.25, 56.8];
+
+// false alarm line (illustrative)
+const FA = [9, 7, 6, 3, 2, 1];
+const fx = (i) => 60 + i * 116, fy = (v) => 220 - v * 21;
+$("#fline").setAttribute("d", FA.map((v, i) => `${i ? "L" : "M"}${fx(i)},${fy(v)}`).join(""));
+$("#fdots").innerHTML = FA.map((v, i) => `<circle cx="${fx(i)}" cy="${fy(v)}" r="9" fill="#1F6FEB" stroke="#fff" stroke-width="3"/>`).join("");
+$("#fx").innerHTML = FA.map((v, i) => `<text x="${fx(i)}" y="248" text-anchor="middle" font-family="Inter" font-size="22" fill="#556479">W${i + 1}</text>`).join("");
+const flineLen = $("#fline").getTotalLength();
+
+// timeline years
+const Y0 = 2014, Y1 = 2026, TL_W = 1620;
+const yx = (y) => ((y - Y0) / (Y1 - Y0)) * TL_W;
+const tl = $("#timeline");
+for (let y = Y0; y <= Y1; y++) tl.insertAdjacentHTML("beforeend", `<div class="tick" style="left:${yx(y)}px"></div>`);
+[2014, 2015, 2017, 2018, 2019, 2021, 2026].forEach((y) => tl.insertAdjacentHTML("beforeend", `<div class="yr num" style="left:${yx(y)}px">${y}</div>`));
+const YEARS = [[11.6, 2014], [29.4, 2015], [58.4, 2017], [62.0, 2018], [69.0, 2019], [99.4, 2021], [105.0, 2026]];
+
+// source line per stretch of time
+const SOURCES = [
+  [13.0, 29.0, "Source: Avery, HBS 2018, p. 2"],
+  [31.3, 50.9, "Source: Avery, HBS 2018, pp. 2-5"],
+  [54.4, 67.2, "Source: Avery, HBS 2018, Exhibit 2, p. 4"],
+  [67.6, 87.4, "Source: Avery, HBS 2018, pp. 9-10"],
+  [90.8, 97.0, "Source: Avery, HBS 2018, pp. 7-8"],
+  [99.3, 104.9, "Source: Matias, CTech by Calcalist, 2021"],
+  [105.0, 113.3, "Sources: tailorbrands.com 2026; Stone, NY Post 2026"],
+  [114.2, 124.5, "Source: Avery, HBS 2018"],
+  [131.4, 148.6, "Source: Group 10 interviews (PD B1, PD B2)"],
+  [156.6, 173.3, "Sources: Group 10 interviews (PD B1); Avery, HBS 2018"],
+  [175.3, 199.05, "Source: Group 10 interviews (PD B1)"],
+];
+
+// ---------- formatting ----------
+const FMT = {
+  money: (v) => "$" + (Math.round(v / 100) * 100).toLocaleString("en-US"),
+  int: (v) => String(Math.round(v)),
+  m: (v) => `${Math.round(v)}M+`,
+};
+
+// ---------- render one frame ----------
+const animated = [...document.querySelectorAll("[data-in]")];
+function render(t) {
+  $("#bg").style.transform = `translate(${-(t / END) * 34}px, ${-(t / END) * 20}px)`;
+
+  // generic entrances and exits
+  for (const el of animated) {
+    const a = +el.dataset.in, d = +(el.dataset.d || 0.6), b = el.dataset.out ? +el.dataset.out : null;
+    const fx = el.dataset.fx || "up";
+    const kin = fx === "stamp" ? prog(t, a, a + 0.45) : outCubic(prog(t, a, a + d));
+    const kout = b === null ? 0 : inOut(prog(t, b, b + 0.35));
+    let op = kin * (1 - kout), tr = "";
+    if (fx === "up") tr = `translateY(${(1 - kin) * 34}px)`;
+    else if (fx === "left") tr = `translateX(${-(1 - kin) * 60}px)`;
+    else if (fx === "right") tr = `translateX(${(1 - kin) * 60}px)`;
+    else if (fx === "scale") tr = `scale(${0.86 + 0.14 * outBack(prog(t, a, a + d), 1.6)})`;
+    else if (fx === "mask") { tr = `translateY(${(1 - kin) * 110}%)`; op = 1 - kout; }
+    else if (fx === "grow") { tr = `scaleX(${kin})`; op = 1 - kout; }
+    else if (fx === "stamp") { const k = outBack(kin, 2.2); tr = `scale(${1.8 - 0.8 * k}) rotate(${-4 * clamp(kin * 1.4)}deg)`; op = clamp(kin * 3) * (1 - kout); }
+    el.style.opacity = String(op);
+    el.style.transform = tr;
+    el.style.visibility = op <= 0.001 && fx !== "mask" && fx !== "grow" ? "hidden" : "visible";
+    if (fx === "mask" && t < a) el.style.visibility = "hidden";
+  }
+
+  // counters
+  for (const el of document.querySelectorAll(".count")) {
+    const k = inOut(prog(t, +el.dataset.at, +el.dataset.at + +el.dataset.dur));
+    el.textContent = FMT[el.dataset.fmt](lerp(+el.dataset.from, +el.dataset.to, k));
+  }
+
+  // Ken Burns: "a,b,s0,s1,ox0,oy0,ox1,oy1" segments separated by ";"
+  for (const el of document.querySelectorAll("[data-kb]")) {
+    const segs = el.dataset.kb.split(";").map((s) => s.split(",").map(Number));
+    let seg = segs[0], k = 0;
+    for (const s of segs) { if (t >= s[0]) { seg = s; k = inOut(prog(t, s[0], s[1])); } }
+    const [, , s0, s1, ox0, oy0, ox1, oy1] = seg;
+    const pan = el.dataset.pan ? el.dataset.pan.split(",").map(Number) : null;
+    const panK = pan ? inOut(prog(t, segs[0][0], segs[0][1])) : 0;
+    el.style.transformOrigin = `${lerp(ox0, ox1, k)}% ${lerp(oy0, oy1, k)}%`;
+    el.style.transform = `${pan ? `translate(${pan[0] * panK}%, ${pan[1] * panK}%) ` : ""}scale(${lerp(s0, s1, k)})`;
+  }
+
+  // highlight rings pulse once when they appear
+  for (const el of document.querySelectorAll(".hl")) {
+    const a = +el.dataset.in || 0;
+    const pulse = Math.sin(clamp((t - a) / 0.9) * Math.PI);
+    el.style.boxShadow = `0 0 0 ${6 + pulse * 10}px rgba(31, 111, 235, ${0.25 * (1 - clamp((t - a) / 1.8))})`;
+  }
+
+  // intro marks: appear one by one, then a selection ring moves between them
+  gen.querySelectorAll(".gm").forEach((g, i) => {
+    const k = outBack(prog(t, 0.9 + i * 0.22, 1.4 + i * 0.22), 1.6);
+    const sel = t > 3.4 ? Math.floor((t - 3.4) / 1.1) % 9 : -1;
+    const pick = sel === [4, 0, 8, 2, 6, 1, 7, 3, 5][i] ? 1 : 0;
+    g.style.opacity = String(clamp(k * 1.5));
+    g.style.transform = `translateY(${Math.sin(t * 0.9 + i) * 4}px) scale(${0.6 + 0.4 * k})`;
+    g.style.borderColor = pick ? "#1F6FEB" : "#E2E7EF";
+    g.style.boxShadow = pick ? "0 0 0 6px rgba(31,111,235,.18), 0 14px 30px -20px rgba(14,26,43,.45)" : "0 14px 30px -20px rgba(14,26,43,.45)";
+  });
+
+  // 10 of 100 dots light up
+  dots.querySelectorAll("i").forEach((d, i) => {
+    const lit = i < 10 && t >= 27.0 + i * 0.1;
+    d.style.background = lit ? "#1F6FEB" : "#D8DEE8";
+    d.style.transform = `scale(${lit ? 1 + 0.25 * (1 - prog(t, 27.0 + i * 0.1, 27.3 + i * 0.1)) : 1})`;
+  });
+
+  paintTot($("#tot1"), $("#learn1"), PICKS1, t, 2);
+  paintTot($("#tot2"), $("#learn2"), PICKS2, t, 3);
+
+  // price ranges draw in one by one
+  chart.querySelectorAll(".barrow").forEach((r, i) => {
+    const k = outCubic(prog(t, CHART_AT[i], CHART_AT[i] + 0.6));
+    r.querySelector(".rng").style.transform = `scaleX(${k})`;
+    r.style.opacity = String(clamp(k * 2));
+  });
+
+  // donut: 10%
+  const dk = outCubic(prog(t, 110.4, 111.4));
+  $("#donutArc").setAttribute("stroke-dasharray", `${490 * 0.1 * dk} 490`);
+
+  // PREVUMO path line and the phone switching from 5:29 to 5:30
+  $("#pathline").style.transform = `scaleX(${outCubic(prog(t, 128.0, 129.0)) * 0.33 + outCubic(prog(t, 134.4, 135.2)) * 0.33 + outCubic(prog(t, 143.5, 144.4)) * 0.34})`;
+  $("#ph530").style.opacity = String(inOut(prog(t, 134.8, 135.6)));
+
+  // price struck through, replaced by the free trial
+  $("#strike").style.transform = `scaleX(${inOut(prog(t, 166.3, 166.9))})`;
+  $("#price").style.color = prog(t, 166.5, 167.0) > 0 ? `rgba(14,26,43,${1 - 0.55 * prog(t, 166.5, 167.0)})` : "";
+
+  // Mark OK tap
+  const tap = prog(t, 187.85, 188.0) - prog(t, 188.1, 188.5);
+  $("#markok").style.transform = `scale(${1 - 0.06 * tap})`;
+  const ring = prog(t, 187.6, 187.9) * (1 - prog(t, 189.0, 189.4));
+  $("#okring").style.opacity = String(ring * (0.55 + 0.45 * Math.sin(t * 9)));
+  $("#okring").style.transform = `scale(${1 + 0.08 * Math.sin(t * 9)})`;
+
+  const upd = prog(t, 189.3, 189.7);
+  $("#why").style.opacity = String(1 - upd);
+  $("#upd").style.opacity = String(upd);
+  $("#upd").style.transform = `translateY(${(1 - outCubic(upd)) * 14}px)`;
+
+  // false alarms line draws down
+  const lk = inOut(prog(t, 189.9, 191.9));
+  $("#fline").style.strokeDasharray = `${flineLen}`;
+  $("#fline").style.strokeDashoffset = String(flineLen * (1 - lk));
+  $("#fdots").querySelectorAll("circle").forEach((c, i) => { c.style.opacity = String(prog(t, 189.9 + i * 0.36, 190.1 + i * 0.36)); });
+
+  // timeline across the Tailor Brands story, then the project label
+  const tlIn = outCubic(prog(t, 11.5, 12.2)) * (1 - inOut(prog(t, 124.3, 124.8)));
+  tl.style.opacity = String(tlIn);
+  tl.style.transform = `translateY(${(1 - tlIn) * -16}px)`;
+  let year = YEARS[0][1];
+  for (let i = 0; i < YEARS.length; i++) {
+    if (t >= YEARS[i][0]) {
+      const prev = i ? YEARS[i - 1][1] : YEARS[0][1];
+      year = lerp(prev, YEARS[i][1], inOut(prog(t, YEARS[i][0], YEARS[i][0] + 0.9)));
+    }
+  }
+  const x = yx(year);
+  tl.querySelector(".dot").style.left = `${x}px`;
+  tl.querySelector(".now").style.left = `${x}px`;
+  tl.querySelector(".now").textContent = String(Math.round(year));
+  tl.querySelector(".fill").style.width = `${x}px`;
+  const pl = outCubic(prog(t, 124.8, 125.4)) * (1 - inOut(prog(t, 198.9, 199.3)));
+  $("#projlabel").style.opacity = String(pl);
+
+  // source line
+  const src = SOURCES.find(([a, b]) => t >= a && t < b + 0.35);
+  const sEl = $("#source");
+  if (src) { sEl.textContent = src[2]; sEl.style.opacity = String(prog(t, src[0], src[0] + 0.4) * (1 - prog(t, src[1], src[1] + 0.35))); }
+  else sEl.style.opacity = "0";
+
+  // captions
+  const cap = window.CAPTIONS.find((c) => t >= c.a && t < c.b);
+  const cEl = $("#caption span");
+  if (cap) { cEl.textContent = cap.text; cEl.style.opacity = String(prog(t, cap.a, cap.a + 0.12) * (1 - prog(t, cap.b - 0.1, cap.b))); cEl.style.visibility = "visible"; }
+  else cEl.style.visibility = "hidden";
+}
+window.render = render;
+window.END = END;
+render(0);
+</script>
+</body>
+</html>
