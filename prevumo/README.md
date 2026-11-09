@@ -148,3 +148,7 @@ What the concept takes from the deck: keypad, current sensor, ESP32 with Wi-Fi; 
 * New: after the PIN the member presses 1 print, 2 laser or 3 CNC. The session is logged with its mode, and the box compares the current with that mode's own learned normal range. This is a design choice for the concept, not a tested feature.
 * The short spike when the CNC spindle spins up is flagged as normal for CNC. Current that keeps climbing during a cut is flagged as irregular.
 * The mode patterns, the chart and the alert are illustrations, not measured data, and the film runs as a time-lapse.
+
+## Enclosed printer module prototype (PD B2 concept)
+
+`enclosed/` is the 3D printer concept again, for an enclosed, Ultimaker-style printer: a box frame with the head on cross rods at the top, a glass plate that drops as the print grows, and the spools at the back (film: `deliverables/prevumo-enclosed-printer-module.mp4`). The box, the steps and the warm-up flagged as normal are the same as in `printer/`. No brand name or logo is drawn on the machine.

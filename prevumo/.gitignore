@@ -12,3 +12,6 @@ printer/.page.html
 multimaker/build/
 multimaker/.film.html
 multimaker/.page.html
+enclosed/build/
+enclosed/.film.html
+enclosed/.page.html
