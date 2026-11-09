@@ -139,3 +139,12 @@ What the concept takes from the deck: keypad, current sensor, ESP32 with Wi-Fi; 
 * A printer is a 120 V machine, so the box's own certified relay (up to 15 A at 120 V, from the deck) switches it directly: the box plugs into a normal outlet and the printer plugs into the box. No contactor, no gas.
 * The warm-up is flagged as normal. A printer draws the most current while its bed and nozzle heat up after it turns on. The learned normal range is higher during that warm-up, so the line stays green, the status light stays green and the display says "Normal for this printer". Only current that stays high after the warm-up is flagged as irregular.
 * The chart and the alert are illustrations, not measured data, and the film runs as a time-lapse.
+
+## Multimaker module prototype (PD B2 concept)
+
+`multimaker/` is the same kind of concept for a 3-in-1 machine that swaps heads between 3D printing, laser engraving and CNC carving (film: `deliverables/prevumo-multimaker-module.mp4`).
+
+* Same plug-in box as the 3D printer: its own certified relay (up to 15 A at 120 V, from the deck) switches the machine.
+* New: after the PIN the member presses 1 print, 2 laser or 3 CNC. The session is logged with its mode, and the box compares the current with that mode's own learned normal range. This is a design choice for the concept, not a tested feature.
+* The short spike when the CNC spindle spins up is flagged as normal for CNC. Current that keeps climbing during a cut is flagged as irregular.
+* The mode patterns, the chart and the alert are illustrations, not measured data, and the film runs as a time-lapse.

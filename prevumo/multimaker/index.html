@@ -1,0 +1,988 @@
+<title>PREVUMO Multimaker Module</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!--FONTS-->
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2") format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Inter"; src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; }
+</style>
+<!--/FONTS-->
+<style>
+  /* Layout: a 1920x1080 drawing sheet (the film frame) scaled to fit, with the controls and the parts list under it.
+     Palette and type are PREVUMO's own (prevumo/src/index.css, deck "Field notes"); the page commits to the paper look. */
+  :root {
+    --bg: #F3EBDD; --surface: #FFFDF8; --border: #E3D6C0; --ink: #1F3D2B; --muted: #5B6B5F;
+    --green: #2F6B45; --gtint: #D6E4D3; --orange: #E07A2E; --otint: #F6D2B4; --rust: #A63D1F; --idle: #EDE4D3; --idlemark: #81897A;
+    --display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: light;
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  #stage p, #stage h1, #stage ol { margin: 0; }
+
+  /* ---------- the sheet ---------- */
+  #frame { position: relative; width: 100%; max-width: 1600px; margin: 0 auto; aspect-ratio: 16 / 9; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; background: var(--bg); overflow: hidden; }
+  #gl { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; touch-action: none; cursor: grab; }
+  #gl:active { cursor: grabbing; }
+  #sheet { position: absolute; inset: 26px; border: 2px solid var(--ink); border-radius: 4px; pointer-events: none; opacity: 0.85; }
+  #sheet i { position: absolute; background: var(--ink); }
+  #lines { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; overflow: visible; }
+  .balloon { position: absolute; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: var(--surface); border: 3px solid var(--ink); display: flex; align-items: center; justify-content: center; font: 600 24px/1 var(--mono); color: var(--ink); pointer-events: none; }
+  .balloon.ctx { border-color: var(--green); color: var(--green); }
+
+  #head { position: absolute; left: 86px; top: 78px; pointer-events: none; max-width: 760px; }
+  #kick { font: 500 26px/1.2 var(--mono); color: var(--orange); }
+  .mask { overflow: hidden; padding-bottom: 8px; }
+  #ttl { margin: 8px 0 0; font: 700 96px/1.02 var(--display); letter-spacing: -0.03em; color: var(--ink); }
+  #sub { margin: 18px 0 0; font: 500 32px/1.3 var(--body); color: var(--ink); max-width: 640px; text-wrap: balance; }
+
+  /* parts list, drawn as a drawing's parts table */
+  #bom { position: absolute; right: 86px; top: 150px; width: 470px; pointer-events: none; }
+  #bom .hd { display: grid; grid-template-columns: 64px 1fr; padding: 0 0 10px; border-bottom: 2px solid var(--ink); font: 500 20px/1 var(--mono); color: var(--muted); }
+  #bom .row { display: grid; grid-template-columns: 64px 1fr; gap: 0; padding: 10px 0; border-bottom: 1.5px solid var(--border); }
+  #bom .no { font: 600 24px/1.2 var(--mono); }
+  #bom .nm { font: 600 26px/1.15 var(--display); letter-spacing: -0.01em; }
+  #bom .rl { margin-top: 3px; font: 400 19px/1.3 var(--body); color: var(--muted); }
+  #bom .row.ctx .no { color: var(--green); }
+
+  /* steps */
+  #steps { position: absolute; left: 86px; top: 290px; width: 520px; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+  #steps li { display: grid; grid-template-columns: 62px 1fr; padding: 13px 0; border-top: 1.5px solid var(--border); color: var(--idlemark); }
+  #steps li:last-child { border-bottom: 1.5px solid var(--border); }
+  #steps .sn { width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font: 600 22px/1 var(--mono); border: 2px solid var(--border); }
+  #steps .st { font: 600 29px/1.2 var(--display); letter-spacing: -0.01em; padding-top: 6px; }
+  #steps .sd { font: 400 22px/1.35 var(--body); color: var(--muted); margin-top: 8px; display: none; }
+  #steps li.on { color: var(--ink); }
+  #steps li.on .sn { background: var(--green); border-color: var(--green); color: #fff; }
+  #steps li.on .sd { display: block; }
+  #steps li.done { color: var(--muted); }
+  #steps li.done .sn { border-color: var(--gtint); background: var(--gtint); color: var(--ink); }
+
+  /* app panels */
+  .card { position: absolute; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; }
+  #chart { right: 86px; top: 140px; width: 560px; padding: 22px 26px 18px; }
+  #chart .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  #chart .tt { font: 600 28px/1.2 var(--display); letter-spacing: -0.01em; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 17px; border: 2px solid var(--border); background: var(--surface); color: var(--muted); font: 500 18px/1 var(--body); white-space: nowrap; }
+  .tag i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); display: block; }
+  #chart svg { display: block; margin-top: 10px; overflow: visible; }
+  #applabel { position: absolute; right: 86px; top: 462px; width: 560px; font: 500 20px/1 var(--mono); color: var(--muted); }
+  #alert { right: 86px; top: 494px; width: 560px; overflow: hidden; box-shadow: 0 30px 60px -36px rgba(31, 61, 43, 0.45); }
+  #alert .ah { padding: 20px 26px 16px; border-bottom: 2px solid var(--border); }
+  .badge { display: inline-flex; align-items: center; gap: 10px; height: 36px; padding: 0 16px; border-radius: 18px; font: 600 20px/1 var(--body); background: var(--otint); color: var(--ink); }
+  .badge i { width: 10px; height: 10px; border-radius: 50%; background: var(--orange); display: block; }
+  #alert .at { margin-top: 12px; font: 600 34px/1.15 var(--display); letter-spacing: -0.02em; }
+  #alert .ar { margin-top: 6px; font: 400 22px/1.35 var(--body); min-height: 60px; }
+  #alert .af { padding: 16px 20px; display: flex; gap: 8px; align-items: center; }
+  .btn { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 54px; padding: 0 14px; border-radius: 10px; font: 600 19px/1 var(--body); white-space: nowrap; }
+  .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .btn.qd { color: var(--rust); box-shadow: inset 0 0 0 2px rgba(166, 61, 31, 0.4); }
+  .btn.pr { background: var(--green); color: #fff; }
+  .btn.sec { background: var(--idle); color: var(--ink); }
+  .btn.dg { background: var(--rust); color: #fff; }
+  .btn .ring { position: absolute; inset: -7px; border-radius: 15px; border: 4px solid var(--green); opacity: 0; }
+  .logged { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 20px; background: var(--rust); color: #fff; font: 600 20px/1 var(--body); }
+
+  /* detail A: the box's own display, enlarged */
+  #detail { right: 86px; top: 140px; width: 560px; padding: 18px 22px 22px; }
+  #detail .dl { font: 500 20px/1 var(--mono); color: var(--muted); }
+  #detail .scr { margin-top: 14px; background: #16301F; border-radius: 14px; padding: 12px 16px 16px; }
+  #dlight { display: block; width: 180px; height: 10px; border-radius: 5px; margin: 0 auto 12px; background: var(--idlemark); }
+  #detail .glass { background: var(--gtint); border-radius: 8px; padding: 14px 20px 16px; }
+  #d1 { font: 700 42px/1.15 var(--mono); color: var(--ink); white-space: nowrap; }
+  #d2 { margin-top: 6px; font: 500 28px/1.2 var(--mono); color: var(--muted); white-space: nowrap; }
+
+  /* title block */
+  #tblock { position: absolute; right: 86px; bottom: 80px; width: 620px; border: 2px solid var(--ink); background: var(--surface); pointer-events: none; }
+  #tblock .r { display: grid; grid-template-columns: 1fr 1fr; }
+  #tblock .c { padding: 10px 14px; border-top: 1.5px solid var(--ink); }
+  #tblock .c + .c { border-left: 1.5px solid var(--ink); }
+  #tblock .r:first-child .c { border-top: 0; }
+  #tblock .k { font: 500 15px/1 var(--mono); color: var(--muted); }
+  #tblock .v { margin-top: 6px; font: 600 24px/1.15 var(--display); }
+  #tblock .note { padding: 12px 14px; border-top: 1.5px solid var(--ink); font: 400 19px/1.35 var(--body); color: var(--ink); }
+
+  .fade { will-change: opacity, transform; }
+
+  /* ---------- page around the sheet ---------- */
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
+  .film .wrap { padding: 0; }
+  .film #frame { max-width: none; width: 1920px; height: 1080px; }
+  .film #controls, .film #notes { display: none; }
+  #controls { max-width: 1600px; margin: 14px auto 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  #controls button { height: 40px; padding: 0 16px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); font: 500 15px/1 var(--body); cursor: pointer; }
+  #controls button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  #controls button:focus-visible, #scrub:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  #controls .play { background: var(--green); border-color: var(--green); color: #fff; min-width: 92px; }
+  #scrub { flex: 1 1 220px; min-width: 0; accent-color: var(--green); }
+  #clock { font: 500 14px/1 var(--mono); color: var(--muted); min-width: 92px; text-align: right; }
+  #hint { width: 100%; font: 400 14px/1.4 var(--body); color: var(--muted); }
+  #notes { max-width: 1600px; margin: 28px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 28px; }
+  #notes h2 { margin: 0 0 10px; font: 700 26px/1.2 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+  #notes ol { margin: 0; padding: 0; list-style: none; }
+  #notes li { display: grid; grid-template-columns: 40px 1fr; gap: 4px; padding: 10px 0; border-top: 1px solid var(--border); min-width: 0; }
+  #notes li b { font: 600 16px/1.3 var(--display); }
+  #notes li span { display: block; font: 400 14px/1.45 var(--body); color: var(--muted); }
+  #notes li .n { font: 600 14px/1.5 var(--mono); color: var(--muted); }
+  #notes li.hot .n, #notes li.hot b { color: var(--green); }
+  #notes p { margin: 0; font: 400 15px/1.5 var(--body); color: var(--muted); max-width: 65ch; }
+  @media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
+</style>
+
+<style>
+  .callout { position: absolute; padding: 9px 16px; border-radius: 8px; border: 2px solid var(--green); background: var(--surface); font: 600 24px/1.2 var(--display); color: var(--ink); white-space: nowrap; pointer-events: none; transform: translate(-50%, -50%); }
+  #spinflag { background: var(--gtint); }
+  #chart .tag.warm { border-color: var(--gtint); background: var(--gtint); color: var(--ink); }
+  #modes { right: 86px; top: 140px; width: 560px; padding: 22px 26px 20px; }
+  #modes .tt { font: 600 28px/1.2 var(--display); letter-spacing: -0.01em; }
+  #modes .row { display: grid; grid-template-columns: 112px 1fr 92px; gap: 14px; align-items: center; padding: 10px 0; border-top: 1.5px solid var(--border); margin-top: 10px; }
+  #modes .row:first-of-type { margin-top: 14px; }
+  #modes .mn { font: 600 22px/1.1 var(--display); }
+  #modes .use { font: 600 17px/1 var(--body); color: var(--green); text-align: right; visibility: hidden; }
+  #modes .row.on .use { visibility: visible; }
+  #modes .row.on .mn { color: var(--green); }
+  #modes svg { display: block; width: 100%; height: 56px; }
+  #modes .foot { margin-top: 10px; font: 400 17px/1 var(--mono); color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <div id="frame">
+    <div id="stage">
+      <canvas id="gl" aria-label="3D model of the PREVUMO multimaker module. Drag to turn it."></canvas>
+      <svg id="lines" viewBox="0 0 1920 1080"></svg>
+      <div id="balloons"></div>
+      <div id="callouts"></div>
+      <div id="spinflag" class="callout"><svg viewBox="0 0 24 24" width="22" height="22" style="vertical-align:-3px;margin-right:8px"><path d="M5 21V4" stroke="#2F6B45" stroke-width="2.6" stroke-linecap="round"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="#2F6B45"/></svg>Spin-up: normal</div>
+      <div id="sheet"></div>
+
+      <header id="head" class="fade">
+        <p id="kick" class="mono"></p>
+        <div class="mask"><h1 id="ttl"></h1></div>
+        <p id="sub">One box for a 3-in-1 machine: print, laser and CNC. It knows each mode's normal.</p>
+      </header>
+
+      <aside id="bom" class="fade">
+        <div class="hd"><span>No.</span><span>Part</span></div>
+      </aside>
+
+      <ol id="steps" class="fade"></ol>
+
+      <section id="modes" class="card fade">
+        <p class="tt">Learned normal, by mode</p>
+        <div class="row" data-m="print"><span class="mn">Print</span><svg viewBox="0 0 300 56" id="m-print"></svg><span class="use">in use</span></div>
+        <div class="row" data-m="laser"><span class="mn">Laser</span><svg viewBox="0 0 300 56" id="m-laser"></svg><span class="use">in use</span></div>
+        <div class="row" data-m="cnc"><span class="mn">CNC</span><svg viewBox="0 0 300 56" id="m-cnc"></svg><span class="use">in use</span></div>
+        <p class="foot">illustrative</p>
+      </section>
+
+      <section id="chart" class="card fade">
+        <div class="top"><p class="tt" id="charttt">Multimaker 1 · CNC</p><span class="tag" id="charttag"><i></i>Normal range</span></div>
+        <svg id="chartsvg" width="508" height="210" viewBox="0 0 508 210"></svg>
+      </section>
+
+      <section id="detail" class="card fade">
+        <p class="dl">Detail A · display on the box</p>
+        <div class="scr"><i id="dlight"></i><div class="glass"><p id="d1">Enter PIN</p><p id="d2">PIN ____</p></div></div>
+      </section>
+
+      <p id="applabel" class="fade">Owner app</p>
+      <section id="alert" class="card fade">
+        <div class="ah">
+          <span class="badge"><i></i>Irregular</span>
+          <p class="at">Multimaker 1 looks irregular</p>
+          <p class="ar" id="areason">Current keeps climbing during the cut. In use by Priya Nair.</p>
+        </div>
+        <div class="af" id="afoot"></div>
+      </section>
+
+      <footer id="tblock" class="fade">
+        <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">Multimaker module</p></div></div>
+        <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.1</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
+        <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
+        <p class="note">Concept only, not built or tested yet. The box needs CSA certification before sale.</p>
+      </footer>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button type="button" id="b-assembled">Assembled</button>
+    <button type="button" id="b-pieces">In pieces</button>
+    <button type="button" id="b-system">On the multimaker</button>
+    <button type="button" id="b-how">How it works</button>
+    <button type="button" id="b-modes">Modes</button>
+    <button type="button" id="b-play" class="play">Play</button>
+    <input type="range" id="scrub" min="0" max="66" step="0.01" value="16.4" aria-label="Position in the animation">
+    <span id="clock">0:16 / 1:06</span>
+    <p id="hint">Drag the model to turn it, scroll or pinch to zoom, double click to reset the view.</p>
+  </div>
+
+  <div id="notes">
+    <section><h2>Parts</h2><ol id="n-parts"></ol></section>
+    <section><h2>How it works</h2><ol id="n-steps"></ol></section>
+    <section><h2>About this prototype</h2>
+      <p>A concept for PREVUMO's multimaker module (PD B2: one module per machine), for a 3-in-1 machine that swaps heads between 3D printing, laser engraving and CNC carving. It has not been built or tested. The box is the same as the 3D printer one: keypad, current sensor, ESP32 with Wi-Fi and a certified relay rated up to 15 A at 120 V, so the machine plugs into the box. New here: after the PIN the member picks the mode on the keypad, so the box compares the session with that mode's own normal range. A short spike when the CNC spindle spins up is normal and raises no alert. The patterns, the chart and the alert are illustrations, not measured data, and the animation runs as a time-lapse.</p>
+    </section>
+  </div>
+</div>
+
+<!--IMPORTMAP-->
+<script type="importmap">{ "imports": { "three": "../../node_modules/three/build/three.module.js", "three/addons/": "../../node_modules/three/examples/jsm/" } }</script>
+<!--/IMPORTMAP-->
+<script type="module">
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+import { Line2 } from "three/addons/lines/Line2.js";
+import { LineGeometry } from "three/addons/lines/LineGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+
+const C = {
+  bg: "#F3EBDD", surface: "#FFFDF8", border: "#E3D6C0", ink: "#1F3D2B", inkDeep: "#16301F", inkSoft: "#2C4D39", muted: "#5B6B5F",
+  green: "#2F6B45", gtint: "#D6E4D3", orange: "#E07A2E", otint: "#F6D2B4", rust: "#A63D1F", idle: "#EDE4D3", idlemark: "#81897A",
+};
+const W = 1920, H = 1080, DUR = 66;
+const FILM = new URLSearchParams(location.search).has("film");
+if (FILM) document.documentElement.classList.add("film");
+const $ = (s) => document.querySelector(s);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const outCubic = (k) => 1 - Math.pow(1 - k, 3);
+const outBack = (k, s = 1.25) => 1 + (s + 1) * Math.pow(k - 1, 3) + s * Math.pow(k - 1, 2);
+const rnd = (i) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+const within = (t, spans) => spans.some(([a, b]) => t >= a && t < b);
+
+// ---------------- timeline (seconds) ----------------
+const T = {
+  explode: 4.2, bomAt: [7.4, 8.8, 10.2, 11.6, 13.0, 14.4, 15.8], assemble: 17.2, sysAt: [20.0, 20.8, 21.6], how: 23.0,
+  steps: [23.6, 27.2, 31.0, 36.0, 41.4, 48.4, 54.4, 60.4],
+  keys: [24.6, 25.1, 25.6, 26.1], modeKey: 28.4, relay: 29.4,
+  spin: 37.0, spinEnd: 37.9, cutStart: 37.9,
+  climb: 42.2, alertIn: 44.2, tapShut: 45.8, confirmIn: 46.3, tapConfirm: 47.4, logged: 47.9, stop: 48.5,
+  idleOn: 55.2, countdown: 56.8, autoOff: 59.2, end: 60.6, explode2: 61.0,
+};
+const POWER = [[T.relay, T.stop], [T.idleOn, T.autoOff]];
+const SESSION = POWER;
+const PIN = ["2", "2", "9", "0"];
+
+// ---------------- renderer ----------------
+const canvas = $("#gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(C.bg, 1);
+let PR = 1;
+const RES = new THREE.Vector2(W, H);
+function setPR(pr) {
+  PR = pr; renderer.setPixelRatio(pr); renderer.setSize(W, H, false); RES.set(W * pr, H * pr);
+  for (const m of hullMats) m.uniforms.px.value = m.userData.px * pr;
+  for (const m of lineMats) { m.resolution.copy(RES); m.linewidth = m.userData.w * pr; }
+}
+
+const scene = new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff, 0.64 * Math.PI));
+const sun = new THREE.DirectionalLight(0xffffff, 0.36 * Math.PI);
+sun.position.set(-45, 90, 70);
+scene.add(sun);
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 2000);
+
+const GRAD = (() => {
+  const tx = new THREE.DataTexture(new Uint8Array([120, 200, 255]), 3, 1, THREE.RedFormat);
+  tx.minFilter = tx.magFilter = THREE.NearestFilter; tx.needsUpdate = true; return tx;
+})();
+
+const hullMats = [];
+function hullMaterial(px, color) {
+  const m = new THREE.ShaderMaterial({
+    uniforms: { px: { value: px }, res: { value: RES }, color: { value: new THREE.Color(color) }, opacity: { value: 1 } },
+    vertexShader: `uniform float px; uniform vec2 res;
+      void main() {
+        vec4 c = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vec3 n = normalize(normalMatrix * normal);
+        vec2 d = (projectionMatrix * vec4(n, 0.0)).xy;
+        float l = length(d); if (l > 1e-5) d /= l;
+        c.xy += d * px * 2.0 / res * c.w;
+        gl_Position = c;
+      }`,
+    fragmentShader: `uniform vec3 color; uniform float opacity;
+      void main() { gl_FragColor = vec4(color, opacity);
+      #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide,
+  });
+  m.userData.px = px; hullMats.push(m); return m;
+}
+const HULL = { mod: hullMaterial(2.6, C.inkDeep), ctx: hullMaterial(2.2, C.inkDeep) };
+const hullGeo = new WeakMap();
+function addHull(mesh, mat) {
+  let g = hullGeo.get(mesh.geometry);
+  if (!g) {
+    g = mesh.geometry.clone();
+    for (const k of Object.keys(g.attributes)) if (k !== "position") g.deleteAttribute(k);
+    g = mergeVertices(g, 1e-3); g.computeVertexNormals(); hullGeo.set(mesh.geometry, g);
+  }
+  const h = new THREE.Mesh(g, mat); h.renderOrder = -1; mesh.add(h); return h;
+}
+
+const ctxMats = [];
+const lineMats = [];
+function toon(hex, ctx) { const m = new THREE.MeshToonMaterial({ color: hex, gradientMap: GRAD }); if (ctx) ctxMats.push(m); return m; }
+function mk(geo, hex, o = {}) {
+  const m = new THREE.Mesh(geo, o.mat || toon(hex, o.ctx));
+  if (o.outline !== false) addHull(m, o.ctx ? HULL.ctx : HULL.mod);
+  if (o.p) m.position.set(...o.p);
+  if (o.r) m.rotation.set(...o.r);
+  return m;
+}
+const RB = (w, h, d, r = 0.4, s = 3) => new RoundedBoxGeometry(w, h, d, s, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01));
+const CYL = (r, h, n = 28) => new THREE.CylinderGeometry(r, r, h, n);
+
+function canvasTex(w, h) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8;
+  return { c, g: c.getContext("2d"), tx, key: "" };
+}
+function texPlane(w, h, tex, ctx) {
+  const m = new THREE.MeshBasicMaterial({ map: tex.tx, transparent: true });
+  if (ctx) ctxMats.push(m);
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
+}
+function rr(g, x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+function outletFace(g, cx, cy, s) {
+  g.fillStyle = C.ink;
+  rr(g, cx - 26 * s, cy - 30 * s, 9 * s, 30 * s, 3 * s); g.fill();
+  rr(g, cx + 17 * s, cy - 30 * s, 9 * s, 24 * s, 3 * s); g.fill();
+  g.beginPath(); g.arc(cx, cy + 22 * s, 9 * s, Math.PI, 0); g.lineTo(cx + 9 * s, cy + 30 * s); g.lineTo(cx - 9 * s, cy + 30 * s); g.closePath(); g.fill();
+}
+
+// ======================= the module (same box as the 3D printer one) =======================
+const M = new THREE.Vector3(0, 100, 0);
+const mod = new THREE.Group(); mod.position.copy(M); scene.add(mod);
+const P = {};
+function layer(name, explodeZ, order) { const g = new THREE.Group(); g.userData = { ez: explodeZ, order }; mod.add(g); P[name] = g; return g; }
+
+const base = layer("base", 0, 6);
+base.add(mk(RB(14, 20, 4.4, 0.6), C.ink, { p: [0, 0, -0.8] }));
+base.add(mk(CYL(0.62, 1.3, 20), C.muted, { p: [-3.5, -10.5, -0.8] }));
+for (const y of [10.9, -10.9]) base.add(mk(RB(5, 1.8, 0.5, 0.2), C.ink, { p: [0, y, -2.75] }));
+base.add(mk(RB(0.7, 5.6, 3.6, 0.25), C.surface, { p: [7.1, -4.6, -0.8] }));
+const sideOut = canvasTex(180, 280);
+{ const g = sideOut.g; g.fillStyle = C.surface; g.fillRect(0, 0, 180, 280); outletFace(g, 90, 130, 2.2); sideOut.tx.needsUpdate = true; }
+const sideFace = texPlane(3.2, 5.0, sideOut); sideFace.position.set(7.47, -4.6, -0.8); sideFace.rotation.y = Math.PI / 2; base.add(sideFace);
+
+const psu = layer("psu", 8, 5);
+psu.add(mk(RB(7.2, 4.2, 2.2, 0.35), C.surface, { p: [0, -5.6, -0.4] }));
+for (const x of [-2.3, 0, 2.3]) psu.add(mk(RB(1.5, 1.1, 0.8, 0.15), C.gtint, { p: [x, -7.1, 1.0] }));
+
+const board = layer("board", 15, 4);
+board.add(mk(RB(12.4, 18, 0.2, 0.08, 2), C.green, { p: [0, 0, 0.9] }));
+board.add(mk(RB(3.0, 4.0, 0.45, 0.12), C.idle, { p: [2.8, 4.6, 1.25] }));
+board.add(mk(RB(3.0, 1.1, 0.12, 0.05), C.inkSoft, { p: [2.8, 7.25, 1.05], outline: false }));
+for (const [x, y] of [[-3.4, 4.8], [-3.4, 2.4], [0.2, 1.4]]) board.add(mk(RB(1.5, 1.5, 0.35, 0.1), C.inkDeep, { p: [x, y, 1.15], outline: false }));
+board.add(mk(new THREE.TorusGeometry(1.05, 0.42, 12, 28), C.ink, { p: [3.4, -2.2, 1.45] }));
+for (const x of [-1.6, 1.4]) board.add(mk(RB(2.2, 1.2, 1.2, 0.15), C.gtint, { p: [x, -7.6, 1.6] }));
+board.add(mk(RB(4.4, 0.7, 0.6, 0.15), C.inkDeep, { p: [0, 8.2, 1.3] }));
+
+const relay = layer("relay", 20.5, 3);
+relay.add(mk(RB(4.2, 3.2, 1.6, 0.3), C.surface, { p: [-2.8, -4.6, 1.8] }));
+const relayTex = canvasTex(260, 200);
+const relayLab = texPlane(3.6, 2.7, relayTex); relayLab.position.set(-2.8, -4.6, 2.62); relay.add(relayLab);
+
+const cover = layer("cover", 27, 2);
+cover.add(mk(RB(14, 20, 1.2, 0.6), C.ink, { p: [0, 0, 2.0] }));
+const wordTex = canvasTex(512, 96);
+const keyTex = [];
+function paintStatic() {
+  { const g = wordTex.g; g.clearRect(0, 0, 512, 96); g.fillStyle = C.bg; g.font = "700 64px 'Space Grotesk'"; g.textAlign = "center"; g.textBaseline = "middle"; g.letterSpacing = "10px"; g.fillText("PREVUMO", 256, 50); wordTex.tx.needsUpdate = true; }
+  for (const kt of keyTex) { const g = kt.g; g.clearRect(0, 0, 160, 108); g.fillStyle = C.ink; g.font = `600 ${kt.label.length > 1 ? 54 : 66}px 'JetBrains Mono'`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(kt.label, 80, 58); kt.tx.needsUpdate = true; }
+  { const g = relayTex.g; g.fillStyle = C.surface; g.fillRect(0, 0, 260, 200); g.fillStyle = C.ink; g.font = "700 64px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("15 A", 130, 72); g.font = "500 46px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText("120 V", 130, 140); relayTex.tx.needsUpdate = true; }
+  screenTex.key = ""; mmTex.key = "";
+}
+const word = texPlane(6.4, 1.2, wordTex); word.position.set(0, -8.65, 2.62); cover.add(word);
+const screws = layer("screws", 41, 0);
+for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) screws.add(mk(CYL(0.42, 0.5, 16), C.idlemark, { p: [x, y, 2.7], r: [Math.PI / 2, 0, 0] }));
+
+const disp = layer("display", 34, 1);
+disp.add(mk(RB(10, 4.8, 0.5, 0.25), C.inkDeep, { p: [0, 4.8, 2.85] }));
+const screenTex = canvasTex(640, 280);
+const screen = texPlane(9.1, 3.98, screenTex); screen.position.set(0, 4.8, 3.11); disp.add(screen);
+const lightMat = new THREE.MeshBasicMaterial({ color: C.idlemark });
+const light = new THREE.Mesh(RB(6, 0.55, 0.35, 0.17), lightMat); light.position.set(0, 8.25, 2.8); addHull(light, HULL.mod); disp.add(light);
+
+const pad = layer("keypad", 34, 1);
+pad.add(mk(RB(10, 9.4, 0.3, 0.12), C.inkSoft, { p: [0, -2.6, 2.75] }));
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "OK"];
+const keyMeshes = {};
+KEYS.forEach((k, i) => {
+  const col = i % 3, row = Math.floor(i / 3);
+  const key = mk(RB(2.5, 1.7, 0.6, 0.25), C.bg, { p: [(col - 1) * 3.1, 0.95 - row * 2.2, 3.05] });
+  const kt = canvasTex(160, 108); kt.label = k; keyTex.push(kt);
+  const lab = texPlane(2.2, 1.48, kt); lab.position.z = 0.31; key.add(lab);
+  pad.add(key); keyMeshes[k] = key;
+});
+
+const axisMat = new LineMaterial({ color: C.idlemark, linewidth: 1.6, dashed: true, dashSize: 0.9, gapSize: 0.7, transparent: true, worldUnits: false });
+axisMat.userData.w = 1.6; lineMats.push(axisMat);
+const axes = new THREE.Group(); mod.add(axes);
+for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) {
+  const lg = new LineGeometry(); lg.setPositions([x, y, -1, x, y, 44]);
+  const ln = new Line2(lg, axisMat); ln.computeLineDistances(); axes.add(ln);
+}
+
+// ======================= on the multimaker: context =======================
+const ctx = new THREE.Group(); scene.add(ctx);
+const cm = (geo, hex, o = {}) => mk(geo, hex, { ...o, ctx: true });
+
+ctx.add(cm(RB(28, 40, 1.2, 0.4), C.idle, { p: [1, 96, -3.6] }));
+const wall = new THREE.Group(); wall.position.set(-6.5, 81.5, -2.75); ctx.add(wall);
+wall.add(cm(RB(5, 8, 0.5, 0.3), C.surface));
+const wallTex = canvasTex(200, 320);
+{ const g = wallTex.g; g.fillStyle = C.surface; g.fillRect(0, 0, 200, 320); outletFace(g, 100, 92, 1.5); outletFace(g, 100, 228, 1.5); wallTex.tx.needsUpdate = true; }
+const wallFace = texPlane(4.6, 7.4, wallTex, true); wallFace.position.z = 0.27; wall.add(wallFace);
+ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [-6.5, 83.2, -1.6] }));
+ctx.add(cm(RB(2.6, 2.2, 1.8, 0.45), C.ink, { p: [8.75, 95.4, -0.8] }));
+
+// bench
+ctx.add(cm(RB(70, 3, 51, 0.5), C.border, { p: [43, 70.5, 23] }));
+for (const [x, z] of [[11, 1.5], [75, 1.5], [11, 44.5], [75, 44.5]]) ctx.add(cm(RB(3, 69, 3, 0.4), C.border, { p: [x, 34.5, z] }));
+
+// the multimaker: a square base, two vertical modules, an X beam that rides up and down, one swappable head
+const mm = new THREE.Group(); mm.position.set(46, 72, 22); ctx.add(mm);
+mm.add(cm(RB(40, 5, 36, 1), C.surface, { p: [0, 2.5, 0] }));
+const mmTex = canvasTex(260, 110);
+const mmLcd = texPlane(8, 3.4, mmTex, true); mmLcd.position.set(-10, 2.6, 18.04); mm.add(mmLcd);
+const plate = new THREE.Group(); mm.add(plate);
+plate.add(cm(RB(30, 1.2, 28, 0.3), C.idle, { p: [0, 5.6, 0] }));
+// CNC stock with the pocket being cut, and the board the laser engraved
+const stock = new THREE.Group(); plate.add(stock);
+stock.add(cm(RB(16, 3, 11, 0.3), C.border, { p: [0, 7.7, 0] }));
+const pocket = cm(RB(1, 0.2, 2.4, 0.08), C.inkSoft, { p: [0, 9.25, 0], outline: false }); stock.add(pocket);
+const boardL = new THREE.Group(); plate.add(boardL);
+boardL.add(cm(RB(18, 0.8, 12, 0.2), C.border, { p: [0, 6.6, 0] }));
+const engTex = canvasTex(540, 360);
+{ const g = engTex.g; g.clearRect(0, 0, 540, 360); g.strokeStyle = C.inkSoft; g.lineWidth = 12; g.lineJoin = g.lineCap = "round";
+  g.beginPath(); g.moveTo(40, 200); for (let x = 40; x < 300; x += 20) g.lineTo(x, 200 + (rnd(x) - 0.5) * 14);
+  g.lineTo(320, 120); g.lineTo(345, 290); g.lineTo(370, 160); g.lineTo(392, 230); g.lineTo(410, 200); for (let x = 420; x <= 500; x += 20) g.lineTo(x, 200 + (rnd(x + 3) - 0.5) * 14); g.stroke(); engTex.tx.needsUpdate = true; }
+const engr = texPlane(16, 10.7, engTex, true); engr.rotation.x = -Math.PI / 2; engr.position.set(0, 7.03, 0); boardL.add(engr);
+for (const x of [-20, 20]) mm.add(cm(RB(4, 46, 5, 0.5), C.ink, { p: [x, 28, -9] }));
+const beam = new THREE.Group(); mm.add(beam);
+beam.add(cm(RB(36, 3.6, 4.4, 0.5), C.ink, { p: [0, 0, -6.4] }));
+const carriage = new THREE.Group(); beam.add(carriage);
+carriage.add(cm(RB(7, 5, 2, 0.4), C.ink, { p: [0, 0, -3.6] }));
+// three heads: one rides the carriage, the others wait on the tool shelf
+function headPrint() { const g = new THREE.Group(); g.add(cm(RB(6, 7, 5, 0.6), C.surface, { p: [0, 0, 0] })); g.add(cm(new THREE.ConeGeometry(0.75, 1.4, 16), C.idlemark, { p: [0, -4.2, 0], r: [Math.PI, 0, 0] })); g.userData.tip = -4.9; return g; }
+function headLaser() { const g = new THREE.Group(); g.add(cm(RB(6, 7, 5, 0.6), C.inkSoft, { p: [0, 0, 0] })); g.add(cm(CYL(1.2, 2.2, 20), C.idlemark, { p: [0, -4.6, 0] })); g.add(cm(RB(3.4, 1.4, 0.3, 0.1), C.gtint, { p: [0, 1.4, 2.55], outline: false })); g.userData.tip = -5.7; return g; }
+function headCnc() { const g = new THREE.Group(); g.add(cm(CYL(2.7, 7.4, 28), C.ink, { p: [0, 0.4, 0] })); g.add(cm(CYL(1.25, 1.4, 20), C.idlemark, { p: [0, -4.0, 0] })); const bit = cm(CYL(0.38, 2.6, 10), C.muted, { p: [0, -6.0, 0] }); g.add(bit); g.userData.bit = bit; g.userData.tip = -7.3; return g; }
+const HEADS = { print: headPrint(), laser: headLaser(), cnc: headCnc() };
+const shelf = new THREE.Group(); shelf.position.set(18, 72, 36); ctx.add(shelf);
+shelf.add(cm(RB(16, 1.6, 9, 0.3), C.idle, { p: [0, 0.8, 0] }));
+const SHELF_SLOTS = [[-4, 0], [4, 0]];
+// chips thrown by the bit while it cuts
+const chips = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: C.border }), 18);
+chips.frustumCulled = false; chips.instanceMatrix.setUsage(THREE.DynamicDrawUsage); mm.add(chips);
+// footprints
+{ const m = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); ctxMats.push(m);
+  const f = new THREE.Mesh(new THREE.PlaneGeometry(44, 40), m); f.rotation.x = -Math.PI / 2; f.position.set(46, 72.03, 22); ctx.add(f); }
+
+const V = (a) => a.map((p) => new THREE.Vector3(...p));
+const curve = (pts) => new THREE.CatmullRomCurve3(V(pts), false, "catmullrom", 0.4);
+const PATH = {
+  cordIn: curve([[-6.5, 84.6, -1.6], [-6.4, 86.6, -1.6], [-4.4, 87.4, -1.2], [-3.5, 88.6, -0.9], [-3.5, 89.3, -0.8]]),
+  cordOut: curve([[10.0, 95.4, -0.8], [13, 93.6, 0.2], [16, 84, 1.8], [19, 74.5, 3.0], [23, 72.7, 3.4], [28, 72.8, 3.6], [31, 74.6, 3.8]]),
+};
+ctx.add(cm(new THREE.TubeGeometry(PATH.cordIn, 40, 0.55, 10), C.ink));
+ctx.add(cm(new THREE.TubeGeometry(PATH.cordOut, 120, 0.6, 10), C.ink));
+
+function beads(n, r, hex) {
+  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(r, 12, 10), new THREE.MeshBasicMaterial({ color: hex }), n);
+  m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.frustumCulled = false; ctx.add(m); return m;
+}
+const B = { power: beads(16, 0.8, C.green) };
+const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+function placeBeads(mesh, list) {
+  for (let i = 0; i < mesh.count; i++) {
+    const b = list[i];
+    if (!b || b.s <= 0.001) { mesh.setMatrixAt(i, ZERO); continue; }
+    b.curve.getPointAt(clamp(b.u), tmpV); tmpM.makeScale(b.s, b.s, b.s).setPosition(tmpV); mesh.setMatrixAt(i, tmpM);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+}
+
+// ======================= parts, steps, callouts =======================
+const PARTS = [
+  { n: 1, name: "Keypad", role: "Members type their PIN, then pick print, laser or CNC.", obj: pad, a: [0, -6.5, 3.3], d: [-30, 120] },
+  { n: 2, name: "Display and status light", role: "Who is on, the mode, and what the box is doing.", obj: disp, a: [-1, 8.5, 2.8], d: [-40, -120] },
+  { n: 3, name: "Front cover", role: "Sealed, closed with four screws.", obj: cover, a: [0, 10, 2.0], d: [-10, -125] },
+  { n: 4, name: "Controller board", role: "ESP32 with Wi-Fi and a built-in current sensor.", obj: board, a: [2.8, 6.5, 1.5], d: [10, -125] },
+  { n: 5, name: "Relay", role: "Certified, up to 15 A at 120 V. Switches the machine directly.", obj: relay, a: [-2.8, -6.2, 1.8], d: [-30, 120] },
+  { n: 6, name: "Power supply", role: "Runs the box from the same outlet.", obj: psu, a: [1.5, -7.7, -0.4], d: [10, 125] },
+  { n: 7, name: "Back housing", role: "Wall mount, a cord to the wall, and an outlet for the machine.", obj: base, a: [7.5, -4.6, -0.8], d: [80, 110] },
+];
+const STEPS = [
+  ["Locked until a PIN", "No PIN, no power. Every member has their own PIN."],
+  ["Picks the mode", "After the PIN the member presses 1 print, 2 laser or 3 CNC. The session is logged with its mode."],
+  ["Each mode has its own normal", "Printing, engraving and carving draw current differently. The box compares the session with the normal range for that mode."],
+  ["Spin-up spike: that's normal", "When the CNC spindle starts it draws a short spike. That is normal for CNC, so no alert."],
+  ["Flags an irregular pattern", "The current keeps climbing during the cut. The owner gets an alert and decides what happens."],
+  ["Stops safely", "The relay opens, and nothing restarts on its own."],
+  ["Idle? Off", "A finished job left switched on: the box turns it off after the idle time the owner sets."],
+];
+const CALLOUTS = [
+  { text: "Plugs into a normal 120 V outlet", obj: wall, a: [-2.6, 0, 0.3], d: [-190, 70], at: T.sysAt[0] },
+  { text: "The machine plugs into the box", obj: base, a: [7.6, -4.6, -0.8], d: [240, -80], at: T.sysAt[1] },
+  { text: "Three heads: print, laser, CNC", obj: shelf, a: [0, 4, 0], d: [-230, 40], at: T.sysAt[2] },
+];
+
+const bomEl = $("#bom");
+PARTS.forEach((p) => bomEl.insertAdjacentHTML("beforeend", `<div class="row" data-n="${p.n}"><span class="no">${p.n}</span><div><p class="nm">${p.name}</p><p class="rl">${p.role}</p></div></div>`));
+const stepsEl = $("#steps");
+STEPS.forEach(([a, b], i) => stepsEl.insertAdjacentHTML("beforeend", `<li><span class="sn">${i + 1}</span><div><p class="st">${a}</p><p class="sd">${b}</p></div></li>`));
+const balloons = $("#balloons");
+PARTS.forEach((p) => balloons.insertAdjacentHTML("beforeend", `<div class="balloon" data-n="${p.n}">${p.n}</div>`));
+const callEl = $("#callouts");
+CALLOUTS.forEach((c) => callEl.insertAdjacentHTML("beforeend", `<div class="callout">${c.text}</div>`));
+$("#n-parts").innerHTML = PARTS.map((p) => `<li data-n="${p.n}"><span class="n">${p.n}</span><div><b>${p.name}</b><span>${p.role}</span></div></li>`).join("");
+$("#n-steps").innerHTML = STEPS.map(([a, b], i) => `<li data-i="${i}"><span class="n">${i + 1}</span><div><b>${a}</b><span>${b}</span></div></li>`).join("");
+const sheet = $("#sheet");
+for (const [l, t, w, h] of [[0, 120, 14, 2], [0, 860, 14, 2], [1854, 120, 14, 2], [1854, 860, 14, 2], [600, 0, 2, 14], [1266, 0, 2, 14], [600, 1014, 2, 14], [1266, 1014, 2, 14]]) sheet.insertAdjacentHTML("beforeend", `<i style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"></i>`);
+
+// learned patterns, one per mode (illustrative)
+function miniPath(fn) { let s = ""; for (let i = 0; i <= 60; i++) { const x = i * 5, v = fn(i / 60); s += `${i ? "L" : "M"}${x},${(50 - v * 44).toFixed(1)}`; } return s; }
+const MODE_SHAPES = {
+  print: { band: [0.55, 0.95, 0.3, 0.62, 0.2], fn: (u) => (u < 0.22 ? 0.82 + (rnd(u * 99) - 0.5) * 0.05 : 0.46 + 0.1 * Math.tanh(3 * Math.sin(u * 60))) },
+  laser: { band: [0.2, 0.6, 0.2, 0.6, 0], fn: (u) => 0.28 + (Math.sin(u * 47) > 0 ? 0.22 : 0) + (rnd(u * 77) - 0.5) * 0.04 },
+  cnc: { band: [0.35, 0.98, 0.32, 0.66, 0.1], fn: (u) => (u < 0.06 ? 0.15 : u < 0.13 ? 0.95 - (u - 0.06) * 5 : 0.5 + (rnd(Math.floor(u * 80)) - 0.5) * 0.14) },
+};
+for (const [k, m] of Object.entries(MODE_SHAPES)) {
+  const [hiA, hiB, lo, hi, until] = m.band;
+  const band = k === "print" ? `<rect x="0" y="${50 - 0.95 * 44}" width="${0.22 * 300}" height="${0.3 * 44}" fill="${C.gtint}"/><rect x="${0.22 * 300}" y="${50 - hi * 44}" width="${0.78 * 300}" height="${(hi - lo) * 44}" fill="${C.gtint}"/>`
+    : k === "cnc" ? `<rect x="${0.06 * 300}" y="${50 - 1.0 * 44}" width="${0.08 * 300}" height="${0.62 * 44}" fill="${C.gtint}"/><rect x="${0.14 * 300}" y="${50 - hi * 44}" width="${0.86 * 300}" height="${(hi - lo) * 44}" fill="${C.gtint}"/>`
+      : `<rect x="0" y="${50 - hiB * 44}" width="300" height="${(hiB - hiA) * 44}" fill="${C.gtint}"/>`;
+  $(`#m-${k}`).innerHTML = `${band}<path d="${miniPath(m.fn)}" fill="none" stroke="${C.green}" stroke-width="3" stroke-linejoin="round"/>`;
+}
+
+// ======================= camera =======================
+const SYS = [36, 103, 20];
+const BOX = [2, 97, 2];
+const MMC = [40, 88, 22];
+const CAM = [
+  [0, 0, 100, 6, 22, 12, 31, 300, 0],
+  [4.0, 0, 100, 6, 30, 13, 31, 300, 0],
+  [6.8, 0, 100, 20, 58, 16, 58, -235, 20],
+  [16.6, 0, 100, 20, 68, 19, 58, -235, 20],
+  [19.0, 6, 98, 6, 42, 15, 76, -235, 40],
+  [20.8, ...SYS, 36, 15, 104, -250, 40],
+  [22.6, ...SYS, 34, 15, 104, -250, 40],
+  [24.0, ...BOX, 24, 7, 50, 0, 30],
+  [28.8, ...BOX, 28, 8, 50, 0, 30],
+  [29.8, ...SYS, 33, 15, 104, -13, 40],
+  [35.4, ...SYS, 36, 15, 104, -13, 40],
+  [36.4, ...SYS, 30, 15, 100, 10, 40],
+  [41.0, ...SYS, 34, 15, 100, 10, 40],
+  [42.0, ...SYS, 34, 15, 104, -13, 40],
+  [48.0, ...SYS, 37, 15, 104, -13, 40],
+  [49.0, ...SYS, 34, 15, 104, -13, 40],
+  [54.0, ...SYS, 36, 15, 104, -13, 40],
+  [55.0, ...SYS, 33, 15, 104, 0, 40],
+  [60.2, ...SYS, 35, 15, 104, 0, 40],
+  [62.4, 0, 100, 20, 52, 16, 58, -290, 140],
+  [66, 0, 100, 20, 58, 17, 58, -290, 140],
+];
+const view = { yaw: 0, pitch: 0, zoom: 1 };
+const D2R = Math.PI / 180;
+function camAt(t) {
+  let i = 0; while (i < CAM.length - 2 && t >= CAM[i + 1][0]) i++;
+  const a = CAM[i], b = CAM[i + 1], k = ease(prog(t, a[0], b[0]));
+  return a.map((v, j) => lerp(v, b[j], k));
+}
+function placeCamera(t) {
+  const [, tx, ty, tz, yaw0, pitch0, h0, ox, oy] = camAt(t);
+  const yaw = (yaw0 + view.yaw) * D2R, pitch = clamp(pitch0 + view.pitch, -10, 70) * D2R, h = h0 / view.zoom;
+  camera.position.set(tx + Math.sin(yaw) * Math.cos(pitch) * 600, ty + Math.sin(pitch) * 600, tz + Math.cos(yaw) * Math.cos(pitch) * 600);
+  camera.lookAt(tx, ty, tz);
+  const hw = (h / 2) * (W / H), shift = (ox / H) * h, vshift = (oy / H) * h;
+  camera.left = -hw - shift; camera.right = hw - shift; camera.top = h / 2 + vshift; camera.bottom = -h / 2 + vshift;
+  camera.near = 1; camera.far = 2000; camera.updateProjectionMatrix();
+}
+function toScreen(obj, local) {
+  tmpV.set(...local); obj.localToWorld(tmpV); tmpV.project(camera);
+  return [(tmpV.x + 1) / 2 * W, (1 - tmpV.y) / 2 * H];
+}
+
+// ======================= state =======================
+function explodeAmount(t, order) {
+  const d = order * 0.2;
+  const out = outBack(prog(t, T.explode + d, T.explode + d + 1.5), 1.1);
+  const back = ease(prog(t, T.assemble + (6 - order) * 0.16, T.assemble + (6 - order) * 0.16 + 1.4));
+  const out2 = outBack(prog(t, T.explode2 + d, T.explode2 + d + 1.5), 1.1);
+  return out * (1 - back) + out2;
+}
+function ctxAlpha(t) { return prog(t, 18.6, 19.6) * (1 - prog(t, T.end, T.end + 0.8)); }
+function stepIndex(t) { let s = -1; T.steps.forEach((a, i) => { if (i < STEPS.length && t >= a) s = i; }); return t >= T.steps[STEPS.length] ? STEPS.length : s; }
+function lightColor(t) {
+  if (t >= T.stop && t < T.steps[6]) return C.rust;
+  if (t >= T.climb + 1.2 && t < T.stop) return C.orange;
+  if (within(t, SESSION)) return C.green;
+  return C.idlemark;
+}
+const mode = (t) => (t >= T.steps[6] - 0.2 ? "laser" : "cnc");
+const spinning = (t) => t >= T.spin && t < T.stop;
+const cutting = (t) => t >= T.cutStart && t < T.stop;
+
+// CNC current as the owner's app would chart it (illustrative); the learned range allows the spin-up spike
+const loadI = (tt) => 0.5 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.14 + 0.04 * Math.sin(tt * 3.1);
+function current(tt) {
+  if (tt < T.relay + 0.15) return 0;
+  if (tt < T.stop) {
+    if (tt < T.spin) return 0.14 + (rnd(Math.floor(tt * 10) + 5) - 0.5) * 0.03;
+    if (tt < T.spinEnd) { const k = prog(tt, T.spin, T.spinEnd); return 0.14 + (k < 0.2 ? k / 0.2 : Math.exp(-(k - 0.2) * 4)) * 0.98; }
+    if (tt < T.climb) return loadI(tt);
+    return loadI(tt) + 0.5 * outCubic(prog(tt, T.climb, T.climb + 2.2));
+  }
+  if (tt >= T.idleOn && tt < T.autoOff) return 0.1 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.03;
+  return 0;
+}
+function bandAt(tt) {
+  if (tt < T.spin - 0.1) return [0.05, 0.3];
+  if (tt < T.spinEnd + 0.1) return [0.1, 1.2];
+  const k = ease(prog(tt, T.spinEnd + 0.1, T.spinEnd + 0.5));
+  return [lerp(0.1, 0.33, k), lerp(1.2, 0.72, k)];
+}
+
+// ======================= display texts =======================
+function displayState(t) {
+  if (t < T.steps[0] || t >= T.end) return ["Enter PIN", "PREVUMO · Multimaker 1"];
+  if (t < T.keys[3] + 0.4) { const n = T.keys.filter((k) => t >= k).length; return ["Enter PIN", "PIN " + "•".repeat(n) + "_".repeat(4 - n)]; }
+  if (t < T.modeKey) return ["Hi, Priya", "1 Print  2 Laser  3 CNC"];
+  if (t < T.relay) return ["Mode: CNC", "Checking"];
+  if (t < T.steps[2]) return ["Mode: CNC", "Power on"];
+  if (t < T.spin) return ["Priya · CNC", "Using the CNC normal"];
+  if (t < T.spinEnd + 0.4) return ["Spindle starting", "Normal for CNC"];
+  if (t < T.climb + 1.2) { const s = Math.floor((t - T.relay) * 6); return ["Priya · carving", `Session ${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`]; }
+  if (t < T.stop) return ["Irregular current", "Owner notified"];
+  if (t < T.steps[6]) return ["Stopped by owner", "Won't restart on its own"];
+  if (t < T.idleOn) return ["Hi, Lucas", "Mode: Laser"];
+  if (t < T.countdown) return ["Lucas · laser done", "Machine still on"];
+  if (t < T.autoOff) { const left = Math.max(0, Math.ceil((T.autoOff - t) / ((T.autoOff - T.countdown) / 3))); return ["Idle", `Turning off in 0:0${left}`]; }
+  return ["Turned off", "Power off"];
+}
+function drawScreen(t) {
+  const [l1, l2] = displayState(t), key = l1 + "|" + l2;
+  if (key === screenTex.key) return; screenTex.key = key;
+  const g = screenTex.g; g.fillStyle = C.gtint; g.fillRect(0, 0, 640, 280);
+  g.fillStyle = C.ink; g.textBaseline = "alphabetic"; g.textAlign = "left";
+  g.font = "700 62px 'JetBrains Mono'"; g.fillText(l1, 34, 112, 572);
+  g.font = "500 40px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText(l2, 36, 196, 570);
+  screenTex.tx.needsUpdate = true;
+}
+function drawMachineLcd(t) {
+  const on = within(t, POWER);
+  const key = !on ? "OFF" : t >= T.idleOn ? "DONE" : cutting(t) ? "CARVING" : spinning(t) ? "SPINDLE" : "CNC";
+  if (mmTex.key === key) return; mmTex.key = key;
+  const g = mmTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 260, 110);
+  g.fillStyle = on ? C.green : C.idlemark; g.font = "700 40px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 130, 58, 236);
+  mmTex.tx.needsUpdate = true;
+}
+
+// ======================= overlays =======================
+const linesSvg = $("#lines");
+const ICON = {
+  power: '<svg viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>',
+  wrench: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>',
+  shield: '<svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+};
+let footKey = "";
+function alertFoot(t) {
+  const stage = t < T.confirmIn ? "ask" : t < T.logged ? "confirm" : "done";
+  if (stage !== footKey) {
+    footKey = stage;
+    $("#afoot").innerHTML = stage === "ask"
+      ? `<div class="btn qd" id="shut">${ICON.power}Shut down<div class="ring" id="ring1"></div></div><div class="btn pr">${ICON.wrench}Call technician</div><span style="flex:1"></span><div class="btn sec">${ICON.shield}Mark as OK</div>`
+      : stage === "confirm"
+        ? `<div class="btn sec">Cancel</div><span style="flex:1"></span><div class="btn dg" id="shut2">${ICON.power}Shut down<div class="ring" id="ring2"></div></div>`
+        : `<span class="logged">Decision logged: Shut down</span>`;
+    $("#areason").textContent = stage === "confirm" ? "The machine will stop and won't restart on its own." : stage === "done" ? "The machine is off. Logged for Priya's CNC session." : "Current keeps climbing during the cut. In use by Priya Nair.";
+  }
+  const press = (el, a) => { if (!el) return; const k = prog(t, a, a + 0.12) - prog(t, a + 0.16, a + 0.4); el.style.transform = `scale(${1 - 0.06 * k})`; };
+  if (stage === "ask") { press($("#shut"), T.tapShut); $("#ring1").style.opacity = String(prog(t, T.tapShut - 0.7, T.tapShut - 0.4) * (0.6 + 0.4 * Math.sin(t * 9))); }
+  if (stage === "confirm") { press($("#shut2"), T.tapConfirm); $("#ring2").style.opacity = String(prog(t, T.tapConfirm - 0.6, T.tapConfirm - 0.3) * (0.6 + 0.4 * Math.sin(t * 9))); }
+}
+
+function drawChart(t) {
+  const svg = $("#chartsvg"), w = 508, h = 210, x0 = 4, x1 = w - 4, y0 = 176, sc = 118;
+  const idle = t >= T.steps[6];
+  const [ta, tb] = idle ? [T.steps[6] + 0.6, T.end] : [T.relay - 0.4, T.steps[6] - 0.2];
+  const X = (tt) => x0 + (tt - ta) / (tb - ta) * (x1 - x0), Y = (v) => y0 - v * sc;
+  const end = Math.min(t, tb);
+  const pts = [], hot = [], hotPts = [];
+  for (let tt = ta; tt <= end; tt += 0.05) {
+    const v = current(tt); pts.push([X(tt), Y(v)]);
+    const out = !idle && tt < T.stop && v > bandAt(tt)[1];
+    if (out) { hotPts.push([X(tt), Y(v)]); if (Math.round(tt * 20) % 6 === 0) hot.push([X(tt), Y(v)]); } else if (hotPts.length) { hotPts.push([X(tt), Y(v)]); hotPts.push(null); }
+  }
+  const d = (arr) => { let s = "", pen = false; for (const p of arr) { if (!p) { pen = false; continue; } s += `${pen ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`; pen = true; } return s; };
+  let band = "";
+  if (!idle) {
+    const top = [], bot = [];
+    for (let tt = ta; tt <= tb + 0.001; tt += 0.05) { const [lo, hi] = bandAt(tt); top.push([X(tt), Y(hi)]); bot.unshift([X(tt), Y(lo)]); }
+    band = `<path d="${d(top)}L${bot.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("L")}Z" fill="${C.gtint}"/>`;
+  }
+  let flag = "";
+  const fk = !idle ? prog(t, T.spin + 0.3, T.spin + 0.7) : 0;
+  if (fk > 0) {
+    const fx = X(T.spin + 0.15), fy = Y(1.2) - 2;
+    flag = `<g opacity="${fk.toFixed(3)}"><line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy - 24}" stroke="${C.green}" stroke-width="3" stroke-linecap="round"/>
+      <path d="M${fx + 1.5},${fy - 24} L${fx + 20},${fy - 18} L${fx + 1.5},${fy - 12} Z" fill="${C.green}"/>
+      <text x="${fx + 26}" y="${fy - 11}" font-family="JetBrains Mono" font-weight="600" font-size="17" fill="${C.green}">Spin-up: normal for CNC</text></g>`;
+  }
+  const lineCol = t >= T.stop && !idle ? C.idlemark : C.green;
+  svg.innerHTML = `${band}
+    <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="${C.border}" stroke-width="2"/>
+    <path d="${d(pts)}" fill="none" stroke="${lineCol}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="${d(hotPts)}" fill="none" stroke="${C.orange}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${hot.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="${C.orange}" stroke="${C.surface}" stroke-width="2"/>`).join("")}
+    ${pts.length ? `<circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="7" fill="${lineCol}" stroke="${C.surface}" stroke-width="2.5"/>` : ""}
+    ${flag}
+    <text x="${x0}" y="${h - 4}" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">illustrative, time-lapse</text>
+    <text x="${x1}" y="${h - 4}" text-anchor="end" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">one reading a second</text>`;
+  $("#charttt").textContent = idle ? "Multimaker 1 · laser, on and idle" : "Multimaker 1 · CNC";
+  const tag = $("#charttag");
+  const tagKey = idle ? "idle" : t >= T.stop ? "off" : t >= T.climb + 1.2 ? "irr" : t >= T.spin && t < T.spinEnd + 0.4 ? "warm" : "ok";
+  if (tag.dataset.k !== tagKey) {
+    tag.dataset.k = tagKey; tag.classList.toggle("warm", tagKey === "warm");
+    tag.innerHTML = { ok: `<i></i>Normal range`, warm: `<i></i>Spin-up · normal`, irr: `<i style="background:${C.orange}"></i>Irregular`, off: `<i style="background:${C.rust}"></i>Shut down`, idle: `<i style="background:${C.idlemark}"></i>Idle` }[tagKey];
+  }
+}
+
+function show(el, a, op = 1, dy = 0) { el.style.opacity = String(a * op); el.style.transform = `translateY(${(1 - a) * dy}px)`; el.style.visibility = a <= 0.001 ? "hidden" : "visible"; }
+
+let headKey = "";
+function header(t) {
+  const phase = t < 4.4 ? "title" : t < T.how ? "pieces" : t < T.end ? "how" : "end";
+  const map = {
+    title: ["PREVUMO · PD B2 concept", "Multimaker module"],
+    pieces: ["Multimaker module", t < 18.6 ? "In pieces" : "On the multimaker"],
+    how: ["Multimaker module", "How it works"],
+    end: ["PREVUMO · PD B2 concept", "Multimaker module"],
+  };
+  const [kick, ttl] = map[phase], key = kick + ttl;
+  const last = Math.max(...[0, 4.4, 18.6, T.how, T.end].filter((s) => t >= s));
+  const k = outCubic(prog(t, last + 0.05, last + 0.65));
+  if (key !== headKey) { headKey = key; $("#kick").textContent = kick; $("#ttl").textContent = ttl; }
+  const big = phase === "title" || phase === "end";
+  $("#ttl").style.fontSize = big ? "96px" : "72px";
+  $("#ttl").style.transform = `translateY(${(1 - k) * 105}%)`;
+  $("#kick").style.opacity = String(k);
+  show($("#sub"), phase === "title" ? outCubic(prog(t, 0.8, 1.6)) * (1 - prog(t, 4.0, 4.4)) : 0, 1, 18);
+}
+
+// ======================= render one moment =======================
+function render(t) {
+  t = clamp(t, 0, DUR);
+  placeCamera(t);
+
+  for (const name in P) { const g = P[name]; g.position.z = g.userData.ez * explodeAmount(t, g.userData.order); }
+  const ex = explodeAmount(t, 3);
+  axisMat.opacity = clamp(ex * 1.4) * 0.9; axes.visible = ex > 0.02;
+
+  KEYS.forEach((k) => (keyMeshes[k].position.z = 3.05));
+  const press = (k, a) => { const p = prog(t, a, a + 0.08) - prog(t, a + 0.14, a + 0.3); keyMeshes[k].position.z = Math.min(keyMeshes[k].position.z, 3.05 - 0.26 * p); };
+  PIN.forEach((k, i) => press(k, T.keys[i]));
+  press("OK", T.keys[3] + 0.5);
+  press("3", T.modeKey); press("OK", T.modeKey + 0.5);
+  press("7", T.steps[6] + 0.3); press("2", T.steps[6] + 0.65);
+
+  drawScreen(t);
+  lightMat.color.set(lightColor(t));
+  if (lightColor(t) === C.orange) lightMat.color.lerp(new THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10));
+
+  const ca = ctxAlpha(t);
+  ctx.visible = ca > 0.004;
+  for (const m of ctxMats) { m.transparent = ca < 0.99 || !!m.map; m.opacity = ca; m.depthWrite = ca > 0.98; }
+  HULL.ctx.uniforms.opacity.value = ca; HULL.ctx.transparent = ca < 0.99;
+  for (const k in B) { B[k].material.transparent = ca < 0.99; B[k].material.opacity = ca; }
+  chips.material.transparent = ca < 0.99; chips.material.opacity = ca;
+
+  // the machine: mount the head for this mode, park the others on the shelf
+  drawMachineLcd(t);
+  const md = mode(t);
+  let slot = 0;
+  for (const [name, h] of Object.entries(HEADS)) {
+    if (name === md) { carriage.add(h); h.position.set(0, 0, 0); h.rotation.set(0, 0, 0); }
+    else { shelf.add(h); const [sx, sz] = SHELF_SLOTS[slot++]; h.position.set(sx, 1.6 - h.userData.tip, sz); h.rotation.set(0, 0, 0); }
+  }
+  stock.visible = md === "cnc"; boardL.visible = md === "laser";
+  const ck = cutting(t) ? prog(t, T.cutStart, T.stop) : t >= T.stop && md === "cnc" ? prog(T.stop, T.cutStart, T.stop) : 0;
+  const tip = HEADS[md].userData.tip;
+  const surface = md === "cnc" ? 9.2 : 7.1;
+  carriage.position.x = (md === "cnc" ? -5 + 10 * ck : 4) + (cutting(t) ? Math.sin((t - T.cutStart) * 9) * 0.4 : 0);
+  carriage.position.z = 0;
+  const plunge = cutting(t) ? 0.6 : 0;
+  beam.position.y = surface - tip - plunge + (cutting(t) || spinning(t) ? 0 : 3);
+  beam.position.z = 0;
+  pocket.scale.set(Math.max(0.01, 10 * ck), 1, 1); pocket.position.x = -5 + 5 * ck; pocket.visible = ck > 0.01;
+  if (HEADS.cnc.userData.bit) HEADS.cnc.userData.bit.rotation.y = spinning(t) ? t * 40 : 0;
+  // chips fly off the bit while cutting
+  for (let i = 0; i < chips.count; i++) {
+    if (!cutting(t) || ca < 0.5) { chips.setMatrixAt(i, ZERO); continue; }
+    const ph = (t * 1.6 + i / chips.count) % 1, a = rnd(i + 2) * Math.PI * 2, r = 1 + ph * 6;
+    tmpV.set(carriage.position.x + Math.cos(a) * r, surface + 0.4 + Math.sin(ph * Math.PI) * 3, Math.sin(a) * r);
+    tmpM.makeScale(1 - ph, 1 - ph, 1 - ph).setPosition(tmpV); chips.setMatrixAt(i, tmpM);
+  }
+  chips.instanceMatrix.needsUpdate = true;
+
+  const flow = (spans, speed, n, curves) => {
+    const list = []; const s = spans.reduce((acc, [a, b]) => acc + prog(t, a, a + 0.35) * (1 - prog(t, b, b + 0.3)), 0);
+    if (s <= 0) return list;
+    const total = curves.reduce((acc, c) => acc + c.getLength(), 0);
+    for (let i = 0; i < n; i++) {
+      let dist = (((t * speed) / total + i / n) % 1) * total;
+      for (const c of curves) { const L = c.getLength(); if (dist <= L) { list.push({ curve: c, u: dist / L, s }); break; } dist -= L; }
+    }
+    return list;
+  };
+  placeBeads(B.power, flow(POWER, cutting(t) ? 26 : 16, 16, [PATH.cordIn, PATH.cordOut]));
+
+  renderer.render(scene, camera);
+
+  // ---- overlays ----
+  header(t);
+  let svg = "";
+  PARTS.forEach((p, i) => {
+    const el = balloons.children[i];
+    const a = clamp(prog(t, T.bomAt[i], T.bomAt[i] + 0.35) * (1 - prog(t, T.assemble - 0.2, T.assemble + 0.2)) + prog(t, T.explode2 + 1.6 + i * 0.12, T.explode2 + 1.95 + i * 0.12));
+    if (a <= 0.001) { el.style.visibility = "hidden"; return; }
+    const [ax, ay] = toScreen(p.obj, p.a), bx = ax + p.d[0], by = ay + p.d[1];
+    el.style.visibility = "visible"; el.style.opacity = String(a);
+    el.style.left = `${bx}px`; el.style.top = `${by}px`; el.style.transform = `scale(${0.6 + 0.4 * outBack(a, 1.6)})`;
+    const dx = ax - bx, dy = ay - by, L = Math.hypot(dx, dy) || 1;
+    svg += `<g opacity="${a}"><line x1="${bx + dx / L * 26}" y1="${by + dy / L * 26}" x2="${ax}" y2="${ay}" stroke="${C.ink}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${C.ink}"/></g>`;
+  });
+  CALLOUTS.forEach((c, i) => {
+    const el = callEl.children[i];
+    const a = clamp(prog(t, c.at, c.at + 0.35) * (1 - prog(t, T.how - 0.1, T.how + 0.3)));
+    if (a <= 0.001) { el.style.visibility = "hidden"; return; }
+    const [ax, ay] = toScreen(c.obj, c.a), bx = ax + c.d[0], by = ay + c.d[1];
+    el.style.visibility = "visible"; el.style.opacity = String(a); el.style.left = `${bx}px`; el.style.top = `${by}px`;
+    const hwid = el.offsetWidth / 2, hh = el.offsetHeight / 2, side = Math.abs(ax - bx) > hwid;
+    const ex2 = side ? bx + Math.sign(ax - bx) * hwid : bx, ey2 = side ? by : by + Math.sign(ay - by) * hh;
+    svg += `<g opacity="${a}"><line x1="${ex2}" y1="${ey2}" x2="${ax}" y2="${ay}" stroke="${C.green}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${C.green}"/></g>`;
+  });
+  // the spin-up spike, flagged as normal on the machine
+  const sf = $("#spinflag");
+  const fa = prog(t, T.spin + 0.1, T.spin + 0.4) * (1 - prog(t, T.spinEnd + 0.9, T.spinEnd + 1.4));
+  if (fa > 0 && ca > 0.5) {
+    const [hx, hy] = toScreen(carriage, [0, 4, 0]);
+    const fx = hx + 40, fy = hy - 150;
+    sf.style.visibility = "visible"; sf.style.opacity = String(fa); sf.style.left = `${fx}px`; sf.style.top = `${fy}px`;
+    svg += `<g opacity="${fa.toFixed(3)}"><line x1="${fx}" y1="${fy + 22}" x2="${hx}" y2="${hy}" stroke="${C.green}" stroke-width="2.5"/><circle cx="${hx}" cy="${hy}" r="5.5" fill="${C.green}"/></g>`;
+    for (let i = 0; i < 3; i++) {
+      const ph = (t * 2.2 + i / 3) % 1, r = 30 + ph * 50;
+      svg += `<circle cx="${hx}" cy="${hy + 80}" r="${r.toFixed(1)}" fill="none" stroke="${C.muted}" stroke-width="3" stroke-dasharray="6 10" opacity="${((1 - ph) * fa * 0.8).toFixed(3)}"/>`;
+    }
+  } else sf.style.visibility = "hidden";
+  if (ca > 0.5 && within(t, SESSION)) {
+    const [wx, wy] = toScreen(mod, [2.8, 10.6, 0]);
+    for (let i = 0; i < 3; i++) {
+      const ph = (t + i / 3) % 1, r = 18 + ph * 60, op = (1 - ph) * 0.9;
+      const col = t >= T.climb + 1.2 && t < T.stop ? C.orange : C.green;
+      svg += `<path d="M${wx - r * 0.7},${wy - r * 0.45} Q${wx},${wy - r * 1.05} ${wx + r * 0.7},${wy - r * 0.45}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" opacity="${op.toFixed(3)}"/>`;
+    }
+  }
+  linesSvg.innerHTML = svg;
+
+  show(bomEl, prog(t, T.bomAt[0] - 0.4, T.bomAt[0]) * (1 - prog(t, T.how - 0.2, T.how + 0.3)), 1, 0);
+  [...bomEl.querySelectorAll(".row")].forEach((r, i) => { const k = outCubic(prog(t, T.bomAt[i], T.bomAt[i] + 0.45)); r.style.opacity = String(k); r.style.transform = `translateX(${(1 - k) * 24}px)`; });
+
+  const si = stepIndex(t);
+  show(stepsEl, prog(t, T.how, T.how + 0.5) * (1 - prog(t, T.end, T.end + 0.4)), 1, 0);
+  [...stepsEl.children].forEach((li, i) => {
+    li.className = i === si ? "on" : i < si ? "done" : "";
+    const k = outCubic(prog(t, T.how + 0.1 + i * 0.08, T.how + 0.55 + i * 0.08)); li.style.opacity = String(k); li.style.transform = `translateX(${(1 - k) * -20}px)`;
+  });
+
+  // modes card while the mode is picked and explained, then the live chart
+  const modesA = prog(t, T.steps[1] + 0.6, T.steps[1] + 1.1) * (1 - prog(t, T.steps[3] - 0.4, T.steps[3]));
+  show($("#modes"), modesA, 1, 16);
+  if (modesA > 0) document.querySelectorAll("#modes .row").forEach((r) => r.classList.toggle("on", r.dataset.m === "cnc" && t >= T.modeKey));
+
+  const detA = clamp(prog(t, T.steps[0], T.steps[0] + 0.4) * (1 - prog(t, T.alertIn - 0.5, T.alertIn - 0.1)) + prog(t, T.steps[6] - 0.2, T.steps[6] + 0.3) * (1 - prog(t, T.end - 0.3, T.end + 0.1)));
+  const det = $("#detail");
+  show(det, detA, 1, 16);
+  if (detA > 0) {
+    const [l1, l2] = displayState(t);
+    if ($("#d1").textContent !== l1) $("#d1").textContent = l1;
+    if ($("#d2").textContent !== l2) $("#d2").textContent = l2;
+    $("#dlight").style.background = "#" + lightMat.color.getHexString();
+    det.style.top = `${t < T.steps[1] + 0.6 ? 140 : lerp(140, 530, ease(prog(t, T.steps[1] + 0.4, T.steps[1] + 1.0)))}px`;
+    const [cx, cy] = toScreen(disp, [0, 4.8, 3.1]);
+    const [ex2, ey2] = toScreen(disp, [5.0, 4.8, 3.1]);
+    const r = Math.hypot(ex2 - cx, ey2 - cy) + 14, lx = cx + r * 0.74, ly = cy - r * 0.74;
+    linesSvg.insertAdjacentHTML("beforeend", `<g opacity="${detA.toFixed(3)}" fill="none"><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.bg}" stroke-width="8"/><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.ink}" stroke-width="3" stroke-dasharray="11 7"/><circle cx="${lx + 14}" cy="${ly - 14}" r="19" fill="${C.surface}" stroke="${C.ink}" stroke-width="2.5"/><text x="${lx + 14}" y="${ly - 5}" text-anchor="middle" font-family="JetBrains Mono" font-weight="600" font-size="24" fill="${C.ink}">A</text></g>`);
+  }
+
+  const chartA = prog(t, T.steps[3] - 0.2, T.steps[3] + 0.3) * (1 - prog(t, T.end - 0.3, T.end + 0.2));
+  show($("#chart"), chartA, 1, 16);
+  if (chartA > 0) drawChart(t);
+  const alertA = prog(t, T.alertIn, T.alertIn + 0.45) * (1 - prog(t, T.steps[6] - 0.4, T.steps[6]));
+  show($("#alert"), outCubic(alertA), 1, 30); show($("#applabel"), alertA, 1, 0);
+  if (alertA > 0) alertFoot(t);
+
+  show($("#tblock"), outCubic(prog(t, T.explode2 + 1.2, T.explode2 + 1.8)), 1, 24);
+  document.querySelectorAll("#n-steps li").forEach((li, i) => li.classList.toggle("hot", i === si));
+}
+
+// ======================= boot =======================
+const ready = Promise.all(['700 64px "Space Grotesk"', '600 40px "JetBrains Mono"', '700 40px "JetBrains Mono"', '500 30px "Inter"'].map((f) => document.fonts.load(f).catch(() => null)));
+window.FONTS = ready;
+paintStatic();
+window.render = render;
+window.DUR = DUR;
+
+if (FILM) {
+  setPR(2);
+  window.READY = ready.then(() => { paintStatic(); render(0); });
+} else {
+  const frame = $("#frame"), stageEl = $("#stage");
+  let t = 16.4, playing = false, stopAt = DUR, last = 0;
+  const fit = () => { const s = frame.clientWidth / W; stageEl.style.transform = `scale(${s})`; setPR(clamp((window.devicePixelRatio || 1) * s, 0.5, 2)); };
+  window.addEventListener("resize", () => { fit(); render(t); });
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const sync = () => { $("#scrub").value = String(t); $("#clock").textContent = `${fmt(t)} / ${fmt(DUR)}`; $("#b-play").textContent = playing ? "Pause" : "Play"; };
+  const tick = (now) => {
+    if (playing) { t += Math.min(0.05, (now - last) / 1000); if (t >= stopAt) { t = stopAt; playing = false; } }
+    last = now; render(t); sync(); if (playing) requestAnimationFrame(tick);
+  };
+  const play = (from, to) => { t = from; stopAt = to; view.yaw = view.pitch = 0; view.zoom = 1; if (!playing) { playing = true; last = performance.now(); requestAnimationFrame(tick); } };
+  const jump = (to, keepView) => { playing = false; t = to; if (!keepView) { view.yaw = view.pitch = 0; view.zoom = 1; } render(t); sync(); };
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("#b-assembled").onclick = () => jump(3.6);
+  $("#b-pieces").onclick = () => jump(16.4);
+  $("#b-system").onclick = () => jump(22.6);
+  $("#b-how").onclick = () => (reduce ? jump(T.steps[2] + 3.2) : play(T.how, T.end));
+  $("#b-modes").onclick = () => (reduce ? jump(T.steps[2] + 2.5) : play(T.steps[1] - 0.2, T.steps[4] - 0.4));
+  $("#b-play").onclick = () => { if (playing) { playing = false; sync(); } else play(t >= DUR - 0.05 ? 0 : t, DUR); };
+  $("#scrub").oninput = (e) => jump(+e.target.value, true);
+  document.querySelectorAll("#n-steps li").forEach((li) => (li.onclick = () => jump(T.steps[+li.dataset.i] + 0.1)));
+  const pts = new Map(); let pinch0 = 0, zoom0 = 1;
+  canvas.addEventListener("pointerdown", (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); zoom0 = view.zoom; } });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!pts.has(e.pointerId)) return;
+    const [px, py] = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; view.zoom = clamp(zoom0 * Math.hypot(a[0] - b[0], a[1] - b[1]) / (pinch0 || 1), 0.5, 3); }
+    else { view.yaw -= (e.clientX - px) * 0.25; view.pitch = clamp(view.pitch + (e.clientY - py) * 0.18, -30, 45); }
+    if (!playing) render(t);
+  });
+  const up = (e) => pts.delete(e.pointerId);
+  canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
+  canvas.addEventListener("wheel", (e) => { e.preventDefault(); view.zoom = clamp(view.zoom * Math.exp(-e.deltaY * 0.0012), 0.5, 3); if (!playing) render(t); }, { passive: false });
+  canvas.addEventListener("dblclick", () => { view.yaw = view.pitch = 0; view.zoom = 1; if (!playing) render(t); });
+  fit();
+  ready.then(() => { paintStatic(); render(t); sync(); });
+  render(t); sync();
+}
+</script>
