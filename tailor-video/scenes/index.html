@@ -8,6 +8,9 @@
   @font-face { font-family: "DM Serif Display"; font-style: italic; src: url("../node_modules/@fontsource/dm-serif-display/files/dm-serif-display-latin-400-italic.woff2") format("woff2"); font-weight: 400; }
   @font-face { font-family: "Inter"; src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
 
+  @font-face { font-family: "Space Grotesk"; src: url("../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2") format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; }
+
   :root {
     --navy: #0E1A2B; --blue: #1F6FEB; --red: #D93F3F; --green: #1F9D55;
     --muted: #556479; --line: #E2E7EF; --soft: #F4F6FA;
@@ -58,10 +61,10 @@
   #timeline .tick { position: absolute; top: 47px; width: 2px; height: 14px; margin-left: -1px; background: #C5CEDB; }
   #timeline .dot { position: absolute; top: 42px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: var(--blue); border: 5px solid #fff; box-shadow: 0 0 0 2px var(--blue); }
   #timeline .now { position: absolute; top: 0; transform: translateX(-50%); font-size: 30px; font-weight: 750; color: var(--blue); }
-  #projlabel { position: absolute; left: 150px; top: 52px; display: flex; align-items: center; gap: 14px; font-size: 28px; font-weight: 650; color: var(--muted); }
-  #projlabel b { width: 14px; height: 14px; border-radius: 50%; background: var(--green); display: block; }
+  #projlabel { position: absolute; left: 140px; top: 52px; display: flex; align-items: center; gap: 14px; font-family: "Space Grotesk", sans-serif; font-size: 28px; font-weight: 600; color: var(--pmuted); }
+  #projlabel b { width: 14px; height: 14px; border-radius: 50%; background: var(--pgreen); display: block; }
 
-  #source { position: absolute; left: 60px; bottom: 20px; font-size: 22px; color: var(--muted); }
+  #source { position: absolute; left: 60px; bottom: 20px; font-size: 22px; color: var(--muted); --pmuted: #5B6B5F; }
   #caption { position: absolute; left: 0; right: 0; bottom: 62px; display: flex; justify-content: center; pointer-events: none; }
   #caption span { max-width: 1420px; background: rgba(14, 26, 43, 0.88); color: #fff; font-size: 34px; line-height: 1.32; font-weight: 500; padding: 12px 28px; border-radius: 14px; text-align: center; text-wrap: balance; }
 
@@ -97,24 +100,56 @@
   .phone { position: absolute; width: 344px; height: 714px; }
   .phone img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 30px 40px rgba(14, 26, 43, 0.3)); }
 
-  /* PREVUMO alert card, in the app's own palette */
-  .alert { position: absolute; width: 820px; border-radius: 26px; overflow: hidden; background: #FFFDF8; border: 2px solid #E3D6C0; box-shadow: 0 30px 60px -30px rgba(14, 26, 43, 0.5); font-family: "Inter", sans-serif; }
-  .alert .top { background: #A63D1F; color: #fff; padding: 20px 28px; display: flex; align-items: center; gap: 16px; font-size: 34px; font-weight: 700; }
-  .alert .top svg { width: 40px; height: 40px; }
-  .alert .body { padding: 22px 28px 26px; color: #1F3D2B; }
-  .alert .body .why { font-size: 30px; color: #5B6B5F; }
-  .alert .btns { margin-top: 22px; display: flex; gap: 16px; }
-  .alert .btn { position: relative; height: 66px; padding: 0 26px; border-radius: 33px; display: flex; align-items: center; font-size: 30px; font-weight: 700; }
-  .alert .btn.ok { background: #EDE4D3; color: #1F3D2B; }
-  .alert .btn.off { background: #A63D1F; color: #fff; }
-  .alert .btn.tech { background: #2F6B45; color: #fff; }
-  .alert .ring { position: absolute; inset: -6px; border-radius: 40px; border: 5px solid var(--blue); }
-  .alert .upd { margin-top: 18px; display: flex; align-items: center; gap: 12px; font-size: 30px; font-weight: 650; color: #2F6B45; }
+  /* PREVUMO part: the app's and the deck's own tokens (prevumo/src/index.css, prevumo/deck/build.js "Field notes") */
+  .pv, #pvbg, #pvtitle, #projlabel {
+    --bg: #F3EBDD; --surface: #FFFDF8; --border: #E3D6C0; --ink: #1F3D2B; --pmuted: #5B6B5F;
+    --pgreen: #2F6B45; --gtint: #D6E4D3; --orange: #E07A2E; --otint: #F6D2B4; --rust: #A63D1F; --idle: #EDE4D3; --idlemark: #81897A;
+  }
+  .pv { color: var(--ink); }
+  #pvbg { position: absolute; inset: 0; background: var(--bg); opacity: 0; }
+  .pvh { font-family: "Space Grotesk", sans-serif; font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; }
+  .pvh.h1 { font-size: 72px; }
+  .mono { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+  .ph { fill: currentColor; width: 40px; height: 40px; flex: none; }
+  .lu { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; width: 30px; height: 30px; flex: none; }
+  .pcard { background: var(--surface); border: 2px solid var(--border); border-radius: 18px; }
+  .pstep { position: absolute; width: 290px; padding: 26px 24px; border-radius: 18px; background: var(--surface); border: 2px solid var(--border); }
+  .pstep p { margin-top: 18px; font-family: "Space Grotesk", sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+  .pstep.dashed { border: 3px dashed var(--idlemark); background: var(--bg); }
+  .pbadge { display: inline-flex; align-items: center; gap: 12px; height: 46px; padding: 0 20px; border-radius: 23px; font-size: 26px; font-weight: 600; white-space: nowrap; }
+  .pbadge i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .pbadge.idle { background: var(--idle); color: var(--ink); } .pbadge.idle i { background: var(--pmuted); }
+  .pbadge.gt { background: var(--gtint); color: var(--ink); } .pbadge.gt i { background: var(--pgreen); }
+  .pbadge.g { background: var(--pgreen); color: #fff; } .pbadge.g i { background: #fff; }
+  .pbadge.irr { background: var(--otint); color: var(--ink); } .pbadge.irr i { background: var(--orange); }
+  .pbadge.rust { background: var(--rust); color: #fff; } .pbadge.rust i { background: #fff; }
+  .pbadge.next { background: transparent; color: var(--ink); border: 3px dashed var(--idlemark); }
+  .pbadge.big { height: 56px; padding: 0 26px; border-radius: 28px; font-size: 32px; }
+  .pchip { display: inline-flex; align-items: center; gap: 16px; height: 78px; padding: 0 30px; border-radius: 39px; background: var(--surface); border: 2px solid var(--border); font-size: 32px; font-weight: 600; color: var(--ink); }
+  .ptag { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 20px; border: 2px solid var(--border); background: var(--surface); color: var(--pmuted); font-size: 22px; }
+  .pv .phone { filter: drop-shadow(0 30px 40px rgba(31, 61, 43, 0.28)); }
+  .pv .phone img { filter: none; clip-path: inset(9.4px 5.4px 10px 5.2px round 40px); }
+  .hl.o { border-color: var(--orange); }
+
+  /* the app's alert dialog, scaled for 1080p */
+  .palert { position: absolute; width: 860px; border-radius: 20px; background: var(--surface); border: 2px solid var(--border); box-shadow: 0 30px 60px -34px rgba(31, 61, 43, 0.45); color: var(--ink); }
+  .palert .phd { padding: 24px 32px 18px; border-bottom: 2px solid var(--border); }
+  .palert .ttl { margin-top: 12px; font-family: "Space Grotesk", sans-serif; font-size: 46px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+  .palert .pft { padding: 18px 28px; display: flex; gap: 12px; align-items: center; }
+  .pbtn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 72px; padding: 0 24px; border-radius: 12px; font-size: 27px; font-weight: 600; white-space: nowrap; }
+  .pbtn.qd { color: var(--rust); box-shadow: inset 0 0 0 2px rgba(166, 61, 31, 0.4); }
+  .pbtn.pr { background: var(--pgreen); color: #fff; }
+  .pbtn.sec { background: var(--idle); color: var(--ink); }
+  .pbtn .ring { position: absolute; inset: -8px; border-radius: 18px; border: 4px solid var(--pgreen); opacity: 0; }
+
+  #stage.inpv #caption span { background: rgba(31, 61, 43, 0.92); }
+  #stage.inpv #source { color: var(--pmuted, #5B6B5F); }
 </style>
 </head>
 <body>
 <div id="stage">
   <div id="bg"></div>
+  <div id="pvbg"></div>
 
   <div id="timeline">
     <div class="track"></div><div class="fill"></div>
@@ -241,7 +276,7 @@
   </section>
 
   <!-- 6. Split reviews -->
-  <section class="scene" id="s6" data-in="87.5" data-out="97.0" data-fx="fade" data-d="0.4">
+  <section class="scene" id="s6" data-in="87.5" data-out="97.1" data-fx="fade" data-d="0.4">
     <div class="abs" style="left:0; top:280px; width:960px; height:600px; background:var(--green-t)" data-in="90.9" data-fx="left">
       <div class="abs" style="left:110px; top:90px; width:760px">
         <svg class="ico" viewBox="0 0 24 24" style="width:84px;height:84px;color:var(--green)"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
@@ -251,7 +286,7 @@
     </div>
     <div class="abs" style="left:960px; top:280px; width:960px; height:600px; background:var(--red-t)" data-in="92.5" data-fx="right">
       <div class="abs" style="left:110px; top:70px; width:760px">
-        <p class="num" style="font-size:220px; font-weight:850; color:var(--red); line-height:1; letter-spacing:-0.04em"><span class="count" data-from="0" data-to="12" data-at="95.9" data-dur="0.6" data-fmt="int">12</span><span style="color:#E58C8C"> / 30</span></p>
+        <p class="num" style="font-size:220px; font-weight:850; color:var(--red); line-height:1; letter-spacing:-0.04em"><span id="score" style="display:inline-block"><span class="count" data-from="0" data-to="12" data-at="93.5" data-dur="1.1" data-fmt="int">12</span><span style="color:#E58C8C"> / 30</span></span></p>
         <p class="lbl muted strong" style="margin-top:22px">Award&#8209;winning designer, Luminus</p>
       </div>
     </div>
@@ -311,76 +346,96 @@
     </div>
   </section>
 
+  <!-- 9 to 11 are PREVUMO: they use the app's and the deck's own palette, type and parts (prevumo/src/index.css, prevumo/deck/build.js) -->
   <!-- 9. PREVUMO path -->
-  <section class="scene" id="s9" data-in="124.6" data-out="148.6" data-fx="fade" data-d="0.4">
-    <div class="abs mask" style="left:140px; top:165px"><h1 class="serif h1" data-in="124.8" data-fx="mask">PREVUMO: a similar path</h1></div>
-    <div class="abs" id="pathline" style="left:290px; top:455px; height:6px; width:930px; border-radius:3px; background:var(--blue); transform-origin:left center"></div>
-    <div class="step" style="left:140px; top:360px" data-in="128.2"><span class="pill navy">Plan A</span><p>Electricity billing per user</p></div>
-    <p class="abs lbl strong" style="left:140px; top:640px; width:300px; color:var(--red)" data-in="131.6">✕ Billing wasn't their problem</p>
-    <div class="step" style="left:460px; top:360px" data-in="134.6"><span class="pill green">PD B1</span><p>Preventive maintenance</p></div>
-    <div class="step" style="left:780px; top:360px" data-in="136.2"><span class="pill blue">PD B2</span><p>One module per machine (gas + electric)</p></div>
-    <div class="step dashed" style="left:1100px; top:360px" data-in="143.8"><span class="pill" style="background:#fff; color:var(--blue); border:3px dashed var(--blue)">Next</span><p>We keep shifting</p></div>
-    <p class="abs lbl muted" style="left:780px; top:680px; width:600px" data-in="137.4">Makerspaces need more than electricity, like gas control on welders</p>
-    <div class="phone" style="left:1480px; top:160px" data-in="125.4" data-fx="up">
+  <section class="scene pv" id="s9" data-in="124.6" data-out="148.6" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:165px"><h1 class="pvh h1" data-in="127.75" data-fx="mask">PREVUMO: a similar path</h1></div>
+    <div class="abs" id="pathline" style="left:290px; top:455px; height:6px; width:930px; border-radius:3px; background:var(--pgreen); transform-origin:left center"></div>
+    <div class="pstep" style="left:140px; top:360px" data-in="128.3"><span class="pbadge idle"><i></i>Plan A</span><p>Electricity billing per user</p></div>
+    <p class="abs lbl strong" style="left:140px; top:640px; width:300px; color:var(--rust); display:flex; gap:12px; align-items:flex-start" data-in="131.6"><svg class="ph" viewBox="0 0 256 256" style="width:34px;height:34px;margin-top:4px"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"/></svg><span>Billing wasn't their problem</span></p>
+    <div class="pstep" style="left:460px; top:360px" data-in="134.6"><span class="pbadge gt"><i></i>PD B1</span><p>Preventive maintenance</p></div>
+    <div class="pstep" style="left:780px; top:360px" data-in="136.2"><span class="pbadge g"><i></i>PD B2</span><p>One module per machine (gas + electric)</p></div>
+    <div class="pstep dashed" style="left:1100px; top:360px" data-in="143.8"><span class="pbadge next">Next</span><p>We keep shifting</p></div>
+    <p class="abs lbl" style="left:780px; top:680px; width:600px; color:var(--pmuted)" data-in="137.4">Makerspaces need more than electricity, like gas control on welders</p>
+    <div class="phone" style="left:1480px; top:160px" data-in="128.0" data-fx="up">
       <img src="../prevumo/prevumo-app-529.jpg" id="ph529" />
       <img src="../prevumo/prevumo-app-530.jpg" id="ph530" style="opacity:0" />
+    </div>
+
+    <!-- opening card: the deck's title slide (dark green, wordmark, heartbeat line with one orange spike) -->
+    <div class="abs" id="pvtitle" style="inset:0; background:var(--ink)">
+      <p class="abs mono" style="left:140px; top:214px; font-size:30px; color:var(--orange)" data-in="124.75">Our project</p>
+      <div class="abs mask" style="left:132px; top:262px"><h1 class="pvh" style="font-size:200px; letter-spacing:0.05em; color:var(--bg); line-height:1" data-in="125.05" data-fx="mask">PREVUMO</h1></div>
+      <p class="abs mono" style="left:140px; top:482px; font-size:30px; color:var(--orange)" data-in="125.5">PREVentive Usage MOnitor</p>
+      <div class="abs" id="beat" style="left:0; top:520px; width:1920px; height:300px"></div>
+      <p class="abs" style="left:140px; top:820px; font-size:36px; font-weight:500; color:var(--bg)" data-in="126.0">Know what happened to your machine, and when it's about to fail.</p>
     </div>
   </section>
 
   <!-- 10. Problem 1: price -->
-  <section class="scene" id="s10" data-in="148.7" data-out="173.3" data-fx="fade" data-d="0.4">
-    <div class="abs mask" style="left:140px; top:165px"><h1 class="serif h1" data-in="148.9" data-out="151.5" data-fx="mask">Two problems the case helps solve</h1></div>
+  <section class="scene pv" id="s10" data-in="148.7" data-out="173.3" data-fx="fade" data-d="0.4">
+    <div class="abs mask" style="left:140px; top:165px"><h1 class="pvh h1" data-in="148.9" data-out="151.5" data-fx="mask">Two problems the case helps solve</h1></div>
     <div class="abs" style="left:140px; top:160px; display:flex; align-items:center; gap:24px">
-      <span class="pill red" data-in="151.7">Problem 1</span>
-      <div class="mask"><h1 class="serif h1" data-in="151.9" data-fx="mask">Price</h1></div>
+      <span class="pbadge big rust" data-in="151.7"><i></i>Problem 1</span>
+      <div class="mask"><h1 class="pvh h1" data-in="151.9" data-fx="mask">Price</h1></div>
     </div>
     <div class="abs" style="left:140px; top:300px">
-      <p class="num" id="price" style="font-size:96px; font-weight:800; letter-spacing:-0.02em; position:relative; display:inline-block" data-in="153.9">$300 box + $25/month<span id="strike" style="position:absolute; left:-10px; right:-10px; top:52%; height:10px; border-radius:5px; background:var(--red); transform-origin:left center; transform:scaleX(0)"></span></p>
-      <p class="num" style="margin-top:22px; font-size:76px; font-weight:800; color:var(--green); letter-spacing:-0.02em" data-in="167.9">30-day free trial · welder module</p>
-      <p class="lbl strong" style="margin-top:10px; font-size:36px" data-in="169.9">To a makerspace · they pay only if they keep it</p>
+      <p class="mono" id="price" style="font-size:84px; font-weight:600; letter-spacing:-0.02em; position:relative; display:inline-block" data-in="153.9">$300 box + $25/month<span id="strike" style="position:absolute; left:-10px; right:-10px; top:52%; height:10px; border-radius:5px; background:var(--rust); transform-origin:left center; transform:scaleX(0)"></span></p>
+      <p class="pvh" style="margin-top:26px; font-size:72px; color:var(--pgreen)" data-in="167.9">30-day free trial · welder module</p>
+      <p class="lbl strong" style="margin-top:12px; font-size:36px" data-in="169.9">To a makerspace · they pay only if they keep it</p>
     </div>
-    <p class="abs lbl muted strong" style="left:140px; top:680px" data-in="156.7">Supervisors we interviewed:</p>
-    <div class="abs chip" style="left:140px; top:735px; border-color:#F2C4C4" data-in="158.1"><svg class="ico" viewBox="0 0 24 24" style="color:var(--red)"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>Can't approve purchases</div>
-    <div class="abs chip" style="left:640px; top:735px; border-color:#F2C4C4" data-in="159.9"><svg class="ico" viewBox="0 0 24 24" style="color:var(--red)"><path d="M9 3h6M10 3v6L4 19a1.5 1.5 0 0 0 1.3 2h13.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/></svg>Test on one machine first</div>
-    <div class="abs card" style="left:1250px; top:290px; width:560px; padding:30px" data-in="161.9" data-fx="right" data-out="166.2">
-      <p class="lbl muted strong">Like Tailor Brands</p>
-      <div style="margin-top:16px; height:170px; border-radius:14px; background:url(../screens/tb-2017.png) no-repeat; background-size:1250px auto; background-position:-450px -120px; position:relative"><div class="hl" style="left:43.5%; top:33%; width:23%; height:22%; border-width:4px" data-in="162.4"></div></div>
+    <p class="abs lbl strong" style="left:140px; top:680px; color:var(--pmuted)" data-in="156.7">Supervisors we interviewed:</p>
+    <div class="abs pchip" style="left:140px; top:735px" data-in="158.1"><svg class="ph" viewBox="0 0 256 256" style="color:var(--rust)"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm84,108a83.6,83.6,0,0,1-16.75,50.28L77.72,60.75A84,84,0,0,1,212,128ZM44,128A83.6,83.6,0,0,1,60.75,77.72L178.28,195.25A84,84,0,0,1,44,128Z"/></svg>Can't approve purchases</div>
+    <div class="abs pchip" style="left:690px; top:735px" data-in="159.9"><svg class="ph" viewBox="0 0 256 256" style="color:var(--rust)"><path d="M225.15,197.71,164,95.81V44h4a12,12,0,0,0,0-24H88a12,12,0,0,0,0,24h4V95.81L30.85,197.71A20,20,0,0,0,48,228H208a20,20,0,0,0,17.15-30.29ZM140,44V99.14a12,12,0,0,0,1.71,6.17l35.13,58.54c-10.79.86-25.15-1.31-43.42-10.56-14-7.08-27.46-11.33-40.27-12.76l21.14-35.22A12,12,0,0,0,116,99.14V44ZM55.06,204,79,164.19c13-1.11,27.62,2.42,43.62,10.52,19.61,9.92,36.25,13.31,49.85,13.31A75.44,75.44,0,0,0,190.11,186l10.83,18Z"/></svg>Test on one machine first</div>
+    <div class="abs pcard" style="left:1250px; top:290px; width:560px; padding:28px 30px" data-in="161.9" data-fx="right" data-out="166.2">
+      <p class="mono" style="font-size:26px; color:var(--orange)">Like Tailor Brands</p>
+      <div style="margin-top:16px; height:170px; border-radius:12px; background:url(../screens/tb-2017.png) no-repeat; background-size:1250px auto; background-position:-450px -120px; position:relative"><div class="hl o" style="left:43.5%; top:33%; width:23%; height:22%; border-width:4px" data-in="162.4"></div></div>
       <p class="lbl strong" style="margin-top:16px">Design free, pay only if you are happy</p>
     </div>
   </section>
 
   <!-- 11. Problem 2: false alarms -->
-  <section class="scene" id="s11" data-in="173.4" data-out="199.05" data-fx="fade" data-d="0.4">
+  <section class="scene pv" id="s11" data-in="173.4" data-out="199.05" data-fx="fade" data-d="0.4">
     <div class="abs" style="left:140px; top:160px; display:flex; align-items:center; gap:24px">
-      <span class="pill red" data-in="173.55">Problem 2</span>
-      <div class="mask"><h1 class="serif h1" data-in="174.5" data-fx="mask">False alarms</h1></div>
+      <span class="pbadge big rust" data-in="173.55"><i></i>Problem 2</span>
+      <div class="mask"><h1 class="pvh h1" data-in="174.5" data-fx="mask">False alarms</h1></div>
     </div>
-    <div class="abs card" style="left:140px; top:280px; width:820px; padding:26px 32px; background:var(--red-t); border-color:#F2C4C4; box-shadow:none" data-in="175.4">
-      <p class="serif" style="font-size:42px; line-height:1.15; text-wrap:balance">“If alerts are wrong, staff stop paying attention.”</p>
-      <p class="lbl muted strong" style="margin-top:10px">Two supervisors we interviewed</p>
+    <div class="abs pcard" style="left:140px; top:280px; width:860px; padding:24px 32px; display:flex; gap:22px" data-in="175.4">
+      <svg class="ph" viewBox="0 0 256 256" style="width:56px; height:56px; color:var(--orange); flex:none"><path d="M116,72v88a48.05,48.05,0,0,1-48,48,8,8,0,0,1,0-16,32,32,0,0,0,32-32v-8H40a16,16,0,0,1-16-16V72A16,16,0,0,1,40,56h60A16,16,0,0,1,116,72ZM216,56H156a16,16,0,0,0-16,16v64a16,16,0,0,0,16,16h60v8a32,32,0,0,1-32,32,8,8,0,0,0,0,16,48.05,48.05,0,0,0,48-48V72A16,16,0,0,0,216,56Z"/></svg>
+      <div><p class="pvh" style="font-size:40px; line-height:1.18; text-wrap:balance">If alerts are wrong, staff stop paying attention.</p>
+      <p class="lbl" style="margin-top:8px; font-size:28px; color:var(--pmuted)">Two supervisors we interviewed</p></div>
     </div>
-    <div class="abs chip" style="left:140px; top:506px" data-in="181.2"><svg class="ico" viewBox="0 0 24 24" style="color:var(--blue)"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/></svg>Like Ash: every edit is a lesson</div>
-    <div class="alert" style="left:140px; top:604px" data-in="185.2" data-fx="up">
-      <div class="top"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>Unusual current · Welder</div>
-      <div class="body">
-        <div style="position:relative; height:40px"><p class="why" id="why" style="position:absolute">Outside its normal range</p>
-        <p class="upd" id="upd" style="position:absolute; margin:0; opacity:0"><svg class="ico" viewBox="0 0 24 24" style="width:34px;height:34px;stroke-width:3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Normal range updated</p></div>
-        <div class="btns"><div class="btn ok" id="markok">Mark OK<div class="ring" id="okring"></div></div><div class="btn off">Shut down</div><div class="btn tech">Call technician</div></div>
+    <div class="abs pchip" style="left:140px; top:500px" data-in="181.2"><svg class="ph" viewBox="0 0 256 256" style="color:var(--orange)"><path d="M199,125.31l-49.88-18.39L130.69,57a19.92,19.92,0,0,0-37.38,0L74.92,106.92,25,125.31a19.92,19.92,0,0,0,0,37.38l49.88,18.39L93.31,231a19.92,19.92,0,0,0,37.38,0l18.39-49.88L199,162.69a19.92,19.92,0,0,0,0-37.38Zm-63.38,35.16a12,12,0,0,0-7.11,7.11L112,212.28l-16.47-44.7a12,12,0,0,0-7.11-7.11L43.72,144l44.7-16.47a12,12,0,0,0,7.11-7.11L112,75.72l16.47,44.7a12,12,0,0,0,7.11,7.11L180.28,144ZM140,40a12,12,0,0,1,12-12h12V16a12,12,0,0,1,24,0V28h12a12,12,0,0,1,0,24H188V64a12,12,0,0,1-24,0V52H152A12,12,0,0,1,140,40ZM252,88a12,12,0,0,1-12,12h-4v4a12,12,0,0,1-24,0v-4h-4a12,12,0,0,1,0-24h4V72a12,12,0,0,1,24,0v4h4A12,12,0,0,1,252,88Z"/></svg>Like Ash: every edit is a lesson</div>
+
+    <!-- the app's alert (AlertModal): Irregular badge, then Shut down, Call technician, Mark OK -->
+    <div class="palert" style="left:140px; top:592px" data-in="185.2" data-fx="up">
+      <div class="phd">
+        <span class="pbadge irr"><i></i>Irregular</span>
+        <p class="ttl">Unusual current · Welder</p>
+        <div style="position:relative; height:42px; margin-top:4px"><p id="why" style="position:absolute; font-size:30px">Outside its normal range</p>
+        <p id="upd" style="position:absolute; margin:0; opacity:0; display:flex; align-items:center; gap:12px; font-size:30px; font-weight:650; color:var(--pgreen)"><svg class="lu" viewBox="0 0 24 24" style="width:34px;height:34px;stroke-width:3"><path d="M20 6 9 17l-5-5"/></svg>Normal range updated</p></div>
+      </div>
+      <div class="pft">
+        <div class="pbtn qd"><svg class="lu" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>Shut down</div>
+        <div class="pbtn pr"><svg class="lu" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>Call technician</div>
+        <span style="flex:1"></span>
+        <div class="pbtn sec" id="markok"><svg class="lu" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>Mark OK<div class="ring" id="okring"></div></div>
       </div>
     </div>
-    <div class="abs card" style="left:1040px; top:280px; width:760px; height:350px; padding:24px 34px" data-in="189.5">
-      <div style="display:flex; justify-content:space-between; align-items:center"><p class="lbl strong">False alarms per week</p><span class="pill" style="height:40px; font-size:24px; background:var(--soft); color:var(--muted)">illustrative</span></div>
+
+    <div class="abs pcard" style="left:1040px; top:280px; width:760px; height:350px; padding:24px 34px" data-in="189.5">
+      <div style="display:flex; justify-content:space-between; align-items:center"><p class="pvh" style="font-size:34px; font-weight:600">False alarms per week</p><span class="ptag">illustrative</span></div>
       <svg id="falsechart" viewBox="0 0 680 250" style="width:690px; height:240px; margin-top:8px; overflow:visible">
-        <line x1="40" y1="220" x2="660" y2="220" stroke="#E2E7EF" stroke-width="2"/>
-        <path id="fline" d="" fill="none" stroke="#1F6FEB" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="40" y1="220" x2="660" y2="220" stroke="#E3D6C0" stroke-width="2"/>
+        <path id="fline" d="" fill="none" stroke="#E07A2E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
         <g id="fdots"></g><g id="fx"></g>
       </svg>
     </div>
-    <div class="abs" style="left:1040px; top:654px; width:760px; padding:20px 28px; border-radius:22px; background:var(--green-t); display:flex; gap:18px; align-items:center" data-in="192.1">
-      <svg class="ico" viewBox="0 0 24 24" style="width:46px; height:46px; color:var(--green); flex:none"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg>
-      <p class="lbl" style="font-weight:650">Weeks 1-2: learning mode, log only, no shutdowns</p>
+    <div class="abs" style="left:1040px; top:654px; width:760px; padding:20px 28px; border-radius:18px; background:var(--gtint); display:flex; gap:18px; align-items:center" data-in="192.1">
+      <svg class="ph" viewBox="0 0 256 256" style="width:46px; height:46px; color:var(--pgreen); flex:none"><path d="M236,137A108.13,108.13,0,1,1,119,20,12,12,0,0,1,121,44,84.12,84.12,0,1,0,212,135,12,12,0,1,1,236,137ZM116,76v52a12,12,0,0,0,12,12h52a12,12,0,0,0,0-24H140V76a12,12,0,0,0-24,0Zm92,20a16,16,0,1,0-16-16A16,16,0,0,0,208,96ZM176,64a16,16,0,1,0-16-16A16,16,0,0,0,176,64Z"/></svg>
+      <p class="lbl" style="font-weight:650; text-wrap:balance">Weeks 1-2: learning mode, log only, no shutdowns</p>
     </div>
-    <p class="abs serif" style="left:1040px; top:800px; width:780px; font-size:40px; color:#17804A; text-wrap:balance" data-in="196.3">By the time PREVUMO acts, it knows the machine.</p>
+    <p class="abs pvh" style="left:1040px; top:800px; width:780px; font-size:40px; color:var(--pgreen); text-wrap:balance" data-in="196.3">By the time PREVUMO acts, it knows the machine.</p>
   </section>
 
   <!-- 12. Outro -->
@@ -418,6 +473,8 @@ const inOut = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2)
 const outBack = (k, s = 1.5) => 1 + (s + 1) * Math.pow(k - 1, 3) + s * Math.pow(k - 1, 2);
 const $ = (s) => document.querySelector(s);
 const END = 204.8;
+// the PREVUMO faces are hidden at load, so ask for them up front
+window.FONTS = Promise.all(['700 72px "Space Grotesk"', '600 40px "Space Grotesk"', '600 84px "JetBrains Mono"', '400 30px "JetBrains Mono"'].map((f) => document.fonts.load(f)));
 
 // ---------- built pieces ----------
 // intro: a grid of simple marks that an "AI" keeps choosing between (no real logos)
@@ -489,12 +546,28 @@ PRICES.forEach(([n, lo, hi, txt], i) => {
 });
 const CHART_AT = [54.6, 55.15, 55.7, 56.25, 56.8];
 
+// the deck's motif: a flat current line inside its normal band, one orange spike (prevumo/deck/build.js heartbeat)
+const rnd = (i) => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - Math.floor(x); };
+(function beat() {
+  const w = 1920, h = 300, y0 = h * 0.62, amp = h * 0.035, sx = w * 0.62;
+  const pts = []; for (let x = 0; x <= w; x += 8) pts.push([x, y0 + (rnd(x) - 0.5) * amp]);
+  const spike = [[sx - 30, y0], [sx - 12, y0 - h * 0.08], [sx, y0 + h * 0.06], [sx + 16, y0 - h * 0.5], [sx + 34, y0 + h * 0.2], [sx + 52, y0 - h * 0.32], [sx + 70, y0 + h * 0.08], [sx + 86, y0]];
+  const d = (arr) => arr.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join("");
+  const before = pts.filter(([x]) => x < sx - 30), after = pts.filter(([x]) => x > sx + 86);
+  const dotsS = [spike[3], spike[4], spike[5]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="#E07A2E"/>`).join("");
+  $("#beat").innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <rect x="0" y="${y0 - h * 0.1}" width="${w}" height="${h * 0.2}" rx="${h * 0.04}" fill="rgba(214,228,211,0.10)"/>
+    <path d="${d(before)}" fill="none" stroke="#D6E4D3" stroke-opacity="0.85" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="${d(spike)}" fill="none" stroke="#E07A2E" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>${dotsS}
+    <path d="${d([[sx + 86, y0], ...after])}" fill="none" stroke="#D6E4D3" stroke-opacity="0.85" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+})();
+
 // false alarm line (illustrative)
 const FA = [9, 7, 6, 3, 2, 1];
 const fx = (i) => 60 + i * 116, fy = (v) => 220 - v * 21;
 $("#fline").setAttribute("d", FA.map((v, i) => `${i ? "L" : "M"}${fx(i)},${fy(v)}`).join(""));
-$("#fdots").innerHTML = FA.map((v, i) => `<circle cx="${fx(i)}" cy="${fy(v)}" r="9" fill="#1F6FEB" stroke="#fff" stroke-width="3"/>`).join("");
-$("#fx").innerHTML = FA.map((v, i) => `<text x="${fx(i)}" y="248" text-anchor="middle" font-family="Inter" font-size="22" fill="#556479">W${i + 1}</text>`).join("");
+$("#fdots").innerHTML = FA.map((v, i) => `<circle cx="${fx(i)}" cy="${fy(v)}" r="9" fill="#E07A2E" stroke="#FFFDF8" stroke-width="3"/>`).join("");
+$("#fx").innerHTML = FA.map((v, i) => `<text x="${fx(i)}" y="248" text-anchor="middle" font-family="JetBrains Mono" font-size="22" fill="#5B6B5F">W${i + 1}</text>`).join("");
 const flineLen = $("#fline").getTotalLength();
 
 // timeline years
@@ -574,7 +647,7 @@ function render(t) {
   for (const el of document.querySelectorAll(".hl")) {
     const a = +el.dataset.in || 0;
     const pulse = Math.sin(clamp((t - a) / 0.9) * Math.PI);
-    el.style.boxShadow = `0 0 0 ${6 + pulse * 10}px rgba(31, 111, 235, ${0.25 * (1 - clamp((t - a) / 1.8))})`;
+    el.style.boxShadow = `0 0 0 ${6 + pulse * 10}px rgba(${el.classList.contains("o") ? "224, 122, 46" : "31, 111, 235"}, ${0.25 * (1 - clamp((t - a) / 1.8))})`;
   }
 
   // intro marks: appear one by one, then a selection ring moves between them
@@ -609,13 +682,25 @@ function render(t) {
   const dk = outCubic(prog(t, 110.4, 111.4));
   $("#donutArc").setAttribute("stroke-dasharray", `${490 * 0.1 * dk} 490`);
 
+  // PREVUMO part: paper ground, then the deck's title card wipes up into the path
+  $("#pvbg").style.opacity = String(prog(t, 124.6, 125.0) * (1 - prog(t, 199.05, 199.45)));
+  $("#stage").classList.toggle("inpv", t >= 124.6 && t < 199.2);
+  const wipe = inOut(prog(t, 127.45, 128.05));
+  $("#pvtitle").style.clipPath = `inset(0 0 ${wipe * 100}% 0)`;
+  $("#pvtitle").style.visibility = wipe >= 1 ? "hidden" : "visible";
+  $("#beat").style.clipPath = `inset(0 ${(1 - inOut(prog(t, 124.9, 126.9))) * 100}% 0 0)`;
+
   // PREVUMO path line and the phone switching from 5:29 to 5:30
   $("#pathline").style.transform = `scaleX(${outCubic(prog(t, 128.0, 129.0)) * 0.33 + outCubic(prog(t, 134.4, 135.2)) * 0.33 + outCubic(prog(t, 143.5, 144.4)) * 0.34})`;
   $("#ph530").style.opacity = String(inOut(prog(t, 134.8, 135.6)));
 
   // price struck through, replaced by the free trial
   $("#strike").style.transform = `scaleX(${inOut(prog(t, 166.3, 166.9))})`;
-  $("#price").style.color = prog(t, 166.5, 167.0) > 0 ? `rgba(14,26,43,${1 - 0.55 * prog(t, 166.5, 167.0)})` : "";
+  $("#price").style.color = prog(t, 166.5, 167.0) > 0 ? `rgba(31,61,43,${1 - 0.55 * prog(t, 166.5, 167.0)})` : "";
+
+  // 12 / 30: counts while the reviewer is introduced, then pulses on "twelve"
+  const pop = prog(t, 95.85, 96.05) - prog(t, 96.15, 96.6);
+  $("#score").style.transform = `scale(${1 + 0.07 * clamp(pop)})`;
 
   // Mark OK tap
   const tap = prog(t, 187.85, 188.0) - prog(t, 188.1, 188.5);
@@ -651,7 +736,7 @@ function render(t) {
   tl.querySelector(".now").style.left = `${x}px`;
   tl.querySelector(".now").textContent = String(Math.round(year));
   tl.querySelector(".fill").style.width = `${x}px`;
-  const pl = outCubic(prog(t, 124.8, 125.4)) * (1 - inOut(prog(t, 198.9, 199.3)));
+  const pl = outCubic(prog(t, 127.9, 128.5)) * (1 - inOut(prog(t, 198.9, 199.3)));
   $("#projlabel").style.opacity = String(pl);
 
   // source line

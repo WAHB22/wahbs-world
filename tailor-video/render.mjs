@@ -22,6 +22,7 @@ async function open(browser) {
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   await page.goto(page_url);
+  await page.evaluate(() => window.FONTS);
   await page.evaluate(() => document.fonts.ready);
   return { page, errors };
 }
@@ -42,12 +43,15 @@ if (opt("--stills")) {
   await p0.close();
   const total = Math.round(end * FPS);
   const workers = +(opt("--workers") || 4);
+  // --from and --to (seconds) re-render only that stretch into the existing frames, then rebuild the video
+  const first = opt("--from") ? Math.floor(+opt("--from") * FPS) : 0;
+  const last = opt("--to") ? Math.ceil(+opt("--to") * FPS) : total - 1;
   const frames = join(build, "frames");
   mkdirSync(frames, { recursive: true });
   const t0 = Date.now();
   await Promise.all(Array.from({ length: workers }, async (_, w) => {
     const { page, errors } = await open(browser);
-    for (let i = w; i < total; i += workers) {
+    for (let i = first + w; i <= last; i += workers) {
       await page.evaluate((t) => window.render(t), i / FPS);
       await page.screenshot({ path: join(frames, `f${String(i).padStart(5, "0")}.jpg`), type: "jpeg", quality: 93 });
       if (w === 0 && i % 600 === 0) console.log(`frame ${i}/${total} ${(Date.now() - t0) / 1000 | 0}s`);
