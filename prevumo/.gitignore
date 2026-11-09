@@ -9,3 +9,6 @@ welder/.page.html
 printer/build/
 printer/.film.html
 printer/.page.html
+multimaker/build/
+multimaker/.film.html
+multimaker/.page.html
