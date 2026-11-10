@@ -60,7 +60,7 @@
   .tag { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 17px; border: 2px solid var(--border); background: var(--surface); color: var(--muted); font: 500 18px/1 var(--body); white-space: nowrap; }
   .tag i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); display: block; }
   #chart svg { display: block; margin-top: 10px; overflow: visible; }
-  #applabel { position: absolute; right: 86px; top: 462px; width: 560px; font: 500 20px/1 var(--mono); color: var(--muted); }
+  #applabel { position: absolute; left: 1266px; top: 457px; padding: 5px 8px; border-radius: 6px; background: var(--bg); font: 500 20px/1 var(--mono); color: var(--muted); }
   #alert { right: 86px; top: 494px; width: 560px; overflow: hidden; box-shadow: 0 30px 60px -36px rgba(31, 61, 43, 0.45); }
   #alert .ah { padding: 20px 26px 16px; border-bottom: 2px solid var(--border); }
   .badge { display: inline-flex; align-items: center; gap: 10px; height: 36px; padding: 0 16px; border-radius: 18px; font: 600 20px/1 var(--body); background: var(--otint); color: var(--ink); }

@@ -1,0 +1,265 @@
+<title>PREVUMO System Overview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+  /* System overview: one drawing sheet in PREVUMO's paper palette. The diagram reflows to one column on phones. */
+  :root {
+    --bg: #F3EBDD; --surface: #FFFDF8; --border: #E3D6C0; --ink: #1F3D2B; --inkDeep: #16301F; --muted: #5B6B5F;
+    --green: #2F6B45; --gtint: #D6E4D3; --orange: #E07A2E; --otint: #F6D2B4; --rust: #A63D1F; --idle: #EDE4D3; --idlemark: #81897A;
+    --display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font: 400 17px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  .page { max-width: 1280px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); }
+  .sheet { position: relative; border: 2px solid var(--ink); border-radius: 4px; padding: 44px 48px 40px; }
+  .sheet > i { position: absolute; background: var(--ink); }
+  .kick { margin: 0; font: 500 18px/1.2 var(--mono); color: var(--green); }
+  h1 { margin: 6px 0 0; font: 700 64px/1.02 var(--display); letter-spacing: -0.03em; }
+  .lede { margin: 14px 0 0; max-width: 760px; font: 500 21px/1.45 var(--body); text-wrap: pretty; }
+  .concept { margin-top: 16px; display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 14px; border-radius: 18px; background: var(--otint); font: 600 15px/1.3 var(--body); }
+  .concept i { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); display: block; flex: none; }
+  h2 { margin: 0; font: 700 30px/1.15 var(--display); letter-spacing: -0.02em; }
+  .dl { font: 500 14px/1.2 var(--mono); color: var(--muted); }
+  section { margin-top: 52px; }
+  .shead { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  /* ---------- the diagram ---------- */
+  .diagram { display: grid; grid-template-columns: minmax(0, 330px) 110px minmax(0, 230px) 64px minmax(0, 1fr); align-items: stretch; }
+  .machines { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-rows: 1fr; gap: 10px; }
+  .machines li { display: grid; grid-template-columns: 68px 1fr 26px; gap: 12px; align-items: center; background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 8px 12px; }
+  .machines li svg.m { width: 68px; height: 50px; }
+  .machines b { display: block; font: 600 17px/1.2 var(--display); }
+  .machines span { display: block; font: 400 13px/1.35 var(--body); color: var(--muted); }
+  .boxg { width: 22px; height: 28px; border-radius: 5px; background: var(--ink); position: relative; justify-self: end; }
+  .boxg::before { content: ""; position: absolute; left: 4px; top: 4px; width: 14px; height: 5px; border-radius: 1px; background: var(--gtint); }
+  .boxg::after { content: ""; position: absolute; left: 4px; top: 13px; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--gtint); }
+  .fan { width: 100%; height: 100%; display: block; }
+  .hub { display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+  .node { background: var(--surface); border: 2px solid var(--border); border-radius: 18px; padding: 16px; }
+  .node b { display: block; font: 700 19px/1.2 var(--display); }
+  .node p { margin: 6px 0 0; font: 400 14px/1.45 var(--body); color: var(--muted); }
+  .node.cloud { border-color: var(--ink); }
+  .wifi { display: flex; align-items: center; gap: 10px; font: 500 14px/1.3 var(--mono); color: var(--green); }
+  .wifi svg { width: 34px; height: 26px; flex: none; }
+  .arrow { width: 100%; height: 40px; display: block; align-self: center; }
+  .owner { display: flex; align-items: center; justify-content: center; }
+  .phone { width: 100%; max-width: 280px; border: 3px solid var(--ink); border-radius: 30px; padding: 14px 12px 16px; background: var(--surface); }
+  .phone .ptop { display: flex; justify-content: space-between; align-items: center; font: 600 15px/1 var(--display); }
+  .phone .demo { font: 500 11px/1 var(--mono); color: var(--muted); }
+  .alertc { margin-top: 12px; border: 2px solid var(--border); border-radius: 14px; padding: 10px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 12px; background: var(--rust); color: #fff; font: 600 11.5px/1 var(--body); }
+  .badge i { width: 6px; height: 6px; border-radius: 50%; background: #fff; display: block; }
+  .alertc b { display: block; margin-top: 7px; font: 700 15px/1.25 var(--display); }
+  .alertc p { margin: 3px 0 0; font: 400 12.5px/1.4 var(--body); color: var(--muted); }
+  .three { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .three span { font: 600 11.5px/1 var(--body); padding: 7px 9px; border-radius: 14px; background: var(--idle); }
+  .three span:first-child { background: var(--surface); box-shadow: 0 0 0 1.5px var(--rust) inset; color: var(--rust); }
+  .three span:nth-child(2) { background: var(--green); color: #fff; }
+  .minis { margin-top: 10px; display: grid; gap: 6px; }
+  .minis div { display: flex; justify-content: space-between; align-items: center; font: 500 12.5px/1.2 var(--body); padding: 7px 9px; border-radius: 10px; background: var(--bg); }
+  .minis em { font-style: normal; font: 600 11px/1 var(--body); padding: 5px 8px; border-radius: 10px; }
+  .e-use { background: var(--gtint); } .e-idle { background: var(--idle); } .e-learn { box-shadow: 0 0 0 1.5px var(--green) inset; }
+  .down { display: none; }
+  .lane { margin-top: 26px; display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr) 64px minmax(0, 1fr); align-items: stretch; }
+  .lane .node { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center; }
+  .lane .node svg { width: 52px; height: 52px; }
+  .lane .cap { grid-column: 1 / -1; margin: 12px 0 0; font: 400 15px/1.45 var(--body); color: var(--muted); }
+  /* ---------- table ---------- */
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 2px solid var(--ink); }
+  th { text-align: left; font: 500 14px/1.2 var(--mono); color: var(--muted); padding: 14px 16px; border-bottom: 2px solid var(--ink); }
+  td { padding: 16px; border-bottom: 1.5px solid var(--border); vertical-align: top; font-size: 16px; }
+  td + td, th + th { border-left: 1.5px solid var(--border); }
+  tr:last-child td { border-bottom: 0; }
+  td.mn { font: 700 19px/1.25 var(--display); white-space: nowrap; }
+  .tnote { margin: 10px 0 0; font: 400 15px/1.45 var(--body); color: var(--muted); }
+  /* ---------- session strip ---------- */
+  .strip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; }
+  .strip li { position: relative; padding: 0 18px 0 0; }
+  .strip .dot { width: 56px; height: 56px; border-radius: 50%; background: var(--surface); border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
+  .strip .dot svg { width: 28px; height: 28px; }
+  .strip li:not(:last-child)::after { content: ""; position: absolute; left: 56px; right: 0; top: 27px; border-top: 2.5px dashed var(--green); }
+  .strip li.act .dot { background: var(--otint); border-color: var(--rust); }
+  .strip .n { margin: 12px 0 0; font: 500 14px/1 var(--mono); color: var(--muted); }
+  .strip b { display: block; margin-top: 4px; font: 700 21px/1.2 var(--display); }
+  .strip p { margin: 6px 0 0; font: 400 15px/1.45 var(--body); color: var(--muted); }
+  /* ---------- shared rules ---------- */
+  .rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 12px; counter-reset: r; }
+  .rules li { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 14px 16px; counter-increment: r; }
+  .rules li::before { content: counter(r); display: inline-flex; width: 30px; height: 30px; border-radius: 50%; align-items: center; justify-content: center; border: 2px solid var(--ink); font: 600 14px/1 var(--mono); }
+  .rules b { display: block; margin-top: 8px; font: 700 17px/1.25 var(--display); }
+  .rules span { display: block; margin-top: 4px; font: 400 14.5px/1.45 var(--body); color: var(--muted); }
+  /* ---------- pages, sources, title block ---------- */
+  .pages { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 10px; }
+  .pages a { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px; padding: 10px 16px; border-radius: 14px; background: var(--surface); border: 2px solid var(--border); color: var(--ink); text-decoration: none; font: 600 16px/1.25 var(--display); }
+  .pages a span { font: 500 13px/1 var(--mono); color: var(--muted); }
+  .pages a:hover { border-color: var(--ink); }
+  a:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .src { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 0 28px; }
+  .src li { padding: 10px 0; border-top: 1.5px solid var(--border); font: 400 15px/1.45 var(--body); color: var(--muted); }
+  .src b { color: var(--ink); font-weight: 600; }
+  .tblock { margin-top: 44px; margin-left: auto; max-width: 640px; border: 2px solid var(--ink); background: var(--surface); }
+  .tblock .r { display: grid; grid-template-columns: 1fr 1fr; }
+  .tblock .c { padding: 10px 14px; border-top: 1.5px solid var(--ink); }
+  .tblock .c + .c { border-left: 1.5px solid var(--ink); }
+  .tblock .r:first-child .c { border-top: 0; }
+  .tblock .k { margin: 0; font: 500 13px/1 var(--mono); color: var(--muted); }
+  .tblock .v { margin: 6px 0 0; font: 600 20px/1.15 var(--display); }
+  .tblock .note { margin: 0; padding: 12px 14px; border-top: 1.5px solid var(--ink); font: 400 16px/1.4 var(--body); }
+  @media (max-width: 1080px) {
+    .diagram { grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1fr); }
+    .diagram .arrow, .diagram .ownerwrap { display: none; }
+    .owner-alt { display: block !important; margin-top: 18px; }
+  }
+  @media (max-width: 760px) {
+    .page { padding-top: 14px; }
+    .sheet { border: 0; padding: 0; } .sheet > i { display: none; }
+    h1 { font-size: 40px; } .lede { font-size: 18px; }
+    section { margin-top: 40px; } h2 { font-size: 25px; }
+    .diagram { grid-template-columns: 1fr; }
+    .fan { display: none; }
+    .down { display: flex; justify-content: center; padding: 6px 0; }
+    .down svg { width: 28px; height: 36px; }
+    .lane { grid-template-columns: 1fr; }
+    .lane .arrow { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    table { border: 0; background: none; } thead { display: none; }
+    tr { background: var(--surface); border: 2px solid var(--ink); margin-bottom: 12px; padding: 6px 14px; }
+    td { border: 0 !important; padding: 7px 0; }
+    td[data-k]::before { content: attr(data-k); display: block; font: 500 12px/1.3 var(--mono); color: var(--muted); }
+    .strip { grid-template-columns: 1fr; gap: 0; }
+    .strip li { display: grid; grid-template-columns: 56px 1fr; gap: 0 14px; padding: 0 0 18px; }
+    .strip li .t { grid-column: 2; grid-row: 1; }
+    .strip .n { margin: 0; }
+    .strip li:not(:last-child)::after { left: 27px; right: auto; top: 56px; bottom: 0; border-top: 0; border-left: 2.5px dashed var(--green); }
+    .tblock .v { font-size: 17px; }
+  }
+</style>
+
+<div class="page">
+<div class="sheet">
+  <i style="left:-2px;top:120px;width:14px;height:2px"></i><i style="right:-2px;top:120px;width:14px;height:2px"></i><i style="left:33%;top:-2px;width:2px;height:14px"></i><i style="left:66%;top:-2px;width:2px;height:14px"></i>
+  <header>
+    <p class="kick">PREVUMO · PD B3 concept · GNG4120 Group 10</p>
+    <h1>System overview</h1>
+    <p class="lede">One module per machine type. Each box protects the machine's health and the resources it consumes, gas, wire, filament and laser tube time, and reports to one owner app. Every machine gets a QR manual.</p>
+    <p class="concept"><i></i>Concept only: not built or tested. Every number and alert is illustrative.</p>
+  </header>
+
+  <section aria-labelledby="h-d">
+    <div class="shead"><h2 id="h-d">How it connects</h2><span class="dl">Drawing 1 · not to scale</span></div>
+    <div class="diagram">
+      <ol class="machines" aria-label="Machines with a PREVUMO module">
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="6" y="14" width="34" height="30" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><circle cx="16" cy="28" r="3.4" fill="#1F3D2B"/><circle cx="28" cy="28" r="3.4" fill="#1F3D2B"/><path d="M14 14v-4h18v4" fill="none" stroke="#1F3D2B" stroke-width="2.2"/><rect x="48" y="8" width="12" height="36" rx="6" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="2.2"/><path d="M54 8V4" stroke="#1F3D2B" stroke-width="2.2"/></svg><div><b>Welder 2</b><span>gas valve, leak sensor, wire scale</span></div><span class="boxg" aria-hidden="true"></span></li>
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="8" y="38" width="44" height="8" rx="2" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><path d="M12 38V12h36v26" fill="none" stroke="#1F3D2B" stroke-width="3"/><circle cx="30" cy="8" r="5.5" fill="#2F6B45" stroke="#1F3D2B" stroke-width="2"/><rect x="20" y="33" width="20" height="3" fill="#2C4D39"/></svg><div><b>3D printer 4</b><span>spool scale, printer link</span></div><span class="boxg" aria-hidden="true"></span></li>
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="8" y="4" width="40" height="42" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><rect x="13" y="10" width="30" height="24" rx="2" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="1.6"/><circle cx="56" cy="22" r="6" fill="#2F6B45" stroke="#1F3D2B" stroke-width="2"/></svg><div><b>3D printer 2</b><span>enclosed: plus a chamber sensor</span></div><span class="boxg" aria-hidden="true"></span></li>
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="4" y="24" width="54" height="20" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><rect x="8" y="20" width="40" height="5" rx="2" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="1.8"/><circle cx="54" cy="31" r="2.6" fill="#A63D1F"/><circle cx="20" cy="9" r="6" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2"/><path d="M20 15v5" stroke="#81897A" stroke-width="3"/></svg><div><b>Laser 1</b><span>exhaust clamp, coolant, air, flame</span></div><span class="boxg" aria-hidden="true"></span></li>
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="8" y="38" width="46" height="8" rx="2" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><path d="M12 38V8M50 38V8" stroke="#1F3D2B" stroke-width="3.2"/><path d="M12 20h38" stroke="#1F3D2B" stroke-width="3"/><rect x="26" y="20" width="9" height="9" rx="2" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2"/><circle cx="58" cy="10" r="4" fill="#2F6B45"/></svg><div><b>Multimaker 1</b><span>mode buttons: print, laser, CNC</span></div><span class="boxg" aria-hidden="true"></span></li>
+      </ol>
+      <svg class="fan" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="none" stroke="#2F6B45" stroke-width="2.5" stroke-dasharray="7 6" vector-effect="non-scaling-stroke">
+          <path d="M0 10 C50 10 50 50 100 50" vector-effect="non-scaling-stroke"/><path d="M0 30 C50 30 50 50 100 50" vector-effect="non-scaling-stroke"/><path d="M0 50 L100 50" vector-effect="non-scaling-stroke"/><path d="M0 70 C50 70 50 50 100 50" vector-effect="non-scaling-stroke"/><path d="M0 90 C50 90 50 50 100 50" vector-effect="non-scaling-stroke"/>
+        </g>
+      </svg>
+      <div class="down" aria-hidden="true"><svg viewBox="0 0 28 36"><path d="M14 2v28M5 22l9 10 9-10" fill="none" stroke="#2F6B45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="hub">
+        <p class="wifi"><svg viewBox="0 0 34 26" aria-hidden="true"><g fill="none" stroke="#2F6B45" stroke-width="3" stroke-linecap="round"><path d="M3 9a20 20 0 0 1 28 0"/><path d="M8 14a13 13 0 0 1 18 0"/><path d="M13 19a6 6 0 0 1 8 0"/></g><circle cx="17" cy="23" r="2.2" fill="#2F6B45"/></svg>Wi-Fi from every box: sessions, readings, alerts</p>
+        <div class="node cloud"><b>PREVUMO cloud</b><p>Keeps each machine's trained list and learned normal range, every session, and every decision the owner makes.</p></div>
+        <div class="node owner-alt" style="display:none"><b>Owner app</b><p>Machines, alerts with three buttons, members, resources and manuals.</p></div>
+      </div>
+      <svg class="arrow" viewBox="0 0 64 40" aria-hidden="true"><path d="M4 20H56M46 10l12 10-12 10" fill="none" stroke="#2F6B45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
+      <div class="owner ownerwrap">
+        <div class="phone" aria-label="Owner app, illustrative">
+          <div class="ptop">Owner app<span class="demo">demo data</span></div>
+          <div class="alertc"><span class="badge"><i></i>Safety · stopped first</span><b>Gas leak near Welder 2</b><p>Valve closed automatically.</p><div class="three"><span>Shut down</span><span>Call technician</span><span>Mark as OK</span></div></div>
+          <div class="minis"><div>3D printer 4<em class="e-use">In use</em></div><div>Laser 1<em class="e-idle">Idle</em></div><div>Multimaker 1<em class="e-learn">Learning mode</em></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="node"><svg viewBox="0 0 52 52" aria-hidden="true"><rect x="14" y="3" width="24" height="46" rx="5" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.4"/><path d="M22 43h8" stroke="#1F3D2B" stroke-width="2.4" stroke-linecap="round"/></svg><div><b>Member's phone</b><p>Any phone camera, no app to install.</p></div></div>
+      <svg class="arrow" viewBox="0 0 64 40" aria-hidden="true"><path d="M6 20H56M46 10l12 10-12 10" fill="none" stroke="#2F6B45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
+      <div class="down" aria-hidden="true"><svg viewBox="0 0 28 36"><path d="M14 2v28M5 22l9 10 9-10" fill="none" stroke="#2F6B45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="node"><svg viewBox="0 0 52 52" aria-hidden="true"><rect x="3" y="3" width="46" height="46" rx="6" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.4"/><g fill="#1F3D2B"><rect x="9" y="9" width="12" height="12"/><rect x="31" y="9" width="12" height="12"/><rect x="9" y="31" width="12" height="12"/><rect x="31" y="31" width="5" height="5"/><rect x="38" y="38" width="5" height="5"/><rect x="25" y="25" width="4" height="4"/></g><g fill="#FFFDF8"><rect x="12" y="12" width="6" height="6"/><rect x="34" y="12" width="6" height="6"/><rect x="12" y="34" width="6" height="6"/></g></svg><div><b>QR sticker on the box</b><p>Printed on the front cover, beside the reader.</p></div></div>
+      <svg class="arrow" viewBox="0 0 64 40" aria-hidden="true"><path d="M6 20H56M46 10l12 10-12 10" fill="none" stroke="#2F6B45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>
+      <div class="down" aria-hidden="true"><svg viewBox="0 0 28 36"><path d="M14 2v28M5 22l9 10 9-10" fill="none" stroke="#2F6B45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="node"><svg viewBox="0 0 52 52" aria-hidden="true"><path d="M8 8a4 4 0 0 1 4-4h32v38H12a4 4 0 0 0-4 4z" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.4" stroke-linejoin="round"/><path d="M8 46a4 4 0 0 1 4-4h32v6H12" fill="none" stroke="#1F3D2B" stroke-width="2.4"/><rect x="16" y="12" width="20" height="6" rx="2" fill="#A63D1F"/></svg><div><b>That machine's manual</b><p>Before you start, start, shut down, and a red emergency section.</p></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-t">
+    <div class="shead"><h2 id="h-t">What each module watches</h2><span class="dl">Table 1</span></div>
+    <table>
+      <thead><tr><th>Machine</th><th>Risks watched</th><th>Resource tracked</th><th>Automatic action</th></tr></thead>
+      <tbody>
+        <tr><td class="mn" data-k="Machine">Welder</td><td data-k="Risks watched">gas left open, gas leak, excessive wire, untrained user, abnormal load</td><td data-k="Resource tracked">gas, wire</td><td data-k="Automatic action">valve closes, machine locks</td></tr>
+        <tr><td class="mn" data-k="Machine">FDM printer</td><td data-k="Risks watched">heater stuck on, left heating, failed print, heavy filament use</td><td data-k="Resource tracked">filament, electricity</td><td data-k="Automatic action">power cut, pause</td></tr>
+        <tr><td class="mn" data-k="Machine">Laser</td><td data-k="Risks watched">fire unattended, no exhaust, no air assist, tube overheating</td><td data-k="Resource tracked">tube minutes</td><td data-k="Automatic action">laser paused or locked</td></tr>
+      </tbody>
+    </table>
+    <p class="tnote">The enclosed printer uses the FDM row plus a chamber temperature limit. The multimaker uses the row for the mode the member picks, and counts spindle minutes in CNC mode.</p>
+  </section>
+
+  <section aria-labelledby="h-s">
+    <div class="shead"><h2 id="h-s">One session, five steps</h2><span class="dl">Same on every box</span></div>
+    <ol class="strip">
+      <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><g fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round"><path d="M10 8a8 8 0 0 1 0 12"/><path d="M14 5a12 12 0 0 1 0 18"/><path d="M18 2a16 16 0 0 1 0 24"/></g><circle cx="6" cy="14" r="2.6" fill="#1F3D2B"/></svg></span><div class="t"><p class="n">1</p><b>Tap fob</b><p>The box checks that machine's trained list. No fob on the list, no power.</p></div></li>
+      <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><g fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round"><path d="M14 3v11"/><path d="M20.4 7.4a9 9 0 1 1-12.8 0"/></g></svg></span><div class="t"><p class="n">2</p><b>On</b><p>Power, gas or the laser's enable line switches on for this member.</p></div></li>
+      <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M2 16h5l3-8 4 14 3-9 2 3h7" fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="t"><p class="n">3</p><b>Watch</b><p>Current, sensors and resources are read every second against the learned normal.</p></div></li>
+      <li class="act"><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3 2 25h24z" fill="#A63D1F"/><path d="M14 11v6M14 21h.01" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><div class="t"><p class="n">4</p><b>Alert or act</b><p>Gas leak, fire or no exhaust: the machine stops first, then the owner is told. Anything else: Shut down, Call technician or Mark as OK.</p></div></li>
+      <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><g fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="18" height="22" rx="2"/><path d="M9 9h10M9 14h10M9 19h6"/></g></svg></span><div class="t"><p class="n">5</p><b>Off and log</b><p>Tap out or idle timeout. Who, how long and what was used go to the member's record.</p></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-r">
+    <div class="shead"><h2 id="h-r">Same rules on every box</h2></div>
+    <ol class="rules">
+      <li><b>NFC fob, not a PIN</b><span>A round contactless reader. "Tap your fob", then "Checking fob", then "Hi, name".</span></li>
+      <li><b>Trained list</b><span>A fob that is not on the machine's list sees "Not trained on this machine" and the machine stays locked.</span></li>
+      <li><b>QR manual</b><span>A printed sticker beside the reader opens that machine's manual.</span></li>
+      <li><b>Learning mode</b><span>The first two weeks only record the normal range, with no automatic shutdown.</span></li>
+      <li><b>One alert format</b><span>Shut down, Call technician or Mark as OK. Safety events stop the machine first.</span></li>
+      <li><b>Idle timeout</b><span>Nothing happening for the time the owner sets: everything switches off.</span></li>
+      <li><b>Resources per session</b><span>Who, how long and the resource used, added to the member's record.</span></li>
+      <li><b>Illustrative labels</b><span>Every chart, number and alert in these drawings is illustrative, not measured.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-p">
+    <div class="shead"><h2 id="h-p">The drawings</h2><span class="dl">PD B3 set</span></div>
+    <ul class="pages">
+      <li><a href="https://claude.ai/artifact/KAUbvfq3DmXSjazq2fNP8Q" target="_blank" rel="noopener">Welder module<span>page 1</span></a></li>
+      <li><a href="https://claude.ai/artifact/T8ZbrGETfFSC93hxXRPbfV" target="_blank" rel="noopener">3D printer module<span>page 2</span></a></li>
+      <li><a href="https://claude.ai/artifact/75rKRdjDcEjJiDaA1jvsZ4" target="_blank" rel="noopener">Enclosed printer module<span>page 3</span></a></li>
+      <li><a href="https://claude.ai/artifact/C52M2y6pjY9HUNtT7dSVgp" target="_blank" rel="noopener">Multimaker module<span>page 4</span></a></li>
+      <li><a href="https://claude.ai/artifact/5e6JmpAoJxPuM4aq2bjoHg" target="_blank" rel="noopener">Laser cutter module<span>page 5</span></a></li>
+      <li><a href="https://claude.ai/artifact/H3puTqjPPLrXovR8i2b6jk" target="_blank" rel="noopener">QR machine manual<span>page 7</span></a></li>
+      <li><a href="https://claude.ai/artifact/4h4W69hJd84m2PPxQsAU6n" target="_blank" rel="noopener">Owner app<span>page 8</span></a></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-e">
+    <div class="shead"><h2 id="h-e">Sources</h2><span class="dl">What each one supports</span></div>
+    <ul class="src">
+      <li><b>Grey Bruce Makers</b>: bills wire and filament by weight at $0.10 a gram, and today removes and weighs the spool by hand.</li>
+      <li><b>Yukonstruct</b> (Rick Yorgason, Oct 27): "we wouldn't want it to be a personal code, we would want it to be an NFC fob."</li>
+      <li><b>HSE EIS45</b>: UK Health and Safety Executive guidance, from the team's research for the welder.</li>
+      <li><b>CMU EHS</b>: ventilation on before a laser operates; a running laser is always attended.</li>
+      <li><b>VanHack</b>: a "zero-tolerance" rule for leaving the laser while it runs.</li>
+      <li><b>Alveo3D</b>: nozzles reach 250 °C and more; check prints every 30 minutes.</li>
+      <li><b>University of Regina</b>: charges $0.10 a gram for 3D printing.</li>
+    </ul>
+  </section>
+
+  <div class="tblock">
+    <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">System overview</p></div></div>
+    <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.2 · PD B3</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
+    <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
+    <p class="note">Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; CSA certification needed before sale.</p>
+  </div>
+</div>
+</div>

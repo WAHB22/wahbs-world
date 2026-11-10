@@ -113,42 +113,29 @@ FFMPEG=<path to ffmpeg with libx264> node video/record.mjs flags deliverables
 
 The recorder pins the browser clock to a weekday afternoon in Ottawa, draws a cursor, hides the demo controls and writes a 1920x1080 H.264 file.
 
-## Welder module prototype (PD B2 concept)
+## Full prototype (PD B3 concept)
 
-`welder/` holds a 3D concept of the welder module: one box per welder that reads the current and switches both the power and the gas. It is a drawing of an idea, not a built or tested device.
+Eight pages describe the whole PREVUMO concept for GNG4120 Group 10. None of it is built or tested; every chart, number and alert is illustrative, and every page says so.
 
-| File | What it is |
+| Folder | Page |
 |---|---|
-| `welder/index.html` | The interactive prototype: assembled, in pieces with a parts list, on the welder, and the six steps of how it works. Drag to turn it, scroll to zoom |
-| `welder/record.mjs` | Renders the 62 s animation frame by frame to `deliverables/prevumo-welder-module.mp4`, or stills with `--stills 16.4,22.4` |
-| `welder/make-artifact.mjs` | Writes `welder/artifact.html`, the same page with three.js and the fonts from public CDNs, for sharing |
+| `welder/` | 1, welder module: NFC fob, QR manual, gas valve, gas leak sensor, wire scale |
+| `printer/` | 2, 3D printer module: spool scale, printer link, failed print pause, heating timeout; the warm-up is flagged as normal |
+| `enclosed/` | 3, enclosed printer module: page 2 plus a chamber temperature sensor |
+| `multimaker/` | 4, multimaker module: mode buttons after the fob tap; spool scale, exhaust interlock, spindle minutes |
+| `laser/` | 5, laser cutter module: exhaust clamp, air pressure switch, flame sensor, coolant sensor, interlock relay on the enable line |
+| `overview/` | 6, system overview: diagram, what each module watches, the five step session, sources |
+| `manual/` | 7, QR machine manual, phone first, one page per machine (`#welder-2`, `#printer-4`, `#laser-1`) |
+| `app/` | 8, owner app with demo data: machines, alerts, members, resources, manuals |
+
+The five module pages share one engine, `kit/engine.js` and `kit/engine.css`: the box with its NFC reader and QR sticker, the exploded view, balloons, parts table, steps, charts, alerts, the title block and the shared rules (trained list, learning mode, one alert format, idle timeout, resources per session). Each module's `index.html` is a config for `run()`.
 
 ```bash
-cd prevumo/welder
-node record.mjs --stills 16.4,22.4   # quick look, into welder/build/stills
-node record.mjs                      # full film, about 8 minutes
-node make-artifact.mjs
+cd prevumo
+node kit/record.mjs welder --stills 24.6,44      # stills into welder/build/stills
+node kit/record.mjs welder --out welder          # full film into deliverables/prevumo-welder-module.mp4
+node kit/make-artifact.mjs welder                # welder/artifact.html, with three.js and fonts from CDNs
+node kit/shoot.mjs manual --hash laser-1         # desktop and phone screenshots of a static page
 ```
 
-What the concept takes from the deck: keypad, current sensor, ESP32 with Wi-Fi; for 240 V the box drives a contactor installed by a licensed electrician; CSA certification before sale; nothing restarts on its own. What is new for welders: a normally closed gas valve on the shielding gas hose, opened only during a session. The chart and the alert in the animation are illustrations, not measured data.
-
-## 3D printer module prototype (PD B2 concept)
-
-`printer/` is the same kind of concept for a 3D printer, built with the same tools as `welder/` (`index.html`, `record.mjs`, `make-artifact.mjs`; the film goes to `deliverables/prevumo-printer-module.mp4`).
-
-* A printer is a 120 V machine, so the box's own certified relay (up to 15 A at 120 V, from the deck) switches it directly: the box plugs into a normal outlet and the printer plugs into the box. No contactor, no gas.
-* The warm-up is flagged as normal. A printer draws the most current while its bed and nozzle heat up after it turns on. The learned normal range is higher during that warm-up, so the line stays green, the status light stays green and the display says "Normal for this printer". Only current that stays high after the warm-up is flagged as irregular.
-* The chart and the alert are illustrations, not measured data, and the film runs as a time-lapse.
-
-## Multimaker module prototype (PD B2 concept)
-
-`multimaker/` is the same kind of concept for a 3-in-1 machine that swaps heads between 3D printing, laser engraving and CNC carving (film: `deliverables/prevumo-multimaker-module.mp4`).
-
-* Same plug-in box as the 3D printer: its own certified relay (up to 15 A at 120 V, from the deck) switches the machine.
-* New: after the PIN the member presses 1 print, 2 laser or 3 CNC. The session is logged with its mode, and the box compares the current with that mode's own learned normal range. This is a design choice for the concept, not a tested feature.
-* The short spike when the CNC spindle spins up is flagged as normal for CNC. Current that keeps climbing during a cut is flagged as irregular.
-* The mode patterns, the chart and the alert are illustrations, not measured data, and the film runs as a time-lapse.
-
-## Enclosed printer module prototype (PD B2 concept)
-
-`enclosed/` is the 3D printer concept again, for an enclosed, Ultimaker-style printer: a box frame with the head on cross rods at the top, a glass plate that drops as the print grows, and the spools at the back (film: `deliverables/prevumo-enclosed-printer-module.mp4`). The box, the steps and the warm-up flagged as normal are the same as in `printer/`. No brand name or logo is drawn on the machine.
+Screenshots of every page at its busiest moment are in `deliverables/pd-b3/`. The films in `deliverables/` are from the earlier PD B2 concept (keypad, no QR); the pages are the current version.

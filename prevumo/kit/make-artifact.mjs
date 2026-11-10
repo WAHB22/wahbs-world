@@ -9,15 +9,15 @@ const kit = dirname(fileURLToPath(import.meta.url));
 const dir = join(kit, "..", process.argv[2] || "");
 const THREE = "https://cdn.jsdelivr.net/npm/three@0.186.1";
 let html = readFileSync(join(dir, "index.html"), "utf8");
-const swap = (tag, body) => {
+const swap = (tag, body, optional) => {
   const re = new RegExp(`<!--${tag}-->[\\s\\S]*?<!--/${tag}-->`);
-  if (!re.test(html)) throw new Error(`missing ${tag} block`);
+  if (!re.test(html)) { if (optional) return; throw new Error(`missing ${tag} block`); }
   html = html.replace(re, () => body);
 };
 swap("FONTS", `<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">`);
-swap("IMPORTMAP", `<script type="importmap">{ "imports": { "three": "${THREE}/build/three.module.js", "three/addons/": "${THREE}/examples/jsm/" } }</script>`);
+swap("IMPORTMAP", `<script type="importmap">{ "imports": { "three": "${THREE}/build/three.module.js", "three/addons/": "${THREE}/examples/jsm/" } }</script>`, true);
 if (html.includes('href="../kit/engine.css"')) {
   const css = readFileSync(join(kit, "engine.css"), "utf8");
   html = html.replace(/<link rel="stylesheet" href="\.\.\/kit\/engine\.css">/, () => `<style>\n${css}</style>`);
