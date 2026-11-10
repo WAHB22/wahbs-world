@@ -139,3 +139,12 @@ node kit/shoot.mjs manual --hash laser-1         # desktop and phone screenshots
 ```
 
 Screenshots of every page at its busiest moment are in `deliverables/pd-b3/`. The films in `deliverables/` are from the earlier PD B2 concept (keypad, no QR); the pages are the current version.
+
+## PD B3 Word report
+
+`report/PREVUMO_PD_B3_Group10.docx` (and its PDF) describes the eight pages, the evidence, seven hypotheses, the interview plan and blank interview sheets for the team. `report/extract.mjs` reads the parts and steps from the module pages, `report/build.cjs` writes the draft with docx-js, and `report/finish.py` updates the table of contents in LibreOffice and exports the PDF.
+
+```bash
+cd prevumo/report
+node extract.mjs && node build.cjs && python3 finish.py
+```

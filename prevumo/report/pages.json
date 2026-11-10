@@ -1,0 +1,523 @@
+{
+ "welder": {
+  "parts": [
+   [
+    "1",
+    "NFC reader",
+    "Members tap their fob; trained list per machine."
+   ],
+   [
+    "2",
+    "Display and status light",
+    "Who is on, and what the box is doing."
+   ],
+   [
+    "3",
+    "QR sticker",
+    "Opens the Welder 2 manual."
+   ],
+   [
+    "4",
+    "Front cover",
+    "Sealed, closed with four screws."
+   ],
+   [
+    "5",
+    "Controller board",
+    "ESP32 with Wi-Fi; drives the contactor and valve."
+   ],
+   [
+    "6",
+    "Power supply",
+    "Runs the box from the welder's line."
+   ],
+   [
+    "7",
+    "Back housing",
+    "Wall mount and four cable glands."
+   ],
+   [
+    "8",
+    "Current clamp",
+    "Clips around one supply wire. Nothing is cut."
+   ],
+   [
+    "9",
+    "Contactor, 240 V",
+    "Switches the welder. Licensed electrician installs."
+   ],
+   [
+    "10",
+    "Gas valve",
+    "Closed without power: open only in a fob session."
+   ],
+   [
+    "11",
+    "Gas leak sensor",
+    "On the wall by the regulator, watched day and night."
+   ],
+   [
+    "12",
+    "Wire scale",
+    "Weighs the wire spool: grams per session."
+   ]
+  ],
+  "steps": [
+   [
+    "Locked until a fob tap",
+    "Jonah's fob is not on Welder 2's trained list, so it stays locked. Amira is trained: it unlocks."
+   ],
+   [
+    "Power and gas on",
+    "The box closes the contactor and opens the gas valve. The session is logged to Amira."
+   ],
+   [
+    "Watches current and wire",
+    "The clamp reads the current every second and the scale weighs the spool. The first two weeks only learn the normal range."
+   ],
+   [
+    "Flags an irregular pattern",
+    "The owner gets one alert: Shut down, Call technician or Mark as OK."
+   ],
+   [
+    "Stops power and gas together",
+    "Nothing restarts on its own. Amira's session is logged with the wire she used."
+   ],
+   [
+    "Idle? Both off",
+    "If nobody welds for the idle time the owner sets, the box turns power and gas off."
+   ],
+   [
+    "Gas leak? Valve shuts",
+    "The sensor by the regulator is watched even with no session. The valve closes first, then the owner is told."
+   ]
+  ],
+  "sys": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "dur": 68.35
+ },
+ "printer": {
+  "parts": [
+   [
+    "1",
+    "NFC reader",
+    "Members tap their fob; trained list per machine."
+   ],
+   [
+    "2",
+    "Display and status light",
+    "Who is on, and what the box is doing."
+   ],
+   [
+    "3",
+    "QR sticker",
+    "Opens the 3D printer 4 manual."
+   ],
+   [
+    "4",
+    "Front cover",
+    "Sealed, closed with four screws."
+   ],
+   [
+    "5",
+    "Controller board",
+    "ESP32 with Wi-Fi and a current sensor."
+   ],
+   [
+    "6",
+    "Relay",
+    "Certified, 15 A at 120 V. Switches the printer."
+   ],
+   [
+    "7",
+    "Power supply",
+    "Runs the box from the same outlet."
+   ],
+   [
+    "8",
+    "Back housing",
+    "Wall mount, cord to the wall, outlet for the printer."
+   ],
+   [
+    "9",
+    "Spool scale",
+    "Load cell under the spool: grams per session."
+   ],
+   [
+    "10",
+    "Printer link",
+    "USB cable: reads the job, can pause it."
+   ]
+  ],
+  "steps": [
+   [
+    "Locked until a fob tap",
+    "Amira's fob is not on this printer's trained list, so it stays locked. Priya is trained: it unlocks."
+   ],
+   [
+    "Power on",
+    "The box closes its relay and the printer turns on. The session is logged to Priya."
+   ],
+   [
+    "Heats up first: that's normal",
+    "A printer draws the most current while the bed and nozzle heat. PREVUMO knows this warm-up, so it raises no alert."
+   ],
+   [
+    "Prints and weighs filament",
+    "Once warm, the current settles into its normal range. The scale under the spool counts grams; the first two weeks only learn the normal range."
+   ],
+   [
+    "Failed print? Pause",
+    "Print time far past the estimate, or the spool stops losing weight: the box pauses the job and alerts the member."
+   ],
+   [
+    "Left heating? Power off",
+    "Heaters on and nothing moving for the time the owner sets, or a finished job still hot: the relay cuts power."
+   ]
+  ],
+  "sys": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true
+  ],
+  "dur": 63.3
+ },
+ "enclosed": {
+  "parts": [
+   [
+    "1",
+    "NFC reader",
+    "Members tap their fob; trained list per machine."
+   ],
+   [
+    "2",
+    "Display and status light",
+    "Who is on, and what the box is doing."
+   ],
+   [
+    "3",
+    "QR sticker",
+    "Opens the 3D printer 2 manual."
+   ],
+   [
+    "4",
+    "Front cover",
+    "Sealed, closed with four screws."
+   ],
+   [
+    "5",
+    "Controller board",
+    "ESP32 with Wi-Fi and a current sensor."
+   ],
+   [
+    "6",
+    "Relay",
+    "Certified, 15 A at 120 V. Switches the printer."
+   ],
+   [
+    "7",
+    "Power supply",
+    "Runs the box from the same outlet."
+   ],
+   [
+    "8",
+    "Back housing",
+    "Wall mount, cord to the wall, outlet for the printer."
+   ],
+   [
+    "9",
+    "Spool scale",
+    "Load cells under both spools: grams per session."
+   ],
+   [
+    "10",
+    "Printer link",
+    "USB cable: reads the job, can pause it."
+   ],
+   [
+    "11",
+    "Chamber sensor",
+    "Air temperature inside the enclosure."
+   ]
+  ],
+  "steps": [
+   [
+    "Locked until a fob tap",
+    "Lucas's fob is not on this printer's trained list, so it stays locked. Jonah is trained: it unlocks."
+   ],
+   [
+    "Power on",
+    "The box closes its relay and the printer turns on. The session is logged to Jonah."
+   ],
+   [
+    "Heats up first: that's normal",
+    "The bed and nozzles heat first, so the current is high. PREVUMO knows this warm-up and raises no alert."
+   ],
+   [
+    "Prints and weighs filament",
+    "The current settles into its normal range and the scale counts grams. The first two weeks only learn the normal range."
+   ],
+   [
+    "Failed print? Pause",
+    "Print time far past the estimate, or the spools stop losing weight: the box pauses the job and alerts the member."
+   ],
+   [
+    "Chamber too hot? Off",
+    "If the air inside the enclosure passes the owner's limit, the box cuts power first, then alerts the owner."
+   ],
+   [
+    "Left heating? Power off",
+    "Heaters on and nothing moving for the time the owner sets: the relay cuts power."
+   ]
+  ],
+  "sys": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true
+  ],
+  "dur": 68.55
+ },
+ "multimaker": {
+  "parts": [
+   [
+    "1",
+    "NFC reader",
+    "Members tap their fob; trained list per machine."
+   ],
+   [
+    "2",
+    "Mode buttons",
+    "Pick print, laser or CNC after the tap."
+   ],
+   [
+    "3",
+    "Display and status light",
+    "Who is on, the mode, and what the box is doing."
+   ],
+   [
+    "4",
+    "QR sticker",
+    "Opens the Multimaker 1 manual."
+   ],
+   [
+    "5",
+    "Front cover",
+    "Sealed, closed with four screws."
+   ],
+   [
+    "6",
+    "Controller board",
+    "ESP32 with Wi-Fi and a current sensor."
+   ],
+   [
+    "7",
+    "Relay",
+    "Certified, 15 A at 120 V. Switches the machine."
+   ],
+   [
+    "8",
+    "Power supply",
+    "Runs the box from the same outlet."
+   ],
+   [
+    "9",
+    "Back housing",
+    "Wall mount, cord to the wall, outlet for the machine."
+   ],
+   [
+    "10",
+    "Spool scale",
+    "Print mode: grams of filament per session."
+   ],
+   [
+    "11",
+    "Exhaust clamp",
+    "Laser mode: no exhaust current, no laser."
+   ]
+  ],
+  "steps": [
+   [
+    "Locked until a fob tap",
+    "Jonah's fob is not on Multimaker 1's trained list, so it stays locked. Priya is trained: it unlocks."
+   ],
+   [
+    "Picks the mode",
+    "Priya presses CNC on the box. Each mode has its own trained list and its own normal range."
+   ],
+   [
+    "CNC: counts spindle minutes",
+    "The spin-up spike is normal for CNC, so no alert. The box logs the minutes the spindle runs."
+   ],
+   [
+    "Flags an irregular pattern",
+    "The current keeps climbing during the cut. The owner gets one alert and decides what happens."
+   ],
+   [
+    "Laser: exhaust first",
+    "Amira picks laser. The laser stays locked until the exhaust fan draws current, then laser-on minutes are logged."
+   ],
+   [
+    "Print: weighs filament",
+    "Lucas picks print. The scale under the spool counts the grams of his session."
+   ],
+   [
+    "Idle? Off",
+    "A finished job left switched on: the box turns it off after the idle time the owner sets."
+   ]
+  ],
+  "sys": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true
+  ],
+  "dur": 66.4
+ },
+ "laser": {
+  "parts": [
+   [
+    "1",
+    "NFC reader",
+    "Members tap their fob; trained list per machine."
+   ],
+   [
+    "2",
+    "Display and status light",
+    "Who is on, and what the box is doing."
+   ],
+   [
+    "3",
+    "QR sticker",
+    "Opens the Laser 1 manual."
+   ],
+   [
+    "4",
+    "Front cover",
+    "Sealed, closed with four screws."
+   ],
+   [
+    "5",
+    "Controller board",
+    "ESP32 with Wi-Fi; reads every sensor."
+   ],
+   [
+    "6",
+    "Interlock relay",
+    "Opens the laser's enable line: no fob, no laser."
+   ],
+   [
+    "7",
+    "Power supply",
+    "Runs the box from a wall outlet."
+   ],
+   [
+    "8",
+    "Back housing",
+    "Wall mount and four cable glands."
+   ],
+   [
+    "9",
+    "Exhaust clamp",
+    "Current clamp on the exhaust fan's cord."
+   ],
+   [
+    "10",
+    "Coolant sensor",
+    "Water temperature on the chiller's return hose."
+   ],
+   [
+    "11",
+    "Air pressure switch",
+    "On the air assist hose: no pressure, no job."
+   ],
+   [
+    "12",
+    "Flame and smoke sensor",
+    "Looks at the bed from inside the laser."
+   ]
+  ],
+  "steps": [
+   [
+    "Locked until a fob tap",
+    "Priya's fob is not on Laser 1's trained list, so it stays locked. Lucas is trained: it unlocks."
+   ],
+   [
+    "Exhaust on first",
+    "The laser stays locked until the clamp sees the exhaust fan draw current."
+   ],
+   [
+    "Air assist, or no job",
+    "No pressure at the air switch blocks the job."
+   ],
+   [
+    "Cuts and logs minutes",
+    "Laser-on minutes go to Lucas's record. The coolant temperature is read the whole time."
+   ],
+   [
+    "Flame in the bed? Pause",
+    "The flame sensor pauses the laser first, then the owner is alerted."
+   ],
+   [
+    "Tapped out mid-job? Pause",
+    "A running laser is never left alone: tapping out pauses the job and alerts the owner."
+   ],
+   [
+    "Coolant too warm? Stop",
+    "The laser stops before the tube is damaged, then the owner is alerted."
+   ],
+   [
+    "Idle? Off",
+    "Nothing running for the owner's idle time: the enable line opens and the session ends."
+   ]
+  ],
+  "sys": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   true
+  ],
+  "dur": 68.8
+ }
+}
