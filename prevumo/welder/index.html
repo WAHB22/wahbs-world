@@ -7,933 +7,317 @@
   @font-face { font-family: "JetBrains Mono"; src: url("../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; }
 </style>
 <!--/FONTS-->
-<style>
-  /* Layout: a 1920x1080 drawing sheet (the film frame) scaled to fit, with the controls and the parts list under it.
-     Palette and type are PREVUMO's own (prevumo/src/index.css, deck "Field notes"); the page commits to the paper look. */
-  :root {
-    --bg: #F3EBDD; --surface: #FFFDF8; --border: #E3D6C0; --ink: #1F3D2B; --muted: #5B6B5F;
-    --green: #2F6B45; --gtint: #D6E4D3; --orange: #E07A2E; --otint: #F6D2B4; --rust: #A63D1F; --idle: #EDE4D3; --idlemark: #81897A;
-    --display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
-    --body: "Inter", ui-sans-serif, system-ui, sans-serif;
-    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    color-scheme: light;
-  }
-  html, body { background: var(--bg); color: var(--ink); }
-  body { font-family: var(--body); -webkit-font-smoothing: antialiased; }
-  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-  #stage p, #stage h1, #stage ol { margin: 0; }
-
-  /* ---------- the sheet ---------- */
-  #frame { position: relative; width: 100%; max-width: 1600px; margin: 0 auto; aspect-ratio: 16 / 9; overflow: hidden; }
-  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; background: var(--bg); overflow: hidden; }
-  #gl { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; touch-action: none; cursor: grab; }
-  #gl:active { cursor: grabbing; }
-  #sheet { position: absolute; inset: 26px; border: 2px solid var(--ink); border-radius: 4px; pointer-events: none; opacity: 0.85; }
-  #sheet i { position: absolute; background: var(--ink); }
-  #lines { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; overflow: visible; }
-  .balloon { position: absolute; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: var(--surface); border: 3px solid var(--ink); display: flex; align-items: center; justify-content: center; font: 600 24px/1 var(--mono); color: var(--ink); pointer-events: none; }
-  .balloon.ctx { border-color: var(--green); color: var(--green); }
-
-  #head { position: absolute; left: 86px; top: 78px; pointer-events: none; max-width: 760px; }
-  #kick { font: 500 26px/1.2 var(--mono); color: var(--orange); }
-  .mask { overflow: hidden; padding-bottom: 8px; }
-  #ttl { margin: 8px 0 0; font: 700 96px/1.02 var(--display); letter-spacing: -0.03em; color: var(--ink); }
-  #sub { margin: 18px 0 0; font: 500 32px/1.3 var(--body); color: var(--ink); max-width: 640px; text-wrap: balance; }
-
-  /* parts list, drawn as a drawing's parts table */
-  #bom { position: absolute; right: 86px; top: 150px; width: 470px; pointer-events: none; }
-  #bom .hd { display: grid; grid-template-columns: 64px 1fr; padding: 0 0 10px; border-bottom: 2px solid var(--ink); font: 500 20px/1 var(--mono); color: var(--muted); }
-  #bom .row { display: grid; grid-template-columns: 64px 1fr; gap: 0; padding: 10px 0; border-bottom: 1.5px solid var(--border); }
-  #bom .no { font: 600 24px/1.2 var(--mono); }
-  #bom .nm { font: 600 26px/1.15 var(--display); letter-spacing: -0.01em; }
-  #bom .rl { margin-top: 3px; font: 400 19px/1.3 var(--body); color: var(--muted); }
-  #bom .row.ctx .no { color: var(--green); }
-
-  /* steps */
-  #steps { position: absolute; left: 86px; top: 290px; width: 520px; margin: 0; padding: 0; list-style: none; pointer-events: none; }
-  #steps li { display: grid; grid-template-columns: 62px 1fr; padding: 13px 0; border-top: 1.5px solid var(--border); color: var(--idlemark); }
-  #steps li:last-child { border-bottom: 1.5px solid var(--border); }
-  #steps .sn { width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font: 600 22px/1 var(--mono); border: 2px solid var(--border); }
-  #steps .st { font: 600 29px/1.2 var(--display); letter-spacing: -0.01em; padding-top: 6px; }
-  #steps .sd { font: 400 22px/1.35 var(--body); color: var(--muted); margin-top: 8px; display: none; }
-  #steps li.on { color: var(--ink); }
-  #steps li.on .sn { background: var(--green); border-color: var(--green); color: #fff; }
-  #steps li.on .sd { display: block; }
-  #steps li.done { color: var(--muted); }
-  #steps li.done .sn { border-color: var(--gtint); background: var(--gtint); color: var(--ink); }
-
-  /* app panels */
-  .card { position: absolute; background: var(--surface); border: 2px solid var(--border); border-radius: 18px; }
-  #chart { right: 86px; top: 140px; width: 560px; padding: 22px 26px 18px; }
-  #chart .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  #chart .tt { font: 600 28px/1.2 var(--display); letter-spacing: -0.01em; }
-  .tag { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 17px; border: 2px solid var(--border); background: var(--surface); color: var(--muted); font: 500 18px/1 var(--body); white-space: nowrap; }
-  .tag i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); display: block; }
-  #chart svg { display: block; margin-top: 10px; overflow: visible; }
-  #applabel { position: absolute; right: 86px; top: 462px; width: 560px; font: 500 20px/1 var(--mono); color: var(--muted); }
-  #alert { right: 86px; top: 494px; width: 560px; overflow: hidden; box-shadow: 0 30px 60px -36px rgba(31, 61, 43, 0.45); }
-  #alert .ah { padding: 20px 26px 16px; border-bottom: 2px solid var(--border); }
-  .badge { display: inline-flex; align-items: center; gap: 10px; height: 36px; padding: 0 16px; border-radius: 18px; font: 600 20px/1 var(--body); background: var(--otint); color: var(--ink); }
-  .badge i { width: 10px; height: 10px; border-radius: 50%; background: var(--orange); display: block; }
-  #alert .at { margin-top: 12px; font: 600 34px/1.15 var(--display); letter-spacing: -0.02em; }
-  #alert .ar { margin-top: 6px; font: 400 22px/1.35 var(--body); min-height: 60px; }
-  #alert .af { padding: 16px 20px; display: flex; gap: 8px; align-items: center; }
-  .btn { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 54px; padding: 0 14px; border-radius: 10px; font: 600 19px/1 var(--body); white-space: nowrap; }
-  .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .btn.qd { color: var(--rust); box-shadow: inset 0 0 0 2px rgba(166, 61, 31, 0.4); }
-  .btn.pr { background: var(--green); color: #fff; }
-  .btn.sec { background: var(--idle); color: var(--ink); }
-  .btn.dg { background: var(--rust); color: #fff; }
-  .btn .ring { position: absolute; inset: -7px; border-radius: 15px; border: 4px solid var(--green); opacity: 0; }
-  .logged { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 20px; background: var(--rust); color: #fff; font: 600 20px/1 var(--body); }
-
-  /* detail A: the box's own display, enlarged */
-  #detail { right: 86px; top: 140px; width: 560px; padding: 18px 22px 22px; }
-  #detail .dl { font: 500 20px/1 var(--mono); color: var(--muted); }
-  #detail .scr { margin-top: 14px; background: #16301F; border-radius: 14px; padding: 12px 16px 16px; }
-  #dlight { display: block; width: 180px; height: 10px; border-radius: 5px; margin: 0 auto 12px; background: var(--idlemark); }
-  #detail .glass { background: var(--gtint); border-radius: 8px; padding: 14px 20px 16px; }
-  #d1 { font: 700 42px/1.15 var(--mono); color: var(--ink); white-space: nowrap; }
-  #d2 { margin-top: 6px; font: 500 28px/1.2 var(--mono); color: var(--muted); white-space: nowrap; }
-
-  /* title block */
-  #tblock { position: absolute; right: 86px; bottom: 80px; width: 620px; border: 2px solid var(--ink); background: var(--surface); pointer-events: none; }
-  #tblock .r { display: grid; grid-template-columns: 1fr 1fr; }
-  #tblock .c { padding: 10px 14px; border-top: 1.5px solid var(--ink); }
-  #tblock .c + .c { border-left: 1.5px solid var(--ink); }
-  #tblock .r:first-child .c { border-top: 0; }
-  #tblock .k { font: 500 15px/1 var(--mono); color: var(--muted); }
-  #tblock .v { margin-top: 6px; font: 600 24px/1.15 var(--display); }
-  #tblock .note { padding: 12px 14px; border-top: 1.5px solid var(--ink); font: 400 19px/1.35 var(--body); color: var(--ink); }
-
-  .fade { will-change: opacity, transform; }
-
-  /* ---------- page around the sheet ---------- */
-  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
-  .film .wrap { padding: 0; }
-  .film #frame { max-width: none; width: 1920px; height: 1080px; }
-  .film #controls, .film #notes { display: none; }
-  #controls { max-width: 1600px; margin: 14px auto 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-  #controls button { height: 40px; padding: 0 16px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); font: 500 15px/1 var(--body); cursor: pointer; }
-  #controls button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-  #controls button:focus-visible, #scrub:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
-  #controls .play { background: var(--green); border-color: var(--green); color: #fff; min-width: 92px; }
-  #scrub { flex: 1 1 220px; min-width: 0; accent-color: var(--green); }
-  #clock { font: 500 14px/1 var(--mono); color: var(--muted); min-width: 92px; text-align: right; }
-  #hint { width: 100%; font: 400 14px/1.4 var(--body); color: var(--muted); }
-  #notes { max-width: 1600px; margin: 28px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 28px; }
-  #notes h2 { margin: 0 0 10px; font: 700 26px/1.2 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
-  #notes ol { margin: 0; padding: 0; list-style: none; }
-  #notes li { display: grid; grid-template-columns: 40px 1fr; gap: 4px; padding: 10px 0; border-top: 1px solid var(--border); min-width: 0; }
-  #notes li b { font: 600 16px/1.3 var(--display); }
-  #notes li span { display: block; font: 400 14px/1.45 var(--body); color: var(--muted); }
-  #notes li .n { font: 600 14px/1.5 var(--mono); color: var(--muted); }
-  #notes li.hot .n, #notes li.hot b { color: var(--green); }
-  #notes p { margin: 0; font: 400 15px/1.5 var(--body); color: var(--muted); max-width: 65ch; }
-  @media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
-</style>
-
-<div class="wrap">
-  <div id="frame">
-    <div id="stage">
-      <canvas id="gl" aria-label="3D model of the PREVUMO welder module. Drag to turn it."></canvas>
-      <svg id="lines" viewBox="0 0 1920 1080"></svg>
-      <div id="balloons"></div>
-      <div id="sheet"></div>
-
-      <header id="head" class="fade">
-        <p id="kick" class="mono"></p>
-        <div class="mask"><h1 id="ttl"></h1></div>
-        <p id="sub">One box per welder. It reads the current and switches both the power and the gas.</p>
-      </header>
-
-      <aside id="bom" class="fade">
-        <div class="hd"><span>No.</span><span>Part</span></div>
-      </aside>
-
-      <ol id="steps" class="fade"></ol>
-
-      <section id="chart" class="card fade">
-        <div class="top"><p class="tt" id="charttt">Welder 2 · current</p><span class="tag" id="charttag"><i></i>Normal range</span></div>
-        <svg id="chartsvg" width="508" height="210" viewBox="0 0 508 210"></svg>
-      </section>
-
-      <section id="detail" class="card fade">
-        <p class="dl">Detail A · display on the box</p>
-        <div class="scr"><i id="dlight"></i><div class="glass"><p id="d1">Enter PIN</p><p id="d2">PIN ____</p></div></div>
-      </section>
-
-      <p id="applabel" class="fade">Owner app</p>
-      <section id="alert" class="card fade">
-        <div class="ah">
-          <span class="badge"><i></i>Irregular</span>
-          <p class="at">Welder 2 looks irregular</p>
-          <p class="ar" id="areason">Current above its normal range. In use by Amira Haddad.</p>
-        </div>
-        <div class="af" id="afoot"></div>
-      </section>
-
-      <footer id="tblock" class="fade">
-        <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">Welder module</p></div></div>
-        <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.1</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
-        <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
-        <p class="note">Concept only, not built or tested yet. A licensed electrician installs the contactor, and the box needs CSA certification before sale.</p>
-      </footer>
-    </div>
-  </div>
-
-  <div id="controls">
-    <button type="button" id="b-assembled">Assembled</button>
-    <button type="button" id="b-pieces">In pieces</button>
-    <button type="button" id="b-system">On the welder</button>
-    <button type="button" id="b-how">How it works</button>
-    <button type="button" id="b-play" class="play">Play</button>
-    <input type="range" id="scrub" min="0" max="62" step="0.01" value="16.4" aria-label="Position in the animation">
-    <span id="clock">0:16 / 1:02</span>
-    <p id="hint">Drag the model to turn it, scroll or pinch to zoom, double click to reset the view.</p>
-  </div>
-
-  <div id="notes">
-    <section><h2>Parts</h2><ol id="n-parts"></ol></section>
-    <section><h2>How it works</h2><ol id="n-steps"></ol></section>
-    <section><h2>About this prototype</h2>
-      <p>A concept for PREVUMO's welder module (PD B2: one module per machine, gas and electric). It has not been built or tested. The box itself follows the deck: keypad, current sensor and an ESP32 with Wi-Fi. For a 240 V welder the box drives a contactor installed by a licensed electrician, and the box needs CSA certification before sale. The gas valve is the new part for welders. The chart and the alert are illustrations, not measured data.</p>
-    </section>
-  </div>
-</div>
-
+<link rel="stylesheet" href="../kit/engine.css">
 <!--IMPORTMAP-->
 <script type="importmap">{ "imports": { "three": "../../node_modules/three/build/three.module.js", "three/addons/": "../../node_modules/three/examples/jsm/" } }</script>
 <!--/IMPORTMAP-->
 <script type="module">
-import * as THREE from "three";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
-import { Line2 } from "three/addons/lines/Line2.js";
-import { LineGeometry } from "three/addons/lines/LineGeometry.js";
-import { LineMaterial } from "three/addons/lines/LineMaterial.js";
-
-const C = {
-  bg: "#F3EBDD", surface: "#FFFDF8", border: "#E3D6C0", ink: "#1F3D2B", inkDeep: "#16301F", inkSoft: "#2C4D39", muted: "#5B6B5F",
-  green: "#2F6B45", gtint: "#D6E4D3", orange: "#E07A2E", otint: "#F6D2B4", rust: "#A63D1F", idle: "#EDE4D3", idlemark: "#81897A",
-};
-const W = 1920, H = 1080, DUR = 62;
-const FILM = new URLSearchParams(location.search).has("film");
-if (FILM) document.documentElement.classList.add("film");
-const $ = (s) => document.querySelector(s);
-const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-const prog = (t, a, b) => clamp((t - a) / (b - a));
-const lerp = (a, b, k) => a + (b - a) * k;
-const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
-const outCubic = (k) => 1 - Math.pow(1 - k, 3);
-const outBack = (k, s = 1.25) => 1 + (s + 1) * Math.pow(k - 1, 3) + s * Math.pow(k - 1, 2);
-const rnd = (i) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
-const within = (t, spans) => spans.some(([a, b]) => t >= a && t < b);
+import { run, plan, U, C } from "../kit/engine.js";
+const { prog, clamp, rnd, within, outBack, lerp } = U;
 
 // ---------------- timeline (seconds) ----------------
-const T = {
-  explode: 4.2, bomAt: [7.4, 8.9, 10.4, 11.9, 13.4, 14.9], assemble: 17.0, sysAt: [19.9, 20.9, 21.9], how: 23.0,
-  steps: [23.6, 27.4, 31.6, 38.0, 45.4, 51.0, 57.0],
-  keys: [24.7, 25.25, 25.8, 26.35], contClose: 28.5, valveOpen: 29.0,
-  spike: 39.2, alertIn: 40.9, tapShut: 42.6, confirmIn: 43.1, tapConfirm: 44.3, logged: 44.9, stop: 45.6,
-  idleOn: 52.0, countdown: 53.4, autoOff: 55.6, end: 57.2, explode2: 57.6,
+const T = plan(7, 5, [5.6, 3.6, 6.0, 6.6, 4.6, 5.6, 7.8]);
+const [s0, s1, s2, s3, s4, s5, s6, s7] = T.steps;
+const E = {
+  jonah: s0 + 0.9, amira: s0 + 3.6,
+  contClose: s1 + 0.3, valveOpen: s1 + 0.8,
+  spike: s3 + 0.6, alertIn: s3 + 1.6, tapShut: s3 + 3.4, confirmIn: s3 + 4.0, tapConfirm: s3 + 5.2, logged: s3 + 5.8, stop: s4 + 0.2,
+  lucas: s5 + 0.4, idleOn: s5 + 1.0, countdown: s5 + 2.4, autoOff: s5 + 4.6,
+  priya: s6 + 0.4, p2on: s6 + 1.0, leak: s6 + 2.0, detect: s6 + 2.6, alert2: s6 + 4.2, tapTech: s6 + 6.2, logged2: s6 + 6.7,
 };
-const POWER = [[T.contClose, T.stop], [T.idleOn, T.autoOff]];
-const GAS = [[T.valveOpen, T.stop + 0.15], [T.idleOn + 0.3, T.autoOff + 0.15]];
-const SESSION = [[T.contClose, T.stop], [T.idleOn, T.autoOff]];
-
-// ---------------- renderer ----------------
-const canvas = $("#gl");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.setClearColor(C.bg, 1);
-let PR = 1;
-const RES = new THREE.Vector2(W, H);
-function setPR(pr) {
-  PR = pr; renderer.setPixelRatio(pr); renderer.setSize(W, H, false); RES.set(W * pr, H * pr);
-  for (const m of hullMats) m.uniforms.px.value = m.userData.px * pr;
-  for (const m of lineMats) { m.resolution.copy(RES); m.linewidth = m.userData.w * pr; }
-}
-
-const scene = new THREE.Scene();
-scene.add(new THREE.AmbientLight(0xffffff, 0.64 * Math.PI));
-const sun = new THREE.DirectionalLight(0xffffff, 0.36 * Math.PI);
-sun.position.set(-45, 90, 70);
-scene.add(sun);
-const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 2000);
-
-// toon shading with three hard steps, so faces read like a coloured drawing
-const GRAD = (() => {
-  const tx = new THREE.DataTexture(new Uint8Array([120, 200, 255]), 3, 1, THREE.RedFormat);
-  tx.minFilter = tx.magFilter = THREE.NearestFilter; tx.needsUpdate = true; return tx;
-})();
-
-// ink outline: back faces pushed out by a fixed number of pixels
-const hullMats = [];
-function hullMaterial(px, color) {
-  const m = new THREE.ShaderMaterial({
-    uniforms: { px: { value: px }, res: { value: RES }, color: { value: new THREE.Color(color) }, opacity: { value: 1 } },
-    vertexShader: `uniform float px; uniform vec2 res;
-      void main() {
-        vec4 c = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        vec3 n = normalize(normalMatrix * normal);
-        vec2 d = (projectionMatrix * vec4(n, 0.0)).xy;
-        float l = length(d); if (l > 1e-5) d /= l;
-        c.xy += d * px * 2.0 / res * c.w;
-        gl_Position = c;
-      }`,
-    fragmentShader: `uniform vec3 color; uniform float opacity;
-      void main() { gl_FragColor = vec4(color, opacity);
-      #include <colorspace_fragment>
-      }`,
-    side: THREE.BackSide,
-  });
-  m.userData.px = px; hullMats.push(m); return m;
-}
-const HULL = { mod: hullMaterial(2.6, C.inkDeep), ctx: hullMaterial(2.2, C.inkDeep) };
-const hullGeo = new WeakMap();
-function addHull(mesh, mat) {
-  let g = hullGeo.get(mesh.geometry);
-  if (!g) {
-    g = mesh.geometry.clone();
-    for (const k of Object.keys(g.attributes)) if (k !== "position") g.deleteAttribute(k);
-    g = mergeVertices(g, 1e-3); g.computeVertexNormals(); hullGeo.set(mesh.geometry, g);
-  }
-  const h = new THREE.Mesh(g, mat); h.renderOrder = -1; mesh.add(h); return h;
-}
-
-const ctxMats = [];
-const lineMats = [];
-function toon(hex, ctx) { const m = new THREE.MeshToonMaterial({ color: hex, gradientMap: GRAD }); if (ctx) ctxMats.push(m); return m; }
-function mk(geo, hex, o = {}) {
-  const m = new THREE.Mesh(geo, o.mat || toon(hex, o.ctx));
-  if (o.outline !== false) addHull(m, o.ctx ? HULL.ctx : HULL.mod);
-  if (o.p) m.position.set(...o.p);
-  if (o.r) m.rotation.set(...o.r);
-  return m;
-}
-const RB = (w, h, d, r = 0.4, s = 3) => new RoundedBoxGeometry(w, h, d, s, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01));
-const CYL = (r, h, n = 28) => new THREE.CylinderGeometry(r, r, h, n);
-
-// canvas textures for anything with type on it
-function canvasTex(w, h) {
-  const c = document.createElement("canvas"); c.width = w; c.height = h;
-  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8;
-  return { c, g: c.getContext("2d"), tx, key: "" };
-}
-function texPlane(w, h, tex, ctx) {
-  const m = new THREE.MeshBasicMaterial({ map: tex.tx, transparent: true });
-  if (ctx) ctxMats.push(m);
-  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
-}
-function rr(g, x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
-
-// ======================= the module =======================
-const M = new THREE.Vector3(0, 100, 0); // module centre on the wall board; its back sits at z = -3
-const mod = new THREE.Group(); mod.position.copy(M); scene.add(mod);
-const P = {}; // exploded part groups
-function layer(name, explodeZ, order) { const g = new THREE.Group(); g.userData = { ez: explodeZ, order }; mod.add(g); P[name] = g; return g; }
-
-// 6 back housing, with three cable glands and wall tabs
-const base = layer("base", 0, 5);
-base.add(mk(RB(14, 20, 4.4, 0.6), C.ink, { p: [0, 0, -0.8] }));
-for (const x of [-3.5, 0, 3.5]) base.add(mk(CYL(0.62, 1.3, 20), C.muted, { p: [x, -10.5, -0.8] }));
-for (const y of [10.9, -10.9]) base.add(mk(RB(5, 1.8, 0.5, 0.2), C.ink, { p: [0, y, -2.75] }));
-
-// 5 power supply
-const psu = layer("psu", 8.5, 4);
-psu.add(mk(RB(7.2, 4.2, 2.2, 0.35), C.surface, { p: [0, -5.6, -0.4] }));
-for (const x of [-2.3, 0, 2.3]) psu.add(mk(RB(1.5, 1.1, 0.8, 0.15), C.gtint, { p: [x, -7.1, 1.0] }));
-
-// 4 controller board: ESP32 module, coil driver relays, terminals
-const board = layer("board", 16, 3);
-board.add(mk(RB(12.4, 18, 0.2, 0.08, 2), C.green, { p: [0, 0, 0.9] }));
-board.add(mk(RB(3.0, 4.0, 0.45, 0.12), C.idle, { p: [2.8, 4.6, 1.25] }));            // ESP32 module can
-board.add(mk(RB(3.0, 1.1, 0.12, 0.05), C.inkSoft, { p: [2.8, 7.25, 1.05], outline: false })); // its antenna strip
-for (const [x, y] of [[-3.4, 4.8], [-3.4, 2.4], [0.2, 1.4]]) board.add(mk(RB(1.5, 1.5, 0.35, 0.1), C.inkDeep, { p: [x, y, 1.15], outline: false }));
-for (const x of [-3.6, -0.9]) board.add(mk(RB(2.1, 1.7, 1.5, 0.2), C.surface, { p: [x, -3.4, 1.75] })); // coil driver relays
-for (const x of [-4.6, -1.6, 1.4, 4.4]) board.add(mk(RB(2.2, 1.2, 1.2, 0.15), C.gtint, { p: [x, -7.6, 1.6] }));
-board.add(mk(RB(4.4, 0.7, 0.6, 0.15), C.inkDeep, { p: [0, 8.2, 1.3] }));          // display header
-
-// 3 front cover, with screws and the wordmark
-const cover = layer("cover", 24, 2);
-cover.add(mk(RB(14, 20, 1.2, 0.6), C.ink, { p: [0, 0, 2.0] }));
-const wordTex = canvasTex(512, 96);
-function paintStatic() {
-  { const g = wordTex.g; g.clearRect(0, 0, 512, 96); g.fillStyle = C.bg; g.font = "700 64px 'Space Grotesk'"; g.textAlign = "center"; g.textBaseline = "middle"; g.letterSpacing = "10px"; g.fillText("PREVUMO", 256, 50); wordTex.tx.needsUpdate = true; }
-  for (const kt of keyTex) { const g = kt.g; g.clearRect(0, 0, 160, 108); g.fillStyle = C.ink; g.font = `600 ${kt.label.length > 1 ? 54 : 66}px 'JetBrains Mono'`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(kt.label, 80, 58); kt.tx.needsUpdate = true; }
-  screenTex.key = ""; if (typeof contTex !== "undefined") contTex.key = wdTex.key = "";
-}
-const word = texPlane(6.4, 1.2, wordTex); word.position.set(0, -8.65, 2.62); cover.add(word);
-const screws = layer("screws", 38, 0);
-for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) screws.add(mk(CYL(0.42, 0.5, 16), C.idlemark, { p: [x, y, 2.7], r: [Math.PI / 2, 0, 0] }));
-
-// 2 display and status light
-const disp = layer("display", 31, 1);
-disp.add(mk(RB(10, 4.8, 0.5, 0.25), C.inkDeep, { p: [0, 4.8, 2.85] }));
-const screenTex = canvasTex(640, 280);
-const screen = texPlane(9.1, 3.98, screenTex); screen.position.set(0, 4.8, 3.11); disp.add(screen);
-const lightMat = new THREE.MeshBasicMaterial({ color: C.idlemark });
-const light = new THREE.Mesh(RB(6, 0.55, 0.35, 0.17), lightMat); light.position.set(0, 8.25, 2.8); addHull(light, HULL.mod); disp.add(light);
-
-// 1 keypad
-const pad = layer("keypad", 31, 1);
-pad.add(mk(RB(10, 9.4, 0.3, 0.12), C.inkSoft, { p: [0, -2.6, 2.75] }));
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "OK"];
-const keyMeshes = {};
-const keyTex = [];
-KEYS.forEach((k, i) => {
-  const col = i % 3, row = Math.floor(i / 3);
-  const key = mk(RB(2.5, 1.7, 0.6, 0.25), C.bg, { p: [(col - 1) * 3.1, 0.95 - row * 2.2, 3.05] });
-  const kt = canvasTex(160, 108); kt.label = k; keyTex.push(kt);
-  const lab = texPlane(2.2, 1.48, kt); lab.position.z = 0.31; key.add(lab);
-  pad.add(key); keyMeshes[k] = key;
-});
-
-// assembly axes, shown only while the box is in pieces
-const axisMat = new LineMaterial({ color: C.idlemark, linewidth: 1.6, dashed: true, dashSize: 0.9, gapSize: 0.7, transparent: true, worldUnits: false });
-axisMat.userData.w = 1.6; lineMats.push(axisMat);
-const axes = new THREE.Group(); mod.add(axes);
-for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) {
-  const lg = new LineGeometry(); lg.setPositions([x, y, -1, x, y, 41]);
-  const ln = new Line2(lg, axisMat); ln.computeLineDistances(); axes.add(ln);
-}
-
-// ======================= on the welder: context =======================
-const ctx = new THREE.Group(); scene.add(ctx);
-const cm = (geo, hex, o = {}) => mk(geo, hex, { ...o, ctx: true });
-
-// wall board the box and the contactor sit on
-ctx.add(cm(RB(40, 44, 1.2, 0.4), C.idle, { p: [-11, 102.5, -3.6] }));
-// junction box and DIN rail
-ctx.add(cm(RB(7, 7, 4.2, 0.5), C.surface, { p: [-26, 116.5, -0.9] }));
-ctx.add(cm(RB(12, 3.5, 0.8, 0.2), C.muted, { p: [-26, 100.5, -2.6] }));
-
-// 8 contactor
-const cont = new THREE.Group(); cont.position.set(-26, 100.5, 0.5); ctx.add(cont);
-cont.add(cm(RB(5.6, 8.8, 7, 0.4), C.surface));
-cont.add(cm(RB(4.6, 4.6, 1.2, 0.3), C.surface, { p: [0, -0.4, 3.9] }));
-for (const y of [3.9, -4.15]) for (const x of [-1.7, 0, 1.7]) cont.add(cm(CYL(0.42, 0.4, 14), C.idlemark, { p: [x, y, 2.4], r: [Math.PI / 2, 0, 0] }));
-const armature = cm(RB(1.6, 0.9, 0.5, 0.2), C.ink, { p: [0, 1.0, 4.7] }); cont.add(armature);
-const contTex = canvasTex(200, 120);
-const contWin = texPlane(1.9, 1.14, contTex, true); contWin.position.set(0, -1.1, 4.52); cont.add(contWin);
-
-// 9 gas valve on its wall bracket
-ctx.add(cm(RB(6, 8, 0.6, 0.25), C.idle, { p: [56, 74, -2.7] }));
-const valve = new THREE.Group(); valve.position.set(56, 74, 0); ctx.add(valve);
-valve.add(cm(RB(3.4, 2.6, 2.6, 0.3), C.idlemark));
-valve.add(cm(CYL(1.35, 3.0), C.ink, { p: [0, 2.8, 0] }));
-for (const s of [-1, 1]) valve.add(cm(CYL(0.6, 1.6, 16), C.muted, { p: [s * 2.4, 0, 0], r: [0, 0, Math.PI / 2] }));
-const plunger = cm(CYL(0.55, 0.7, 16), C.muted, { p: [0, 4.6, 0] }); valve.add(plunger);
-const valveRingMat = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); ctxMats.push(valveRingMat);
-const valveRing = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.24, 10, 28), valveRingMat); valveRing.rotation.x = Math.PI / 2; valveRing.position.y = 4.35; valve.add(valveRing);
-
-// welder
-const welder = new THREE.Group(); welder.position.set(40, 0, 22); ctx.add(welder);
-welder.add(cm(RB(26, 40, 46, 1.4), C.surface, { p: [0, 20, 0] }));
-welder.add(cm(RB(22, 26, 0.7, 0.3), C.idle, { p: [0, 24, 23.1] }));
-for (const x of [-5, 5]) welder.add(cm(CYL(2.5, 1.6), C.ink, { p: [x, 21.5, 24.0], r: [Math.PI / 2, 0, 0] }));
-welder.add(cm(CYL(2.2, 1.8), C.muted, { p: [0, 12.5, 24.1], r: [Math.PI / 2, 0, 0] }));
-for (const z of [-11, 11]) welder.add(cm(RB(2.2, 4.4, 2.2, 0.4), C.ink, { p: [0, 41.8, z] }));
-welder.add(cm(RB(2.2, 1.8, 24.2, 0.6), C.ink, { p: [0, 44.6, 0] }));
-const wdTex = canvasTex(240, 100);
-const wdisp = texPlane(7, 2.9, wdTex, true); wdisp.position.set(0, 31.5, 23.5); welder.add(wdisp);
-const ventTex = canvasTex(400, 300);
-{ const g = ventTex.g; g.fillStyle = C.muted; for (let i = 0; i < 9; i++) { rr(g, 40, 30 + i * 28, 320, 12, 6); g.fill(); } ventTex.tx.needsUpdate = true; }
-const vent = texPlane(16, 12, ventTex, true); vent.position.set(13.05, 26, -8); vent.rotation.y = Math.PI / 2; welder.add(vent);
-
-// torch on its lead
-const torchPath = new THREE.CatmullRomCurve3([[40, 12.5, 46.6], [39, 8, 52], [32, 2.2, 58], [20, 2.2, 61], [12, 3, 60]].map((p) => new THREE.Vector3(...p)));
-ctx.add(cm(new THREE.TubeGeometry(torchPath, 60, 0.8, 10), C.ink));
-const torch = new THREE.Group(); torch.position.set(12, 3, 60); torch.rotation.y = 0.25; ctx.add(torch);
-torch.add(cm(new THREE.CapsuleGeometry(1.4, 6, 6, 16), C.ink, { r: [0, 0, Math.PI / 2], p: [-3.6, 0, 0] }));
-torch.add(cm(CYL(0.9, 4, 16), C.idlemark, { r: [0, 0, Math.PI / 2 - 0.5], p: [-9.2, -1.1, 0] }));
-
-// shielding gas cylinder and regulator
-const cyl = new THREE.Group(); cyl.position.set(80, 0, 9); ctx.add(cyl);
-const prof = [[0, 0], [9.6, 0], [10, 0.6], [10, 62], [9.4, 66], [7.4, 69.2], [4.2, 71.2], [2.4, 72], [2.4, 77.5], [0, 77.5]].map(([x, y]) => new THREE.Vector2(x, y));
-cyl.add(cm(new THREE.LatheGeometry(prof, 40), C.gtint));
-cyl.add(cm(new THREE.CylinderGeometry(10.05, 10.05, 7, 40, 1, true), C.surface, { p: [0, 47, 0], outline: false }));
-cyl.add(cm(new THREE.TorusGeometry(2.4, 0.45, 10, 24), C.ink, { p: [0, 76.6, 0], r: [Math.PI / 2, 0, 0] }));
-cyl.add(cm(RB(4.4, 4.4, 4.4, 0.6), C.surface, { p: [0, 81, 0] }));
-cyl.add(cm(CYL(2.3, 0.9), C.surface, { p: [0, 83.6, 2.6], r: [Math.PI / 2, 0, 0] }));
-const gaugeTex = canvasTex(200, 200);
-{ const g = gaugeTex.g; g.fillStyle = C.surface; g.beginPath(); g.arc(100, 100, 96, 0, 7); g.fill(); g.strokeStyle = C.ink; g.lineWidth = 5;
-  for (let i = 0; i <= 10; i++) { const a = Math.PI * (0.75 + i * 0.15); g.beginPath(); g.moveTo(100 + Math.cos(a) * 70, 100 + Math.sin(a) * 70); g.lineTo(100 + Math.cos(a) * 86, 100 + Math.sin(a) * 86); g.stroke(); }
-  g.strokeStyle = C.rust; g.lineWidth = 7; g.beginPath(); g.moveTo(100, 100); g.lineTo(100 + Math.cos(Math.PI * 1.6) * 64, 100 + Math.sin(Math.PI * 1.6) * 64); g.stroke(); gaugeTex.tx.needsUpdate = true; }
-const gauge = texPlane(4.2, 4.2, gaugeTex, true); gauge.position.set(0, 83.6, 3.08); cyl.add(gauge);
-cyl.add(cm(CYL(0.55, 2.2, 12), C.muted, { p: [-3.2, 80.4, 0], r: [0, 0, Math.PI / 2] }));
-
-// soft footprints so the welder and the cylinder stand on something
-for (const [x, z, sx, sz] of [[40, 22, 17, 27], [80, 9, 12.5, 12.5]]) {
-  const m = new THREE.MeshBasicMaterial({ color: C.border, transparent: true }); ctxMats.push(m);
-  const f = new THREE.Mesh(new THREE.CircleGeometry(1, 48), m); f.rotation.x = -Math.PI / 2; f.position.set(x, 0.05, z); f.scale.set(sx, sz, 1); ctx.add(f);
-}
-
-// cables, hose and signal wires
-const V = (a) => a.map((p) => new THREE.Vector3(...p));
-const curve = (pts) => new THREE.CatmullRomCurve3(V(pts), false, "catmullrom", 0.4);
-const PATH = {
-  supplyIn: curve([[-26, 113, 0.4], [-26, 109, 1.6], [-26, 105.2, 1.8]]),
-  supplyOut: curve([[-26, 96.2, 1.8], [-26, 89, 1.8], [-26, 80, 2.4], [-24, 62, 2.6], [-10, 38, 0.8], [12, 28, -1.6], [27, 26.5, -1.8], [34, 26.5, -1.2]]),
-  ctSig: curve([[-24.2, 89, 1.8], [-17, 87.2, -1.6], [-7, 86, -2.0], [-3.5, 86.8, -1.4], [-3.5, 89.2, -0.8]]),
-  ctrlCont: curve([[0, 89.2, -0.8], [0, 86, -2.0], [-8, 84.4, -2.3], [-19, 88, -2.2], [-22.6, 95, 0.3], [-23.2, 99, 1.0]]),
-  ctrlValve: curve([[3.5, 89.2, -0.8], [3.5, 85.8, -2.1], [16, 83.6, -2.4], [42, 80.6, -2.4], [52, 77.8, -1.7], [55.2, 76.2, -0.2]]),
-  gasIn: curve([[76.8, 80.4, 9], [70, 80.6, 7.8], [63, 77, 3.4], [58.8, 74, 0]]),
-  gasOut: curve([[53.2, 74, 0], [50.4, 68, -1.6], [47.6, 48, -2.4], [46.2, 34, -1.8], [46, 30, -1.1]]),
-};
-ctx.add(cm(new THREE.TubeGeometry(PATH.supplyIn, 30, 0.75, 10), C.ink));
-ctx.add(cm(new THREE.TubeGeometry(PATH.supplyOut, 160, 0.75, 10), C.ink));
-ctx.add(cm(new THREE.TubeGeometry(PATH.gasIn, 60, 0.55, 10), C.muted));
-ctx.add(cm(new THREE.TubeGeometry(PATH.gasOut, 80, 0.55, 10), C.muted));
-for (const k of ["ctSig", "ctrlCont", "ctrlValve"]) ctx.add(cm(new THREE.TubeGeometry(PATH[k], 120, 0.26, 8), C.idlemark, { outline: false }));
-
-// 7 current clamp around one supply wire, in two hinged halves
-const ct = new THREE.Group(); ct.position.set(-26, 89, 1.8); ctx.add(ct);
-const ringProf = [[1.0, -0.9], [2.0, -0.9], [2.0, 0.9], [1.0, 0.9], [1.0, -0.9]].map(([x, y]) => new THREE.Vector2(x, y));
-const ctA = cm(new THREE.LatheGeometry(ringProf, 24, 0, Math.PI), C.ink); ct.add(ctA);
-const ctHinge = new THREE.Group(); ctHinge.position.set(0, 0, 0); ct.add(ctHinge);
-const ctB = cm(new THREE.LatheGeometry(ringProf, 24, Math.PI, Math.PI), C.ink); ctHinge.add(ctB);
-ct.add(cm(RB(1.2, 1.4, 1.6, 0.3), C.idlemark, { p: [1.9, 0, 0] }));
-
-// flow beads: power (green), gas (light), sensor readings and commands
-function beads(n, r, hex) {
-  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(r, 12, 10), new THREE.MeshBasicMaterial({ color: hex }), n);
-  m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.frustumCulled = false; ctx.add(m); return m;
-}
-const B = { power: beads(22, 0.95, C.green), gas: beads(16, 0.78, C.surface), sig: beads(4, 0.55, C.gtint), cmd: beads(6, 0.75, C.green) };
-const sigMat = B.sig.material, cmdMat = B.cmd.material;
-const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
-function placeBeads(mesh, list) {
-  for (let i = 0; i < mesh.count; i++) {
-    const b = list[i];
-    if (!b || b.s <= 0.001) { mesh.setMatrixAt(i, ZERO); continue; }
-    b.curve.getPointAt(clamp(b.u), tmpV); tmpM.makeScale(b.s, b.s, b.s).setPosition(tmpV); mesh.setMatrixAt(i, tmpM);
-  }
-  mesh.instanceMatrix.needsUpdate = true;
-}
-
-// ======================= parts list =======================
-const PARTS = [
-  { n: 1, name: "Keypad", role: "Members type their PIN.", obj: pad, a: [0, -6.5, 3.3], d: [-30, 120] },
-  { n: 2, name: "Display and status light", role: "Who is on, and what the box is doing.", obj: disp, a: [-1, 8.5, 2.8], d: [-40, -120] },
-  { n: 3, name: "Front cover", role: "Sealed, closed with four screws.", obj: cover, a: [0, 10, 2.0], d: [-10, -125] },
-  { n: 4, name: "Controller board", role: "ESP32 with Wi-Fi, plus the outputs for the contactor and the valve.", obj: board, a: [2.8, 6.5, 1.5], d: [10, -125] },
-  { n: 5, name: "Power supply", role: "Runs the box from the welder's own line.", obj: psu, a: [1.5, -7.7, -0.4], d: [0, 125] },
-  { n: 6, name: "Back housing", role: "Wall mount and three cable glands.", obj: base, a: [7, -5, -0.8], d: [70, 115] },
-  { n: 7, name: "Current clamp", role: "Clips around one supply wire. Nothing is cut.", obj: ct, a: [-2, 0.6, 0], d: [-110, 40], ctx: true },
-  { n: 8, name: "Contactor, 240 V", role: "Switches the welder's power. Installed by a licensed electrician.", obj: cont, a: [-2.8, 2.5, 3.5], d: [-110, -50], ctx: true },
-  { n: 9, name: "Gas valve", role: "Closed without power: no session, no gas.", obj: valve, a: [0, 4.6, 0], d: [70, -100], ctx: true },
-];
-const STEPS = [
-  ["Locked until a PIN", "No PIN, no power, no gas. Every member has their own PIN."],
-  ["Power and gas on", "The box closes the contactor and opens the gas valve. The session is logged to Amira."],
-  ["Watches the current", "The clamp reads the welder's current every second. The first two weeks only learn its normal range."],
-  ["Flags an irregular pattern", "The owner gets an alert in the app and decides what happens."],
-  ["Stops power and gas together", "The machine stops, and nothing restarts on its own."],
-  ["Idle? Both off", "If nobody welds for the idle time the owner sets, the box turns both off."],
-];
-
-const bomEl = $("#bom");
-PARTS.forEach((p) => bomEl.insertAdjacentHTML("beforeend", `<div class="row${p.ctx ? " ctx" : ""}" data-n="${p.n}"><span class="no">${p.n}</span><div><p class="nm">${p.name}</p><p class="rl">${p.role}</p></div></div>`));
-const stepsEl = $("#steps");
-STEPS.forEach(([a, b], i) => stepsEl.insertAdjacentHTML("beforeend", `<li><span class="sn">${i + 1}</span><div><p class="st">${a}</p><p class="sd">${b}</p></div></li>`));
-const balloons = $("#balloons");
-PARTS.forEach((p) => balloons.insertAdjacentHTML("beforeend", `<div class="balloon${p.ctx ? " ctx" : ""}" data-n="${p.n}">${p.n}</div>`));
-$("#n-parts").innerHTML = PARTS.map((p) => `<li data-n="${p.n}"><span class="n">${p.n}</span><div><b>${p.name}</b><span>${p.role}</span></div></li>`).join("");
-$("#n-steps").innerHTML = STEPS.map(([a, b], i) => `<li data-i="${i}"><span class="n">${i + 1}</span><div><b>${a}</b><span>${b}</span></div></li>`).join("");
-const sheet = $("#sheet");
-for (const [l, t, w, h] of [[0, 120, 14, 2], [0, 860, 14, 2], [1854, 120, 14, 2], [1854, 860, 14, 2], [600, 0, 2, 14], [1266, 0, 2, 14], [600, 1014, 2, 14], [1266, 1014, 2, 14]]) sheet.insertAdjacentHTML("beforeend", `<i style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"></i>`);
-
-// ======================= camera =======================
-// [t, target x, y, z, yaw deg, pitch deg, visible height (cm), shift right px, shift down px]
-const SYS = [24, 60, 22];
-const CAM = [
-  [0, 0, 100, 6, 22, 12, 31, 300, 0],
-  [4.0, 0, 100, 6, 30, 13, 31, 300, 0],
-  [6.8, 0, 100, 17, 58, 16, 54, -235, 20],
-  [16.6, 0, 100, 17, 68, 19, 54, -235, 20],
-  [19.0, -6, 98, 4, 42, 15, 80, -235, 60],
-  [20.8, ...SYS, 36, 15, 196, -250, 70],
-  [22.6, ...SYS, 34, 15, 196, -250, 70],
-  [24.0, -10, 101, 2, 24, 7, 64, 10, 40],
-  [27.2, -10, 101, 2, 28, 8, 64, 10, 40],
-  [28.2, ...SYS, 34, 15, 196, -30, 60],
-  [31.0, ...SYS, 37, 15, 196, -30, 60],
-  [32.2, -10, 97, 2, 28, 9, 68, -10, 40],
-  [37.6, -10, 97, 2, 33, 10, 68, -10, 40],
-  [38.4, -9, 99, 2, 28, 9, 66, -10, 40],
-  [45.0, -9, 99, 2, 31, 9, 66, -10, 40],
-  [46.0, ...SYS, 34, 15, 200, -40, 60],
-  [50.6, ...SYS, 38, 15, 200, -40, 60],
-  [51.6, -9, 101, 2, 22, 8, 66, -10, 40],
-  [56.6, -9, 101, 2, 27, 8, 66, -10, 40],
-  [58.8, 0, 100, 17, 52, 16, 54, -290, 0],
-  [62, 0, 100, 17, 58, 17, 54, -290, 0],
-];
-const view = { yaw: 0, pitch: 0, zoom: 1 };
-const D2R = Math.PI / 180;
-function camAt(t) {
-  let i = 0; while (i < CAM.length - 2 && t >= CAM[i + 1][0]) i++;
-  const a = CAM[i], b = CAM[i + 1], k = ease(prog(t, a[0], b[0]));
-  return a.map((v, j) => lerp(v, b[j], k));
-}
-function placeCamera(t) {
-  const [, tx, ty, tz, yaw0, pitch0, h0, ox, oy] = camAt(t);
-  const yaw = (yaw0 + view.yaw) * D2R, pitch = clamp(pitch0 + view.pitch, -10, 70) * D2R, h = h0 / view.zoom;
-  camera.position.set(tx + Math.sin(yaw) * Math.cos(pitch) * 600, ty + Math.sin(pitch) * 600, tz + Math.cos(yaw) * Math.cos(pitch) * 600);
-  camera.lookAt(tx, ty, tz);
-  const hw = (h / 2) * (W / H), shift = (ox / H) * h;
-  const vshift = (oy / H) * h;
-  camera.left = -hw - shift; camera.right = hw - shift; camera.top = h / 2 + vshift; camera.bottom = -h / 2 + vshift;
-  camera.near = 1; camera.far = 2000; camera.updateProjectionMatrix();
-}
-function toScreen(obj, local) {
-  tmpV.set(...local); obj.localToWorld(tmpV); tmpV.project(camera);
-  return [(tmpV.x + 1) / 2 * W, (1 - tmpV.y) / 2 * H];
-}
-
-// ======================= state helpers =======================
-function explodeAmount(t, order) {
-  const d = order * 0.22;
-  const out = outBack(prog(t, T.explode + d, T.explode + d + 1.5), 1.1);
-  const back = ease(prog(t, T.assemble + (5 - order) * 0.18, T.assemble + (5 - order) * 0.18 + 1.4));
-  const out2 = outBack(prog(t, T.explode2 + d, T.explode2 + d + 1.5), 1.1);
-  return out * (1 - back) + out2;
-}
-function ctxAlpha(t) { return prog(t, 18.6, 19.6) * (1 - prog(t, T.end, T.end + 0.8)); }
-function stepIndex(t) { let s = -1; T.steps.forEach((a, i) => { if (i < 6 && t >= a) s = i; }); return t >= T.steps[6] ? 6 : s; }
-function lightColor(t) {
-  if (t >= T.stop && t < T.steps[5]) return C.rust;
-  if (t >= T.spike + 0.5 && t < T.stop) return C.orange;
-  if (within(t, SESSION)) return C.green;
-  return C.idlemark;
-}
+const POWER = [[E.contClose, E.stop], [E.idleOn, E.autoOff], [E.p2on, E.detect + 0.05]];
+const GAS = [[E.valveOpen, E.stop + 0.15], [E.idleOn + 0.3, E.autoOff + 0.15], [E.p2on + 0.3, E.detect]];
+const WIRE = (t) => Math.round(42 * clamp((t - (E.contClose + 0.6)) / (s3 - E.contClose - 0.6)));
 
 // the welder's current, as the app would chart it (illustrative)
 function current(tt) {
-  if (tt < T.contClose + 0.6) return 0;
-  if (tt >= T.stop) return tt < T.idleOn ? 0 : (tt < T.autoOff ? 0.05 + rnd(Math.floor(tt * 10)) * 0.025 : 0);
+  if (tt < E.contClose + 0.6) return 0;
+  if (tt >= E.stop) return 0;
   const base = 0.62 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.09 + Math.sin(tt * 2.1) * 0.025;
-  if (tt < T.spike) return base;
-  const k = tt - T.spike;
+  if (tt < E.spike) return base;
+  const k = tt - E.spike;
   if (k < 2.2) return base + [0.15, 0.52, 0.2, 0.68, 0.31, 0.6, 0.42][Math.floor(k / 0.32) % 7];
   return 0.98 + (rnd(Math.floor(tt * 10) + 7) - 0.5) * 0.2;
 }
-const BAND = [0.48, 0.79];
-
-// ======================= display texts =======================
-function displayState(t) {
-  const si = stepIndex(t);
-  if (t < T.steps[0] || t >= T.end) return ["Enter PIN", "PREVUMO · Welder 2", "", 0];
-  if (t < T.keys[3] + 0.4) { const n = T.keys.filter((k) => t >= k).length; return ["Enter PIN", "PIN " + "•".repeat(n) + "_".repeat(4 - n), "", 0]; }
-  if (t < T.contClose) return ["Hi, Amira", "Checking PIN", "", 0];
-  if (t < T.steps[2]) return ["Hi, Amira", "Power on · Gas on", "", 1];
-  if (t < T.spike + 0.5) { const s = Math.floor(t - T.contClose); return ["Amira · welding", `Session 0:${String(s).padStart(2, "0")}`, "", 1]; }
-  if (t < T.stop) return ["Irregular current", "Owner notified", "", 2];
-  if (t < T.steps[5]) return ["Stopped by owner", "Won't restart on its own", "", 3];
-  if (t < T.idleOn) return ["Hi, Lucas", "Checking PIN", "", 0];
-  if (t < T.countdown) return ["Lucas · on", "Power on · Gas on", "", 1];
-  if (t < T.autoOff) { const left = Math.max(0, Math.ceil((T.autoOff - t) / ((T.autoOff - T.countdown) / 3))); return ["Idle", `Turning off in 0:0${left}`, "", 2]; }
-  return ["Turned off", "Power off · Gas off", "", 0];
-}
-function drawScreen(t) {
-  const [l1, l2] = displayState(t), key = l1 + "|" + l2;
-  if (key === screenTex.key) return; screenTex.key = key;
-  const g = screenTex.g; g.fillStyle = C.gtint; g.fillRect(0, 0, 640, 280);
-  g.fillStyle = C.ink; g.textBaseline = "alphabetic"; g.textAlign = "left";
-  g.font = "700 62px 'JetBrains Mono'"; g.fillText(l1, 34, 112, 572);
-  g.font = "500 40px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText(l2, 36, 196, 570);
-  screenTex.tx.needsUpdate = true;
-}
-function drawContactor(on) {
-  const key = on ? "I" : "O"; if (contTex.key === key) return; contTex.key = key;
-  const g = contTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 200, 120);
-  g.fillStyle = on ? C.green : C.muted; g.font = "700 80px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 100, 66);
-  contTex.tx.needsUpdate = true;
-}
-function drawWelderDisplay(on) {
-  const key = on ? "ON" : "OFF"; if (wdTex.key === key) return; wdTex.key = key;
-  const g = wdTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 240, 100);
-  g.fillStyle = on ? C.green : C.idlemark; g.font = "700 56px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 120, 54);
-  wdTex.tx.needsUpdate = true;
-}
-
-// ======================= overlays =======================
-const linesSvg = $("#lines");
-const ICON = {
-  power: '<svg viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>',
-  wrench: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>',
-  shield: '<svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+const idleCurrent = (tt) => (tt >= E.idleOn && tt < E.autoOff ? 0.05 + rnd(Math.floor(tt * 10)) * 0.025 : 0);
+// the leak sensor near the regulator (illustrative)
+const gasLevel = (tt) => {
+  const base = 0.14 + (rnd(Math.floor(tt * 10) + 3) - 0.5) * 0.05;
+  if (tt < E.leak) return base;
+  const up = clamp((tt - E.leak) / (E.detect + 0.2 - E.leak));
+  const down = clamp((tt - E.detect - 0.8) / 4.5) * 0.35;
+  return base + up * 0.74 - down;
 };
-let footKey = "";
-function alertFoot(t) {
-  const stage = t < T.confirmIn ? "ask" : t < T.logged ? "confirm" : "done";
-  if (stage !== footKey) {
-    footKey = stage;
-    $("#afoot").innerHTML = stage === "ask"
-      ? `<div class="btn qd" id="shut">${ICON.power}Shut down<div class="ring" id="ring1"></div></div><div class="btn pr">${ICON.wrench}Call technician</div><span style="flex:1"></span><div class="btn sec">${ICON.shield}Mark as OK</div>`
-      : stage === "confirm"
-        ? `<div class="btn sec">Cancel</div><span style="flex:1"></span><div class="btn dg" id="shut2">${ICON.power}Shut down<div class="ring" id="ring2"></div></div>`
-        : `<span class="logged">Decision logged: Shut down</span>`;
-    $("#areason").textContent = stage === "confirm" ? "The machine will stop and won't restart on its own." : stage === "done" ? "Power and gas are off. Logged for Amira's session." : "Current above its normal range. In use by Amira Haddad.";
-  }
-  const press = (el, a) => { if (!el) return; const k = prog(t, a, a + 0.12) - prog(t, a + 0.16, a + 0.4); el.style.transform = `scale(${1 - 0.06 * k})`; };
-  if (stage === "ask") { press($("#shut"), T.tapShut); const r = $("#ring1"); r.style.opacity = String(prog(t, T.tapShut - 0.7, T.tapShut - 0.4) * (0.6 + 0.4 * Math.sin(t * 9))); }
-  if (stage === "confirm") { press($("#shut2"), T.tapConfirm); const r = $("#ring2"); r.style.opacity = String(prog(t, T.tapConfirm - 0.6, T.tapConfirm - 0.3) * (0.6 + 0.4 * Math.sin(t * 9))); }
-}
 
-function drawChart(t) {
-  const svg = $("#chartsvg"), w = 508, h = 210, x0 = 4, x1 = w - 4, y0 = 176, sc = 150;
-  const idle = t >= T.steps[5];
-  const [ta, tb] = idle ? [T.steps[5] + 0.6, T.end] : [T.steps[2], T.steps[5]];
-  const X = (tt) => x0 + (tt - ta) / (tb - ta) * (x1 - x0), Y = (v) => y0 - v * sc;
-  const end = Math.min(t, tb);
-  let pts = [], hot = [], hotPts = [];
-  for (let tt = ta; tt <= end; tt += 0.1) {
-    const v = current(tt); pts.push([X(tt), Y(v)]);
-    const out = v > BAND[1] && !idle;
-    if (out) { hotPts.push([X(tt), Y(v)]); if (Math.round(tt * 10) % 3 === 0) hot.push([X(tt), Y(v)]); } else if (hotPts.length) { hotPts.push([X(tt), Y(v)]); hotPts.push(null); }
-  }
-  const d = (arr) => { let s = "", pen = false; for (const p of arr) { if (!p) { pen = false; continue; } s += `${pen ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`; pen = true; } return s; };
-  const lineCol = t >= T.stop && !idle ? C.idlemark : C.green;
-  svg.innerHTML = `
-    ${idle ? "" : `<rect x="${x0}" y="${Y(BAND[1])}" width="${x1 - x0}" height="${Y(BAND[0]) - Y(BAND[1])}" rx="8" fill="${C.gtint}"/>`}
-    <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="${C.border}" stroke-width="2"/>
-    <path d="${d(pts)}" fill="none" stroke="${lineCol}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
-    <path d="${d(hotPts)}" fill="none" stroke="${C.orange}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
-    ${hot.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="${C.orange}" stroke="${C.surface}" stroke-width="2"/>`).join("")}
-    ${pts.length ? `<circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="7" fill="${lineCol}" stroke="${C.surface}" stroke-width="2.5"/>` : ""}
-    <text x="${x0}" y="${h - 4}" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">${idle ? "illustrative, time-lapse" : "illustrative"}</text>
-    <text x="${x1}" y="${h - 4}" text-anchor="end" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">one reading a second</text>`;
-  $("#charttt").textContent = idle ? "Welder 2 · on, nobody welding" : "Welder 2 · current";
-  const tag = $("#charttag");
-  const tagKey = idle ? "idle" : t >= T.stop ? "off" : t >= T.spike + 0.5 ? "irr" : "ok";
-  if (tag.dataset.k !== tagKey) {
-    tag.dataset.k = tagKey;
-    tag.innerHTML = { ok: `<i></i>Normal range`, irr: `<i style="background:${C.orange}"></i>Irregular`, off: `<i style="background:${C.rust}"></i>Shut down`, idle: `<i style="background:${C.idlemark}"></i>Idle` }[tagKey];
-  }
-}
+const ICONFLAG = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>';
 
-function show(el, a, op = 1, dy = 0) { el.style.opacity = String(a * op); el.style.transform = `translateY(${(1 - a) * dy}px)`; el.style.visibility = a <= 0.001 ? "hidden" : "visible"; }
+run({
+  name: "Welder module", machine: "Welder 2", kicker: "PREVUMO · PD B3 concept", sysTitle: "On the welder",
+  sub: "A box on the wall beside a MIG welder. A member's fob unlocks it; it opens the gas, weighs the wire and watches the current.",
+  T,
+  box: { glands: 4, coil: true },
+  parts: [
+    { key: "reader" },
+    { key: "disp" },
+    { key: "qr", role: "Opens the Welder 2 manual." },
+    { key: "cover" },
+    { key: "board", role: "ESP32 with Wi-Fi; drives the contactor and valve." },
+    { key: "psu", role: "Runs the box from the welder's line." },
+    { key: "base", role: "Wall mount and four cable glands." },
+    { ref: "ct", name: "Current clamp", role: "Clips around one supply wire. Nothing is cut.", a: [-2, 0.6, 0], d: [-110, 40] },
+    { ref: "cont", name: "Contactor, 240 V", role: "Switches the welder. Licensed electrician installs.", a: [-2.8, 2.5, 3.5], d: [-110, -50] },
+    { ref: "valve", name: "Gas valve", role: "Closed without power: open only in a fob session.", a: [0, 4.6, 0], d: [-40, -110] },
+    { ref: "leak", name: "Gas leak sensor", role: "On the wall by the regulator, watched day and night.", a: [0, 2.4, 0.8], d: [60, -100] },
+    { ref: "spool", name: "Wire scale", role: "Weighs the wire spool: grams per session.", a: [-3, 1.0, 4.5], d: [-110, 30] },
+  ],
+  steps: [
+    ["Locked until a fob tap", "Jonah's fob is not on Welder 2's trained list, so it stays locked. Amira is trained: it unlocks."],
+    ["Power and gas on", "The box closes the contactor and opens the gas valve. The session is logged to Amira."],
+    ["Watches current and wire", "The clamp reads the current every second and the scale weighs the spool. The first two weeks only learn the normal range."],
+    ["Flags an irregular pattern", "The owner gets one alert: Shut down, Call technician or Mark as OK."],
+    ["Stops power and gas together", "Nothing restarts on its own. Amira's session is logged with the wire she used."],
+    ["Idle? Both off", "If nobody welds for the idle time the owner sets, the box turns power and gas off."],
+    ["Gas leak? Valve shuts", "The sensor by the regulator is watched even with no session. The valve closes first, then the owner is told."],
+  ],
+  sysView: { p: [24, 60, 22], h: 196, oy: 70 },
+  cam: [
+    [s0 + 0.3, -10, 101, 2, 24, 7, 64, 10, 40],
+    [s1 - 0.4, -10, 101, 2, 28, 8, 64, 10, 40],
+    [s1 + 0.5, 24, 60, 22, 34, 15, 196, -30, 60],
+    [s2 - 0.2, 24, 60, 22, 36, 15, 196, -30, 60],
+    [s2 + 0.7, 8, 79, 4, 32, 14, 110, 0, 30],
+    [s3 - 0.2, 8, 79, 4, 35, 14, 110, 0, 30],
+    [s3 + 0.5, -9, 99, 2, 28, 9, 66, -10, 40],
+    [s4 - 0.4, -9, 99, 2, 31, 9, 66, -10, 40],
+    [s4 + 0.6, 24, 60, 22, 34, 15, 196, -40, 60],
+    [s5 - 0.3, 24, 60, 22, 37, 15, 196, -40, 60],
+    [s5 + 0.5, -9, 101, 2, 22, 8, 66, -10, 40],
+    [s6 - 0.2, -9, 101, 2, 26, 8, 66, -10, 40],
+    [s6 + 1.4, 24, 88, 2, 40, 13, 135, -20, 30],
+    [s7 - 0.2, 24, 88, 2, 43, 13, 135, -20, 30],
+  ],
+  fob: [{ at: E.jonah, ok: false }, { at: E.amira, ok: true }, { at: E.lucas, ok: true }, { at: E.priya, ok: true }],
+  display: [
+    [0, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.jonah, ["Checking fob", "Welder 2 trained list"]],
+    [E.jonah + 0.6, ["Locked", "Not trained on this machine"]],
+    [s0 + 3.0, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.amira, ["Checking fob", "Welder 2 trained list"]],
+    [E.amira + 0.6, ["Hi, Amira", "Trained · unlocking"]],
+    [s1, ["Hi, Amira", "Power on · Gas on"]],
+    [s2, (t) => ["Amira · welding", `Wire used: ${WIRE(t)} g`]],
+    [E.spike + 0.5, ["Irregular current", "Owner notified"]],
+    [E.stop, ["Stopped by owner", "Won't restart on its own"]],
+    [s4 + 2.2, ["Session logged", "Amira · wire 42 g"]],
+    [s5, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.lucas, ["Checking fob", "Welder 2 trained list"]],
+    [E.idleOn, ["Hi, Lucas", "Power on · Gas on"]],
+    [E.countdown, (t) => ["Idle", `Turning off in 0:0${Math.max(0, Math.ceil((E.autoOff - t) / ((E.autoOff - E.countdown) / 3)))}`]],
+    [E.autoOff, ["Turned off", "Power off · Gas off"]],
+    [s6, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.priya, ["Checking fob", "Welder 2 trained list"]],
+    [E.p2on, ["Hi, Priya", "Power on · Gas on"]],
+    [E.detect, ["Gas leak detected", "Valve closed"]],
+  ],
+  light: [[0, "idle"], [E.jonah + 0.5, "rust"], [s0 + 3.0, "idle"], [E.amira + 0.6, "green"], [E.spike + 0.5, "orange"], [E.stop, "rust"], [s5, "idle"],
+    [E.idleOn, "green"], [E.countdown, "orange"], [E.autoOff, "idle"], [E.p2on, "green"], [E.detect, "rust"], [T.end, "idle"]],
+  sessions: [[E.contClose, E.stop], [E.idleOn, E.autoOff], [E.p2on, s7]],
+  alarm: [[E.spike + 0.5, E.stop], [E.detect, s7]],
+  charts: [
+    { in: s2 + 0.2, out: s5 - 0.3, title: "Welder 2 · current", ta: s2, tb: s5, I: current, sc: 128, lapse: false,
+      band: () => [0.48, 0.79], bandText: "normal range, learned in weeks 1 and 2", hot: (tt, v) => v > 0.79 && tt < E.stop,
+      lineCol: (t) => (t >= E.stop ? C.idlemark : C.green),
+      tag: (t) => (t >= E.stop ? ["Shut down", "off"] : t >= E.spike + 0.5 ? ["Irregular", "irr"] : ["Normal range", "ok"]) },
+    { in: s5 + 0.6, out: s6 - 0.3, title: "Welder 2 · on, nobody welding", ta: s5 + 0.6, tb: s6 - 0.2, I: idleCurrent, sc: 150,
+      tag: (t) => (t >= E.autoOff ? ["Turned off", "off"] : ["Idle", "idle"]) },
+    { in: s6 + 0.6, out: s7 - 0.1, title: "Gas sensor · regulator", ta: s6 + 0.4, tb: s7, I: gasLevel, sc: 150, lapse: false,
+      guide: { v: 0.6, text: "alarm level" }, hot: (tt, v) => v > 0.6,
+      tag: (t) => (t >= E.detect ? ["Gas leak", "hot"] : ["Normal", "ok"]) },
+  ],
+  alerts: [
+    { in: E.alertIn, out: s4 + 0.3, tone: "irr", badge: "Irregular pattern", title: "Welder 2 · irregular current",
+      phases: [
+        { at: E.alertIn, reason: "Current above its normal range. In use by Amira Haddad.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
+        { at: E.confirmIn, reason: "The machine will stop and won't restart on its own.", buttons: ["cancel", "gap", "confirm"], ring: 2, tap: E.tapConfirm },
+        { at: E.logged, reason: "Power and gas are off. Logged for Amira's session.", logged: "Decision logged: Shut down" },
+      ] },
+    { in: E.alert2, out: s7 - 0.1, tone: "safety", badge: "Safety · stopped first", title: "Gas leak near Welder 2",
+      phases: [
+        { at: E.alert2, reason: "Valve closed automatically. Welder power is off too.", buttons: ["tech", "gap", "ok"], ring: 0, tap: E.tapTech },
+        { at: E.logged2, reason: "Valve stays closed until a technician checks it.", logged: "Decision logged: Call technician" },
+      ] },
+  ],
+  cards: [
+    { in: s4 + 0.7, out: s5 + 0.2, top: 494, html: () => `<p class="lbl">Owner app · Members · illustrative</p>
+      <p class="tt" style="margin-top:10px">Amira Haddad · Welder 2</p>
+      <div class="rows"><div class="r"><span class="k">Session</span><b>18 min</b></div>
+      <div class="r"><span class="k">Wire used</span><b>42 g, billed at $0.10 a gram: $4.20</b></div>
+      <div class="r"><span class="k">Her usual</span><b>about 14 g a session</b></div></div>
+      <span class="chip warn">${ICONFLAG}Review: 3x usual wire</span>
+      <p class="foot">A review for the owner, not an accusation</p>` },
+  ],
+  tags: [
+    { text: "Jonah: not trained on Welder 2", tone: "bad", icon: "stop", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 200], in: E.jonah + 0.6, out: s0 + 3.0, ctx: false },
+    { text: "Amira: trained", tone: "ok", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 200], in: E.amira + 0.6, out: s1 + 0.3, ctx: false },
+    { text: "Wire scale · grams per session", tone: "ok", obj: "spool", a: [0, 14, 0], d: [-150, -50], in: s2 + 1.0, out: s3 - 0.1 },
+    { text: "Gas leak detected", tone: "warn", icon: "warn", obj: "leak", a: [0, 2.8, 0.8], d: [-170, -90], in: E.detect, out: s7 - 0.1 },
+    { text: "Valve closed", tone: "bad", icon: "stop", obj: "valve", a: [0, 4.6, 0], d: [-150, -60], in: E.detect + 0.3, out: s7 - 0.1 },
+  ],
+  about: "The welder module sits on the wall beside a MIG welder. It unlocks with a member's NFC fob if that fob is on Welder 2's trained list, opens the shielding gas only during a session, weighs the wire each member uses, and closes the gas valve as soon as the leak sensor trips, with or without a session.",
+  evidence: [
+    "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
+    "Grey Bruce Makers bills wire at $0.10 a gram, and today removes and weighs the spool by hand.",
+  ],
+  chapters: [{ label: "Gas leak", at: [s6, T.end], still: 4.2 }],
 
-let headKey = "";
-function header(t) {
-  const phase = t < 4.4 ? "title" : t < T.how ? "pieces" : t < T.end ? "how" : "end";
-  const map = {
-    title: ["PREVUMO · PD B2 concept", "Welder module"],
-    pieces: ["Welder module", t < 18.6 ? "In pieces" : "On the welder"],
-    how: ["Welder module", "How it works"],
-    end: ["PREVUMO · PD B2 concept", "Welder module"],
-  };
-  const [kick, ttl] = map[phase], key = kick + ttl;
-  const switches = [0, 4.4, 18.6, T.how, T.end];
-  const last = Math.max(...switches.filter((s) => t >= s));
-  const k = outCubic(prog(t, last + 0.05, last + 0.65));
-  if (key !== headKey) { headKey = key; $("#kick").textContent = kick; $("#ttl").textContent = ttl; }
-  const big = phase === "title" || phase === "end";
-  $("#ttl").style.fontSize = big ? "96px" : "72px";
-  $("#ttl").style.transform = `translateY(${(1 - k) * 105}%)`;
-  $("#kick").style.opacity = String(k);
-  const sub = $("#sub"); const sk = phase === "title" ? outCubic(prog(t, 0.8, 1.6)) * (1 - prog(t, 4.0, 4.4)) : 0;
-  show(sub, sk, 1, 18);
-}
-
-// ======================= render one moment =======================
-function render(t) {
-  t = clamp(t, 0, DUR);
-  placeCamera(t);
-
-  // module in pieces
-  for (const name in P) {
-    const g = P[name]; g.position.z = g.userData.ez * explodeAmount(t, g.userData.order);
-  }
-  const ex = explodeAmount(t, 3);
-  axisMat.opacity = clamp(ex * 1.4) * 0.9; axes.visible = ex > 0.02;
-
-  // keys
-  KEYS.forEach((k) => (keyMeshes[k].position.z = 3.05));
-  ["4", "8", "2", "1"].forEach((k, i) => { const p = prog(t, T.keys[i], T.keys[i] + 0.08) - prog(t, T.keys[i] + 0.14, T.keys[i] + 0.3); keyMeshes[k].position.z = 3.05 - 0.26 * p; });
-  { const a = T.keys[3] + 0.5; const p = prog(t, a, a + 0.08) - prog(t, a + 0.14, a + 0.3); keyMeshes.OK.position.z = 3.05 - 0.26 * p; }
-  { const a = T.steps[5] + 0.35; const p = prog(t, a, a + 0.08) - prog(t, a + 0.14, a + 0.3); keyMeshes["7"].position.z -= 0.26 * p; }
-
-  drawScreen(t);
-  lightMat.color.set(lightColor(t));
-  if (lightColor(t) === C.orange) lightMat.color.lerp(new THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10));
-
-  // context fade
-  const ca = ctxAlpha(t);
-  ctx.visible = ca > 0.004;
-  for (const m of ctxMats) { m.transparent = ca < 0.99 || !!m.map; m.opacity = ca; m.depthWrite = ca > 0.98; }
-  HULL.ctx.uniforms.opacity.value = ca; HULL.ctx.transparent = ca < 0.99;
-  for (const k in B) B[k].material.transparent = ca < 0.99, B[k].material.opacity = ca;
-
-  // contactor, valve, welder
-  const on = within(t, POWER), gas = within(t, GAS);
-  const closeK = POWER.reduce((s, [a, b]) => s + outBack(prog(t, a, a + 0.18), 2) * (1 - prog(t, b, b + 0.15)), 0);
-  armature.position.y = 1.0 - 0.75 * clamp(closeK, 0, 1.2);
-  drawContactor(on);
-  const openK = GAS.reduce((s, [a, b]) => s + prog(t, a, a + 0.15) * (1 - prog(t, b, b + 0.15)), 0);
-  plunger.position.y = 4.6 + 0.45 * openK;
-  valveRingMat.color.set(gas ? C.green : C.idle);
-  drawWelderDisplay(on);
-
-  // the clamp clicks open and shut when it is introduced
-  const clip = Math.sin(clamp(prog(t, T.sysAt[0] - 0.6, T.sysAt[0] + 0.5)) * Math.PI);
-  ctHinge.position.set(0, 0, -2.0); ctB.position.set(0, 0, 2.0); ctHinge.rotation.y = 1.0 * clip;
-
-  // beads
-  const flow = (spans, speed, n, curves) => {
-    const list = []; const s = spans.reduce((acc, [a, b]) => acc + prog(t, a, a + 0.35) * (1 - prog(t, b, b + 0.3)), 0);
-    if (s <= 0) return list;
-    const total = curves.reduce((acc, c) => acc + c.getLength(), 0);
-    for (let i = 0; i < n; i++) {
-      let u = ((t * speed) / total + i / n) % 1, dist = u * total;
-      for (const c of curves) { const L = c.getLength(); if (dist <= L) { list.push({ curve: c, u: dist / L, s }); break; } dist -= L; }
+  scene(api) {
+    const { THREE, C, ctx, cm, RB, CYL, canvasTex, texPlane, rr, curve, tube, beads } = api;
+    const S = {};
+    // wall board the box and the contactor sit on
+    ctx.add(cm(RB(40, 44, 1.2, 0.4), C.idle, { p: [-11, 102.5, -3.6] }));
+    ctx.add(cm(RB(7, 7, 4.2, 0.5), C.surface, { p: [-26, 116.5, -0.9] }));
+    ctx.add(cm(RB(12, 3.5, 0.8, 0.2), C.muted, { p: [-26, 100.5, -2.6] }));
+    // contactor
+    const cont = new THREE.Group(); cont.position.set(-26, 100.5, 0.5); ctx.add(cont); S.cont = cont;
+    cont.add(cm(RB(5.6, 8.8, 7, 0.4), C.surface));
+    cont.add(cm(RB(4.6, 4.6, 1.2, 0.3), C.surface, { p: [0, -0.4, 3.9] }));
+    for (const y of [3.9, -4.15]) for (const x of [-1.7, 0, 1.7]) cont.add(cm(CYL(0.42, 0.4, 14), C.idlemark, { p: [x, y, 2.4], r: [Math.PI / 2, 0, 0] }));
+    S.armature = cm(RB(1.6, 0.9, 0.5, 0.2), C.ink, { p: [0, 1.0, 4.7] }); cont.add(S.armature);
+    S.contTex = canvasTex(200, 120);
+    const contWin = texPlane(1.9, 1.14, S.contTex, true); contWin.position.set(0, -1.1, 4.52); cont.add(contWin);
+    // gas valve on its wall bracket
+    ctx.add(cm(RB(6, 8, 0.6, 0.25), C.idle, { p: [56, 74, -2.7] }));
+    const valve = new THREE.Group(); valve.position.set(56, 74, 0); ctx.add(valve); S.valve = valve;
+    valve.add(cm(RB(3.4, 2.6, 2.6, 0.3), C.idlemark));
+    valve.add(cm(CYL(1.35, 3.0), C.ink, { p: [0, 2.8, 0] }));
+    for (const s of [-1, 1]) valve.add(cm(CYL(0.6, 1.6, 16), C.muted, { p: [s * 2.4, 0, 0], r: [0, 0, Math.PI / 2] }));
+    S.plunger = cm(CYL(0.55, 0.7, 16), C.muted, { p: [0, 4.6, 0] }); valve.add(S.plunger);
+    S.valveRingMat = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); api.ctxMats.push(S.valveRingMat);
+    const valveRing = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.24, 10, 28), S.valveRingMat); valveRing.rotation.x = Math.PI / 2; valveRing.position.y = 4.35; valve.add(valveRing);
+    // gas leak sensor on the wall by the regulator
+    const leak = new THREE.Group(); leak.position.set(68, 91, -2.4); ctx.add(leak); S.leak = leak;
+    leak.add(cm(RB(4.6, 5.6, 1.4, 0.4), C.surface));
+    const grille = canvasTex(200, 200);
+    { const g = grille.g; g.clearRect(0, 0, 200, 200); g.fillStyle = C.muted; for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.beginPath(); g.arc(40 + x * 40, 40 + y * 40, 9, 0, 7); g.fill(); } grille.tx.needsUpdate = true; }
+    const gp = texPlane(3.2, 3.2, grille, true); gp.position.set(0, 0.5, 0.72); leak.add(gp);
+    S.leakMat = new THREE.MeshBasicMaterial({ color: C.green, transparent: true }); api.ctxMats.push(S.leakMat);
+    const led = new THREE.Mesh(RB(2.6, 0.6, 0.3, 0.14), S.leakMat); led.position.set(0, -2.0, 0.72); leak.add(led);
+    // welder
+    const welder = new THREE.Group(); welder.position.set(40, 0, 22); ctx.add(welder); S.welder = welder;
+    welder.add(cm(RB(26, 40, 46, 1.4), C.surface, { p: [0, 20, 0] }));
+    welder.add(cm(RB(22, 26, 0.7, 0.3), C.idle, { p: [0, 24, 23.1] }));
+    for (const x of [-5, 5]) welder.add(cm(CYL(2.5, 1.6), C.ink, { p: [x, 21.5, 24.0], r: [Math.PI / 2, 0, 0] }));
+    welder.add(cm(CYL(2.2, 1.8), C.muted, { p: [0, 12.5, 24.1], r: [Math.PI / 2, 0, 0] }));
+    for (const z of [-11, 11]) welder.add(cm(RB(2.2, 4.4, 2.2, 0.4), C.ink, { p: [0, 41.8, z] }));
+    welder.add(cm(RB(2.2, 1.8, 24.2, 0.6), C.ink, { p: [0, 44.6, 0] }));
+    S.wdTex = canvasTex(240, 100);
+    const wdisp = texPlane(7, 2.9, S.wdTex, true); wdisp.position.set(0, 31.5, 23.5); welder.add(wdisp);
+    const ventTex = canvasTex(400, 300);
+    { const g = ventTex.g; g.fillStyle = C.muted; for (let i = 0; i < 9; i++) { rr(g, 40, 30 + i * 28, 320, 12, 6); g.fill(); } ventTex.tx.needsUpdate = true; }
+    const vent = texPlane(16, 12, ventTex, true); vent.position.set(13.05, 26, -8); vent.rotation.y = Math.PI / 2; welder.add(vent);
+    // wire scale: the spool sits on a small load cell plate on top of the welder
+    const spool = new THREE.Group(); spool.position.set(40, 40, 4.5); ctx.add(spool); S.spool = spool;
+    spool.add(cm(RB(11, 1.6, 9, 0.4), C.ink, { p: [0, 0.8, 0] }));
+    spool.add(cm(RB(3.2, 0.9, 3.2, 0.2), C.idlemark, { p: [0, 2.05, 0] }));
+    for (const x of [-3.2, 3.2]) spool.add(cm(RB(0.9, 6.2, 1.2, 0.3), C.ink, { p: [x, 5.4, 0] }));
+    spool.add(cm(CYL(5.0, 4.4, 36), C.muted, { p: [0, 8.2, 0], r: [0, 0, Math.PI / 2] }));
+    for (const s of [-1, 1]) spool.add(cm(CYL(5.8, 0.5, 36), C.ink, { p: [s * 2.45, 8.2, 0], r: [0, 0, Math.PI / 2] }));
+    tube(curve([[40, 43.4, 9.6], [40, 41.2, 11.6], [40, 40.2, 13.5]]), 0.22, C.idlemark, { outline: false, seg: 20 });
+    // torch on its lead
+    const torchPath = curve([[40, 12.5, 46.6], [39, 8, 52], [32, 2.2, 58], [20, 2.2, 61], [12, 3, 60]]);
+    tube(torchPath, 0.8, C.ink, { seg: 60 });
+    const torch = new THREE.Group(); torch.position.set(12, 3, 60); torch.rotation.y = 0.25; ctx.add(torch);
+    torch.add(cm(new THREE.CapsuleGeometry(1.4, 6, 6, 16), C.ink, { r: [0, 0, Math.PI / 2], p: [-3.6, 0, 0] }));
+    torch.add(cm(CYL(0.9, 4, 16), C.idlemark, { r: [0, 0, Math.PI / 2 - 0.5], p: [-9.2, -1.1, 0] }));
+    // shielding gas cylinder and regulator
+    const cyl = new THREE.Group(); cyl.position.set(80, 0, 9); ctx.add(cyl); S.cyl = cyl;
+    const prof = [[0, 0], [9.6, 0], [10, 0.6], [10, 62], [9.4, 66], [7.4, 69.2], [4.2, 71.2], [2.4, 72], [2.4, 77.5], [0, 77.5]].map(([x, y]) => new THREE.Vector2(x, y));
+    cyl.add(cm(new THREE.LatheGeometry(prof, 40), C.gtint));
+    cyl.add(cm(new THREE.CylinderGeometry(10.05, 10.05, 7, 40, 1, true), C.surface, { p: [0, 47, 0], outline: false }));
+    cyl.add(cm(new THREE.TorusGeometry(2.4, 0.45, 10, 24), C.ink, { p: [0, 76.6, 0], r: [Math.PI / 2, 0, 0] }));
+    cyl.add(cm(RB(4.4, 4.4, 4.4, 0.6), C.surface, { p: [0, 81, 0] }));
+    cyl.add(cm(CYL(2.3, 0.9), C.surface, { p: [0, 83.6, 2.6], r: [Math.PI / 2, 0, 0] }));
+    const gaugeTex = canvasTex(200, 200);
+    { const g = gaugeTex.g; g.fillStyle = C.surface; g.beginPath(); g.arc(100, 100, 96, 0, 7); g.fill(); g.strokeStyle = C.ink; g.lineWidth = 5;
+      for (let i = 0; i <= 10; i++) { const a = Math.PI * (0.75 + i * 0.15); g.beginPath(); g.moveTo(100 + Math.cos(a) * 70, 100 + Math.sin(a) * 70); g.lineTo(100 + Math.cos(a) * 86, 100 + Math.sin(a) * 86); g.stroke(); }
+      g.strokeStyle = C.rust; g.lineWidth = 7; g.beginPath(); g.moveTo(100, 100); g.lineTo(100 + Math.cos(Math.PI * 1.6) * 64, 100 + Math.sin(Math.PI * 1.6) * 64); g.stroke(); gaugeTex.tx.needsUpdate = true; }
+    const gauge = texPlane(4.2, 4.2, gaugeTex, true); gauge.position.set(0, 83.6, 3.08); cyl.add(gauge);
+    cyl.add(cm(CYL(0.55, 2.2, 12), C.muted, { p: [-3.2, 80.4, 0], r: [0, 0, Math.PI / 2] }));
+    // soft footprints
+    for (const [x, z, sx, sz] of [[40, 22, 17, 27], [80, 9, 12.5, 12.5]]) {
+      const m = new THREE.MeshBasicMaterial({ color: C.border, transparent: true }); api.ctxMats.push(m);
+      const f = new THREE.Mesh(new THREE.CircleGeometry(1, 48), m); f.rotation.x = -Math.PI / 2; f.position.set(x, 0.05, z); f.scale.set(sx, sz, 1); ctx.add(f);
     }
-    return list;
-  };
-  placeBeads(B.power, flow(POWER, 34, 22, [PATH.supplyIn, PATH.supplyOut]));
-  placeBeads(B.gas, flow(GAS, 22, 16, [PATH.gasIn, PATH.gasOut]));
-  const sig = [];
-  if (within(t, SESSION) && t > T.contClose + 0.6) {
-    const ph = (t - Math.floor(t)); if (ph < 0.7) sig.push({ curve: PATH.ctSig, u: ph / 0.7, s: 1 });
-  }
-  sigMat.color.set(t >= T.spike && t < T.stop ? C.orange : C.green);
-  placeBeads(B.sig, sig);
-  const cmds = [];
-  const cmd = (c, at, back = false) => { const k = prog(t, at - 0.55, at); if (k > 0 && k < 1) cmds.push({ curve: c, u: back ? 1 - k : k, s: 1 }); };
-  cmd(PATH.ctrlCont, T.contClose); cmd(PATH.ctrlValve, T.valveOpen); cmd(PATH.ctrlCont, T.stop + 0.02); cmd(PATH.ctrlValve, T.stop + 0.17);
-  cmd(PATH.ctrlCont, T.idleOn); cmd(PATH.ctrlValve, T.idleOn + 0.3); cmd(PATH.ctrlCont, T.autoOff); cmd(PATH.ctrlValve, T.autoOff + 0.15);
-  cmdMat.color.set(t > T.stop - 0.6 && t < T.stop + 0.4 ? C.rust : C.green);
-  placeBeads(B.cmd, cmds);
+    // cables, hose and signal wires (the four glands, left to right: clamp, contactor, valve, leak sensor)
+    S.PATH = {
+      supplyIn: curve([[-26, 113, 0.4], [-26, 109, 1.6], [-26, 105.2, 1.8]]),
+      supplyOut: curve([[-26, 96.2, 1.8], [-26, 89, 1.8], [-26, 80, 2.4], [-24, 62, 2.6], [-10, 38, 0.8], [12, 28, -1.6], [27, 26.5, -1.8], [34, 26.5, -1.2]]),
+      ctSig: curve([[-24.2, 89, 1.8], [-17, 87.2, -1.6], [-8, 86, -2.0], [-4.5, 86.8, -1.4], [-4.5, 89.2, -0.8]]),
+      ctrlCont: curve([[-1.5, 89.2, -0.8], [-1.5, 85.6, -2.0], [-9, 84.4, -2.3], [-19, 88, -2.2], [-22.6, 95, 0.3], [-23.2, 99, 1.0]]),
+      ctrlValve: curve([[1.5, 89.2, -0.8], [1.5, 85.4, -2.1], [16, 83.6, -2.4], [42, 80.6, -2.4], [52, 77.8, -1.7], [55.2, 76.2, -0.2]]),
+      leakSig: curve([[65.6, 91, -2.4], [58, 90.2, -2.6], [30, 88.8, -2.6], [8, 87.2, -2.4], [4.5, 87.4, -1.6], [4.5, 89.2, -0.8]]),
+      gasIn: curve([[76.8, 80.4, 9], [70, 80.6, 7.8], [63, 77, 3.4], [58.8, 74, 0]]),
+      gasOut: curve([[53.2, 74, 0], [50.4, 68, -1.6], [47.6, 48, -2.4], [46.2, 34, -1.8], [46, 30, -1.1]]),
+    };
+    const P = S.PATH;
+    tube(P.supplyIn, 0.75, C.ink, { seg: 30 }); tube(P.supplyOut, 0.75, C.ink, { seg: 160 });
+    tube(P.gasIn, 0.55, C.muted, { seg: 60 }); tube(P.gasOut, 0.55, C.muted, { seg: 80 });
+    for (const k of ["ctSig", "ctrlCont", "ctrlValve", "leakSig"]) tube(P[k], 0.26, C.idlemark, { outline: false, seg: 120 });
+    // current clamp around one supply wire, in two hinged halves
+    const ct = new THREE.Group(); ct.position.set(-26, 89, 1.8); ctx.add(ct); S.ct = ct;
+    const ringProf = [[1.0, -0.9], [2.0, -0.9], [2.0, 0.9], [1.0, 0.9], [1.0, -0.9]].map(([x, y]) => new THREE.Vector2(x, y));
+    ct.add(cm(new THREE.LatheGeometry(ringProf, 24, 0, Math.PI), C.ink));
+    S.ctHinge = new THREE.Group(); ct.add(S.ctHinge);
+    S.ctB = cm(new THREE.LatheGeometry(ringProf, 24, Math.PI, Math.PI), C.ink); S.ctHinge.add(S.ctB);
+    ct.add(cm(RB(1.2, 1.4, 1.6, 0.3), C.idlemark, { p: [1.9, 0, 0] }));
+    // flow beads
+    S.B = { power: beads(22, 0.95, C.green), gas: beads(16, 0.78, C.surface), sig: beads(6, 0.55, C.gtint), cmd: beads(6, 0.75, C.green), cloud: beads(14, 0.9, C.otint) };
+    return S;
+  },
 
-  renderer.render(scene, camera);
-
-  // ---- overlays ----
-  header(t);
-  const center = toScreen(mod, [0, 0, 12 * ex]);
-  let svg = "";
-  PARTS.forEach((p, i) => {
-    const el = balloons.children[i];
-    let a;
-    if (p.n <= 6) a = prog(t, T.bomAt[i], T.bomAt[i] + 0.35) * (1 - prog(t, T.assemble - 0.2, T.assemble + 0.2)) + prog(t, T.explode2 + 1.6 + i * 0.12, T.explode2 + 1.95 + i * 0.12);
-    else a = prog(t, T.sysAt[i - 6], T.sysAt[i - 6] + 0.35) * (1 - prog(t, T.how - 0.1, T.how + 0.3));
-    a = clamp(a);
-    if (a <= 0.001) { el.style.visibility = "hidden"; return; }
-    const [ax, ay] = toScreen(p.obj, p.a);
-    const bx = ax + p.d[0], by = ay + p.d[1];
-    el.style.visibility = "visible"; el.style.opacity = String(a);
-    el.style.left = `${bx}px`; el.style.top = `${by}px`; el.style.transform = `scale(${0.6 + 0.4 * outBack(a, 1.6)})`;
-    const dx = ax - bx, dy = ay - by, L = Math.hypot(dx, dy) || 1, ex1 = bx + dx / L * 26, ey1 = by + dy / L * 26;
-    const col = p.ctx ? C.green : C.ink;
-    svg += `<g opacity="${a}"><line x1="${ex1}" y1="${ey1}" x2="${ax}" y2="${ay}" stroke="${col}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${col}"/></g>`;
-  });
-  // Wi-Fi: the box reports to the owner's app
-  if (ca > 0.5 && within(t, SESSION)) {
-    const [wx, wy] = toScreen(mod, [2.8, 10.6, 0]);
-    for (let i = 0; i < 3; i++) {
-      const ph = ((t * 1.0) + i / 3) % 1, r = 18 + ph * 60, op = (1 - ph) * 0.9;
-      const col = t >= T.spike + 0.5 && t < T.stop ? C.orange : C.green;
-      svg += `<path d="M${wx - r * 0.7},${wy - r * 0.45} Q${wx},${wy - r * 1.05} ${wx + r * 0.7},${wy - r * 0.45}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" opacity="${op.toFixed(3)}"/>`;
+  update(t, api) {
+    const { S, C, placeBeads, flow } = api, P = S.PATH;
+    const on = within(t, POWER), gas = within(t, GAS);
+    const closeK = POWER.reduce((s, [a, b]) => s + outBack(prog(t, a, a + 0.18), 2) * (1 - prog(t, b, b + 0.15)), 0);
+    S.armature.position.y = 1.0 - 0.75 * clamp(closeK, 0, 1.2);
+    const key = on ? "I" : "O";
+    if (S.contTex.key !== key) { S.contTex.key = key; const g = S.contTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 200, 120); g.fillStyle = on ? C.green : C.muted; g.font = "700 80px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 100, 66); S.contTex.tx.needsUpdate = true; }
+    const openK = GAS.reduce((s, [a, b]) => s + prog(t, a, a + 0.15) * (1 - prog(t, b, b + 0.15)), 0);
+    S.plunger.position.y = 4.6 + 0.45 * openK;
+    const leakOn = t >= E.detect && t < T.end;
+    S.valveRingMat.color.set(gas ? C.green : leakOn ? C.rust : C.idle);
+    const wk = on ? "ON" : "OFF";
+    if (S.wdTex.key !== wk) { S.wdTex.key = wk; const g = S.wdTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 240, 100); g.fillStyle = on ? C.green : C.idlemark; g.font = "700 56px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(wk, 120, 54); S.wdTex.tx.needsUpdate = true; }
+    // leak sensor light: green, orange pulse when it trips
+    if (t >= E.detect - 0.3 && t < T.end) { S.leakMat.color.set(C.orange); S.leakMat.color.lerp(new api.THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10)); }
+    else S.leakMat.color.set(C.green);
+    // the clamp clicks open and shut when it is introduced
+    const clipAt = T.sys0;
+    const clip = Math.sin(clamp(prog(t, clipAt - 0.6, clipAt + 0.5)) * Math.PI);
+    S.ctHinge.position.set(0, 0, -2.0); S.ctB.position.set(0, 0, 2.0); S.ctHinge.rotation.y = 1.0 * clip;
+    placeBeads(S.B.power, flow(t, POWER, 34, 22, [P.supplyIn, P.supplyOut]));
+    placeBeads(S.B.gas, flow(t, GAS, 22, 16, [P.gasIn, P.gasOut]));
+    const sig = [];
+    if (within(t, [[E.contClose + 0.6, E.stop], [E.idleOn, E.autoOff]])) { const ph = t - Math.floor(t); if (ph < 0.7) sig.push({ curve: P.ctSig, u: ph / 0.7, s: 1 }); }
+    // the leak sensor reports all the time, even with no session
+    if (t >= T.steps[0] && t < T.end) { const ph = (t * 0.8) % 1; if (ph < 0.8) sig.push({ curve: P.leakSig, u: ph / 0.8, s: 1 }); }
+    S.B.sig.material.color.set((t >= E.spike && t < E.stop) || t >= E.leak ? C.orange : C.green);
+    placeBeads(S.B.sig, sig);
+    const cmds = [];
+    const cmd = (c, at) => { const k = prog(t, at - 0.55, at); if (k > 0 && k < 1) cmds.push({ curve: c, u: k, s: 1 }); };
+    cmd(P.ctrlCont, E.contClose); cmd(P.ctrlValve, E.valveOpen); cmd(P.ctrlCont, E.stop + 0.02); cmd(P.ctrlValve, E.stop + 0.17);
+    cmd(P.ctrlCont, E.idleOn); cmd(P.ctrlValve, E.idleOn + 0.3); cmd(P.ctrlCont, E.autoOff); cmd(P.ctrlValve, E.autoOff + 0.15);
+    cmd(P.ctrlCont, E.p2on); cmd(P.ctrlValve, E.p2on + 0.3); cmd(P.ctrlValve, E.detect); cmd(P.ctrlCont, E.detect + 0.05);
+    S.B.cmd.material.color.set((t > E.stop - 0.6 && t < E.stop + 0.4) || (t > E.detect - 0.6 && t < E.detect + 0.4) ? C.rust : C.green);
+    placeBeads(S.B.cmd, cmds);
+    // a faint cloud of escaping gas by the regulator while the leak lasts
+    const cloud = [];
+    const ck = clamp(prog(t, E.leak, E.leak + 0.6) * (1 - prog(t, T.end - 1.2, T.end)));
+    if (ck > 0) for (let i = 0; i < 14; i++) {
+      const ph = ((t * 0.35) + i / 14) % 1, a = rnd(i) * Math.PI * 2;
+      cloud.push({ p: new api.THREE.Vector3(78 + Math.cos(a) * (2 + ph * 7), 84 + ph * 12, 7 + Math.sin(a) * (2 + ph * 6)), s: ck * (1 - ph) * (0.7 + rnd(i + 5) * 0.6) });
     }
-  }
-  linesSvg.innerHTML = svg;
-
-  // parts table
-  const bomA = prog(t, T.bomAt[0] - 0.4, T.bomAt[0]) * (1 - prog(t, T.how - 0.2, T.how + 0.3));
-  show(bomEl, bomA, 1, 0);
-  [...bomEl.querySelectorAll(".row")].forEach((r, i) => {
-    const at = i < 6 ? T.bomAt[i] : T.sysAt[i - 6]; const k = outCubic(prog(t, at, at + 0.45));
-    r.style.opacity = String(k); r.style.transform = `translateX(${(1 - k) * 24}px)`;
-  });
-
-  // steps
-  const si = stepIndex(t);
-  show(stepsEl, prog(t, T.how, T.how + 0.5) * (1 - prog(t, T.end, T.end + 0.4)), 1, 0);
-  [...stepsEl.children].forEach((li, i) => {
-    li.className = i === si ? "on" : i < si ? "done" : "";
-    const k = outCubic(prog(t, T.how + 0.1 + i * 0.08, T.how + 0.55 + i * 0.08)); li.style.opacity = String(k); li.style.transform = `translateX(${(1 - k) * -20}px)`;
-  });
-
-  // detail A: the box display, enlarged, with its circle on the model
-  const detA = prog(t, T.steps[0], T.steps[0] + 0.4) * (1 - prog(t, T.alertIn - 0.5, T.alertIn - 0.1)) + prog(t, T.steps[5] - 0.2, T.steps[5] + 0.3) * (1 - prog(t, T.end - 0.3, T.end + 0.1));
-  const det = $("#detail");
-  show(det, clamp(detA), 1, 16);
-  if (detA > 0) {
-    const [l1, l2] = displayState(t);
-    if ($("#d1").textContent !== l1) $("#d1").textContent = l1;
-    if ($("#d2").textContent !== l2) $("#d2").textContent = l2;
-    $("#dlight").style.background = "#" + lightMat.color.getHexString();
-    det.style.top = `${lerp(140, 494, ease(prog(t, T.steps[2], T.steps[2] + 0.6)))}px`;
-    const [cx, cy] = toScreen(disp, [0, 4.8, 3.1]);
-    const [ex2, ey2] = toScreen(disp, [5.0, 4.8, 3.1]);
-    const r = Math.hypot(ex2 - cx, ey2 - cy) + 14, lx = cx + r * 0.74, ly = cy - r * 0.74;
-    linesSvg.insertAdjacentHTML("beforeend", `<g opacity="${clamp(detA).toFixed(3)}" fill="none"><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.bg}" stroke-width="8"/><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.ink}" stroke-width="3" stroke-dasharray="11 7"/><circle cx="${lx + 14}" cy="${ly - 14}" r="19" fill="${C.surface}" stroke="${C.ink}" stroke-width="2.5"/><text x="${lx + 14}" y="${ly - 5}" text-anchor="middle" font-family="JetBrains Mono" font-weight="600" font-size="24" fill="${C.ink}">A</text></g>`);
-  }
-
-  // chart and app alert
-  const chartA = prog(t, T.steps[2] + 0.2, T.steps[2] + 0.7) * (1 - prog(t, T.end - 0.3, T.end + 0.2));
-  show($("#chart"), chartA, 1, 16);
-  if (chartA > 0) drawChart(t);
-  const alertA = prog(t, T.alertIn, T.alertIn + 0.45) * (1 - prog(t, T.steps[5] - 0.4, T.steps[5]));
-  show($("#alert"), outCubic(alertA), 1, 30); show($("#applabel"), alertA, 1, 0);
-  if (alertA > 0) alertFoot(t);
-
-  // title block at the end
-  show($("#tblock"), outCubic(prog(t, T.explode2 + 1.2, T.explode2 + 1.8)), 1, 24);
-
-  // notes under the page
-  document.querySelectorAll("#n-steps li").forEach((li, i) => li.classList.toggle("hot", i === si));
-}
-
-// ======================= boot =======================
-const ready = Promise.all(['700 64px "Space Grotesk"', '600 40px "JetBrains Mono"', '700 40px "JetBrains Mono"', '500 30px "Inter"'].map((f) => document.fonts.load(f).catch(() => null)));
-window.FONTS = ready;
-paintStatic();
-window.render = render;
-window.DUR = DUR;
-
-if (FILM) {
-  setPR(2);
-  window.READY = ready.then(() => { paintStatic(); render(0); });
-} else {
-  const frame = $("#frame"), stageEl = $("#stage");
-  let t = 16.4, playing = false, stopAt = DUR, last = 0;
-  const fit = () => { const s = frame.clientWidth / W; stageEl.style.transform = `scale(${s})`; setPR(clamp((window.devicePixelRatio || 1) * s, 0.5, 2)); };
-  window.addEventListener("resize", () => { fit(); render(t); });
-  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-  const sync = () => { $("#scrub").value = String(t); $("#clock").textContent = `${fmt(t)} / ${fmt(DUR)}`; $("#b-play").textContent = playing ? "Pause" : "Play"; };
-  const tick = (now) => {
-    if (playing) { t += Math.min(0.05, (now - last) / 1000); if (t >= stopAt) { t = stopAt; playing = false; } }
-    last = now; render(t); sync(); if (playing) requestAnimationFrame(tick);
-  };
-  const play = (from, to) => { t = from; stopAt = to; view.yaw = view.pitch = 0; view.zoom = 1; if (!playing) { playing = true; last = performance.now(); requestAnimationFrame(tick); } };
-  const jump = (to, keepView) => { playing = false; t = to; if (!keepView) { view.yaw = view.pitch = 0; view.zoom = 1; } render(t); sync(); };
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  $("#b-assembled").onclick = () => jump(3.6);
-  $("#b-pieces").onclick = () => jump(16.4);
-  $("#b-system").onclick = () => jump(22.6);
-  $("#b-how").onclick = () => (reduce ? jump(T.steps[3] + 3.2) : play(T.how, T.end));
-  $("#b-play").onclick = () => { if (playing) { playing = false; sync(); } else play(t >= DUR - 0.05 ? 0 : t, DUR); };
-  $("#scrub").oninput = (e) => jump(+e.target.value, true);
-  document.querySelectorAll("#n-steps li").forEach((li) => (li.onclick = () => jump(T.steps[+li.dataset.i] + 0.1)));
-  // drag to turn, wheel or pinch to zoom
-  const pts = new Map(); let pinch0 = 0, zoom0 = 1;
-  canvas.addEventListener("pointerdown", (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); zoom0 = view.zoom; } });
-  canvas.addEventListener("pointermove", (e) => {
-    if (!pts.has(e.pointerId)) return;
-    const [px, py] = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
-    if (pts.size === 2) { const [a, b] = [...pts.values()]; view.zoom = clamp(zoom0 * Math.hypot(a[0] - b[0], a[1] - b[1]) / (pinch0 || 1), 0.5, 3); }
-    else { view.yaw -= (e.clientX - px) * 0.25; view.pitch = clamp(view.pitch + (e.clientY - py) * 0.18, -30, 45); }
-    if (!playing) render(t);
-  });
-  const up = (e) => pts.delete(e.pointerId);
-  canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
-  canvas.addEventListener("wheel", (e) => { e.preventDefault(); view.zoom = clamp(view.zoom * Math.exp(-e.deltaY * 0.0012), 0.5, 3); if (!playing) render(t); }, { passive: false });
-  canvas.addEventListener("dblclick", () => { view.yaw = view.pitch = 0; view.zoom = 1; if (!playing) render(t); });
-  fit();
-  ready.then(() => { paintStatic(); render(t); sync(); });
-  render(t); sync();
-}
+    placeBeads(S.B.cloud, cloud);
+  },
+});
 </script>

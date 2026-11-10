@@ -37,21 +37,21 @@
   #sub { margin: 18px 0 0; font: 500 32px/1.3 var(--body); color: var(--ink); max-width: 640px; text-wrap: balance; }
 
   /* parts list, drawn as a drawing's parts table */
-  #bom { position: absolute; right: 86px; top: 150px; width: 470px; pointer-events: none; }
-  #bom .hd { display: grid; grid-template-columns: 64px 1fr; padding: 0 0 10px; border-bottom: 2px solid var(--ink); font: 500 20px/1 var(--mono); color: var(--muted); }
-  #bom .row { display: grid; grid-template-columns: 64px 1fr; gap: 0; padding: 10px 0; border-bottom: 1.5px solid var(--border); }
-  #bom .no { font: 600 24px/1.2 var(--mono); }
-  #bom .nm { font: 600 26px/1.15 var(--display); letter-spacing: -0.01em; }
-  #bom .rl { margin-top: 3px; font: 400 19px/1.3 var(--body); color: var(--muted); }
+  #bom { position: absolute; right: 86px; top: 140px; width: 480px; pointer-events: none; }
+  #bom .hd { display: grid; grid-template-columns: 56px 1fr; padding: 0 0 10px; border-bottom: 2px solid var(--ink); font: 500 20px/1 var(--mono); color: var(--muted); }
+  #bom .row { display: grid; grid-template-columns: 56px 1fr; gap: 0; padding: 7px 0; border-bottom: 1.5px solid var(--border); }
+  #bom .no { font: 600 21px/1.2 var(--mono); }
+  #bom .nm { font: 600 23px/1.15 var(--display); letter-spacing: -0.01em; }
+  #bom .rl { margin-top: 2px; font: 400 17px/1.3 var(--body); color: var(--muted); }
   #bom .row.ctx .no { color: var(--green); }
 
   /* steps */
-  #steps { position: absolute; left: 86px; top: 290px; width: 520px; margin: 0; padding: 0; list-style: none; pointer-events: none; }
-  #steps li { display: grid; grid-template-columns: 62px 1fr; padding: 13px 0; border-top: 1.5px solid var(--border); color: var(--idlemark); }
+  #steps { position: absolute; left: 86px; top: 262px; width: 520px; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+  #steps li { display: grid; grid-template-columns: 62px 1fr; padding: 10px 0; border-top: 1.5px solid var(--border); color: var(--idlemark); }
   #steps li:last-child { border-bottom: 1.5px solid var(--border); }
   #steps .sn { width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font: 600 22px/1 var(--mono); border: 2px solid var(--border); }
-  #steps .st { font: 600 29px/1.2 var(--display); letter-spacing: -0.01em; padding-top: 6px; }
-  #steps .sd { font: 400 22px/1.35 var(--body); color: var(--muted); margin-top: 8px; display: none; }
+  #steps .st { font: 600 27px/1.2 var(--display); letter-spacing: -0.01em; padding-top: 6px; }
+  #steps .sd { font: 400 21px/1.35 var(--body); color: var(--muted); margin-top: 8px; display: none; }
   #steps li.on { color: var(--ink); }
   #steps li.on .sn { background: var(--green); border-color: var(--green); color: #fff; }
   #steps li.on .sd { display: block; }
@@ -127,88 +127,46 @@
   #notes li.hot .n, #notes li.hot b { color: var(--green); }
   #notes p { margin: 0; font: 400 15px/1.5 var(--body); color: var(--muted); max-width: 65ch; }
   @media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
-</style>
 
-<style>
-  #heatflag { background: var(--gtint); }
-  .callout { position: absolute; padding: 9px 16px; border-radius: 8px; border: 2px solid var(--green); background: var(--surface); font: 600 24px/1.2 var(--display); color: var(--ink); white-space: nowrap; pointer-events: none; transform: translate(-50%, -50%); }
+  /* shared additions (PD B3) */
+  .tagx { position: absolute; padding: 9px 16px; border-radius: 8px; border: 2px solid var(--green); background: var(--surface); font: 600 24px/1.2 var(--display); color: var(--ink); white-space: nowrap; pointer-events: none; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 8px; }
+  .tagx.ok { background: var(--gtint); }
+  .tagx.warn { background: var(--otint); border-color: var(--orange); }
+  .tagx.bad { background: var(--rust); border-color: var(--rust); color: #fff; }
+  .tagx svg { width: 22px; height: 22px; flex: none; }
   #chart .tag.warm { border-color: var(--gtint); background: var(--gtint); color: var(--ink); }
+  #chart .tag.hot { border-color: var(--otint); background: var(--otint); color: var(--ink); }
+  .badge.safety { background: var(--rust); color: #fff; }
+  .badge.safety i { background: #fff; }
+  .badge.paused { background: var(--otint); }
+  .badge.info { background: var(--gtint); }
+  .badge.info i { background: var(--green); }
+  .xcard { right: 86px; width: 560px; padding: 20px 24px 18px; }
+  .xcard .tt { font: 600 27px/1.2 var(--display); letter-spacing: -0.01em; }
+  .xcard .lbl { font: 500 18px/1 var(--mono); color: var(--muted); }
+  .xcard .rows { margin-top: 12px; display: grid; gap: 0; }
+  .xcard .r { display: grid; grid-template-columns: 170px 1fr; gap: 12px; padding: 9px 0; border-top: 1.5px solid var(--border); font: 400 21px/1.3 var(--body); }
+  .xcard .r b { font: 600 21px/1.3 var(--body); }
+  .xcard .k { color: var(--muted); }
+  .xcard .chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 18px; font: 600 19px/1 var(--body); margin-top: 12px; }
+  .xcard .chip.warn { background: var(--otint); color: var(--ink); }
+  .xcard .chip.ok { background: var(--gtint); color: var(--ink); }
+  .xcard .chip.bad { background: var(--rust); color: #fff; }
+  .xcard .foot { margin-top: 10px; font: 400 16px/1 var(--mono); color: var(--muted); }
+  .xcard .mrow { display: grid; grid-template-columns: 112px 1fr 92px; gap: 14px; align-items: center; padding: 10px 0; border-top: 1.5px solid var(--border); }
+  .xcard .mrow .mn { font: 600 22px/1.1 var(--display); }
+  .xcard .mrow .use { font: 600 17px/1 var(--body); color: var(--green); text-align: right; }
+  .xcard .mrow.on .mn { color: var(--green); }
+  .xcard .mrow svg { display: block; width: 100%; height: 52px; }
+  #concept { position: absolute; left: 78px; bottom: 34px; padding: 6px 8px; background: var(--bg); font: 500 17px/1 var(--mono); color: var(--muted); pointer-events: none; }
+  #notes .ev li { grid-template-columns: 1fr; }
+  #notes .ev a { color: var(--green); }
 </style>
-
-<div class="wrap">
-  <div id="frame">
-    <div id="stage">
-      <canvas id="gl" aria-label="3D model of the PREVUMO 3D printer module. Drag to turn it."></canvas>
-      <svg id="lines" viewBox="0 0 1920 1080"></svg>
-      <div id="balloons"></div>
-      <div id="callouts"></div>
-      <div id="heatflag" class="callout"><svg viewBox="0 0 24 24" width="22" height="22" style="vertical-align:-3px;margin-right:8px"><path d="M5 21V4" stroke="#2F6B45" stroke-width="2.6" stroke-linecap="round"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="#2F6B45"/></svg>Heating up: normal</div>
-      <div id="sheet"></div>
-
-      <header id="head" class="fade">
-        <p id="kick" class="mono"></p>
-        <div class="mask"><h1 id="ttl"></h1></div>
-        <p id="sub">One box per printer. It knows the warm-up is normal and watches for what isn't.</p>
-      </header>
-
-      <aside id="bom" class="fade">
-        <div class="hd"><span>No.</span><span>Part</span></div>
-      </aside>
-
-      <ol id="steps" class="fade"></ol>
-
-      <section id="chart" class="card fade">
-        <div class="top"><p class="tt" id="charttt">3D printer 4 · current</p><span class="tag" id="charttag"><i></i>Normal range</span></div>
-        <svg id="chartsvg" width="508" height="210" viewBox="0 0 508 210"></svg>
-      </section>
-
-      <section id="detail" class="card fade">
-        <p class="dl">Detail A · display on the box</p>
-        <div class="scr"><i id="dlight"></i><div class="glass"><p id="d1">Enter PIN</p><p id="d2">PIN ____</p></div></div>
-      </section>
-
-      <p id="applabel" class="fade">Owner app</p>
-      <section id="alert" class="card fade">
-        <div class="ah">
-          <span class="badge"><i></i>Irregular</span>
-          <p class="at">3D printer 4 looks irregular</p>
-          <p class="ar" id="areason">Current stays high after warm-up. In use by Priya Nair.</p>
-        </div>
-        <div class="af" id="afoot"></div>
-      </section>
-
-      <footer id="tblock" class="fade">
-        <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">3D printer module</p></div></div>
-        <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.1</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
-        <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
-        <p class="note">Concept only, not built or tested yet. The box needs CSA certification before sale.</p>
-      </footer>
-    </div>
-  </div>
-
-  <div id="controls">
-    <button type="button" id="b-assembled">Assembled</button>
-    <button type="button" id="b-pieces">In pieces</button>
-    <button type="button" id="b-system">On the printer</button>
-    <button type="button" id="b-how">How it works</button>
-    <button type="button" id="b-warm">Warm-up</button>
-    <button type="button" id="b-play" class="play">Play</button>
-    <input type="range" id="scrub" min="0" max="66" step="0.01" value="16.4" aria-label="Position in the animation">
-    <span id="clock">0:16 / 1:06</span>
-    <p id="hint">Drag the model to turn it, scroll or pinch to zoom, double click to reset the view.</p>
-  </div>
-
-  <div id="notes">
-    <section><h2>Parts</h2><ol id="n-parts"></ol></section>
-    <section><h2>How it works</h2><ol id="n-steps"></ol></section>
-    <section><h2>About this prototype</h2>
-      <p>A concept for PREVUMO's 3D printer module (PD B2: one module per machine). It has not been built or tested. The box follows the deck: keypad, current sensor and an ESP32 with Wi-Fi, with a certified relay inside rated up to 15 A at 120 V that switches the printer directly. So the box plugs into a normal wall outlet and the printer plugs into the box: no contactor and no gas. A printer draws the most current while its bed and nozzle heat up after it turns on. That warm-up is part of its learned normal range, so it never raises an alert. The chart and the alert are illustrations, not measured data, and the animation runs as a time-lapse.</p>
-    </section>
-  </div>
-</div>
-
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/" } }</script>
 <script type="module">
+// PREVUMO drawing-sheet engine (PD B3). One three.js "drawing sheet" shared by every machine page:
+// the box (NFC reader, QR sticker, display), the exploded view, balloons, parts table, steps, charts,
+// owner app alerts, session cards and the title block. Each page passes a config to run().
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
@@ -220,10 +178,6 @@ const C = {
   bg: "#F3EBDD", surface: "#FFFDF8", border: "#E3D6C0", ink: "#1F3D2B", inkDeep: "#16301F", inkSoft: "#2C4D39", muted: "#5B6B5F",
   green: "#2F6B45", gtint: "#D6E4D3", orange: "#E07A2E", otint: "#F6D2B4", rust: "#A63D1F", idle: "#EDE4D3", idlemark: "#81897A",
 };
-const W = 1920, H = 1080, DUR = 66;
-const FILM = new URLSearchParams(location.search).has("film");
-if (FILM) document.documentElement.classList.add("film");
-const $ = (s) => document.querySelector(s);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const prog = (t, a, b) => clamp((t - a) / (b - a));
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -232,683 +186,626 @@ const outCubic = (k) => 1 - Math.pow(1 - k, 3);
 const outBack = (k, s = 1.25) => 1 + (s + 1) * Math.pow(k - 1, 3) + s * Math.pow(k - 1, 2);
 const rnd = (i) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
 const within = (t, spans) => spans.some(([a, b]) => t >= a && t < b);
+const spanK = (t, spans, fin = 0.35, fout = 0.3) => clamp(spans.reduce((s, [a, b]) => s + prog(t, a, a + fin) * (1 - prog(t, b, b + fout)), 0));
+const seq = (t, list) => { let v = list[0][1]; for (const [a, x] of list) if (t >= a) v = x; return typeof v === "function" ? v(t) : v; };
+const U = { clamp, prog, lerp, ease, outCubic, outBack, rnd, within, spanK, seq };
 
-// ---------------- timeline (seconds) ----------------
-const T = {
-  explode: 4.2, bomAt: [7.4, 8.8, 10.2, 11.6, 13.0, 14.4, 15.8], assemble: 17.2, sysAt: [20.0, 21.0], how: 23.0,
-  steps: [23.6, 27.4, 30.6, 37.0, 42.2, 48.8, 54.6, 60.4],
-  keys: [24.7, 25.25, 25.8, 26.35], relay: 28.4,
-  warmEnd: 35.0, settle: 36.0, printStart: 36.4,
-  spike: 43.0, alertIn: 44.6, tapShut: 46.2, confirmIn: 46.7, tapConfirm: 47.8, logged: 48.3, stop: 48.9,
-  idleOn: 55.4, countdown: 57.0, autoOff: 59.2, end: 60.6, explode2: 61.0,
-};
-const POWER = [[T.relay, T.stop], [T.idleOn, T.autoOff]];
-const SESSION = POWER;
-const PIN = ["2", "2", "9", "0"];
+const TITLE_NOTE = "Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; CSA certification needed before sale.";
 
-// ---------------- renderer ----------------
-const canvas = $("#gl");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.setClearColor(C.bg, 1);
-let PR = 1;
-const RES = new THREE.Vector2(W, H);
-function setPR(pr) {
-  PR = pr; renderer.setPixelRatio(pr); renderer.setSize(W, H, false); RES.set(W * pr, H * pr);
-  for (const m of hullMats) m.uniforms.px.value = m.userData.px * pr;
-  for (const m of lineMats) { m.resolution.copy(RES); m.linewidth = m.userData.w * pr; }
+// The shared timeline: title, explode with box balloons, reassemble, the machine with its off-box parts, then the steps.
+function plan(nBox, nSys, stepDur) {
+  const T = { explode: 3.6, bom0: 6.0, bomStep: 1.1 };
+  T.assemble = T.bom0 + nBox * T.bomStep + 0.5;
+  T.sysIn = T.assemble + 1.5;
+  T.sys0 = T.assemble + 2.7;
+  T.sysStep = 0.85;
+  T.how = T.sys0 + Math.max(1, nSys) * T.sysStep + 1.1;
+  T.steps = [T.how + 0.5];
+  for (const d of stepDur) T.steps.push(T.steps[T.steps.length - 1] + d);
+  T.end = T.steps[T.steps.length - 1] + 0.2;
+  T.explode2 = T.end + 0.4;
+  T.dur = +(T.explode2 + 5.2).toFixed(2);
+  return T;
 }
 
-const scene = new THREE.Scene();
-scene.add(new THREE.AmbientLight(0xffffff, 0.64 * Math.PI));
-const sun = new THREE.DirectionalLight(0xffffff, 0.36 * Math.PI);
-sun.position.set(-45, 90, 70);
-scene.add(sun);
-const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 2000);
-
-const GRAD = (() => {
-  const tx = new THREE.DataTexture(new Uint8Array([120, 200, 255]), 3, 1, THREE.RedFormat);
-  tx.minFilter = tx.magFilter = THREE.NearestFilter; tx.needsUpdate = true; return tx;
-})();
-
-const hullMats = [];
-function hullMaterial(px, color) {
-  const m = new THREE.ShaderMaterial({
-    uniforms: { px: { value: px }, res: { value: RES }, color: { value: new THREE.Color(color) }, opacity: { value: 1 } },
-    vertexShader: `uniform float px; uniform vec2 res;
-      void main() {
-        vec4 c = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        vec3 n = normalize(normalMatrix * normal);
-        vec2 d = (projectionMatrix * vec4(n, 0.0)).xy;
-        float l = length(d); if (l > 1e-5) d /= l;
-        c.xy += d * px * 2.0 / res * c.w;
-        gl_Position = c;
-      }`,
-    fragmentShader: `uniform vec3 color; uniform float opacity;
-      void main() { gl_FragColor = vec4(color, opacity);
-      #include <colorspace_fragment>
-      }`,
-    side: THREE.BackSide,
-  });
-  m.userData.px = px; hullMats.push(m); return m;
-}
-const HULL = { mod: hullMaterial(2.6, C.inkDeep), ctx: hullMaterial(2.2, C.inkDeep) };
-const hullGeo = new WeakMap();
-function addHull(mesh, mat) {
-  let g = hullGeo.get(mesh.geometry);
-  if (!g) {
-    g = mesh.geometry.clone();
-    for (const k of Object.keys(g.attributes)) if (k !== "position") g.deleteAttribute(k);
-    g = mergeVertices(g, 1e-3); g.computeVertexNormals(); hullGeo.set(mesh.geometry, g);
-  }
-  const h = new THREE.Mesh(g, mat); h.renderOrder = -1; mesh.add(h); return h;
-}
-
-const ctxMats = [];
-const lineMats = [];
-function toon(hex, ctx) { const m = new THREE.MeshToonMaterial({ color: hex, gradientMap: GRAD }); if (ctx) ctxMats.push(m); return m; }
-function mk(geo, hex, o = {}) {
-  const m = new THREE.Mesh(geo, o.mat || toon(hex, o.ctx));
-  if (o.outline !== false) addHull(m, o.ctx ? HULL.ctx : HULL.mod);
-  if (o.p) m.position.set(...o.p);
-  if (o.r) m.rotation.set(...o.r);
-  return m;
-}
-const RB = (w, h, d, r = 0.4, s = 3) => new RoundedBoxGeometry(w, h, d, s, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01));
-const CYL = (r, h, n = 28) => new THREE.CylinderGeometry(r, r, h, n);
-
-function canvasTex(w, h) {
-  const c = document.createElement("canvas"); c.width = w; c.height = h;
-  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8;
-  return { c, g: c.getContext("2d"), tx, key: "" };
-}
-function texPlane(w, h, tex, ctx) {
-  const m = new THREE.MeshBasicMaterial({ map: tex.tx, transparent: true });
-  if (ctx) ctxMats.push(m);
-  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
-}
-function rr(g, x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
-// a 120 V outlet face (two slots and the round ground)
-function outletFace(g, cx, cy, s) {
-  g.fillStyle = C.ink;
-  rr(g, cx - 26 * s, cy - 30 * s, 9 * s, 30 * s, 3 * s); g.fill();
-  rr(g, cx + 17 * s, cy - 30 * s, 9 * s, 24 * s, 3 * s); g.fill();
-  g.beginPath(); g.arc(cx, cy + 22 * s, 9 * s, Math.PI, 0); g.lineTo(cx + 9 * s, cy + 30 * s); g.lineTo(cx - 9 * s, cy + 30 * s); g.closePath(); g.fill();
-}
-
-// ======================= the module =======================
-const M = new THREE.Vector3(0, 100, 0);
-const mod = new THREE.Group(); mod.position.copy(M); scene.add(mod);
-const P = {};
-function layer(name, explodeZ, order) { const g = new THREE.Group(); g.userData = { ez: explodeZ, order }; mod.add(g); P[name] = g; return g; }
-
-// 7 back housing: wall tabs, the cord gland, and the outlet the printer plugs into
-const base = layer("base", 0, 6);
-base.add(mk(RB(14, 20, 4.4, 0.6), C.ink, { p: [0, 0, -0.8] }));
-base.add(mk(CYL(0.62, 1.3, 20), C.muted, { p: [-3.5, -10.5, -0.8] }));
-for (const y of [10.9, -10.9]) base.add(mk(RB(5, 1.8, 0.5, 0.2), C.ink, { p: [0, y, -2.75] }));
-base.add(mk(RB(0.7, 5.6, 3.6, 0.25), C.surface, { p: [7.1, -4.6, -0.8] }));
-const sideOut = canvasTex(180, 280);
-{ const g = sideOut.g; g.fillStyle = C.surface; g.fillRect(0, 0, 180, 280); outletFace(g, 90, 130, 2.2); sideOut.tx.needsUpdate = true; }
-const sideFace = texPlane(3.2, 5.0, sideOut); sideFace.position.set(7.47, -4.6, -0.8); sideFace.rotation.y = Math.PI / 2; base.add(sideFace);
-
-// 6 power supply
-const psu = layer("psu", 8, 5);
-psu.add(mk(RB(7.2, 4.2, 2.2, 0.35), C.surface, { p: [0, -5.6, -0.4] }));
-for (const x of [-2.3, 0, 2.3]) psu.add(mk(RB(1.5, 1.1, 0.8, 0.15), C.gtint, { p: [x, -7.1, 1.0] }));
-
-// 4 controller board with the current sensor on it
-const board = layer("board", 15, 4);
-board.add(mk(RB(12.4, 18, 0.2, 0.08, 2), C.green, { p: [0, 0, 0.9] }));
-board.add(mk(RB(3.0, 4.0, 0.45, 0.12), C.idle, { p: [2.8, 4.6, 1.25] }));
-board.add(mk(RB(3.0, 1.1, 0.12, 0.05), C.inkSoft, { p: [2.8, 7.25, 1.05], outline: false }));
-for (const [x, y] of [[-3.4, 4.8], [-3.4, 2.4], [0.2, 1.4]]) board.add(mk(RB(1.5, 1.5, 0.35, 0.1), C.inkDeep, { p: [x, y, 1.15], outline: false }));
-board.add(mk(new THREE.TorusGeometry(1.05, 0.42, 12, 28), C.ink, { p: [3.4, -2.2, 1.45] }));
-for (const x of [-1.6, 1.4]) board.add(mk(RB(2.2, 1.2, 1.2, 0.15), C.gtint, { p: [x, -7.6, 1.6] }));
-board.add(mk(RB(4.4, 0.7, 0.6, 0.15), C.inkDeep, { p: [0, 8.2, 1.3] }));
-
-// 5 relay that switches the printer
-const relay = layer("relay", 20.5, 3);
-relay.add(mk(RB(4.2, 3.2, 1.6, 0.3), C.surface, { p: [-2.8, -4.6, 1.8] }));
-const relayTex = canvasTex(260, 200);
-const relayLab = texPlane(3.6, 2.7, relayTex); relayLab.position.set(-2.8, -4.6, 2.62); relay.add(relayLab);
-
-// 3 front cover
-const cover = layer("cover", 27, 2);
-cover.add(mk(RB(14, 20, 1.2, 0.6), C.ink, { p: [0, 0, 2.0] }));
-const wordTex = canvasTex(512, 96);
-const keyTex = [];
-function paintStatic() {
-  { const g = wordTex.g; g.clearRect(0, 0, 512, 96); g.fillStyle = C.bg; g.font = "700 64px 'Space Grotesk'"; g.textAlign = "center"; g.textBaseline = "middle"; g.letterSpacing = "10px"; g.fillText("PREVUMO", 256, 50); wordTex.tx.needsUpdate = true; }
-  for (const kt of keyTex) { const g = kt.g; g.clearRect(0, 0, 160, 108); g.fillStyle = C.ink; g.font = `600 ${kt.label.length > 1 ? 54 : 66}px 'JetBrains Mono'`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(kt.label, 80, 58); kt.tx.needsUpdate = true; }
-  { const g = relayTex.g; g.fillStyle = C.surface; g.fillRect(0, 0, 260, 200); g.fillStyle = C.ink; g.font = "700 64px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("15 A", 130, 72); g.font = "500 46px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText("120 V", 130, 140); relayTex.tx.needsUpdate = true; }
-  screenTex.key = ""; prTex.key = "";
-}
-const word = texPlane(6.4, 1.2, wordTex); word.position.set(0, -8.65, 2.62); cover.add(word);
-const screws = layer("screws", 41, 0);
-for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) screws.add(mk(CYL(0.42, 0.5, 16), C.idlemark, { p: [x, y, 2.7], r: [Math.PI / 2, 0, 0] }));
-
-// 2 display and status light
-const disp = layer("display", 34, 1);
-disp.add(mk(RB(10, 4.8, 0.5, 0.25), C.inkDeep, { p: [0, 4.8, 2.85] }));
-const screenTex = canvasTex(640, 280);
-const screen = texPlane(9.1, 3.98, screenTex); screen.position.set(0, 4.8, 3.11); disp.add(screen);
-const lightMat = new THREE.MeshBasicMaterial({ color: C.idlemark });
-const light = new THREE.Mesh(RB(6, 0.55, 0.35, 0.17), lightMat); light.position.set(0, 8.25, 2.8); addHull(light, HULL.mod); disp.add(light);
-
-// 1 keypad
-const pad = layer("keypad", 34, 1);
-pad.add(mk(RB(10, 9.4, 0.3, 0.12), C.inkSoft, { p: [0, -2.6, 2.75] }));
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "OK"];
-const keyMeshes = {};
-KEYS.forEach((k, i) => {
-  const col = i % 3, row = Math.floor(i / 3);
-  const key = mk(RB(2.5, 1.7, 0.6, 0.25), C.bg, { p: [(col - 1) * 3.1, 0.95 - row * 2.2, 3.05] });
-  const kt = canvasTex(160, 108); kt.label = k; keyTex.push(kt);
-  const lab = texPlane(2.2, 1.48, kt); lab.position.z = 0.31; key.add(lab);
-  pad.add(key); keyMeshes[k] = key;
-});
-
-const axisMat = new LineMaterial({ color: C.idlemark, linewidth: 1.6, dashed: true, dashSize: 0.9, gapSize: 0.7, transparent: true, worldUnits: false });
-axisMat.userData.w = 1.6; lineMats.push(axisMat);
-const axes = new THREE.Group(); mod.add(axes);
-for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) {
-  const lg = new LineGeometry(); lg.setPositions([x, y, -1, x, y, 44]);
-  const ln = new Line2(lg, axisMat); ln.computeLineDistances(); axes.add(ln);
-}
-
-// ======================= on the printer: context =======================
-const ctx = new THREE.Group(); scene.add(ctx);
-const cm = (geo, hex, o = {}) => mk(geo, hex, { ...o, ctx: true });
-
-// wall board with a normal 120 V outlet
-ctx.add(cm(RB(28, 40, 1.2, 0.4), C.idle, { p: [1, 96, -3.6] }));
-const wall = new THREE.Group(); wall.position.set(-6.5, 81.5, -2.75); ctx.add(wall);
-wall.add(cm(RB(5, 8, 0.5, 0.3), C.surface));
-const wallTex = canvasTex(200, 320);
-{ const g = wallTex.g; g.fillStyle = C.surface; g.fillRect(0, 0, 200, 320); outletFace(g, 100, 92, 1.5); outletFace(g, 100, 228, 1.5); wallTex.tx.needsUpdate = true; }
-const wallFace = texPlane(4.6, 7.4, wallTex, true); wallFace.position.z = 0.27; wall.add(wallFace);
-ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [-6.5, 83.2, -1.6] }));            // the box's plug
-ctx.add(cm(RB(2.6, 2.2, 1.8, 0.45), C.ink, { p: [8.75, 95.4, -0.8] }));            // the printer's plug in the box
-
-// bench
-ctx.add(cm(RB(70, 3, 51, 0.5), C.border, { p: [43, 70.5, 23] }));
-for (const [x, z] of [[11, 1.5], [75, 1.5], [11, 44.5], [75, 44.5]]) ctx.add(cm(RB(3, 69, 3, 0.4), C.border, { p: [x, 34.5, z] }));
-
-// 3D printer (generic open frame)
-const pr = new THREE.Group(); pr.position.set(42, 72, 22); ctx.add(pr);
-pr.add(cm(RB(36, 7, 30, 1), C.surface, { p: [0, 3.5, 0] }));
-const prTex = canvasTex(260, 110);
-const prLcd = texPlane(8, 3.4, prTex, true); prLcd.position.set(-9, 3.7, 15.04); pr.add(prLcd);
-pr.add(cm(CYL(1.3, 1.2), C.ink, { p: [1.5, 3.7, 15.3], r: [Math.PI / 2, 0, 0] }));
-const bed = new THREE.Group(); pr.add(bed);
-const bedMat = toon(C.inkSoft, true);
-bed.add(mk(RB(26, 1.0, 24, 0.3), null, { mat: bedMat, ctx: true, p: [0, 8.6, 0] }));
-for (const x of [-16.5, 16.5]) pr.add(cm(RB(3, 44, 4, 0.4), C.ink, { p: [x, 29, -6] }));
-pr.add(cm(RB(36, 3, 4, 0.4), C.ink, { p: [0, 52.5, -6] }));
-const gantry = new THREE.Group(); pr.add(gantry);
-gantry.add(cm(RB(30, 2.2, 3, 0.4), C.ink, { p: [0, 2.5, -3.6] }));
-const head = new THREE.Group(); gantry.add(head);
-head.add(cm(RB(5.4, 6.6, 4.6, 0.6), C.surface, { p: [0, 2.2, -0.8] }));
-head.add(cm(CYL(1.7, 0.4, 24), C.idlemark, { p: [0, 2.6, 1.6], r: [Math.PI / 2, 0, 0] }));
-head.add(cm(new THREE.ConeGeometry(0.75, 1.4, 16), C.idlemark, { p: [0, -1.8, -0.8], r: [Math.PI, 0, 0] }));
-pr.add(cm(RB(2, 7, 2, 0.4), C.ink, { p: [0, 57.5, -6] }));
-const spool = new THREE.Group(); spool.position.set(0, 65, -6); pr.add(spool);
-spool.add(cm(CYL(8, 5.4, 32), C.green, { r: [0, 0, Math.PI / 2] }));
-for (const s of [-1, 1]) spool.add(cm(CYL(9, 0.6, 32), C.ink, { r: [0, 0, Math.PI / 2], p: [s * 3, 0, 0] }));
-const filMat = new LineMaterial({ color: C.green, linewidth: 2.4, worldUnits: false, transparent: true });
-filMat.userData.w = 2.4; lineMats.push(filMat);
-const filGeo = new LineGeometry(); filGeo.setPositions([0, 60, -6, 0, 30, -3]);
-const filament = new Line2(filGeo, filMat); pr.add(filament);
-// the print: a small vase that grows layer by layer
-const vase = [[0, 0], [3.2, 0], [3.6, 1.5], [4.2, 4.5], [3.4, 7.5], [2.6, 9], [0, 9]].map(([x, y]) => new THREE.Vector2(x, y));
-const part = cm(new THREE.LatheGeometry(vase, 36), C.green, { p: [0, 9.1, 0] }); bed.add(part);
-// footprints
-{ const m = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); ctxMats.push(m);
-  const f = new THREE.Mesh(new THREE.PlaneGeometry(40, 33), m); f.rotation.x = -Math.PI / 2; f.position.set(42, 72.03, 22); ctx.add(f); }
-
-// cords: wall to box, box to printer
-const V = (a) => a.map((p) => new THREE.Vector3(...p));
-const curve = (pts) => new THREE.CatmullRomCurve3(V(pts), false, "catmullrom", 0.4);
-const PATH = {
-  cordIn: curve([[-6.5, 84.6, -1.6], [-6.4, 86.6, -1.6], [-4.4, 87.4, -1.2], [-3.5, 88.6, -0.9], [-3.5, 89.3, -0.8]]),
-  cordOut: curve([[10.0, 95.4, -0.8], [13, 93.6, 0.2], [16, 84, 1.8], [19, 74.5, 3.4], [23, 72.7, 5.0], [27.5, 72.8, 6.6], [30, 74.6, 7.3]]),
-};
-ctx.add(cm(new THREE.TubeGeometry(PATH.cordIn, 40, 0.55, 10), C.ink));
-ctx.add(cm(new THREE.TubeGeometry(PATH.cordOut, 120, 0.6, 10), C.ink));
-
-function beads(n, r, hex) {
-  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(r, 12, 10), new THREE.MeshBasicMaterial({ color: hex }), n);
-  m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.frustumCulled = false; ctx.add(m); return m;
-}
-const B = { power: beads(16, 0.8, C.green) };
-const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
-function placeBeads(mesh, list) {
-  for (let i = 0; i < mesh.count; i++) {
-    const b = list[i];
-    if (!b || b.s <= 0.001) { mesh.setMatrixAt(i, ZERO); continue; }
-    b.curve.getPointAt(clamp(b.u), tmpV); tmpM.makeScale(b.s, b.s, b.s).setPosition(tmpV); mesh.setMatrixAt(i, tmpM);
-  }
-  mesh.instanceMatrix.needsUpdate = true;
-}
-
-// ======================= parts, steps, callouts =======================
-const PARTS = [
-  { n: 1, name: "Keypad", role: "Members type their PIN.", obj: pad, a: [0, -6.5, 3.3], d: [-30, 120] },
-  { n: 2, name: "Display and status light", role: "Who is on, and what the box is doing.", obj: disp, a: [-1, 8.5, 2.8], d: [-40, -120] },
-  { n: 3, name: "Front cover", role: "Sealed, closed with four screws.", obj: cover, a: [0, 10, 2.0], d: [-10, -125] },
-  { n: 4, name: "Controller board", role: "ESP32 with Wi-Fi and a built-in current sensor.", obj: board, a: [2.8, 6.5, 1.5], d: [10, -125] },
-  { n: 5, name: "Relay", role: "Certified, up to 15 A at 120 V. Switches the printer directly.", obj: relay, a: [-2.8, -6.2, 1.8], d: [-30, 120] },
-  { n: 6, name: "Power supply", role: "Runs the box from the same outlet.", obj: psu, a: [1.5, -7.7, -0.4], d: [10, 125] },
-  { n: 7, name: "Back housing", role: "Wall mount, a cord to the wall, and an outlet for the printer.", obj: base, a: [7.5, -4.6, -0.8], d: [80, 110] },
-];
-const STEPS = [
-  ["Locked until a PIN", "No PIN, no power. Every member has their own PIN."],
-  ["Power on", "The box closes its relay and the printer turns on. The session is logged to Priya."],
-  ["Heats up first: that's normal", "A printer draws the most current while its bed and nozzle heat up. PREVUMO knows this printer's warm-up, so it raises no alert."],
-  ["Settles and prints", "Once warm, the current drops into its normal range. The box reads it every second; the first two weeks only learn that range."],
-  ["Flags an irregular pattern", "The current stays high after warm-up. The owner gets an alert and decides what happens."],
-  ["Stops safely", "The relay opens, and nothing restarts on its own."],
-  ["Idle? Off", "A finished print left switched on: the box turns it off after the idle time the owner sets."],
-];
-const CALLOUTS = [
-  { text: "Plugs into a normal 120 V outlet", obj: wall, a: [-2.6, 0, 0.3], d: [-190, 70], at: T.sysAt[0] },
-  { text: "The printer plugs into the box", obj: base, a: [7.6, -4.6, -0.8], d: [240, -70], at: T.sysAt[1] },
-];
-
-const bomEl = $("#bom");
-PARTS.forEach((p) => bomEl.insertAdjacentHTML("beforeend", `<div class="row" data-n="${p.n}"><span class="no">${p.n}</span><div><p class="nm">${p.name}</p><p class="rl">${p.role}</p></div></div>`));
-const stepsEl = $("#steps");
-STEPS.forEach(([a, b], i) => stepsEl.insertAdjacentHTML("beforeend", `<li><span class="sn">${i + 1}</span><div><p class="st">${a}</p><p class="sd">${b}</p></div></li>`));
-const balloons = $("#balloons");
-PARTS.forEach((p) => balloons.insertAdjacentHTML("beforeend", `<div class="balloon" data-n="${p.n}">${p.n}</div>`));
-const callEl = $("#callouts");
-CALLOUTS.forEach((c) => callEl.insertAdjacentHTML("beforeend", `<div class="callout">${c.text}</div>`));
-$("#n-parts").innerHTML = PARTS.map((p) => `<li data-n="${p.n}"><span class="n">${p.n}</span><div><b>${p.name}</b><span>${p.role}</span></div></li>`).join("");
-$("#n-steps").innerHTML = STEPS.map(([a, b], i) => `<li data-i="${i}"><span class="n">${i + 1}</span><div><b>${a}</b><span>${b}</span></div></li>`).join("");
-const sheet = $("#sheet");
-for (const [l, t, w, h] of [[0, 120, 14, 2], [0, 860, 14, 2], [1854, 120, 14, 2], [1854, 860, 14, 2], [600, 0, 2, 14], [1266, 0, 2, 14], [600, 1014, 2, 14], [1266, 1014, 2, 14]]) sheet.insertAdjacentHTML("beforeend", `<i style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"></i>`);
-
-// ======================= camera =======================
-// [t, target x, y, z, yaw deg, pitch deg, visible height (cm), shift right px, shift down px]
-const SYS = [35, 105, 20];
-const BOX = [2, 97, 2];
-const PRN = [36, 103, 20];
-const CAM = [
-  [0, 0, 100, 6, 22, 12, 31, 300, 0],
-  [4.0, 0, 100, 6, 30, 13, 31, 300, 0],
-  [6.8, 0, 100, 20, 58, 16, 58, -235, 20],
-  [16.6, 0, 100, 20, 68, 19, 58, -235, 20],
-  [19.0, 6, 98, 6, 42, 15, 76, -235, 40],
-  [20.8, ...SYS, 36, 15, 112, -250, 40],
-  [22.6, ...SYS, 34, 15, 112, -250, 40],
-  [24.0, ...BOX, 24, 7, 50, 0, 30],
-  [27.2, ...BOX, 28, 8, 50, 0, 30],
-  [28.4, ...SYS, 34, 15, 106, -13, 50],
-  [30.2, ...SYS, 36, 15, 106, -13, 50],
-  [31.4, ...PRN, 30, 13, 96, -13, 50],
-  [41.6, ...PRN, 36, 14, 96, -13, 50],
-  [42.8, ...SYS, 34, 15, 106, -13, 50],
-  [48.4, ...SYS, 37, 15, 106, -13, 50],
-  [49.4, ...SYS, 34, 15, 106, -13, 50],
-  [54.0, ...SYS, 37, 15, 106, -13, 50],
-  [55.0, ...SYS, 33, 15, 106, 0, 50],
-  [60.2, ...SYS, 35, 15, 106, 0, 50],
-  [62.4, 0, 100, 20, 52, 16, 58, -290, 140],
-  [66, 0, 100, 20, 58, 17, 58, -290, 140],
-];
-const view = { yaw: 0, pitch: 0, zoom: 1 };
-const D2R = Math.PI / 180;
-function camAt(t) {
-  let i = 0; while (i < CAM.length - 2 && t >= CAM[i + 1][0]) i++;
-  const a = CAM[i], b = CAM[i + 1], k = ease(prog(t, a[0], b[0]));
-  return a.map((v, j) => lerp(v, b[j], k));
-}
-function placeCamera(t) {
-  const [, tx, ty, tz, yaw0, pitch0, h0, ox, oy] = camAt(t);
-  const yaw = (yaw0 + view.yaw) * D2R, pitch = clamp(pitch0 + view.pitch, -10, 70) * D2R, h = h0 / view.zoom;
-  camera.position.set(tx + Math.sin(yaw) * Math.cos(pitch) * 600, ty + Math.sin(pitch) * 600, tz + Math.cos(yaw) * Math.cos(pitch) * 600);
-  camera.lookAt(tx, ty, tz);
-  const hw = (h / 2) * (W / H), shift = (ox / H) * h, vshift = (oy / H) * h;
-  camera.left = -hw - shift; camera.right = hw - shift; camera.top = h / 2 + vshift; camera.bottom = -h / 2 + vshift;
-  camera.near = 1; camera.far = 2000; camera.updateProjectionMatrix();
-}
-function toScreen(obj, local) {
-  tmpV.set(...local); obj.localToWorld(tmpV); tmpV.project(camera);
-  return [(tmpV.x + 1) / 2 * W, (1 - tmpV.y) / 2 * H];
-}
-
-// ======================= state =======================
-function explodeAmount(t, order) {
-  const d = order * 0.2;
-  const out = outBack(prog(t, T.explode + d, T.explode + d + 1.5), 1.1);
-  const back = ease(prog(t, T.assemble + (6 - order) * 0.16, T.assemble + (6 - order) * 0.16 + 1.4));
-  const out2 = outBack(prog(t, T.explode2 + d, T.explode2 + d + 1.5), 1.1);
-  return out * (1 - back) + out2;
-}
-function ctxAlpha(t) { return prog(t, 18.6, 19.6) * (1 - prog(t, T.end, T.end + 0.8)); }
-function stepIndex(t) { let s = -1; T.steps.forEach((a, i) => { if (i < STEPS.length && t >= a) s = i; }); return t >= T.steps[STEPS.length] ? STEPS.length : s; }
-function lightColor(t) {
-  if (t >= T.stop && t < T.steps[6]) return C.rust;
-  if (t >= T.spike + 0.5 && t < T.stop) return C.orange;
-  if (within(t, SESSION)) return C.green;
-  return C.idlemark;
-}
-
-// current as the owner's app would chart it (illustrative); the learned range rises for the warm-up
-const normalI = (tt) => 0.5 + 0.11 * Math.tanh(3 * Math.sin(tt * 6.5)) + (rnd(Math.floor(tt * 10)) - 0.5) * 0.06;
-function current(tt) {
-  if (tt < T.relay + 0.15) return 0;
-  if (tt < T.stop) {
-    const warm = 0.9 + (rnd(Math.floor(tt * 10) + 3) - 0.5) * 0.06;
-    if (tt < T.warmEnd) return warm * outCubic(prog(tt, T.relay + 0.15, T.relay + 0.6));
-    if (tt < T.settle) return lerp(warm, normalI(tt), ease(prog(tt, T.warmEnd, T.settle)));
-    if (tt < T.spike) return normalI(tt);
-    return lerp(normalI(tt), 0.96 + (rnd(Math.floor(tt * 10) + 9) - 0.5) * 0.07, outCubic(prog(tt, T.spike, T.spike + 0.5)));
-  }
-  if (tt >= T.idleOn && tt < T.autoOff) return 0.13 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.03;
-  return 0;
-}
-function bandAt(tt) {
-  const k = ease(prog(tt, T.warmEnd, T.settle));
-  return [lerp(0.78, 0.32, k), lerp(1.05, 0.7, k)];
-}
-const warming = (t) => t >= T.relay + 0.2 && t < T.settle;
-const printing = (t) => t >= T.printStart && t < T.stop;
-
-// ======================= display texts =======================
-function displayState(t) {
-  if (t < T.steps[0] || t >= T.end) return ["Enter PIN", "PREVUMO · 3D printer 4"];
-  if (t < T.keys[3] + 0.4) { const n = T.keys.filter((k) => t >= k).length; return ["Enter PIN", "PIN " + "•".repeat(n) + "_".repeat(4 - n)]; }
-  if (t < T.relay) return ["Hi, Priya", "Checking PIN"];
-  if (t < T.steps[2]) return ["Hi, Priya", "Power on"];
-  if (t < T.settle) return ["Warming up", "Normal for this printer"];
-  if (t < T.spike + 0.5) { const s = Math.floor((t - T.relay) * 6); return ["Priya · printing", `Session ${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`]; }
-  if (t < T.stop) return ["Irregular current", "Owner notified"];
-  if (t < T.steps[6]) return ["Stopped by owner", "Won't restart on its own"];
-  if (t < T.idleOn) return ["Hi, Lucas", "Checking PIN"];
-  if (t < T.countdown) return ["Lucas · print done", "Printer still on"];
-  if (t < T.autoOff) { const left = Math.max(0, Math.ceil((T.autoOff - t) / ((T.autoOff - T.countdown) / 3))); return ["Idle", `Turning off in 0:0${left}`]; }
-  return ["Turned off", "Power off"];
-}
-function drawScreen(t) {
-  const [l1, l2] = displayState(t), key = l1 + "|" + l2;
-  if (key === screenTex.key) return; screenTex.key = key;
-  const g = screenTex.g; g.fillStyle = C.gtint; g.fillRect(0, 0, 640, 280);
-  g.fillStyle = C.ink; g.textBaseline = "alphabetic"; g.textAlign = "left";
-  g.font = "700 62px 'JetBrains Mono'"; g.fillText(l1, 34, 112, 572);
-  g.font = "500 40px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText(l2, 36, 196, 570);
-  screenTex.tx.needsUpdate = true;
-}
-function drawPrinterLcd(t) {
-  const on = within(t, POWER);
-  const key = !on ? "OFF" : warming(t) ? "HEATING" : t >= T.idleOn ? "DONE" : printing(t) ? "PRINTING" : "READY";
-  if (prTex.key === key) return; prTex.key = key;
-  const g = prTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 260, 110);
-  g.fillStyle = on ? C.green : C.idlemark; g.font = "700 40px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 130, 58, 236);
-  prTex.tx.needsUpdate = true;
-}
-
-// ======================= overlays =======================
-const linesSvg = $("#lines");
+const W = 1920, H = 1080;
 const ICON = {
   power: '<svg viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>',
   wrench: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>',
   shield: '<svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+  flag: '<svg viewBox="0 0 24 24"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>',
+  warn: '<svg viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3z" fill="currentColor"/><path d="M12 10v5M12 18h.01" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  stop: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="currentColor"/></svg>',
 };
-let footKey = "";
-function alertFoot(t) {
-  const stage = t < T.confirmIn ? "ask" : t < T.logged ? "confirm" : "done";
-  if (stage !== footKey) {
-    footKey = stage;
-    $("#afoot").innerHTML = stage === "ask"
-      ? `<div class="btn qd" id="shut">${ICON.power}Shut down<div class="ring" id="ring1"></div></div><div class="btn pr">${ICON.wrench}Call technician</div><span style="flex:1"></span><div class="btn sec">${ICON.shield}Mark as OK</div>`
-      : stage === "confirm"
-        ? `<div class="btn sec">Cancel</div><span style="flex:1"></span><div class="btn dg" id="shut2">${ICON.power}Shut down<div class="ring" id="ring2"></div></div>`
-        : `<span class="logged">Decision logged: Shut down</span>`;
-    $("#areason").textContent = stage === "confirm" ? "The machine will stop and won't restart on its own." : stage === "done" ? "The printer is off. Logged for Priya's session." : "Current stays high after warm-up. In use by Priya Nair.";
-  }
-  const press = (el, a) => { if (!el) return; const k = prog(t, a, a + 0.12) - prog(t, a + 0.16, a + 0.4); el.style.transform = `scale(${1 - 0.06 * k})`; };
-  if (stage === "ask") { press($("#shut"), T.tapShut); $("#ring1").style.opacity = String(prog(t, T.tapShut - 0.7, T.tapShut - 0.4) * (0.6 + 0.4 * Math.sin(t * 9))); }
-  if (stage === "confirm") { press($("#shut2"), T.tapConfirm); $("#ring2").style.opacity = String(prog(t, T.tapConfirm - 0.6, T.tapConfirm - 0.3) * (0.6 + 0.4 * Math.sin(t * 9))); }
-}
+const BTN = {
+  off: (r) => `<div class="btn qd">${ICON.power}Shut down${r}</div>`,
+  tech: (r) => `<div class="btn pr">${ICON.wrench}Call technician${r}</div>`,
+  ok: (r) => `<div class="btn sec">${ICON.shield}Mark as OK${r}</div>`,
+  cancel: (r) => `<div class="btn sec">Cancel${r}</div>`,
+  confirm: (r) => `<div class="btn dg">${ICON.power}Shut down${r}</div>`,
+  gap: () => `<span style="flex:1"></span>`,
+};
 
-function drawChart(t) {
-  const svg = $("#chartsvg"), w = 508, h = 210, x0 = 4, x1 = w - 4, y0 = 176, sc = 128;
-  const idle = t >= T.steps[6];
-  const [ta, tb] = idle ? [T.steps[6] + 0.6, T.end] : [T.relay - 0.4, T.steps[6] - 0.2];
-  const X = (tt) => x0 + (tt - ta) / (tb - ta) * (x1 - x0), Y = (v) => y0 - v * sc;
-  const end = Math.min(t, tb);
-  const pts = [], hot = [], hotPts = [];
-  for (let tt = ta; tt <= end; tt += 0.1) {
-    const v = current(tt); pts.push([X(tt), Y(v)]);
-    const out = !idle && tt >= T.settle && v > bandAt(tt)[1];
-    if (out) { hotPts.push([X(tt), Y(v)]); if (Math.round(tt * 10) % 3 === 0) hot.push([X(tt), Y(v)]); } else if (hotPts.length) { hotPts.push([X(tt), Y(v)]); hotPts.push(null); }
-  }
-  const d = (arr) => { let s = "", pen = false; for (const p of arr) { if (!p) { pen = false; continue; } s += `${pen ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`; pen = true; } return s; };
-  // the learned normal range, which is higher during the warm-up
-  let band = "";
-  if (!idle) {
-    const top = [], bot = [];
-    for (let tt = ta; tt <= tb + 0.001; tt += 0.2) { const [lo, hi] = bandAt(tt); top.push([X(tt), Y(hi)]); bot.unshift([X(tt), Y(lo)]); }
-    band = `<path d="${d(top)}L${bot.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("L")}Z" fill="${C.gtint}"/>`;
-  }
-  // the flag: warm-up is normal for this printer
-  let flag = "";
-  const fk = !idle ? prog(t, T.relay + 1.0, T.relay + 1.5) : 0;
-  if (fk > 0) {
-    const fx = X(T.relay + 0.9), fy = Y(1.05) - 2;
-    flag = `<g opacity="${fk.toFixed(3)}"><line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy - 30}" stroke="${C.green}" stroke-width="3" stroke-linecap="round"/>
-      <path d="M${fx + 1.5},${fy - 30} L${fx + 20},${fy - 24} L${fx + 1.5},${fy - 18} Z" fill="${C.green}"/>
-      <text x="${fx + 26}" y="${fy - 17}" font-family="JetBrains Mono" font-weight="600" font-size="17" fill="${C.green}">Warm-up: normal for this printer</text></g>`;
-  }
-  const lineCol = t >= T.stop && !idle ? C.idlemark : C.green;
-  svg.innerHTML = `${band}
-    <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="${C.border}" stroke-width="2"/>
-    <path d="${d(pts)}" fill="none" stroke="${lineCol}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
-    <path d="${d(hotPts)}" fill="none" stroke="${C.orange}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
-    ${hot.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="${C.orange}" stroke="${C.surface}" stroke-width="2"/>`).join("")}
-    ${pts.length ? `<circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="7" fill="${lineCol}" stroke="${C.surface}" stroke-width="2.5"/>` : ""}
-    ${flag}
-    <text x="${x0}" y="${h - 4}" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">illustrative, time-lapse</text>
-    <text x="${x1}" y="${h - 4}" text-anchor="end" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">one reading a second</text>`;
-  $("#charttt").textContent = idle ? "3D printer 4 · on, nobody printing" : "3D printer 4 · current";
-  const tag = $("#charttag");
-  const tagKey = idle ? "idle" : t >= T.stop ? "off" : t >= T.spike + 0.5 ? "irr" : warming(t) ? "warm" : "ok";
-  if (tag.dataset.k !== tagKey) {
-    tag.dataset.k = tagKey; tag.classList.toggle("warm", tagKey === "warm");
-    tag.innerHTML = { ok: `<i></i>Normal range`, warm: `<i></i>Warm-up · normal`, irr: `<i style="background:${C.orange}"></i>Irregular`, off: `<i style="background:${C.rust}"></i>Shut down`, idle: `<i style="background:${C.idlemark}"></i>Idle` }[tagKey];
-  }
-}
+function run(cfg) {
+  const FILM = new URLSearchParams(location.search).has("film");
+  if (FILM) document.documentElement.classList.add("film");
+  const T = cfg.T, DUR = T.dur;
+  const $ = (s) => document.querySelector(s);
 
-function show(el, a, op = 1, dy = 0) { el.style.opacity = String(a * op); el.style.transform = `translateY(${(1 - a) * dy}px)`; el.style.visibility = a <= 0.001 ? "hidden" : "visible"; }
+  // ---------------- page ----------------
+  const chapters = [["b-assembled", "Assembled"], ["b-pieces", "In pieces"], ["b-system", cfg.sysTitle], ["b-how", "How it works"], ...(cfg.chapters || []).map((c, i) => [`b-x${i}`, c.label])];
+  document.body.insertAdjacentHTML("beforeend", `
+<div class="wrap">
+  <div id="frame"><div id="stage">
+    <canvas id="gl" aria-label="3D drawing of the PREVUMO ${cfg.name.toLowerCase()}. Drag to turn it."></canvas>
+    <svg id="lines" viewBox="0 0 1920 1080"></svg>
+    <div id="balloons"></div><div id="tags"></div><div id="sheet"></div>
+    <header id="head" class="fade"><p id="kick" class="mono"></p><div class="mask"><h1 id="ttl"></h1></div><p id="sub">${cfg.sub}</p></header>
+    <aside id="bom" class="fade"><div class="hd"><span>No.</span><span>Part</span></div></aside>
+    <ol id="steps" class="fade"></ol>
+    <section id="chart" class="card fade"><div class="top"><p class="tt" id="charttt"></p><span class="tag" id="charttag"></span></div><svg id="chartsvg" width="508" height="210" viewBox="0 0 508 210"></svg></section>
+    <section id="detail" class="card fade"><p class="dl">Detail A · display on the box</p><div class="scr"><i id="dlight"></i><div class="glass"><p id="d1"></p><p id="d2"></p></div></div></section>
+    <div id="cards"></div>
+    <p id="applabel" class="fade">Owner app · illustrative</p>
+    <section id="alert" class="card fade"><div class="ah"><span class="badge" id="abadge"></span><p class="at" id="atitle"></p><p class="ar" id="areason"></p></div><div class="af" id="afoot"></div></section>
+    <footer id="tblock" class="fade">
+      <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">${cfg.name}</p></div></div>
+      <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.2 · PD B3</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
+      <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
+      <p class="note">${TITLE_NOTE}</p>
+    </footer>
+    <p id="concept">Concept drawing · not built or tested · charts, numbers and alerts are illustrative</p>
+  </div></div>
+  <div id="controls">
+    ${chapters.map(([id, l]) => `<button type="button" id="${id}">${l}</button>`).join("")}
+    <button type="button" id="b-play" class="play">Play</button>
+    <input type="range" id="scrub" min="0" max="${DUR}" step="0.01" value="0" aria-label="Position in the animation">
+    <span id="clock"></span>
+    <p id="hint">Drag the model to turn it, scroll or pinch to zoom, double click to reset the view. Concept only: not built or tested.</p>
+  </div>
+  <div id="notes">
+    <section><h2>Parts</h2><ol id="n-parts"></ol></section>
+    <section><h2>How it works</h2><ol id="n-steps"></ol></section>
+    <section><h2>About this prototype</h2><p>${cfg.about} ${TITLE_NOTE} Every chart, number and alert on this page is illustrative, not measured.</p>
+      ${cfg.evidence ? `<h2 style="margin-top:22px">Evidence</h2><ol class="ev">${cfg.evidence.map((e) => `<li><span>${e}</span></li>`).join("")}</ol>` : ""}</section>
+  </div>
+</div>`);
 
-let headKey = "";
-function header(t) {
-  const phase = t < 4.4 ? "title" : t < T.how ? "pieces" : t < T.end ? "how" : "end";
-  const map = {
-    title: ["PREVUMO · PD B2 concept", "3D printer module"],
-    pieces: ["3D printer module", t < 18.6 ? "In pieces" : "On the printer"],
-    how: ["3D printer module", "How it works"],
-    end: ["PREVUMO · PD B2 concept", "3D printer module"],
+  // ---------------- renderer ----------------
+  const canvas = $("#gl");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor(C.bg, 1);
+  const RES = new THREE.Vector2(W, H);
+  const hullMats = [], lineMats = [], ctxMats = [];
+  function setPR(pr) {
+    renderer.setPixelRatio(pr); renderer.setSize(W, H, false); RES.set(W * pr, H * pr);
+    for (const m of hullMats) m.uniforms.px.value = m.userData.px * pr;
+    for (const m of lineMats) { m.resolution.copy(RES); m.linewidth = m.userData.w * pr; }
+  }
+  const scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff, 0.64 * Math.PI));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.36 * Math.PI); sun.position.set(-45, 90, 70); scene.add(sun);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 2000);
+  const GRAD = (() => { const tx = new THREE.DataTexture(new Uint8Array([120, 200, 255]), 3, 1, THREE.RedFormat); tx.minFilter = tx.magFilter = THREE.NearestFilter; tx.needsUpdate = true; return tx; })();
+  function hullMaterial(px, color) {
+    const m = new THREE.ShaderMaterial({
+      uniforms: { px: { value: px }, res: { value: RES }, color: { value: new THREE.Color(color) }, opacity: { value: 1 } },
+      vertexShader: `uniform float px; uniform vec2 res;
+        void main() { vec4 c = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vec3 n = normalize(normalMatrix * normal); vec2 d = (projectionMatrix * vec4(n, 0.0)).xy;
+          float l = length(d); if (l > 1e-5) d /= l; c.xy += d * px * 2.0 / res * c.w; gl_Position = c; }`,
+      fragmentShader: `uniform vec3 color; uniform float opacity;
+        void main() { gl_FragColor = vec4(color, opacity);
+        #include <colorspace_fragment>
+        }`,
+      side: THREE.BackSide,
+    });
+    m.userData.px = px; hullMats.push(m); return m;
+  }
+  const HULL = { mod: hullMaterial(2.6, C.inkDeep), ctx: hullMaterial(2.2, C.inkDeep) };
+  const hullGeo = new WeakMap();
+  function addHull(mesh, mat) {
+    let g = hullGeo.get(mesh.geometry);
+    if (!g) { g = mesh.geometry.clone(); for (const k of Object.keys(g.attributes)) if (k !== "position") g.deleteAttribute(k); g = mergeVertices(g, 1e-3); g.computeVertexNormals(); hullGeo.set(mesh.geometry, g); }
+    const h = new THREE.Mesh(g, mat); h.renderOrder = -1; mesh.add(h); return h;
+  }
+  const toon = (hex, ctx) => { const m = new THREE.MeshToonMaterial({ color: hex, gradientMap: GRAD }); if (ctx) ctxMats.push(m); return m; };
+  function mk(geo, hex, o = {}) {
+    const m = new THREE.Mesh(geo, o.mat || toon(hex, o.ctx));
+    if (o.outline !== false) addHull(m, o.ctx ? HULL.ctx : HULL.mod);
+    if (o.p) m.position.set(...o.p);
+    if (o.r) m.rotation.set(...o.r);
+    return m;
+  }
+  const RB = (w, h, d, r = 0.4, s = 3) => new RoundedBoxGeometry(w, h, d, s, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01));
+  const CYL = (r, h, n = 28) => new THREE.CylinderGeometry(r, r, h, n);
+  function canvasTex(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8; return { c, g: c.getContext("2d"), tx, key: "" }; }
+  function texPlane(w, h, tex, ctx) { const m = new THREE.MeshBasicMaterial({ map: tex.tx, transparent: true }); if (ctx) ctxMats.push(m); return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); }
+  function rr(g, x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+  function outletFace(g, cx, cy, s) {
+    g.fillStyle = C.ink;
+    rr(g, cx - 26 * s, cy - 30 * s, 9 * s, 30 * s, 3 * s); g.fill(); rr(g, cx + 17 * s, cy - 30 * s, 9 * s, 24 * s, 3 * s); g.fill();
+    g.beginPath(); g.arc(cx, cy + 22 * s, 9 * s, Math.PI, 0); g.lineTo(cx + 9 * s, cy + 30 * s); g.lineTo(cx - 9 * s, cy + 30 * s); g.closePath(); g.fill();
+  }
+  const statics = [];   // canvas paints that need the web fonts
+
+  // ======================= the box =======================
+  const box = { glands: 1, outlet: false, relay: null, coil: false, ct: false, modes: null, ...cfg.box };
+  const mod = new THREE.Group(); mod.position.set(0, 100, 0); scene.add(mod);
+  const P = {};
+  const layer = (name, ez, order) => { const g = new THREE.Group(); g.userData = { ez, order }; mod.add(g); P[name] = g; return g; };
+
+  const base = layer("base", 0, 6);
+  base.add(mk(RB(14, 20, 4.4, 0.6), C.ink, { p: [0, 0, -0.8] }));
+  const gx = box.glands === 1 ? [-3.5] : box.glands === 2 ? [-3.5, 3.5] : box.glands === 4 ? [-4.5, -1.5, 1.5, 4.5] : [-3.5, 0, 3.5];
+  for (const x of gx) base.add(mk(CYL(0.62, 1.3, 20), C.muted, { p: [x, -10.5, -0.8] }));
+  for (const y of [10.9, -10.9]) base.add(mk(RB(5, 1.8, 0.5, 0.2), C.ink, { p: [0, y, -2.75] }));
+  if (box.outlet) {
+    base.add(mk(RB(0.7, 5.6, 3.6, 0.25), C.surface, { p: [7.1, -4.6, -0.8] }));
+    const so = canvasTex(180, 280); so.g.fillStyle = C.surface; so.g.fillRect(0, 0, 180, 280); outletFace(so.g, 90, 130, 2.2); so.tx.needsUpdate = true;
+    const f = texPlane(3.2, 5.0, so); f.position.set(7.47, -4.6, -0.8); f.rotation.y = Math.PI / 2; base.add(f);
+  }
+  const psu = layer("psu", 8, 5);
+  psu.add(mk(RB(7.2, 4.2, 2.2, 0.35), C.surface, { p: [0, -5.6, -0.4] }));
+  for (const x of [-2.3, 0, 2.3]) psu.add(mk(RB(1.5, 1.1, 0.8, 0.15), C.gtint, { p: [x, -7.1, 1.0] }));
+  const board = layer("board", 15, 4);
+  board.add(mk(RB(12.4, 18, 0.2, 0.08, 2), C.green, { p: [0, 0, 0.9] }));
+  board.add(mk(RB(3.0, 4.0, 0.45, 0.12), C.idle, { p: [2.8, 4.6, 1.25] }));
+  board.add(mk(RB(3.0, 1.1, 0.12, 0.05), C.inkSoft, { p: [2.8, 7.25, 1.05], outline: false }));
+  for (const [x, y] of [[-3.4, 4.8], [-3.4, 2.4], [0.2, 1.4]]) board.add(mk(RB(1.5, 1.5, 0.35, 0.1), C.inkDeep, { p: [x, y, 1.15], outline: false }));
+  if (box.ct) board.add(mk(new THREE.TorusGeometry(1.05, 0.42, 12, 28), C.ink, { p: [3.4, -2.2, 1.45] }));
+  if (box.coil) for (const x of [-3.6, -0.9]) board.add(mk(RB(2.1, 1.7, 1.5, 0.2), C.surface, { p: [x, -3.4, 1.75] }));
+  for (const x of [-4.6, -1.6, 1.4, 4.4]) board.add(mk(RB(2.2, 1.2, 1.2, 0.15), C.gtint, { p: [x, -7.6, 1.6] }));
+  board.add(mk(RB(4.4, 0.7, 0.6, 0.15), C.inkDeep, { p: [0, 8.2, 1.3] }));
+  let relay = null;
+  if (box.relay) {
+    relay = layer("relay", 20.5, 3);
+    relay.add(mk(RB(4.2, 3.2, 1.6, 0.3), C.surface, { p: [-2.8, -4.6, 1.8] }));
+    const rt = canvasTex(260, 200); const rl = texPlane(3.6, 2.7, rt); rl.position.set(-2.8, -4.6, 2.62); relay.add(rl);
+    statics.push(() => { const g = rt.g; g.fillStyle = C.surface; g.fillRect(0, 0, 260, 200); g.fillStyle = C.ink; g.textAlign = "center"; g.textBaseline = "middle"; g.font = "700 60px 'JetBrains Mono'"; g.fillText(box.relay[0], 130, 72, 240); g.font = "500 44px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText(box.relay[1], 130, 140, 240); rt.tx.needsUpdate = true; });
+  }
+  // front cover with the wordmark and the QR sticker beside the reader
+  const lay = box.modes ? { pad: [-2.6, -1.0], qr: [3.6, -1.0] } : { pad: [-2.6, -2.2], qr: [3.6, -2.2] };
+  const cover = layer("cover", 27, 2);
+  cover.add(mk(RB(14, 20, 1.2, 0.6), C.ink, { p: [0, 0, 2.0] }));
+  const wordTex = canvasTex(512, 96);
+  const word = texPlane(6.4, 1.2, wordTex); word.position.set(0, -8.65, 2.62); cover.add(word);
+  statics.push(() => { const g = wordTex.g; g.clearRect(0, 0, 512, 96); g.fillStyle = C.bg; g.font = "700 64px 'Space Grotesk'"; g.textAlign = "center"; g.textBaseline = "middle"; g.letterSpacing = "10px"; g.fillText("PREVUMO", 256, 50); wordTex.tx.needsUpdate = true; });
+  const qrTex = canvasTex(360, 450);
+  const qr = texPlane(3.5, 4.375, qrTex); qr.position.set(lay.qr[0], lay.qr[1], 2.62); cover.add(qr);
+  statics.push(() => {
+    const g = qrTex.g; g.clearRect(0, 0, 360, 450); g.fillStyle = C.surface; rr(g, 0, 0, 360, 450, 26); g.fill();
+    const n = 21, s = 13, ox = 43, oy = 36; g.fillStyle = C.ink;
+    const finder = (fx, fy) => { g.fillRect(ox + fx * s, oy + fy * s, 7 * s, 7 * s); g.fillStyle = C.surface; g.fillRect(ox + (fx + 1) * s, oy + (fy + 1) * s, 5 * s, 5 * s); g.fillStyle = C.ink; g.fillRect(ox + (fx + 2) * s, oy + (fy + 2) * s, 3 * s, 3 * s); };
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const inF = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12); if (!inF && rnd(x * 31 + y * 7 + 3) > 0.52) g.fillRect(ox + x * s, oy + y * s, s, s); }
+    finder(0, 0); finder(14, 0); finder(0, 14);
+    g.font = "700 40px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("MANUAL", 180, 352 + 46); qrTex.tx.needsUpdate = true;
+  });
+  const screws = layer("screws", 41, 0);
+  for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) screws.add(mk(CYL(0.42, 0.5, 16), C.idlemark, { p: [x, y, 2.7], r: [Math.PI / 2, 0, 0] }));
+  // display and status light
+  const disp = layer("display", 34, 1);
+  disp.add(mk(RB(10, 4.8, 0.5, 0.25), C.inkDeep, { p: [0, 4.8, 2.85] }));
+  const screenTex = canvasTex(640, 280);
+  const screen = texPlane(9.1, 3.98, screenTex); screen.position.set(0, 4.8, 3.11); disp.add(screen);
+  const lightMat = new THREE.MeshBasicMaterial({ color: C.idlemark });
+  const lightBar = new THREE.Mesh(RB(6, 0.55, 0.35, 0.17), lightMat); lightBar.position.set(0, 8.25, 2.8); addHull(lightBar, HULL.mod); disp.add(lightBar);
+  // NFC reader: a round contactless pad (no keypad)
+  const reader = layer("reader", 34, 1);
+  const pad = new THREE.Group(); pad.position.set(lay.pad[0], lay.pad[1], 0); reader.add(pad);
+  pad.add(mk(CYL(2.9, 0.5, 40), C.inkSoft, { p: [0, 0, 2.85], r: [Math.PI / 2, 0, 0] }));
+  pad.add(mk(new THREE.TorusGeometry(2.95, 0.16, 8, 48), C.idlemark, { p: [0, 0, 3.1], outline: false }));
+  const nfcTex = canvasTex(256, 256);
+  const nfc = texPlane(4.4, 4.4, nfcTex); nfc.position.set(0, 0, 3.12); pad.add(nfc);
+  const padRingMat = new THREE.MeshBasicMaterial({ color: C.idlemark });
+  const padRing = new THREE.Mesh(new THREE.TorusGeometry(2.95, 0.16, 8, 48), padRingMat); padRing.position.z = 3.11; pad.add(padRing);
+  statics.push(() => {
+    const g = nfcTex.g; g.clearRect(0, 0, 256, 256); g.strokeStyle = C.bg; g.lineCap = "round"; g.lineWidth = 15;
+    for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(76, 128, 26 + i * 30, -0.62, 0.62); g.stroke(); }
+    nfcTex.tx.needsUpdate = true;
+  });
+  // optional mode buttons (multimaker)
+  const modeBtns = [];
+  let modes = null;
+  if (box.modes) {
+    modes = new THREE.Group(); reader.add(modes);
+    box.modes.forEach((lab, i) => {
+      const b = mk(CYL(1.15, 0.6, 28), C.bg, { p: [(i - 1) * 3.4, -6.1, 2.95], r: [Math.PI / 2, 0, 0] });
+      const lt = canvasTex(140, 140); const lp = texPlane(1.7, 1.7, lt); lp.position.set(0, 0.31, 0); lp.rotation.x = -Math.PI / 2; b.add(lp);
+      statics.push(() => { const g = lt.g; g.clearRect(0, 0, 140, 140); g.fillStyle = C.ink; g.font = "700 74px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(lab[0], 70, 76); lt.tx.needsUpdate = true; });
+      modes.add(b); modeBtns.push(b);
+    });
+    const ct = canvasTex(620, 70); const cp = texPlane(10.2, 1.15, ct); cp.position.set(0, -7.62, 2.64); modes.add(cp);
+    statics.push(() => { const g = ct.g; g.clearRect(0, 0, 620, 70); g.fillStyle = C.bg; g.font = "500 34px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; box.modes.forEach((l, i) => g.fillText(l, 310 + (i - 1) * 206, 36)); ct.tx.needsUpdate = true; });
+  }
+  // the member's fob
+  const fob = new THREE.Group(); mod.add(fob); fob.visible = false;
+  const fobMat = toon(C.green);
+  fob.add(mk(RB(2.4, 3.4, 0.7, 0.55), null, { mat: fobMat }));
+  fob.add(mk(new THREE.TorusGeometry(0.9, 0.18, 8, 24), C.idlemark, { p: [0, 2.5, 0] }));
+  // assembly axes while in pieces
+  const axisMat = new LineMaterial({ color: C.idlemark, linewidth: 1.6, dashed: true, dashSize: 0.9, gapSize: 0.7, transparent: true, worldUnits: false });
+  axisMat.userData.w = 1.6; lineMats.push(axisMat);
+  const axes = new THREE.Group(); mod.add(axes);
+  for (const [x, y] of [[-5.9, 8.9], [5.9, 8.9], [-5.9, -8.9], [5.9, -8.9]]) { const lg = new LineGeometry(); lg.setPositions([x, y, -1, x, y, 44]); const ln = new Line2(lg, axisMat); ln.computeLineDistances(); axes.add(ln); }
+
+  const BOXPART = {
+    reader: { obj: reader, name: "NFC reader", role: "Members tap their fob; trained list per machine.", a: [lay.pad[0], lay.pad[1] - 3.0, 3.2], d: [-60, 125] },
+    disp: { obj: disp, name: "Display and status light", role: "Who is on, and what the box is doing.", a: [-1, 8.5, 2.8], d: [-40, -120] },
+    modes: { obj: reader, name: "Mode buttons", role: "Pick print, laser or CNC after the tap.", a: [3.4, -7.3, 3.2], d: [70, 115] },
+    cover: { obj: cover, name: "Front cover", role: "Sealed, closed with four screws.", a: [0, 10, 2.0], d: [-10, -125] },
+    qr: { obj: cover, name: "QR sticker", role: "Opens this machine's manual.", a: [lay.qr[0] + 1.75, lay.qr[1], 2.62], d: [95, 70] },
+    board: { obj: board, name: "Controller board", role: "ESP32 with Wi-Fi.", a: [2.8, 6.5, 1.5], d: [10, -125] },
+    relay: { obj: relay, name: "Relay", role: "Switches the machine.", a: [-2.8, -6.2, 1.8], d: [-30, 120] },
+    psu: { obj: psu, name: "Power supply", role: "Runs the box.", a: [1.5, -7.7, -0.4], d: [10, 125] },
+    base: { obj: base, name: "Back housing", role: "Wall mount and cable glands.", a: box.outlet ? [7.5, -4.6, -0.8] : [7, -5, -0.8], d: [80, 110] },
   };
-  const [kick, ttl] = map[phase], key = kick + ttl;
-  const last = Math.max(...[0, 4.4, 18.6, T.how, T.end].filter((s) => t >= s));
-  const k = outCubic(prog(t, last + 0.05, last + 0.65));
-  if (key !== headKey) { headKey = key; $("#kick").textContent = kick; $("#ttl").textContent = ttl; }
-  const big = phase === "title" || phase === "end";
-  $("#ttl").style.fontSize = big ? "96px" : "72px";
-  $("#ttl").style.transform = `translateY(${(1 - k) * 105}%)`;
-  $("#kick").style.opacity = String(k);
-  show($("#sub"), phase === "title" ? outCubic(prog(t, 0.8, 1.6)) * (1 - prog(t, 4.0, 4.4)) : 0, 1, 18);
-}
 
-// ======================= render one moment =======================
-function render(t) {
-  t = clamp(t, 0, DUR);
-  placeCamera(t);
-
-  for (const name in P) { const g = P[name]; g.position.z = g.userData.ez * explodeAmount(t, g.userData.order); }
-  const ex = explodeAmount(t, 3);
-  axisMat.opacity = clamp(ex * 1.4) * 0.9; axes.visible = ex > 0.02;
-
-  KEYS.forEach((k) => (keyMeshes[k].position.z = 3.05));
-  PIN.forEach((k, i) => { const p = prog(t, T.keys[i], T.keys[i] + 0.08) - prog(t, T.keys[i] + 0.14, T.keys[i] + 0.3); keyMeshes[k].position.z = Math.min(keyMeshes[k].position.z, 3.05 - 0.26 * p); });
-  { const a = T.keys[3] + 0.5; const p = prog(t, a, a + 0.08) - prog(t, a + 0.14, a + 0.3); keyMeshes.OK.position.z = 3.05 - 0.26 * p; }
-  { const a = T.steps[6] + 0.35; const p = prog(t, a, a + 0.08) - prog(t, a + 0.14, a + 0.3); keyMeshes["7"].position.z -= 0.26 * p; }
-
-  drawScreen(t);
-  lightMat.color.set(lightColor(t));
-  if (lightColor(t) === C.orange) lightMat.color.lerp(new THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10));
-
-  const ca = ctxAlpha(t);
-  ctx.visible = ca > 0.004;
-  for (const m of ctxMats) { m.transparent = ca < 0.99 || !!m.map; m.opacity = ca; m.depthWrite = ca > 0.98; }
-  filMat.opacity = ca;
-  HULL.ctx.uniforms.opacity.value = ca; HULL.ctx.transparent = ca < 0.99;
-  for (const k in B) { B[k].material.transparent = ca < 0.99; B[k].material.opacity = ca; }
-
-  // the printer: heat, print moves, the part grows
-  drawPrinterLcd(t);
-  const pk = printing(t) ? t - T.printStart : 0;
-  const run = printing(t) ? clamp((t - T.printStart) * 2) : 0;
-  const grow = t >= T.steps[6] ? 1 : t >= T.stop ? 0.1 + 0.45 * prog(T.stop, T.printStart, T.stop) : printing(t) ? 0.1 + 0.45 * prog(t, T.printStart, T.stop) : 0;
-  part.visible = grow > 0.01; part.scale.set(1, Math.max(0.01, grow), 1);
-  const headX = lerp(11, 6 * Math.sin(pk * 2.6), run), bedZ = lerp(5, 5 * Math.sin(pk * 1.7), run);
-  head.position.x = headX; bed.position.z = bedZ;
-  gantry.position.y = 9.1 + 2.6 + grow * 9;
-  const hw = new THREE.Vector3(headX, gantry.position.y + 6.2, -0.8);
-  filGeo.setPositions([0, 59.5, -6, hw.x * 0.4, (59.5 + hw.y) / 2 + 2, -4, hw.x, hw.y, hw.z]);
-  bedMat.color.set(C.inkSoft).lerp(new THREE.Color("#4A5A3A"), warming(t) ? 0.6 : printing(t) ? 0.35 : 0);
-
-  const flow = (spans, speed, n, curves) => {
-    const list = []; const s = spans.reduce((acc, [a, b]) => acc + prog(t, a, a + 0.35) * (1 - prog(t, b, b + 0.3)), 0);
+  // ======================= context (the machine) =======================
+  const ctx = new THREE.Group(); scene.add(ctx);
+  const cm = (geo, hex, o = {}) => mk(geo, hex, { ...o, ctx: true });
+  const V = (a) => a.map((p) => new THREE.Vector3(...p));
+  const curve = (pts) => new THREE.CatmullRomCurve3(V(pts), false, "catmullrom", 0.4);
+  const tube = (c, r, hex, o = {}) => { const m = cm(new THREE.TubeGeometry(c, o.seg || 80, r, 10), hex, o); ctx.add(m); return m; };
+  const beadsList = [];
+  function beads(n, r, hex, parent = ctx) {
+    const m = new THREE.InstancedMesh(new THREE.SphereGeometry(r, 12, 10), new THREE.MeshBasicMaterial({ color: hex, transparent: true }), n);
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.frustumCulled = false; parent.add(m); beadsList.push(m); return m;
+  }
+  const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+  function placeBeads(mesh, list) {
+    for (let i = 0; i < mesh.count; i++) {
+      const b = list[i];
+      if (!b || b.s <= 0.001) { mesh.setMatrixAt(i, ZERO); continue; }
+      if (b.p) tmpV.copy(b.p); else b.curve.getPointAt(clamp(b.u), tmpV);
+      tmpM.makeScale(b.s, b.s, b.s).setPosition(tmpV); mesh.setMatrixAt(i, tmpM);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }
+  function flow(t, spans, speed, n, curves) {
+    const list = []; const s = spanK(t, spans);
     if (s <= 0) return list;
-    const total = curves.reduce((acc, c) => acc + c.getLength(), 0);
+    const total = curves.reduce((a, c) => a + c.getLength(), 0);
     for (let i = 0; i < n; i++) {
       let dist = (((t * speed) / total + i / n) % 1) * total;
       for (const c of curves) { const L = c.getLength(); if (dist <= L) { list.push({ curve: c, u: dist / L, s }); break; } dist -= L; }
     }
     return list;
-  };
-  placeBeads(B.power, flow(POWER, warming(t) ? 30 : 18, 16, [PATH.cordIn, PATH.cordOut]));
+  }
+  function wallOutlet(x, y) {
+    const w = new THREE.Group(); w.position.set(x, y, -2.75); ctx.add(w);
+    w.add(cm(RB(5, 8, 0.5, 0.3), C.surface));
+    const tx = canvasTex(200, 320); tx.g.fillStyle = C.surface; tx.g.fillRect(0, 0, 200, 320); outletFace(tx.g, 100, 92, 1.5); outletFace(tx.g, 100, 228, 1.5); tx.tx.needsUpdate = true;
+    const f = texPlane(4.6, 7.4, tx, true); f.position.z = 0.27; w.add(f); return w;
+  }
+  function lcd(w, h, pw, ph) { const t = canvasTex(w, h); const p = texPlane(pw, ph, t, true); return { t, p, set(key, on, warn) { if (t.key === key + on + warn) return; t.key = key + on + warn; const g = t.g; g.fillStyle = warn ? C.otint : on ? C.gtint : C.idle; g.fillRect(0, 0, w, h); g.fillStyle = warn ? C.rust : on ? C.green : C.idlemark; g.font = `700 ${Math.round(h * 0.42)}px 'JetBrains Mono'`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, w / 2, h * 0.54, w * 0.9); t.tx.needsUpdate = true; } }; }
+  const api = { THREE, C, U, ctx, mod, cm, mk, RB, CYL, toon, canvasTex, texPlane, rr, curve, tube, beads, placeBeads, flow, wallOutlet, lcd, lineMats, ctxMats, LineMaterial, Line2, LineGeometry, statics, P, BOXPART };
+  const S = cfg.scene(api) || {};
+  api.S = S;
 
-  renderer.render(scene, camera);
+  // ======================= parts, steps, tags =======================
+  const PARTS = cfg.parts.map((p, i) => {
+    const bp = p.key ? BOXPART[p.key] : {};
+    const obj = p.key ? bp.obj : S[p.ref];
+    return { n: i + 1, name: p.name || bp.name, role: p.role || bp.role, obj, a: p.a || bp.a, d: p.d || bp.d, sys: !p.key };
+  });
+  const boxParts = PARTS.filter((p) => !p.sys), sysParts = PARTS.filter((p) => p.sys);
+  boxParts.forEach((p, i) => { p.at = T.bom0 + i * T.bomStep; });
+  sysParts.forEach((p, i) => { p.at = T.sys0 + i * T.sysStep; });
+  const bomEl = $("#bom");
+  PARTS.forEach((p) => bomEl.insertAdjacentHTML("beforeend", `<div class="row${p.sys ? " ctx" : ""}"><span class="no">${p.n}</span><div><p class="nm">${p.name}</p><p class="rl">${p.role}</p></div></div>`));
+  const stepsEl = $("#steps");
+  cfg.steps.forEach(([a, b], i) => stepsEl.insertAdjacentHTML("beforeend", `<li><span class="sn">${i + 1}</span><div><p class="st">${a}</p><p class="sd">${b}</p></div></li>`));
+  const balloons = $("#balloons");
+  PARTS.forEach((p) => balloons.insertAdjacentHTML("beforeend", `<div class="balloon${p.sys ? " ctx" : ""}">${p.n}</div>`));
+  $("#n-parts").innerHTML = PARTS.map((p) => `<li><span class="n">${p.n}</span><div><b>${p.name}</b><span>${p.role}</span></div></li>`).join("");
+  $("#n-steps").innerHTML = cfg.steps.map(([a, b], i) => `<li data-i="${i}"><span class="n">${i + 1}</span><div><b>${a}</b><span>${b}</span></div></li>`).join("");
+  const TAGS = cfg.tags || [];
+  const tagsEl = $("#tags");
+  TAGS.forEach((g) => tagsEl.insertAdjacentHTML("beforeend", `<div class="tagx ${g.tone || ""}">${g.icon ? ICON[g.icon] : ""}<span>${g.text}</span></div>`));
+  const sheet = $("#sheet");
+  for (const [l, t, w, h] of [[0, 120, 14, 2], [0, 860, 14, 2], [1854, 120, 14, 2], [1854, 860, 14, 2], [600, 0, 2, 14], [1266, 0, 2, 14], [600, 1014, 2, 14], [1266, 1014, 2, 14]]) sheet.insertAdjacentHTML("beforeend", `<i style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"></i>`);
+  const cardsEl = $("#cards");
+  const CARDS = (cfg.cards || []).map((c, i) => { cardsEl.insertAdjacentHTML("beforeend", `<section class="card xcard fade" id="xc${i}" style="top:${c.top || 140}px"></section>`); return { ...c, el: $(`#xc${i}`), key: "" }; });
 
-  // ---- overlays ----
-  header(t);
-  let svg = "";
-  PARTS.forEach((p, i) => {
-    const el = balloons.children[i];
-    const a = clamp(prog(t, T.bomAt[i], T.bomAt[i] + 0.35) * (1 - prog(t, T.assemble - 0.2, T.assemble + 0.2)) + prog(t, T.explode2 + 1.6 + i * 0.12, T.explode2 + 1.95 + i * 0.12));
-    if (a <= 0.001) { el.style.visibility = "hidden"; return; }
-    const [ax, ay] = toScreen(p.obj, p.a), bx = ax + p.d[0], by = ay + p.d[1];
-    el.style.visibility = "visible"; el.style.opacity = String(a);
-    el.style.left = `${bx}px`; el.style.top = `${by}px`; el.style.transform = `scale(${0.6 + 0.4 * outBack(a, 1.6)})`;
-    const dx = ax - bx, dy = ay - by, L = Math.hypot(dx, dy) || 1;
-    svg += `<g opacity="${a}"><line x1="${bx + dx / L * 26}" y1="${by + dy / L * 26}" x2="${ax}" y2="${ay}" stroke="${C.ink}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${C.ink}"/></g>`;
-  });
-  CALLOUTS.forEach((c, i) => {
-    const el = callEl.children[i];
-    const a = clamp(prog(t, c.at, c.at + 0.35) * (1 - prog(t, T.how - 0.1, T.how + 0.3)));
-    if (a <= 0.001) { el.style.visibility = "hidden"; return; }
-    const [ax, ay] = toScreen(c.obj, c.a), bx = ax + c.d[0], by = ay + c.d[1];
-    el.style.visibility = "visible"; el.style.opacity = String(a); el.style.left = `${bx}px`; el.style.top = `${by}px`;
-    const r = el.getBoundingClientRect(), sc = r.width / (el.offsetWidth || 1) || 1, hwid = el.offsetWidth / 2, hh = el.offsetHeight / 2;
-    const ex2 = bx + Math.sign(ax - bx) * hwid * (Math.abs(ax - bx) > hwid ? 1 : 0), ey2 = Math.abs(ax - bx) > hwid ? by : by + Math.sign(ay - by) * hh;
-    svg += `<g opacity="${a}"><line x1="${ex2}" y1="${ey2}" x2="${ax}" y2="${ay}" stroke="${C.green}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${C.green}"/></g>`;
-  });
-  // heat rising off the bed and the nozzle while it warms up, flagged as normal
-  const hk = prog(t, T.relay + 0.4, T.relay + 1.0) * (1 - prog(t, T.warmEnd, T.settle));
-  const hf = $("#heatflag");
-  if (hk > 0 && ca > 0.5) {
-    const [bx, by] = toScreen(bed, [0, 9.4, 0]);
-    for (let i = 0; i < 5; i++) {
-      const ph = (t * 0.55 + i / 5) % 1, x = bx + (i - 2) * 56, y = by - 14 - ph * 90, op = Math.sin(ph * Math.PI) * hk * 0.9;
-      let p = `M${x},${y}`; for (let s = 1; s <= 7; s++) p += ` Q${x + (s % 2 ? 11 : -11)},${y - s * 7 + 3.5} ${x},${y - s * 7}`;
-      svg += `<path d="${p}" fill="none" stroke="${C.muted}" stroke-width="4" stroke-linecap="round" opacity="${op.toFixed(3)}"/>`;
+  // ======================= camera =======================
+  const SV = cfg.sysView;
+  const CAM = [
+    [0, 0, 100, 6, 22, 12, 31, 300, 0],
+    [T.explode + 0.3, 0, 100, 6, 30, 13, 31, 300, 0],
+    [T.explode + 3.0, 0, 100, 20, 58, 16, 58, -235, 20],
+    [T.assemble - 0.2, 0, 100, 20, 68, 19, 58, -235, 20],
+    [T.sysIn + 0.6, 4, 99, 6, 42, 15, 76, -235, 40],
+    [T.sys0 + 0.3, ...SV.p, 36, 15, SV.h, SV.ox ?? -250, SV.oy ?? 40],
+    [T.how - 0.3, ...SV.p, 34, 15, SV.h, SV.ox ?? -250, SV.oy ?? 40],
+    ...cfg.cam,
+    [T.explode2 + 1.8, 0, 100, 20, 52, 16, 58, -290, 140],
+    [DUR, 0, 100, 20, 58, 17, 58, -290, 140],
+  ];
+  const view = { yaw: 0, pitch: 0, zoom: 1 };
+  const D2R = Math.PI / 180;
+  function camAt(t) {
+    let i = 0; while (i < CAM.length - 2 && t >= CAM[i + 1][0]) i++;
+    const a = CAM[i], b = CAM[i + 1], k = ease(prog(t, a[0], b[0]));
+    return a.map((v, j) => lerp(v, b[j], k));
+  }
+  function placeCamera(t) {
+    const [, tx, ty, tz, yaw0, pitch0, h0, ox, oy] = camAt(t);
+    const yaw = (yaw0 + view.yaw) * D2R, pitch = clamp(pitch0 + view.pitch, -10, 70) * D2R, h = h0 / view.zoom;
+    camera.position.set(tx + Math.sin(yaw) * Math.cos(pitch) * 600, ty + Math.sin(pitch) * 600, tz + Math.cos(yaw) * Math.cos(pitch) * 600);
+    camera.lookAt(tx, ty, tz);
+    const hw = (h / 2) * (W / H), shift = (ox / H) * h, vshift = (oy / H) * h;
+    camera.left = -hw - shift; camera.right = hw - shift; camera.top = h / 2 + vshift; camera.bottom = -h / 2 + vshift;
+    camera.near = 1; camera.far = 2000; camera.updateProjectionMatrix();
+  }
+  function toScreen(obj, local) { tmpV.set(...local); obj.localToWorld(tmpV); tmpV.project(camera); return [(tmpV.x + 1) / 2 * W, (1 - tmpV.y) / 2 * H]; }
+  api.toScreen = toScreen;
+
+  // ======================= state =======================
+  function explodeAmount(t, order) {
+    const d = order * 0.2;
+    const out = outBack(prog(t, T.explode + d, T.explode + d + 1.5), 1.1);
+    const back = ease(prog(t, T.assemble + (6 - order) * 0.16, T.assemble + (6 - order) * 0.16 + 1.4));
+    const out2 = outBack(prog(t, T.explode2 + d, T.explode2 + d + 1.5), 1.1);
+    return out * (1 - back) + out2;
+  }
+  const ctxAlpha = (t) => prog(t, T.sysIn, T.sysIn + 1.0) * (1 - prog(t, T.end, T.end + 0.8));
+  const stepIndex = (t) => { const n = cfg.steps.length; if (t >= T.steps[n]) return n; let s = -1; for (let i = 0; i < n; i++) if (t >= T.steps[i]) s = i; return s; };
+  const LIGHT = { idle: C.idlemark, green: C.green, orange: C.orange, rust: C.rust };
+  const displayState = (t) => (t < T.steps[0] || t >= T.end ? ["Tap your fob", `PREVUMO · ${cfg.machine}`] : seq(t, cfg.display));
+  function drawScreen(t) {
+    const [l1, l2] = displayState(t), key = l1 + "|" + l2;
+    if (key === screenTex.key) return; screenTex.key = key;
+    const g = screenTex.g; g.fillStyle = C.gtint; g.fillRect(0, 0, 640, 280);
+    g.fillStyle = C.ink; g.textBaseline = "alphabetic"; g.textAlign = "left";
+    g.font = "700 60px 'JetBrains Mono'"; g.fillText(l1, 34, 112, 572);
+    g.font = "500 38px 'JetBrains Mono'"; g.fillStyle = C.muted; g.fillText(l2, 36, 196, 570);
+    screenTex.tx.needsUpdate = true;
+  }
+
+  // ======================= overlays =======================
+  const linesSvg = $("#lines");
+  const show = (el, a, dy = 0) => { el.style.opacity = String(a); el.style.transform = `translateY(${(1 - a) * dy}px)`; el.style.visibility = a <= 0.001 ? "hidden" : "visible"; };
+  let headKey = "";
+  function header(t) {
+    const phase = t < T.explode + 0.6 ? "title" : t < T.sysIn ? "pieces" : t < T.how ? "sys" : t < T.end ? "how" : "end";
+    const map = { title: [cfg.kicker, cfg.name], pieces: [cfg.name, "In pieces"], sys: [cfg.name, cfg.sysTitle], how: [cfg.name, "How it works"], end: [cfg.kicker, cfg.name] };
+    const [kick, ttl] = map[phase], key = kick + ttl;
+    const last = Math.max(...[0, T.explode + 0.6, T.sysIn, T.how, T.end].filter((s) => t >= s));
+    const k = outCubic(prog(t, last + 0.05, last + 0.65));
+    if (key !== headKey) { headKey = key; $("#kick").textContent = kick; $("#ttl").textContent = ttl; }
+    $("#ttl").style.fontSize = phase === "title" || phase === "end" ? "92px" : "70px";
+    $("#ttl").style.transform = `translateY(${(1 - k) * 105}%)`;
+    $("#kick").style.opacity = String(k);
+    show($("#sub"), phase === "title" ? outCubic(prog(t, 0.8, 1.6)) * (1 - prog(t, T.explode + 0.2, T.explode + 0.6)) : 0, 18);
+  }
+  const dpath = (arr) => { let s = "", pen = false; for (const p of arr) { if (!p) { pen = false; continue; } s += `${pen ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`; pen = true; } return s; };
+  function drawChart(t, e) {
+    const svg = $("#chartsvg"), w = 508, h = 210, x0 = 4, x1 = w - 4, y0 = 176, sc = e.sc || 128;
+    const { ta, tb } = e; const X = (tt) => x0 + (tt - ta) / (tb - ta) * (x1 - x0), Y = (v) => y0 - v * sc;
+    const end = Math.min(t, tb), stepDt = e.dt || 0.1;
+    const pts = [], hot = [], hotPts = [];
+    for (let tt = ta; tt <= end + 1e-6; tt += stepDt) {
+      const v = e.I(tt); pts.push([X(tt), Y(v)]);
+      const out = e.hot ? e.hot(tt, v) : false;
+      if (out) { hotPts.push([X(tt), Y(v)]); if (Math.round(tt / stepDt) % 3 === 0) hot.push([X(tt), Y(v)]); } else if (hotPts.length) { hotPts.push([X(tt), Y(v)]); hotPts.push(null); }
     }
-    const fa = prog(t, T.relay + 1.0, T.relay + 1.4) * (1 - prog(t, T.warmEnd + 0.4, T.settle));
-    const fx = bx + 70, fy = by - 205;
-    hf.style.visibility = fa > 0.001 ? "visible" : "hidden"; hf.style.opacity = String(fa); hf.style.left = `${fx}px`; hf.style.top = `${fy}px`;
-    svg += `<g opacity="${fa.toFixed(3)}"><line x1="${fx}" y1="${fy + 22}" x2="${bx}" y2="${by - 30}" stroke="${C.green}" stroke-width="2.5"/><circle cx="${bx}" cy="${by - 30}" r="5.5" fill="${C.green}"/></g>`;
-  } else hf.style.visibility = "hidden";
-  if (ca > 0.5 && within(t, SESSION)) {
-    const [wx, wy] = toScreen(mod, [2.8, 10.6, 0]);
-    for (let i = 0; i < 3; i++) {
-      const ph = (t + i / 3) % 1, r = 18 + ph * 60, op = (1 - ph) * 0.9;
-      const col = t >= T.spike + 0.5 && t < T.stop ? C.orange : C.green;
-      svg += `<path d="M${wx - r * 0.7},${wy - r * 0.45} Q${wx},${wy - r * 1.05} ${wx + r * 0.7},${wy - r * 0.45}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" opacity="${op.toFixed(3)}"/>`;
+    let band = "";
+    if (e.band) {
+      const top = [], bot = [];
+      for (let tt = ta; tt <= tb + 0.001; tt += 0.1) { const b = e.band(tt); if (!b) continue; top.push([X(tt), Y(b[1])]); bot.unshift([X(tt), Y(b[0])]); }
+      if (top.length) band = `<path d="${dpath(top)}L${bot.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("L")}Z" fill="${C.gtint}"/>`;
+      const b0 = e.band(tb);
+      if (e.bandText && b0) band += `<text x="${x1 - 8}" y="${Y(b0[0]) + 22}" text-anchor="end" font-family="JetBrains Mono" font-size="16" fill="${C.green}">${e.bandText}</text>`;
+    }
+    let flags = "";
+    for (const f of e.flags || []) {
+      const fk = prog(t, f.at, f.at + 0.4); if (fk <= 0) continue;
+      const col = f.tone === "warn" ? C.orange : f.tone === "bad" ? C.rust : C.green;
+      const fx = X(f.tt), fy = Y(f.y ?? 1.05) - 2;
+      flags += `<g opacity="${fk.toFixed(3)}"><line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy - 26}" stroke="${col}" stroke-width="3" stroke-linecap="round"/><path d="M${fx + 1.5},${fy - 26} L${fx + 20},${fy - 20} L${fx + 1.5},${fy - 14} Z" fill="${col}"/><text x="${fx + (f.left ? -6 : 26)}" y="${fy - 13}" ${f.left ? 'text-anchor="end"' : ""} font-family="JetBrains Mono" font-weight="600" font-size="17" fill="${col}">${f.text}</text></g>`;
+    }
+    const lineCol = e.lineCol ? e.lineCol(t) : C.green;
+    svg.innerHTML = `${band}<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="${C.border}" stroke-width="2"/>
+      ${e.guide ? `<line x1="${x0}" y1="${Y(e.guide.v)}" x2="${x1}" y2="${Y(e.guide.v)}" stroke="${C.rust}" stroke-width="2" stroke-dasharray="8 6"/><text x="${x1}" y="${Y(e.guide.v) - 6}" text-anchor="end" font-family="JetBrains Mono" font-size="16" fill="${C.rust}">${e.guide.text}</text>` : ""}
+      <path d="${dpath(pts)}" fill="none" stroke="${lineCol}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="${dpath(hotPts)}" fill="none" stroke="${C.orange}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${hot.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="${C.orange}" stroke="${C.surface}" stroke-width="2"/>`).join("")}
+      ${pts.length ? `<circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="7" fill="${lineCol}" stroke="${C.surface}" stroke-width="2.5"/>` : ""}
+      ${flags}
+      <text x="${x0}" y="${h - 4}" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">illustrative${e.lapse === false ? "" : ", time-lapse"}</text>
+      <text x="${x1}" y="${h - 4}" text-anchor="end" font-family="JetBrains Mono" font-size="17" fill="${C.muted}">${e.unit || "one reading a second"}</text>`;
+    const title = typeof e.title === "function" ? e.title(t) : e.title;
+    if ($("#charttt").textContent !== title) $("#charttt").textContent = title;
+    const [txt, tone] = e.tag(t);
+    const tag = $("#charttag"), tk = txt + tone;
+    if (tag.dataset.k !== tk) {
+      tag.dataset.k = tk; tag.className = "tag" + (tone === "warm" ? " warm" : tone === "hot" ? " hot" : "");
+      const dot = { ok: C.green, warm: C.green, irr: C.orange, hot: C.orange, off: C.rust, idle: C.idlemark }[tone] || C.green;
+      tag.innerHTML = `<i style="background:${dot}"></i>${txt}`;
     }
   }
-  linesSvg.innerHTML = svg;
-
-  show(bomEl, prog(t, T.bomAt[0] - 0.4, T.bomAt[0]) * (1 - prog(t, T.how - 0.2, T.how + 0.3)), 1, 0);
-  [...bomEl.querySelectorAll(".row")].forEach((r, i) => { const k = outCubic(prog(t, T.bomAt[i], T.bomAt[i] + 0.45)); r.style.opacity = String(k); r.style.transform = `translateX(${(1 - k) * 24}px)`; });
-
-  const si = stepIndex(t);
-  show(stepsEl, prog(t, T.how, T.how + 0.5) * (1 - prog(t, T.end, T.end + 0.4)), 1, 0);
-  [...stepsEl.children].forEach((li, i) => {
-    li.className = i === si ? "on" : i < si ? "done" : "";
-    const k = outCubic(prog(t, T.how + 0.1 + i * 0.08, T.how + 0.55 + i * 0.08)); li.style.opacity = String(k); li.style.transform = `translateX(${(1 - k) * -20}px)`;
-  });
-
-  // detail A: the box display, enlarged
-  const detA = clamp(prog(t, T.steps[0], T.steps[0] + 0.4) * (1 - prog(t, T.alertIn - 0.5, T.alertIn - 0.1)) + prog(t, T.steps[6] - 0.2, T.steps[6] + 0.3) * (1 - prog(t, T.end - 0.3, T.end + 0.1)));
-  const det = $("#detail");
-  show(det, detA, 1, 16);
-  if (detA > 0) {
-    const [l1, l2] = displayState(t);
-    if ($("#d1").textContent !== l1) $("#d1").textContent = l1;
-    if ($("#d2").textContent !== l2) $("#d2").textContent = l2;
-    $("#dlight").style.background = "#" + lightMat.color.getHexString();
-    det.style.top = `${lerp(140, 494, ease(prog(t, T.steps[2], T.steps[2] + 0.6)))}px`;
-    const [cx, cy] = toScreen(disp, [0, 4.8, 3.1]);
-    const [ex2, ey2] = toScreen(disp, [5.0, 4.8, 3.1]);
-    const r = Math.hypot(ex2 - cx, ey2 - cy) + 14, lx = cx + r * 0.74, ly = cy - r * 0.74;
-    linesSvg.insertAdjacentHTML("beforeend", `<g opacity="${detA.toFixed(3)}" fill="none"><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.bg}" stroke-width="8"/><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.ink}" stroke-width="3" stroke-dasharray="11 7"/><circle cx="${lx + 14}" cy="${ly - 14}" r="19" fill="${C.surface}" stroke="${C.ink}" stroke-width="2.5"/><text x="${lx + 14}" y="${ly - 5}" text-anchor="middle" font-family="JetBrains Mono" font-weight="600" font-size="24" fill="${C.ink}">A</text></g>`);
+  let alertKey = "";
+  function drawAlert(t, a) {
+    let ph = a.phases[0]; for (const p of a.phases) if (t >= p.at) ph = p;
+    const idx = a.phases.indexOf(ph), key = a.title + idx;
+    if (key !== alertKey) {
+      alertKey = key;
+      const tone = a.tone || "irr";
+      $("#abadge").className = "badge" + (tone === "safety" ? " safety" : tone === "paused" ? " paused" : tone === "info" ? " info" : "");
+      $("#abadge").innerHTML = `<i></i>${a.badge}`;
+      $("#atitle").textContent = a.title; $("#areason").textContent = ph.reason;
+      $("#afoot").innerHTML = ph.logged ? `<span class="logged" style="${ph.loggedOk ? "background:var(--green)" : ""}">${ph.logged}</span>` : (ph.buttons || []).map((b, i) => BTN[b](i === ph.ring ? '<div class="ring"></div>' : "")).join("");
+    }
+    if (ph.tap != null) {
+      const el = $("#afoot").children[ph.ring]; if (el) {
+        const k = prog(t, ph.tap, ph.tap + 0.12) - prog(t, ph.tap + 0.16, ph.tap + 0.4); el.style.transform = `scale(${1 - 0.06 * k})`;
+        const r = el.querySelector(".ring"); if (r) r.style.opacity = String(prog(t, ph.tap - 0.7, ph.tap - 0.4) * (0.6 + 0.4 * Math.sin(t * 9)));
+      }
+    }
   }
 
-  const chartA = prog(t, T.steps[2] + 0.1, T.steps[2] + 0.6) * (1 - prog(t, T.end - 0.3, T.end + 0.2));
-  show($("#chart"), chartA, 1, 16);
-  if (chartA > 0) drawChart(t);
-  const alertA = prog(t, T.alertIn, T.alertIn + 0.45) * (1 - prog(t, T.steps[6] - 0.4, T.steps[6]));
-  show($("#alert"), outCubic(alertA), 1, 30); show($("#applabel"), alertA, 1, 0);
-  if (alertA > 0) alertFoot(t);
+  // ======================= render one moment =======================
+  function render(t) {
+    t = clamp(t, 0, DUR);
+    placeCamera(t);
+    for (const name in P) { const g = P[name]; g.position.z = g.userData.ez * explodeAmount(t, g.userData.order); }
+    const ex = explodeAmount(t, 3);
+    axisMat.opacity = clamp(ex * 1.4) * 0.9; axes.visible = ex > 0.02;
 
-  show($("#tblock"), outCubic(prog(t, T.explode2 + 1.2, T.explode2 + 1.8)), 1, 24);
-  document.querySelectorAll("#n-steps li").forEach((li, i) => li.classList.toggle("hot", i === si));
-}
+    // fob taps on the reader
+    let fobOn = false;
+    for (const f of cfg.fob || []) {
+      const a = f.at; if (t < a - 0.7 || t > a + 0.95) continue;
+      fobOn = true;
+      const kin = outCubic(prog(t, a - 0.7, a)), kout = ease(prog(t, a + 0.35, a + 0.95));
+      const k = kin * (1 - kout);
+      fob.position.set(lerp(lay.pad[0] + 12, lay.pad[0] + 0.6, k), lerp(lay.pad[1] - 7, lay.pad[1] + 0.6, k), lerp(14, 3.95, k));
+      fob.rotation.set(lerp(-0.7, 0, k), lerp(0.9, 0.15, k), lerp(0.5, -0.2, k));
+      fobMat.color.set(f.ok ? C.green : C.idlemark);
+    }
+    fob.visible = fobOn;
+    // mode buttons
+    modeBtns.forEach((b) => (b.position.z = 2.95));
+    for (const p of cfg.press || []) { const k = prog(t, p.at, p.at + 0.08) - prog(t, p.at + 0.14, p.at + 0.3); if (modeBtns[p.btn]) modeBtns[p.btn].position.z -= 0.3 * k; }
 
-// ======================= boot =======================
-const ready = Promise.all(['700 64px "Space Grotesk"', '600 40px "JetBrains Mono"', '700 40px "JetBrains Mono"', '500 30px "Inter"'].map((f) => document.fonts.load(f).catch(() => null)));
-window.FONTS = ready;
-paintStatic();
-window.render = render;
-window.DUR = DUR;
+    drawScreen(t);
+    const lk = cfg.light ? seq(t, cfg.light) : "idle";
+    lightMat.color.set(LIGHT[lk] || C.idlemark);
+    if (lk === "orange") lightMat.color.lerp(new THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10));
+    // the reader ring flashes on a tap: green when trained, rust when not
+    let ringCol = C.idlemark;
+    for (const f of cfg.fob || []) if (t >= f.at && t < f.at + 1.2) ringCol = f.ok ? C.green : C.rust;
+    padRingMat.color.set(ringCol);
 
-if (FILM) {
-  setPR(2);
-  window.READY = ready.then(() => { paintStatic(); render(0); });
-} else {
+    const ca = ctxAlpha(t);
+    ctx.visible = ca > 0.004;
+    for (const m of ctxMats) { m.transparent = ca < 0.99 || !!m.map; m.opacity = ca; m.depthWrite = ca > 0.98; }
+    for (const m of beadsList) { m.material.opacity = ca; }
+    HULL.ctx.uniforms.opacity.value = ca; HULL.ctx.transparent = ca < 0.99;
+    for (const m of lineMats) if (m !== axisMat && m.userData.ctx) m.opacity = ca;
+    api.ca = ca;
+    if (cfg.update) cfg.update(t, api);
+
+    renderer.render(scene, camera);
+
+    // ---- overlays ----
+    header(t);
+    let svg = "";
+    PARTS.forEach((p, i) => {
+      const el = balloons.children[i];
+      let a;
+      if (!p.sys) { const j = boxParts.indexOf(p); a = prog(t, p.at, p.at + 0.35) * (1 - prog(t, T.assemble - 0.2, T.assemble + 0.2)) + prog(t, T.explode2 + 1.6 + j * 0.1, T.explode2 + 1.95 + j * 0.1); }
+      else a = prog(t, p.at, p.at + 0.35) * (1 - prog(t, T.how - 0.1, T.how + 0.3));
+      a = clamp(a);
+      if (a <= 0.001 || !p.obj) { el.style.visibility = "hidden"; return; }
+      const [ax, ay] = toScreen(p.obj, p.a), bx = ax + p.d[0], by = ay + p.d[1];
+      el.style.visibility = "visible"; el.style.opacity = String(a);
+      el.style.left = `${bx}px`; el.style.top = `${by}px`; el.style.transform = `scale(${0.6 + 0.4 * outBack(a, 1.6)})`;
+      const dx = ax - bx, dy = ay - by, L = Math.hypot(dx, dy) || 1, col = p.sys ? C.green : C.ink;
+      svg += `<g opacity="${a}"><line x1="${bx + dx / L * 26}" y1="${by + dy / L * 26}" x2="${ax}" y2="${ay}" stroke="${col}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${col}"/></g>`;
+    });
+    TAGS.forEach((g, i) => {
+      const el = tagsEl.children[i];
+      let a = clamp(prog(t, g.in, g.in + 0.35) * (1 - prog(t, g.out, g.out + 0.3)));
+      if (g.ctx !== false) a *= ca > 0.5 ? 1 : 0;
+      const obj = typeof g.obj === "string" ? (S[g.obj] || BOXPART[g.obj]?.obj) : g.obj;
+      if (a <= 0.001 || !obj) { el.style.visibility = "hidden"; return; }
+      const [ax, ay] = toScreen(obj, g.a), bx = ax + g.d[0], by = ay + g.d[1];
+      el.style.visibility = "visible"; el.style.opacity = String(a); el.style.left = `${bx}px`; el.style.top = `${by}px`;
+      const hw = el.offsetWidth / 2, hh = el.offsetHeight / 2, side = Math.abs(ax - bx) > hw;
+      const ex2 = side ? bx + Math.sign(ax - bx) * hw : bx, ey2 = side ? by : by + Math.sign(ay - by) * hh;
+      const col = g.tone === "warn" ? C.orange : g.tone === "bad" ? C.rust : C.green;
+      svg += `<g opacity="${a}"><line x1="${ex2}" y1="${ey2}" x2="${ax}" y2="${ay}" stroke="${col}" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5.5" fill="${col}"/></g>`;
+    });
+    // ripple when the fob taps the reader
+    for (const f of cfg.fob || []) {
+      if (t < f.at || t > f.at + 1.1) continue;
+      const [px, py] = toScreen(pad, [0, 0, 3.2]);
+      const col = f.ok ? C.green : C.rust;
+      for (let i = 0; i < 3; i++) { const ph = prog(t, f.at + i * 0.18, f.at + i * 0.18 + 0.75); if (ph <= 0 || ph >= 1) continue; svg += `<circle cx="${px}" cy="${py}" r="${(30 + ph * 90).toFixed(1)}" fill="none" stroke="${col}" stroke-width="${(5 - ph * 3).toFixed(1)}" opacity="${(1 - ph).toFixed(3)}"/>`; }
+    }
+    // Wi-Fi: the box reports to the owner app during sessions
+    if (ca > 0.5 && within(t, cfg.sessions || [])) {
+      const [wx, wy] = toScreen(mod, [2.8, 10.6, 0]);
+      const col = within(t, cfg.alarm || []) ? C.orange : C.green;
+      for (let i = 0; i < 3; i++) { const ph = (t + i / 3) % 1, r = 18 + ph * 60; svg += `<path d="M${wx - r * 0.7},${wy - r * 0.45} Q${wx},${wy - r * 1.05} ${wx + r * 0.7},${wy - r * 0.45}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" opacity="${((1 - ph) * 0.9).toFixed(3)}"/>`; }
+    }
+    if (cfg.overlay) svg += cfg.overlay(t, api) || "";
+    linesSvg.innerHTML = svg;
+
+    // parts table
+    show(bomEl, prog(t, T.bom0 - 0.4, T.bom0) * (1 - prog(t, T.how - 0.2, T.how + 0.3)));
+    [...bomEl.querySelectorAll(".row")].forEach((r, i) => { const k = outCubic(prog(t, PARTS[i].at, PARTS[i].at + 0.45)); r.style.opacity = String(k); r.style.transform = `translateX(${(1 - k) * 24}px)`; });
+
+    // steps
+    const si = stepIndex(t);
+    show(stepsEl, prog(t, T.how, T.how + 0.5) * (1 - prog(t, T.end, T.end + 0.4)));
+    [...stepsEl.children].forEach((li, i) => { li.className = i === si ? "on" : i < si ? "done" : ""; const k = outCubic(prog(t, T.how + 0.1 + i * 0.07, T.how + 0.55 + i * 0.07)); li.style.opacity = String(k); li.style.transform = `translateX(${(1 - k) * -20}px)`; });
+
+    // right column: chart (top), cards, alert (bottom), detail A in whatever slot is free
+    const ch = (cfg.charts || []).find((e) => t >= e.in - 0.5 && t < e.out + 0.5);
+    const chartA = ch ? prog(t, ch.in - 0.2, ch.in + 0.3) * (1 - prog(t, ch.out, ch.out + 0.4)) : 0;
+    show($("#chart"), chartA, 16);
+    if (chartA > 0) drawChart(t, ch);
+    const al = (cfg.alerts || []).find((a) => t >= a.in - 0.2 && t < a.out + 0.6);
+    const alertA = al ? outCubic(prog(t, al.in, al.in + 0.45) * (1 - prog(t, al.out, al.out + 0.4))) : 0;
+    show($("#alert"), alertA, 30); show($("#applabel"), alertA);
+    if (alertA > 0) { drawAlert(t, al); const lb = al.label || "Owner app · illustrative"; if ($("#applabel").textContent !== lb) $("#applabel").textContent = lb; }
+    let topA = chartA, botA = alertA;
+    for (const c of CARDS) {
+      const a = prog(t, c.in, c.in + 0.4) * (1 - prog(t, c.out, c.out + 0.35));
+      show(c.el, a, 16);
+      if (a > 0) { const html = c.html(t); if (html !== c.key) { c.key = html; c.el.innerHTML = html; } }
+      if ((c.top || 140) < 400) topA = Math.max(topA, a); else botA = Math.max(botA, a);
+    }
+    const dw = cfg.detail || [[T.steps[0], T.end]];
+    const detW = clamp(dw.reduce((s, [a, b]) => s + prog(t, a, a + 0.4) * (1 - prog(t, b - 0.3, b)), 0));
+    const detA = detW * (1 - Math.min(1, topA + botA > 1.2 ? 1 : botA * topA * 4));
+    const det = $("#detail");
+    show(det, detA, 16);
+    if (detA > 0) {
+      const [l1, l2] = displayState(t);
+      if ($("#d1").textContent !== l1) $("#d1").textContent = l1;
+      if ($("#d2").textContent !== l2) $("#d2").textContent = l2;
+      $("#dlight").style.background = "#" + lightMat.color.getHexString();
+      det.style.top = `${lerp(140, 494, clamp(topA))}px`;
+      const [cx, cy] = toScreen(disp, [0, 4.8, 3.1]);
+      const [ex2, ey2] = toScreen(disp, [5.0, 4.8, 3.1]);
+      const r = Math.hypot(ex2 - cx, ey2 - cy) + 14, lx = cx + r * 0.74, ly = cy - r * 0.74;
+      linesSvg.insertAdjacentHTML("beforeend", `<g opacity="${detA.toFixed(3)}" fill="none"><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.bg}" stroke-width="8"/><circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.ink}" stroke-width="3" stroke-dasharray="11 7"/><circle cx="${lx + 14}" cy="${ly - 14}" r="19" fill="${C.surface}" stroke="${C.ink}" stroke-width="2.5"/><text x="${lx + 14}" y="${ly - 5}" text-anchor="middle" font-family="JetBrains Mono" font-weight="600" font-size="24" fill="${C.ink}">A</text></g>`);
+    }
+    show($("#tblock"), outCubic(prog(t, T.explode2 + 1.2, T.explode2 + 1.8)), 24);
+    document.querySelectorAll("#n-steps li").forEach((li, i) => li.classList.toggle("hot", i === si));
+  }
+
+  // ======================= boot =======================
+  const ready = Promise.all(['700 64px "Space Grotesk"', '600 40px "JetBrains Mono"', '700 40px "JetBrains Mono"', '500 30px "Inter"'].map((f) => document.fonts.load(f).catch(() => null)));
+  const paint = () => { for (const f of statics) f(); screenTex.key = ""; if (cfg.repaint) cfg.repaint(api); };
+  paint();
+  window.render = render;
+  window.DUR = DUR;
+  if (FILM) {
+    setPR(2);
+    window.READY = ready.then(() => { paint(); render(0); });
+    return;
+  }
   const frame = $("#frame"), stageEl = $("#stage");
-  let t = 16.4, playing = false, stopAt = DUR, last = 0;
+  let t = cfg.start ?? T.assemble - 0.6, playing = false, stopAt = DUR, last = 0;
   const fit = () => { const s = frame.clientWidth / W; stageEl.style.transform = `scale(${s})`; setPR(clamp((window.devicePixelRatio || 1) * s, 0.5, 2)); };
   window.addEventListener("resize", () => { fit(); render(t); });
   const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
   const sync = () => { $("#scrub").value = String(t); $("#clock").textContent = `${fmt(t)} / ${fmt(DUR)}`; $("#b-play").textContent = playing ? "Pause" : "Play"; };
-  const tick = (now) => {
-    if (playing) { t += Math.min(0.05, (now - last) / 1000); if (t >= stopAt) { t = stopAt; playing = false; } }
-    last = now; render(t); sync(); if (playing) requestAnimationFrame(tick);
-  };
+  const tick = (now) => { if (playing) { t += Math.min(0.05, (now - last) / 1000); if (t >= stopAt) { t = stopAt; playing = false; } } last = now; render(t); sync(); if (playing) requestAnimationFrame(tick); };
   const play = (from, to) => { t = from; stopAt = to; view.yaw = view.pitch = 0; view.zoom = 1; if (!playing) { playing = true; last = performance.now(); requestAnimationFrame(tick); } };
-  const jump = (to, keepView) => { playing = false; t = to; if (!keepView) { view.yaw = view.pitch = 0; view.zoom = 1; } render(t); sync(); };
+  const jump = (to, keep) => { playing = false; t = to; if (!keep) { view.yaw = view.pitch = 0; view.zoom = 1; } render(t); sync(); };
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  $("#b-assembled").onclick = () => jump(3.6);
-  $("#b-pieces").onclick = () => jump(16.4);
-  $("#b-system").onclick = () => jump(22.6);
-  $("#b-how").onclick = () => (reduce ? jump(T.steps[2] + 3.2) : play(T.how, T.end));
-  $("#b-warm").onclick = () => (reduce ? jump(T.steps[2] + 3.6) : play(T.steps[2] - 0.2, T.steps[3] + 1.5));
+  $("#b-assembled").onclick = () => jump(2.6);
+  $("#b-pieces").onclick = () => jump(T.assemble - 0.6);
+  $("#b-system").onclick = () => jump(T.how - 0.4);
+  $("#b-how").onclick = () => (reduce ? jump(T.steps[1] + 1) : play(T.how, T.end));
+  (cfg.chapters || []).forEach((c, i) => { $(`#b-x${i}`).onclick = () => (reduce ? jump(c.at[0] + (c.still ?? 1.5)) : play(c.at[0], c.at[1])); });
   $("#b-play").onclick = () => { if (playing) { playing = false; sync(); } else play(t >= DUR - 0.05 ? 0 : t, DUR); };
   $("#scrub").oninput = (e) => jump(+e.target.value, true);
   document.querySelectorAll("#n-steps li").forEach((li) => (li.onclick = () => jump(T.steps[+li.dataset.i] + 0.1)));
@@ -926,7 +823,247 @@ if (FILM) {
   canvas.addEventListener("wheel", (e) => { e.preventDefault(); view.zoom = clamp(view.zoom * Math.exp(-e.deltaY * 0.0012), 0.5, 3); if (!playing) render(t); }, { passive: false });
   canvas.addEventListener("dblclick", () => { view.yaw = view.pitch = 0; view.zoom = 1; if (!playing) render(t); });
   fit();
-  ready.then(() => { paintStatic(); render(t); sync(); });
+  ready.then(() => { paint(); render(t); sync(); });
   render(t); sync();
+}
+
+{
+
+const { prog, clamp, rnd, within, lerp, ease, outCubic } = U;
+
+// ---------------- timeline (seconds) ----------------
+const T = plan(8, 2, [5.6, 3.0, 5.6, 6.0, 9.0, 7.0]);
+const [s0, s1, s2, s3, s4, s5, s6] = T.steps;
+const E = {
+  amira: s0 + 0.9, priya: s0 + 3.6,
+  relay: s1 + 0.3, warmEnd: s3 - 0.9, settle: s3 - 0.1, printStart: s3 + 0.3,
+  fail: s4 + 0.4, detect: s4 + 2.0, alertIn: s4 + 2.4, tapShut: s4 + 3.8, confirmIn: s4 + 4.2, tapConfirm: s4 + 5.2, logged: s4 + 5.7, stop: s4 + 6.0,
+  lucas: s5 + 0.4, on2: s5 + 1.0, cut: s5 + 4.6,
+};
+const POWER = [[E.relay, E.stop], [E.on2, E.cut]];
+const GRAMS = (t) => Math.round(18 * clamp((t - E.printStart) / (E.fail - E.printStart)));
+const warming = (t) => (t >= E.relay + 0.2 && t < E.settle) || (t >= E.on2 + 0.2 && t < E.cut);
+const printing = (t) => t >= E.printStart && t < E.stop;
+const extruding = (t) => t >= E.printStart && t < E.fail;
+
+// illustrative readings
+const normalI = (tt) => 0.5 + 0.11 * Math.tanh(3 * Math.sin(tt * 6.5)) + (rnd(Math.floor(tt * 10)) - 0.5) * 0.06;
+function current(tt) {
+  if (tt < E.relay + 0.15 || tt >= E.stop) return 0;
+  const warm = 0.9 + (rnd(Math.floor(tt * 10) + 3) - 0.5) * 0.06;
+  if (tt < E.warmEnd) return warm * outCubic(prog(tt, E.relay + 0.15, E.relay + 0.6));
+  if (tt < E.settle) return lerp(warm, normalI(tt), ease(prog(tt, E.warmEnd, E.settle)));
+  return normalI(tt);
+}
+const bandAt = (tt) => { const k = ease(prog(tt, E.warmEnd, E.settle)); return [lerp(0.78, 0.32, k), lerp(1.05, 0.7, k)]; };
+const gramsLine = (tt) => (tt < E.printStart ? 0 : 0.04 + GRAMS(tt) / 18 * 0.86 + (tt < E.fail ? (rnd(Math.floor(tt * 10)) - 0.5) * 0.015 : 0));
+const holdI = (tt) => (tt < E.on2 + 0.15 || tt >= E.cut ? 0 : 0.62 + (rnd(Math.floor(tt * 10) + 5) - 0.5) * 0.05);
+
+const ICONFLAG = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>';
+
+run({
+  name: "3D printer module", machine: "3D printer 4", kicker: "PREVUMO · PD B3 concept", sysTitle: "On the printer",
+  sub: "A box on the wall that the printer plugs into. A fob unlocks it; it weighs the filament and cuts power when heat is left on.",
+  T,
+  box: { glands: 3, outlet: true, relay: ["15 A", "120 V"], ct: true },
+  parts: [
+    { key: "reader" },
+    { key: "disp" },
+    { key: "qr", role: "Opens the 3D printer 4 manual." },
+    { key: "cover" },
+    { key: "board", role: "ESP32 with Wi-Fi and a current sensor." },
+    { key: "relay", role: "Certified, 15 A at 120 V. Switches the printer." },
+    { key: "psu", role: "Runs the box from the same outlet." },
+    { key: "base", role: "Wall mount, cord to the wall, outlet for the printer." },
+    { ref: "scale", name: "Spool scale", role: "Load cell under the spool: grams per session.", a: [2.4, 0, 2], d: [110, -50] },
+    { ref: "usb", name: "Printer link", role: "USB cable: reads the job, can pause it.", a: [-1.3, 0, 0.4], d: [-150, -20] },
+  ],
+  steps: [
+    ["Locked until a fob tap", "Amira's fob is not on this printer's trained list, so it stays locked. Priya is trained: it unlocks."],
+    ["Power on", "The box closes its relay and the printer turns on. The session is logged to Priya."],
+    ["Heats up first: that's normal", "A printer draws the most current while the bed and nozzle heat. PREVUMO knows this warm-up, so it raises no alert."],
+    ["Prints and weighs filament", "Once warm, the current settles into its normal range. The scale under the spool counts grams; the first two weeks only learn the normal range."],
+    ["Failed print? Pause", "Print time far past the estimate, or the spool stops losing weight: the box pauses the job and alerts the member."],
+    ["Left heating? Power off", "Heaters on and nothing moving for the time the owner sets, or a finished job still hot: the relay cuts power."],
+  ],
+  sysView: { p: [35, 108, 20], h: 118, ox: -160, oy: 80 },
+  cam: [
+    [s0 + 0.3, 2, 97, 2, 24, 7, 50, 0, 30],
+    [s1 - 0.3, 2, 97, 2, 28, 8, 50, 0, 30],
+    [s1 + 0.6, 35, 108, 20, 34, 15, 116, -13, 50],
+    [s2 - 0.2, 35, 108, 20, 36, 15, 116, -13, 50],
+    [s2 + 0.8, 36, 108, 20, 30, 13, 104, -13, 50],
+    [s5 - 0.4, 36, 108, 20, 37, 14, 104, -13, 50],
+    [s5 + 0.6, 35, 108, 20, 33, 15, 116, 0, 50],
+    [s6 - 0.2, 35, 108, 20, 35, 15, 116, 0, 50],
+  ],
+  fob: [{ at: E.amira, ok: false }, { at: E.priya, ok: true }, { at: E.lucas, ok: true }],
+  display: [
+    [0, ["Tap your fob", "PREVUMO · 3D printer 4"]],
+    [E.amira, ["Checking fob", "Printer 4 trained list"]],
+    [E.amira + 0.6, ["Locked", "Not trained on this machine"]],
+    [s0 + 3.0, ["Tap your fob", "PREVUMO · 3D printer 4"]],
+    [E.priya, ["Checking fob", "Printer 4 trained list"]],
+    [E.priya + 0.6, ["Hi, Priya", "Trained · unlocking"]],
+    [s1, ["Hi, Priya", "Power on"]],
+    [s2, ["Warming up", "Normal for this printer"]],
+    [E.printStart, (t) => ["Priya · printing", `Filament: ${GRAMS(t)} g`]],
+    [E.detect, ["Print paused", "Extrusion stopped"]],
+    [E.stop, ["Stopped by Priya", "Filament 18 g · logged"]],
+    [s5, ["Tap your fob", "PREVUMO · 3D printer 4"]],
+    [E.lucas, ["Checking fob", "Printer 4 trained list"]],
+    [E.on2, ["Hi, Lucas", "Power on"]],
+    [E.on2 + 0.8, (t) => ["Heating", `No print · ${Math.min(20, Math.floor((t - E.on2 - 0.8) / (E.cut - E.on2 - 0.8) * 20))} min`]],
+    [E.cut, ["Heated 20 min", "with no print · Power off"]],
+  ],
+  light: [[0, "idle"], [E.amira + 0.5, "rust"], [s0 + 3.0, "idle"], [E.priya + 0.6, "green"], [E.detect, "orange"], [E.stop, "rust"], [s5, "idle"],
+    [E.on2, "green"], [E.on2 + 2.4, "orange"], [E.cut, "rust"], [T.end, "idle"]],
+  sessions: [[E.relay, E.stop], [E.on2, E.cut + 0.6]],
+  alarm: [[E.detect, E.stop], [E.cut - 0.4, E.cut + 0.6]],
+  charts: [
+    { in: s2 + 0.2, out: s3 + 1.0, title: "3D printer 4 · current", ta: s1, tb: s3 + 1.5, I: current, band: bandAt, lapse: true,
+      bandText: "normal range, learned in weeks 1 and 2",
+      flags: [{ tt: s2 + 1.6, at: s2 + 1.2, text: "warm-up: normal", tone: "ok", y: 1.08 }],
+      tag: (t) => (warming(t) ? ["Warming up · normal", "warm"] : ["Normal range", "ok"]) },
+    { in: s3 + 1.6, out: s5 - 0.3, title: "Filament used", ta: E.printStart, tb: s5 - 0.2, I: gramsLine, unit: "grams, spool scale",
+      flags: [{ tt: E.fail, at: E.fail + 1.0, text: "no change", tone: "warn", y: 0.98 }],
+      lineCol: (t) => (t >= E.stop ? C.idlemark : C.green), hot: (tt) => tt >= E.fail && tt < E.stop,
+      tag: (t) => (t >= E.stop ? ["Shut down", "off"] : t >= E.detect ? ["Paused", "irr"] : t >= E.fail + 1.0 ? ["Extrusion stopped", "hot"] : ["Printing", "ok"]) },
+    { in: s5 + 0.6, out: s6 - 0.1, title: "Heaters on, no motion", ta: s5 + 0.6, tb: s6, I: holdI,
+      guide: { v: 0.82, text: "owner limit: 20 min" },
+      tag: (t) => (t >= E.cut ? ["Power off", "off"] : t >= E.on2 ? ["Heating, no print", "warm"] : ["Idle", "idle"]) },
+  ],
+  alerts: [
+    { in: E.alertIn, out: E.logged + 0.9, tone: "paused", badge: "Paused · check the print", title: "3D printer 4 · failed print?", label: "Priya's phone · illustrative",
+      phases: [
+        { at: E.alertIn, reason: "The spool stopped losing weight 6 min ago. Job paused.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
+        { at: E.confirmIn, reason: "The printer will stop and won't restart on its own.", buttons: ["cancel", "gap", "confirm"], ring: 2, tap: E.tapConfirm },
+        { at: E.logged, reason: "Power is off. Logged for Priya's session.", logged: "Decision logged: Shut down" },
+      ] },
+  ],
+  cards: [
+    { in: E.logged + 1.2, out: s5 + 0.2, top: 494, html: () => `<p class="lbl">Owner app · Members · illustrative</p>
+      <p class="tt" style="margin-top:10px">Priya Nair · 3D printer 4</p>
+      <div class="rows"><div class="r"><span class="k">Session</span><b>1 h 40 min</b></div>
+      <div class="r"><span class="k">Filament</span><b>18 g, billed at $0.10 a gram: $1.80</b></div>
+      <div class="r"><span class="k">Result</span><b>Failed print, paused at 64%</b></div></div>
+      <span class="chip ok">${ICONFLAG}Added to Priya's record</span>` },
+  ],
+  tags: [
+    { text: "Amira: not trained on this printer", tone: "bad", icon: "stop", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.amira + 0.6, out: s0 + 3.0, ctx: false },
+    { text: "Priya: trained", tone: "ok", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.priya + 0.6, out: s1 + 0.3, ctx: false },
+    { text: "Heating up: normal", tone: "ok", obj: "bed", a: [-13, 9, 6], d: [-150, 40], in: s2 + 0.8, out: s3 - 0.2 },
+    { text: "Spool scale · grams per session", tone: "ok", obj: "scale", a: [-2.4, 0, 2], d: [-170, -40], in: s3 + 0.6, out: s4 + 0.2 },
+    { text: "Spool stopped turning", tone: "warn", icon: "warn", obj: "scale", a: [-2.4, 0, 2], d: [-170, -40], in: E.fail + 1.0, out: E.stop + 0.4 },
+    { text: "Heated 20 min, no print", tone: "warn", icon: "warn", obj: "bed", a: [-13, 9, 6], d: [-170, 40], in: E.on2 + 2.4, out: E.cut },
+    { text: "Power off", tone: "bad", icon: "stop", obj: "bed", a: [-13, 9, 6], d: [-120, 40], in: E.cut, out: s6 - 0.1 },
+  ],
+  about: "The 3D printer module sits on the wall and the printer plugs into it. A member's NFC fob unlocks it if that fob is on the printer's trained list. A scale under the spool counts the grams each member uses, a USB link lets the box pause a failed job, and the relay cuts power when the heaters are left on with nothing printing. The current spike while the printer warms up is normal and raises no alert.",
+  evidence: [
+    "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
+    "University of Regina charges $0.10 a gram for 3D printing; Grey Bruce Makers bills filament by weight.",
+    "Nozzles run at 250 °C and more, and guidance says to check prints every 30 minutes (Alveo3D).",
+  ],
+  chapters: [{ label: "Failed print", at: [s4, s5], still: 4.0 }, { label: "Left heating", at: [s5, T.end], still: 5.2 }],
+
+  scene(api) {
+    const { THREE, C, ctx, cm, mk, RB, CYL, toon, canvasTex, texPlane, curve, tube, beads, wallOutlet, LineMaterial, LineGeometry, Line2, lineMats } = api;
+    const S = {};
+    // wall with a normal 120 V outlet, the box's plug, and the printer's plug in the box
+    ctx.add(cm(RB(60, 66, 1.2, 0.4), C.idle, { p: [16, 109, -3.6] }));
+    wallOutlet(-6.5, 81.5);
+    ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [-6.5, 83.2, -1.6] }));
+    ctx.add(cm(RB(2.6, 2.2, 1.8, 0.45), C.ink, { p: [8.75, 95.4, -0.8] }));
+    // bench
+    ctx.add(cm(RB(70, 3, 51, 0.5), C.border, { p: [43, 70.5, 23] }));
+    for (const [x, z] of [[11, 1.5], [75, 1.5], [11, 44.5], [75, 44.5]]) ctx.add(cm(RB(3, 69, 3, 0.4), C.border, { p: [x, 34.5, z] }));
+    // generic open frame 3D printer
+    const pr = new THREE.Group(); pr.position.set(42, 72, 22); ctx.add(pr); S.pr = pr;
+    pr.add(cm(RB(36, 7, 30, 1), C.surface, { p: [0, 3.5, 0] }));
+    S.prTex = canvasTex(260, 110);
+    const prLcd = texPlane(8, 3.4, S.prTex, true); prLcd.position.set(-9, 3.7, 15.04); pr.add(prLcd);
+    pr.add(cm(CYL(1.3, 1.2), C.ink, { p: [1.5, 3.7, 15.3], r: [Math.PI / 2, 0, 0] }));
+    const bed = new THREE.Group(); pr.add(bed); S.bed = bed;
+    S.bedMat = toon(C.inkSoft, true);
+    bed.add(mk(RB(26, 1.0, 24, 0.3), null, { mat: S.bedMat, ctx: true, p: [0, 8.6, 0] }));
+    for (const x of [-16.5, 16.5]) pr.add(cm(RB(3, 44, 4, 0.4), C.ink, { p: [x, 29, -6] }));
+    pr.add(cm(RB(36, 3, 4, 0.4), C.ink, { p: [0, 52.5, -6] }));
+    S.gantry = new THREE.Group(); pr.add(S.gantry);
+    S.gantry.add(cm(RB(30, 2.2, 3, 0.4), C.ink, { p: [0, 2.5, -3.6] }));
+    S.head = new THREE.Group(); S.gantry.add(S.head);
+    S.head.add(cm(RB(5.4, 6.6, 4.6, 0.6), C.surface, { p: [0, 2.2, -0.8] }));
+    S.head.add(cm(CYL(1.7, 0.4, 24), C.idlemark, { p: [0, 2.6, 1.6], r: [Math.PI / 2, 0, 0] }));
+    S.nozzleMat = toon(C.idlemark, true);
+    S.head.add(mk(new THREE.ConeGeometry(0.75, 1.4, 16), null, { mat: S.nozzleMat, ctx: true, p: [0, -1.8, -0.8], r: [Math.PI, 0, 0] }));
+    pr.add(cm(RB(2, 6, 2, 0.4), C.ink, { p: [0, 57, -6] }));
+    // spool scale: a load cell between the holder post and the spool
+    const scale = new THREE.Group(); scale.position.set(0, 60.6, -6); pr.add(scale); S.scale = scale;
+    scale.add(cm(RB(4.8, 1.2, 3.6, 0.3), C.idlemark));
+    scale.add(cm(RB(1.4, 0.6, 1.4, 0.2), C.ink, { p: [2.0, 0, 1.9] }));
+    S.spool = new THREE.Group(); S.spool.position.set(0, 69.4, -6); pr.add(S.spool);
+    S.spool.add(cm(CYL(8, 5.4, 32), C.green, { r: [0, 0, Math.PI / 2] }));
+    for (const s of [-1, 1]) S.spool.add(cm(CYL(9, 0.6, 32), C.ink, { r: [0, 0, Math.PI / 2], p: [s * 3, 0, 0] }));
+    S.spool.add(cm(RB(6.8, 0.6, 0.6, 0.2), C.surface, { p: [0, 0, 8.05], outline: false }));
+    pr.add(cm(RB(2.4, 1.6, 1.6, 0.3), C.ink, { p: [0, 61.4, -6] }));
+    const filMat = new LineMaterial({ color: C.green, linewidth: 2.4, worldUnits: false, transparent: true });
+    filMat.userData.w = 2.4; filMat.userData.ctx = true; lineMats.push(filMat);
+    S.filGeo = new LineGeometry(); S.filGeo.setPositions([0, 64, -6, 0, 30, -3]);
+    pr.add(new Line2(S.filGeo, filMat));
+    // the print: a small vase that grows layer by layer
+    const vase = [[0, 0], [3.2, 0], [3.6, 1.5], [4.2, 4.5], [3.4, 7.5], [2.6, 9], [0, 9]].map(([x, y]) => new THREE.Vector2(x, y));
+    S.part = cm(new THREE.LatheGeometry(vase, 36), C.green, { p: [0, 9.1, 0] }); bed.add(S.part);
+    { const m = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); api.ctxMats.push(m);
+      const f = new THREE.Mesh(new THREE.PlaneGeometry(40, 33), m); f.rotation.x = -Math.PI / 2; f.position.set(42, 72.03, 22); ctx.add(f); }
+    // USB port on the printer's left side
+    const usb = new THREE.Group(); usb.position.set(27, 75.2, 37.2); ctx.add(usb); S.usb = usb;
+    usb.add(cm(RB(2.6, 1.3, 0.8, 0.3), C.ink));
+    // cords and cables: wall to box, box to printer, box to the scale, box to the printer's USB
+    S.PATH = {
+      cordIn: curve([[-6.5, 84.6, -1.6], [-6.4, 86.6, -1.6], [-4.4, 87.4, -1.2], [-3.5, 88.6, -0.9], [-3.5, 89.3, -0.8]]),
+      cordOut: curve([[10.0, 95.4, -0.8], [13, 93.6, 0.2], [16, 84, 1.8], [19, 74.5, 3.4], [23, 72.7, 5.0], [27.5, 72.8, 6.6], [30, 74.6, 7.3]]),
+      scaleSig: curve([[42, 133, 13.9], [42, 132.4, 9], [38, 128, -2.6], [22, 116, -2.8], [6, 92, -2.6], [0.2, 87.6, -1.8], [0, 89.3, -0.8]]),
+      usb: curve([[3.5, 89.3, -0.8], [3.5, 87, -1.8], [8, 81, 0], [14, 74.6, 8], [20, 73.4, 24], [24, 73.6, 34], [26.4, 74.6, 37.8], [27, 75.2, 37.8]]),
+    };
+    const P = S.PATH;
+    tube(P.cordIn, 0.55, C.ink, { seg: 40 }); tube(P.cordOut, 0.6, C.ink, { seg: 120 });
+    tube(P.scaleSig, 0.26, C.idlemark, { outline: false, seg: 120 }); tube(P.usb, 0.32, C.idlemark, { outline: false, seg: 120 });
+    S.B = { power: beads(16, 0.8, C.green), sig: beads(4, 0.55, C.green), heat: beads(10, 0.55, C.orange) };
+    return S;
+  },
+
+  update(t, api) {
+    const { S, C, placeBeads, flow, THREE } = api, P = S.PATH;
+    const on = within(t, POWER);
+    const key = !on ? "OFF" : t >= E.on2 ? "HEATING" : t >= E.detect ? "PAUSED" : warming(t) ? "HEATING" : printing(t) ? "PRINTING" : "READY";
+    if (S.prTex.key !== key) { S.prTex.key = key; const g = S.prTex.g; g.fillStyle = on ? (key === "PAUSED" ? C.otint : C.gtint) : C.idle; g.fillRect(0, 0, 260, 110); g.fillStyle = on ? (key === "PAUSED" ? C.rust : C.green) : C.idlemark; g.font = "700 40px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 130, 58, 236); S.prTex.tx.needsUpdate = true; }
+    const tm = Math.min(t, E.detect - 0.3);
+    const pk = printing(t) ? tm - E.printStart : 0;
+    const runK = printing(t) ? clamp((t - E.printStart) * 2) : 0;
+    const grow = t >= E.printStart && t < s5 ? 0.1 + 0.5 * prog(Math.min(t, E.fail), E.printStart, E.fail) : 0;
+    S.part.visible = grow > 0.01; S.part.scale.set(1, Math.max(0.01, grow), 1);
+    const park = t >= E.detect - 0.3 && t < s5 ? prog(t, E.detect - 0.3, E.detect + 0.4) : 0;
+    S.head.position.x = lerp(lerp(11, 6 * Math.sin(pk * 2.6), runK), 11, park);
+    S.bed.position.z = lerp(5, 5 * Math.sin(pk * 1.7), runK);
+    S.gantry.position.y = 9.1 + 2.6 + grow * 9;
+    const hx = S.head.position.x, hy = S.gantry.position.y + 6.2;
+    S.filGeo.setPositions([0, 62.6, -6, hx * 0.4, (62.6 + hy) / 2 + 2, -4, hx, hy, -0.8]);
+    // the spool turns only while filament feeds
+    S.spool.rotation.x = -(extruding(t) ? (t - E.printStart) * 0.9 : t >= E.fail && t < s5 ? (E.fail - E.printStart) * 0.9 : 0);
+    const hot = warming(t) ? 0.45 : printing(t) && t < E.detect ? 0.25 : 0;
+    S.nozzleMat.color.set(C.idlemark).lerp(new THREE.Color(C.orange), hot > 0 ? 0.9 : 0);
+    placeBeads(S.B.power, flow(t, POWER, warming(t) ? 30 : 18, 16, [P.cordIn, P.cordOut]));
+    const sig = [];
+    if (t >= E.printStart && t < E.stop) { const ph = t - Math.floor(t); if (ph < 0.8) sig.push({ curve: P.scaleSig, u: 1 - ph / 0.8, s: 1 }); }
+    if (t >= E.detect - 0.6 && t < E.detect) sig.push({ curve: P.usb, u: prog(t, E.detect - 0.6, E.detect), s: 1 });
+    S.B.sig.material.color.set(t >= E.fail + 1.0 && t < E.stop ? C.orange : C.green);
+    placeBeads(S.B.sig, sig);
+    // heat shimmer over the bed while it is hot and nothing prints
+    const heat = [];
+    const hk = clamp(prog(t, E.on2 + 0.6, E.on2 + 1.2) * (1 - prog(t, E.cut, E.cut + 0.6)) + prog(t, E.relay + 0.4, E.relay + 1.0) * (1 - prog(t, E.settle - 0.4, E.settle + 0.2)));
+    if (hk > 0) for (let i = 0; i < 10; i++) { const ph = ((t * 0.6) + i / 10) % 1; heat.push({ p: new THREE.Vector3(42 - 10 + rnd(i) * 20, 82 + ph * 10, 22 - 8 + rnd(i + 9) * 16), s: hk * Math.sin(ph * Math.PI) }); }
+    placeBeads(S.B.heat, heat);
+  },
+});
+
 }
 </script>

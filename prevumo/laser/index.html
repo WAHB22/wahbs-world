@@ -1,0 +1,343 @@
+<title>PREVUMO Laser Cutter Module</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!--FONTS-->
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2") format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Inter"; src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "JetBrains Mono"; src: url("../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; }
+</style>
+<!--/FONTS-->
+<link rel="stylesheet" href="../kit/engine.css">
+<!--IMPORTMAP-->
+<script type="importmap">{ "imports": { "three": "../../node_modules/three/build/three.module.js", "three/addons/": "../../node_modules/three/examples/jsm/" } }</script>
+<!--/IMPORTMAP-->
+<script type="module">
+import { run, plan, U, C } from "../kit/engine.js";
+const { prog, clamp, rnd, within, lerp, ease, outCubic } = U;
+
+// ---------------- timeline (seconds) ----------------
+const T = plan(8, 4, [5.2, 3.8, 3.4, 4.6, 6.6, 5.8, 6.2, 4.4]);
+const [s0, s1, s2, s3, s4, s5, s6, s7, s8] = T.steps;
+const E = {
+  priya: s0 + 0.8, lucas: s0 + 3.2,
+  fanOn: s1 + 2.0, airOn: s2 + 1.6, cut1: s3 + 0.3,
+  flame: s4 + 0.8, flameSeen: s4 + 1.2, alertA: s4 + 1.6, tapOk: s4 + 4.2, loggedA: s4 + 4.7, resume: s5 + 0.2,
+  tapOut: s5 + 1.2, alertB: s5 + 1.6, tapOff: s5 + 3.6, loggedB: s5 + 4.1,
+  amira: s6 + 0.3, cut3: s6 + 0.8, warm: s6 + 1.4, coolStop: s6 + 2.8, alertC: s6 + 3.2, tapTech: s6 + 5.0, loggedC: s6 + 5.4,
+  jonah: s7 + 0.3, ready: s7 + 0.8, countdown: s7 + 1.6, autoOff: s7 + 3.6,
+};
+const ENABLE = [[E.airOn + 0.2, E.flameSeen], [E.loggedA + 0.3, E.tapOut], [E.cut3 - 0.3, E.coolStop], [E.ready, E.autoOff]];
+const LASING = [[E.cut1, E.flameSeen], [E.resume, E.tapOut], [E.cut3, E.coolStop]];
+const lasing = (t) => within(t, LASING);
+const fanRunning = (t) => t >= E.fanOn && t < T.end;
+const airRunning = (t) => t >= E.airOn && t < T.end;
+const MIN1 = (t) => Math.round(14 * clamp((Math.min(t, E.flameSeen) - E.cut1) / (E.flameSeen - E.cut1)) * 0.8 + (t >= E.resume ? 14 * 0.2 * clamp((t - E.resume) / (E.tapOut - E.resume)) : 0));
+const MIN3 = (t) => Math.round(6 * clamp((t - E.cut3) / (E.coolStop - E.cut3)));
+
+// illustrative coolant temperature
+const coolant = (tt) => {
+  const base = 0.4 + (rnd(Math.floor(tt * 10) + 6) - 0.5) * 0.03;
+  const work = lasing(tt) ? 0.06 : 0;
+  if (tt < E.warm) return base + work;
+  if (tt < E.coolStop + 0.2) return base + work + 0.44 * ease(prog(tt, E.warm, E.coolStop));
+  return base + 0.44 - 0.2 * prog(tt, E.coolStop, E.coolStop + 3);
+};
+const idleI = (tt) => (tt >= E.ready && tt < E.autoOff ? 0.12 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.03 : 0);
+
+const chip = (ok, a, b) => `<span class="chip ${ok ? "ok" : "bad"}" style="margin-top:0">${ok ? a : b}</span>`;
+const ICONFLAG = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>';
+
+run({
+  name: "Laser cutter module", machine: "Laser 1", kicker: "PREVUMO · PD B3 concept", sysTitle: "On the laser",
+  sub: "A box beside a CO2 laser. The laser fires only for a trained member, with the exhaust running, air assist on and someone at the machine.",
+  T,
+  box: { glands: 4, relay: ["ENABLE", "line"], ct: false },
+  parts: [
+    { key: "reader" },
+    { key: "disp" },
+    { key: "qr", role: "Opens the Laser 1 manual." },
+    { key: "cover" },
+    { key: "board", role: "ESP32 with Wi-Fi; reads every sensor." },
+    { key: "relay", name: "Interlock relay", role: "Opens the laser's enable line: no fob, no laser." },
+    { key: "psu", role: "Runs the box from a wall outlet." },
+    { key: "base", role: "Wall mount and four cable glands." },
+    { ref: "fanct", name: "Exhaust clamp", role: "Current clamp on the exhaust fan's cord.", a: [0.6, 0.6, 0], d: [100, -40] },
+    { ref: "cool", name: "Coolant sensor", role: "Water temperature on the chiller's return hose.", a: [0, 0, 0.8], d: [-100, 70] },
+    { ref: "air", name: "Air pressure switch", role: "On the air assist hose: no pressure, no job.", a: [0, 0.6, 0.6], d: [-110, 50] },
+    { ref: "flame", name: "Flame and smoke sensor", role: "Looks at the bed from inside the laser.", a: [0, 0.8, 0.6], d: [-60, -110] },
+  ],
+  steps: [
+    ["Locked until a fob tap", "Priya's fob is not on Laser 1's trained list, so it stays locked. Lucas is trained: it unlocks."],
+    ["Exhaust on first", "The laser stays locked until the clamp sees the exhaust fan draw current."],
+    ["Air assist, or no job", "No pressure at the air switch blocks the job."],
+    ["Cuts and logs minutes", "Laser-on minutes go to Lucas's record. The coolant temperature is read the whole time."],
+    ["Flame in the bed? Pause", "The flame sensor pauses the laser first, then the owner is alerted."],
+    ["Tapped out mid-job? Pause", "A running laser is never left alone: tapping out pauses the job and alerts the owner."],
+    ["Coolant too warm? Stop", "The laser stops before the tube is damaged, then the owner is alerted."],
+    ["Idle? Off", "Nothing running for the owner's idle time: the enable line opens and the session ends."],
+  ],
+  sysView: { p: [40, 84, 20], h: 140, ox: -230, oy: 20 },
+  cam: [
+    [s0 + 0.3, 2, 97, 2, 24, 7, 50, 0, 30],
+    [s1 - 0.4, 2, 97, 2, 28, 8, 50, 0, 30],
+    [s1 + 0.6, 40, 94, 20, 30, 22, 104, -30, 50],
+    [s5 - 0.3, 40, 94, 20, 35, 22, 104, -30, 50],
+    [s5 + 0.4, 6, 96, 6, 26, 9, 72, -20, 40],
+    [s6 - 0.4, 6, 96, 6, 29, 9, 72, -20, 40],
+    [s6 + 0.5, 36, 90, 20, 31, 20, 108, -30, 50],
+    [s8 - 0.2, 36, 90, 20, 35, 20, 108, -30, 50],
+  ],
+  fob: [{ at: E.priya, ok: false }, { at: E.lucas, ok: true }, { at: E.tapOut, ok: true }, { at: E.amira, ok: true }, { at: E.jonah, ok: true }],
+  display: [
+    [0, ["Tap your fob", "PREVUMO · Laser 1"]],
+    [E.priya, ["Checking fob", "Laser 1 trained list"]],
+    [E.priya + 0.6, ["Locked", "Not trained on this machine"]],
+    [s0 + 2.6, ["Tap your fob", "PREVUMO · Laser 1"]],
+    [E.lucas, ["Checking fob", "Laser 1 trained list"]],
+    [E.lucas + 0.6, ["Hi, Lucas", "Trained · checking"]],
+    [s1, ["Exhaust off", "Laser locked"]],
+    [E.fanOn + 0.3, ["Exhaust on", "Checking air"]],
+    [s2, ["Air assist low", "Job blocked"]],
+    [E.airOn + 0.2, ["Ready", "Exhaust, air and coolant OK"]],
+    [E.cut1, (t) => ["Lucas · cutting", `Laser on: ${MIN1(t)} min`]],
+    [E.flameSeen, ["Flame in the bed", "Laser paused"]],
+    [E.loggedA, ["Checked by Lucas", "Job can resume"]],
+    [E.resume, (t) => ["Lucas · cutting", `Laser on: ${MIN1(t)} min`]],
+    [E.tapOut, ["Lucas tapped out", "Laser paused"]],
+    [E.loggedB, ["Session logged", "Lucas · laser on 14 min"]],
+    [s6, ["Tap your fob", "PREVUMO · Laser 1"]],
+    [E.amira, ["Hi, Amira", "Exhaust, air and coolant OK"]],
+    [E.cut3, (t) => ["Amira · cutting", `Laser on: ${MIN3(t)} min`]],
+    [E.coolStop, ["Coolant too warm", "Laser stopped"]],
+    [s7, ["Tap your fob", "PREVUMO · Laser 1"]],
+    [E.jonah, ["Checking fob", "Laser 1 trained list"]],
+    [E.ready, ["Hi, Jonah", "Ready"]],
+    [E.countdown, (t) => ["Idle", `Turning off in 0:0${Math.max(0, Math.ceil((E.autoOff - t) / ((E.autoOff - E.countdown) / 3)))}`]],
+    [E.autoOff, ["Laser disabled", "Session ended"]],
+  ],
+  light: [[0, "idle"], [E.priya + 0.5, "rust"], [s0 + 2.6, "idle"], [E.lucas + 0.6, "orange"], [E.airOn + 0.2, "green"], [E.flameSeen, "rust"], [E.loggedA, "green"],
+    [E.tapOut, "orange"], [E.loggedB, "idle"], [E.amira, "green"], [E.coolStop, "rust"], [s7, "idle"], [E.ready, "green"], [E.countdown, "orange"], [E.autoOff, "idle"], [T.end, "idle"]],
+  sessions: [[E.lucas + 0.6, E.loggedB], [E.amira, s7], [E.ready, E.autoOff]],
+  alarm: [[E.flameSeen, E.loggedA], [E.tapOut, E.loggedB], [E.coolStop, s7]],
+  charts: [
+    { in: s3 + 0.8, out: s7 - 0.3, title: "Laser 1 · coolant", ta: s3, tb: s7, I: coolant,
+      band: () => [0.3, 0.55], guide: { v: 0.78, text: "tube limit set by the owner" }, hot: (tt, v) => v > 0.62,
+      lineCol: (t) => (t >= E.coolStop ? C.idlemark : C.green), unit: "water temperature",
+      tag: (t) => (t >= E.coolStop ? ["Laser stopped", "off"] : t >= E.warm + 0.6 ? ["Rising", "hot"] : ["Normal", "ok"]) },
+    { in: s7 + 0.6, out: s8 - 0.1, title: "Laser 1 · enabled, nothing running", ta: s7 + 0.4, tb: s8, I: idleI,
+      tag: (t) => (t >= E.autoOff ? ["Disabled", "off"] : ["Idle", "idle"]) },
+  ],
+  alerts: [
+    { in: E.alertA, out: E.loggedA + 0.8, tone: "safety", badge: "Safety · paused first", title: "Flame in the bed · Laser 1",
+      phases: [
+        { at: E.alertA, reason: "Laser paused. Lucas Tremblay is at the machine.", buttons: ["off", "tech", "gap", "ok"], ring: 3, tap: E.tapOk },
+        { at: E.loggedA, reason: "Small flare-up, put out. The job can resume.", logged: "Decision logged: Mark as OK", loggedOk: true },
+      ] },
+    { in: E.alertB, out: s6 - 0.1, tone: "paused", badge: "Paused · left mid-job", title: "Laser 1 · operator tapped out",
+      phases: [
+        { at: E.alertB, reason: "Lucas tapped out while a job was running. Laser paused.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapOff },
+        { at: E.loggedB, reason: "Job ended. Logged for Lucas: laser on 14 min.", logged: "Decision logged: Shut down" },
+      ] },
+    { in: E.alertC, out: s7 - 0.1, tone: "safety", badge: "Safety · stopped first", title: "Laser 1 · coolant too warm",
+      phases: [
+        { at: E.alertC, reason: "Laser stopped before the tube overheated. Amira Haddad was cutting.", buttons: ["tech", "gap", "ok"], ring: 0, tap: E.tapTech },
+        { at: E.loggedC, reason: "Laser stays locked until the chiller is checked.", logged: "Decision logged: Call technician" },
+      ] },
+  ],
+  cards: [
+    { in: s1 + 0.2, out: s3 + 0.5, top: 140, html: (t) => `<p class="lbl">Before the laser fires · illustrative</p>
+      <div class="rows"><div class="r" style="align-items:center"><span class="k">Exhaust fan</span><span>${chip(fanRunning(t), "Running", "Off: laser locked")}</span></div>
+      <div class="r" style="align-items:center"><span class="k">Air assist</span><span>${t < s2 ? `<span class="chip" style="margin-top:0;background:var(--idle)">Waiting</span>` : chip(airRunning(t), "Pressure OK", "Low: job blocked")}</span></div>
+      <div class="r" style="align-items:center"><span class="k">Coolant</span><span>${chip(true, "18 °C, normal", "")}</span></div>
+      <div class="r" style="align-items:center"><span class="k">Operator</span><span>${chip(true, "Lucas, trained", "")}</span></div></div>` },
+    { in: s7 + 0.6, out: s8 - 0.1, top: 494, html: () => `<p class="lbl">Owner app · Laser 1 · today · illustrative</p>
+      <div class="rows" style="margin-top:6px">
+      <div class="mrow" style="grid-template-columns:110px 1fr 200px"><span class="mn">Lucas</span><span style="font:400 19px/1.2 var(--body);color:var(--muted)">2 alerts</span><span class="use">laser on 14 min</span></div>
+      <div class="mrow" style="grid-template-columns:110px 1fr 200px"><span class="mn">Amira</span><span style="font:400 19px/1.2 var(--body);color:var(--muted)">coolant stop</span><span class="use">laser on 6 min</span></div>
+      <div class="mrow on" style="grid-template-columns:110px 1fr 200px"><span class="mn">Jonah</span><span style="font:400 19px/1.2 var(--body);color:var(--muted)">idle, turned off</span><span class="use">laser on 0 min</span></div></div>
+      <p class="foot">Laser-on minutes add to each member's record</p>` },
+  ],
+  tags: [
+    { text: "Priya: not trained on Laser 1", tone: "bad", icon: "stop", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.priya + 0.6, out: s0 + 2.6, ctx: false },
+    { text: "Lucas: trained", tone: "ok", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.lucas + 0.6, out: s1 + 0.3, ctx: false },
+    { text: "Exhaust off: laser locked", tone: "bad", icon: "stop", obj: "fan", a: [-5, 0, 1.8], d: [-190, -100], in: s1 + 0.4, out: E.fanOn + 0.3 },
+    { text: "Exhaust on", tone: "ok", obj: "fan", a: [-5, 0, 1.8], d: [-140, -100], in: E.fanOn + 0.3, out: s2 + 0.2 },
+    { text: "Air assist low: job blocked", tone: "bad", icon: "stop", obj: "air", a: [0, 0.6, 0.6], d: [130, 130], in: s2 + 0.2, out: E.airOn + 0.2 },
+    { text: "Air pressure OK", tone: "ok", obj: "air", a: [0, 0.6, 0.6], d: [110, 130], in: E.airOn + 0.2, out: s3 + 0.3 },
+    { text: "Flame detected: laser paused", tone: "warn", icon: "warn", obj: "flame", a: [0, 0.8, 0.6], d: [-120, -120], in: E.flameSeen, out: E.loggedA + 0.3 },
+    { text: "Lucas tapped out: laser paused", tone: "warn", icon: "warn", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.tapOut + 0.4, out: s6 - 0.2, ctx: false },
+    { text: "Coolant too warm", tone: "warn", icon: "warn", obj: "cool", a: [0, 0, 0.8], d: [150, -110], in: E.coolStop - 0.4, out: s7 - 0.1 },
+  ],
+  about: "The laser cutter module sits on the wall beside a CO2 laser with its exhaust fan, water chiller and air assist. The box does not switch the laser's mains: an interlock relay opens the laser's enable line, so the laser can only fire for a trained member, with the exhaust drawing current, air pressure on the head and the coolant in range. A flame in the bed or the member tapping out mid-job pauses the laser and alerts the owner; laser-on minutes are logged per member.",
+  evidence: [
+    "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
+    "CMU EHS: ventilation must be on before a laser operates, and a running laser is always attended.",
+    "VanHack: a “zero-tolerance” rule for leaving the laser while it runs.",
+  ],
+  chapters: [{ label: "Flame", at: [s4, s5], still: 3.0 }, { label: "Tapped out", at: [s5, s6], still: 3.0 }, { label: "Coolant", at: [s6, s7], still: 4.0 }],
+
+  scene(api) {
+    const { THREE, C, ctx, cm, mk, RB, CYL, canvasTex, texPlane, rr, curve, tube, beads, wallOutlet } = api;
+    const S = {};
+    ctx.add(cm(RB(28, 40, 1.2, 0.4), C.idle, { p: [1, 96, -3.6] }));
+    wallOutlet(-6.5, 81.5);
+    ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [-6.5, 83.2, -1.6] }));
+    // table
+    ctx.add(cm(RB(92, 3, 51, 0.5), C.border, { p: [54, 70.5, 23] }));
+    for (const [x, z] of [[10, 1.5], [98, 1.5], [10, 44.5], [98, 44.5]]) ctx.add(cm(RB(3, 69, 3, 0.4), C.border, { p: [x, 34.5, z] }));
+    // the CO2 laser: an open box body, a glass lid, a honeycomb bed, a gantry with the head, a tube housing at the back
+    const L = new THREE.Group(); L.position.set(56, 72, 26); ctx.add(L); S.L = L;
+    L.add(cm(RB(68, 1.6, 40, 0.4), C.surface, { p: [0, 0.8, 0] }));
+    L.add(cm(RB(68, 22, 2, 0.5), C.surface, { p: [0, 11, 19] }));
+    L.add(cm(RB(68, 22, 2, 0.5), C.surface, { p: [0, 11, -19] }));
+    for (const x of [-33, 33]) L.add(cm(RB(2, 22, 40, 0.5), C.surface, { p: [x, 11, 0] }));
+    L.add(cm(RB(10, 1.2, 36, 0.3), C.ink, { p: [27, 21.6, 0] }));
+    const panelTex = canvasTex(200, 120);
+    { const g = panelTex.g; g.fillStyle = C.gtint; g.fillRect(0, 0, 200, 120); g.fillStyle = C.green; g.font = "700 46px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("LASER", 100, 64); panelTex.tx.needsUpdate = true; }
+    const panel = texPlane(6, 3.6, panelTex, true); panel.rotation.x = -Math.PI / 2; panel.position.set(27, 22.25, -6); L.add(panel);
+    L.add(cm(CYL(1.6, 1.2, 24), C.rust, { p: [27, 22.6, 10] }));
+    L.add(cm(CYL(1.0, 0.8, 16), C.ink, { p: [27, 22.2, 10] }));
+    // honeycomb bed and the sheet being cut
+    const bedTex = canvasTex(512, 320);
+    { const g = bedTex.g; g.fillStyle = C.inkSoft; g.fillRect(0, 0, 512, 320); g.fillStyle = C.ink; for (let y = 0; y < 16; y++) for (let x = 0; x < 26; x++) { g.beginPath(); g.arc(12 + x * 19.4 + (y % 2) * 9.7, 10 + y * 19.4, 6, 0, 7); g.fill(); } bedTex.tx.needsUpdate = true; }
+    const bed = texPlane(52, 32, bedTex, true); bed.rotation.x = -Math.PI / 2; bed.position.set(-4, 17.6, 0); L.add(bed);
+    L.add(cm(RB(54, 1.2, 34, 0.3), C.ink, { p: [-4, 16.9, 0] }));
+    S.sheet = new THREE.Group(); L.add(S.sheet);
+    S.sheet.add(cm(RB(30, 0.5, 20, 0.15), C.border, { p: [-6, 17.9, 2] }));
+    S.cutTex = canvasTex(480, 320);
+    const cutP = texPlane(30, 20, S.cutTex, true); cutP.rotation.x = -Math.PI / 2; cutP.position.set(-6, 18.17, 2); S.sheet.add(cutP);
+    S.gantry = new THREE.Group(); L.add(S.gantry);
+    S.gantry.add(cm(RB(54, 1.2, 2.4, 0.4), C.ink, { p: [-4, 21.0, 0] }));
+    S.head = new THREE.Group(); S.gantry.add(S.head);
+    S.head.add(cm(RB(3.2, 2.4, 3.2, 0.4), C.surface, { p: [0, 20.9, 1.4] }));
+    S.head.add(cm(CYL(0.6, 1.0, 12), C.idlemark, { p: [0, 19.3, 1.4] }));
+    S.beamMat = new THREE.MeshBasicMaterial({ color: C.orange, transparent: true });
+    S.beamMesh = new THREE.Mesh(CYL(0.16, 0.9, 8), S.beamMat); S.beamMesh.position.set(0, 18.55, 1.4); S.head.add(S.beamMesh);
+    // glass lid: frame plus a light tinted pane
+    const lid = new THREE.Group(); lid.position.set(-6, 22, 0); L.add(lid);
+    for (const z of [-19, 19]) lid.add(cm(RB(54, 1.2, 2, 0.3), C.ink, { p: [0, 0.6, z] }));
+    for (const x of [-27, 27]) lid.add(cm(RB(2, 1.2, 40, 0.3), C.ink, { p: [x, 0.6, 0] }));
+    S.glassMat = new THREE.MeshBasicMaterial({ color: C.gtint, transparent: true, opacity: 0.32, depthWrite: false });
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(52, 36), S.glassMat); glass.rotation.x = -Math.PI / 2; glass.position.y = 1.0; lid.add(glass);
+    lid.add(cm(RB(14, 0.8, 1.2, 0.3), C.idlemark, { p: [0, 1.6, 20.2] }));
+    L.add(cm(RB(64, 7, 7, 1.2), C.surface, { p: [0, 15, -23.5] }));
+    // flame and smoke sensor inside, on the back wall, looking at the bed
+    const flame = new THREE.Group(); flame.position.set(25.2, 92, 8.4); ctx.add(flame); S.flame = flame;
+    flame.add(cm(RB(3.4, 2.2, 1.2, 0.4), C.ink));
+    S.flameLed = new THREE.MeshBasicMaterial({ color: C.green, transparent: true }); api.ctxMats.push(S.flameLed);
+    const fl = new THREE.Mesh(new THREE.CircleGeometry(0.5, 16), S.flameLed); fl.position.set(0, 0, 0.62); flame.add(fl);
+    // the flame in the bed (a flare-up)
+    S.fireMat = new THREE.MeshBasicMaterial({ color: C.orange, transparent: true });
+    S.fire = new THREE.Group(); S.fire.position.set(-2, 18.2, 4); L.add(S.fire);
+    S.fire.add(new THREE.Mesh(new THREE.ConeGeometry(2.4, 6.4, 14), S.fireMat));
+    const inner = new THREE.Mesh(new THREE.ConeGeometry(1.2, 3.4, 12), new THREE.MeshBasicMaterial({ color: C.otint, transparent: true })); inner.position.y = -0.6; S.fire.add(inner); S.fireInner = inner;
+    S.fire.children[0].position.y = 3.2; inner.position.y = 1.7; S.fire.visible = false;
+    // water chiller under the table, hoses to the tube housing, coolant sensor on the return hose
+    const chiller = new THREE.Group(); chiller.position.set(26, 0, 24); ctx.add(chiller); S.chiller = chiller;
+    chiller.add(cm(RB(18, 26, 22, 1), C.surface, { p: [0, 13, 0] }));
+    const chTex = canvasTex(200, 100);
+    { const g = chTex.g; g.fillStyle = C.gtint; g.fillRect(0, 0, 200, 100); g.fillStyle = C.green; g.font = "700 48px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("18°", 100, 54); chTex.tx.needsUpdate = true; }
+    const chD = texPlane(5, 2.5, chTex, true); chD.position.set(-3, 20, 11.05); chiller.add(chD);
+    for (let i = 0; i < 5; i++) chiller.add(cm(RB(10, 0.6, 0.3, 0.1), C.muted, { p: [2, 6 + i * 2, 11.1], outline: false }));
+    S.PATH = {
+      cordIn: curve([[-6.5, 84.6, -1.6], [-6.4, 86.6, -1.6], [-5, 87.4, -1.2], [-4.5, 88.6, -0.9], [-4.5, 89.3, -0.8]]),
+      supply: curve([[22, 24, 16], [16, 42, 10], [14, 66, 6], [15, 82, 4], [19, 88, 3], [24, 88.6, 2.6]]),
+      ret: curve([[30, 24, 16], [24, 44, 10], [18.4, 66, 6], [17, 82, 4.5], [17.6, 94, 3.6], [21, 97, 3.2], [24.5, 93.6, 3]]),
+      enable: curve([[-1.5, 89.3, -0.8], [-1.5, 86.6, -1.8], [6, 84, -2.2], [14, 80.4, 4], [20, 80.4, 12], [21.8, 80.4, 14]]),
+      bus: curve([[1.5, 89.3, -0.8], [1.5, 86.4, -1.8], [8, 82, -1], [14, 78, 14], [19, 77, 26], [21.4, 77.4, 30]]),
+      airHose: curve([[14, 78, 40], [16, 80.6, 41], [19, 82, 40], [21.6, 84, 38]]),
+      fanSig: curve([[40.8, 107, -1.6], [32, 104, -2.6], [16, 92, -2.6], [6, 88.4, -2.4], [4.5, 87.6, -1.6], [4.5, 89.3, -0.8]]),
+      fanCord: curve([[36.6, 115.6, -1.0], [40, 112, -1.4], [42, 107, -1.6], [42, 103, -1.6], [42, 101.1, -1.6]]),
+    };
+    const P = S.PATH;
+    tube(P.cordIn, 0.55, C.ink, { seg: 40 });
+    tube(P.supply, 0.55, C.idlemark, { seg: 80 }); tube(P.ret, 0.55, C.idlemark, { seg: 80 });
+    tube(P.enable, 0.32, C.rust, { outline: false, seg: 100 });
+    for (const k of ["bus", "fanSig"]) tube(P[k], 0.26, C.idlemark, { outline: false, seg: 140 });
+    tube(P.fanCord, 0.45, C.ink, { seg: 60 });
+    const cool = new THREE.Group(); cool.position.set(17.9, 95.4, 4.6); ctx.add(cool); S.cool = cool;
+    cool.add(cm(RB(2.2, 3.0, 1.6, 0.4), C.ink));
+    S.coolLed = new THREE.MeshBasicMaterial({ color: C.green, transparent: true }); api.ctxMats.push(S.coolLed);
+    const cl = new THREE.Mesh(new THREE.CircleGeometry(0.4, 16), S.coolLed); cl.position.set(0, 0.6, 0.82); cool.add(cl);
+    // sensor junction on the laser's left side
+    ctx.add(cm(RB(1.2, 3.4, 4.4, 0.3), C.ink, { p: [21.6, 77.4, 30] }));
+    ctx.add(cm(RB(1.2, 2.4, 2.4, 0.3), C.rust, { p: [21.6, 80.4, 14] }));
+    // air assist pump on the table with its pressure switch
+    const pump = new THREE.Group(); pump.position.set(14, 72, 40); ctx.add(pump); S.pump = pump;
+    pump.add(cm(RB(7, 6, 8, 0.8), C.ink, { p: [0, 3, 0] }));
+    tube(P.airHose, 0.4, C.idlemark, { seg: 40 });
+    const air = new THREE.Group(); air.position.set(18.6, 82, 40.4); ctx.add(air); S.air = air;
+    air.add(cm(CYL(1.3, 1.0, 20), C.surface, { r: [Math.PI / 2, 0, 0] }));
+    const dialTex = canvasTex(120, 120);
+    { const g = dialTex.g; g.fillStyle = C.surface; g.beginPath(); g.arc(60, 60, 58, 0, 7); g.fill(); g.strokeStyle = C.ink; g.lineWidth = 8; g.beginPath(); g.moveTo(60, 60); g.lineTo(92, 34); g.stroke(); dialTex.tx.needsUpdate = true; }
+    const dial = texPlane(2.2, 2.2, dialTex, true); dial.position.set(0, 0, 0.52); air.add(dial);
+    // exhaust fan on the wall above the laser's back left, its cord to an outlet with the clamp
+    ctx.add(cm(RB(24, 36, 1.2, 0.4), C.idle, { p: [36, 112, -3.6] }));
+    const fan = new THREE.Group(); fan.position.set(32, 120, -1.2); ctx.add(fan); S.fan = fan;
+    fan.add(cm(RB(10, 10, 3.6, 0.6), C.surface));
+    fan.add(cm(new THREE.TorusGeometry(3.6, 0.35, 10, 32), C.ink, { p: [0, 0, 1.85] }));
+    S.blades = new THREE.Group(); S.blades.position.z = 1.9; fan.add(S.blades);
+    for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 + 0.3; const b = cm(RB(1.5, 2.6, 0.2, 0.1), C.muted, { outline: false }); b.position.set(Math.sin(a) * 1.8, Math.cos(a) * 1.8, 0); b.rotation.z = -a + 0.5; S.blades.add(b); }
+    S.blades.add(cm(CYL(0.7, 0.4, 16), C.ink, { r: [Math.PI / 2, 0, 0] }));
+    S.ductCurve = curve([[30, 90, 3.4], [30, 100, 2.2], [31, 110, 1.2], [32, 114.6, 1.0]]);
+    tube(S.ductCurve, 1.4, C.idlemark, { seg: 50 });
+    wallOutlet(42, 98);
+    ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [42, 99.7, -1.6] }));
+    const fanct = new THREE.Group(); fanct.position.set(42, 107, -1.6); ctx.add(fanct); S.fanct = fanct;
+    fanct.add(cm(new THREE.TorusGeometry(1.0, 0.45, 10, 24), C.ink, { r: [Math.PI / 2, 0, 0] }));
+    fanct.add(cm(RB(1.0, 1.2, 1.2, 0.3), C.idlemark, { p: [-1.5, 0, 0] }));
+    { const m = new THREE.MeshBasicMaterial({ color: C.border, transparent: true }); api.ctxMats.push(m);
+      const f = new THREE.Mesh(new THREE.CircleGeometry(1, 40), m); f.rotation.x = -Math.PI / 2; f.position.set(26, 0.05, 24); f.scale.set(13, 15, 1); ctx.add(f); }
+    S.B = { cool: beads(14, 0.5, C.surface), sig: beads(6, 0.55, C.green), smoke: beads(14, 0.8, C.idle), cmd: beads(4, 0.7, C.rust), fume: beads(10, 0.6, C.idle) };
+    return S;
+  },
+
+  repaint(api) { api.S.cutTex.key = ""; },
+
+  update(t, api) {
+    const { S, C, placeBeads, flow, THREE } = api, P = S.PATH;
+    // the head follows a cut path while the laser runs
+    const runTime = LASING.reduce((s, [a, b]) => s + clamp(Math.min(t, b) - a, 0, b - a), 0);
+    const u = runTime * 0.5;
+    const hx = -6 + 12 * Math.sin(u * 1.3), hz = 2 + 7 * Math.sin(u * 2.1 + 0.6);
+    S.head.position.x = hx; S.gantry.position.z = hz;
+    const on = lasing(t);
+    S.beamMesh.visible = on && api.ca > 0.5;
+    // the cut drawn so far on the sheet
+    const ck = Math.min(80, Math.floor(runTime * 6));
+    if (S.cutTex.key !== String(ck)) {
+      S.cutTex.key = String(ck); const g = S.cutTex.g; g.clearRect(0, 0, 480, 320); g.strokeStyle = C.inkSoft; g.lineWidth = 5; g.lineCap = g.lineJoin = "round"; g.beginPath();
+      for (let i = 0; i <= ck; i++) { const uu = i / 12; const x = 240 + (12 * Math.sin(uu * 1.3)) * 16, y = 160 + (7 * Math.sin(uu * 2.1 + 0.6)) * 16; i ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.stroke(); S.cutTex.tx.needsUpdate = true;
+    }
+    S.glassMat.opacity = 0.32 * api.ca;
+    S.blades.rotation.z = fanRunning(t) ? -(t - E.fanOn) * 14 : 0;
+    // the flare-up
+    const fk = clamp(prog(t, E.flame, E.flame + 0.3) * (1 - prog(t, E.flameSeen + 2.4, E.flameSeen + 3.2)));
+    S.fire.visible = fk > 0.01 && api.ca > 0.5;
+    if (S.fire.visible) { S.fire.position.set(hx, 18.2, hz + 1.4); const fl = 0.85 + 0.25 * Math.sin(t * 23) * Math.sin(t * 7); S.fire.scale.set(fk, fk * fl, fk); }
+    if (t >= E.flame && t < E.loggedA) { S.flameLed.color.set(C.orange); S.flameLed.color.lerp(new THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10)); } else S.flameLed.color.set(C.green);
+    if (t >= E.warm + 0.6 && t < s7) { S.coolLed.color.set(C.orange); S.coolLed.color.lerp(new THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10)); } else S.coolLed.color.set(C.green);
+    // coolant circulates; warmer beads when it runs hot
+    placeBeads(S.B.cool, flow(t, [[s0, T.end]], 14, 14, [P.supply, P.ret]));
+    S.B.cool.material.color.set(t >= E.warm + 0.6 && t < s7 ? C.otint : C.surface);
+    const sig = [];
+    if (t >= s1 && t < T.end) { const ph = (t * 1.1) % 1; if (ph < 0.8) sig.push({ curve: P.fanSig, u: ph / 0.8, s: 1 }); }
+    if (t >= s2 && t < T.end) { const ph = (t * 1.1 + 0.4) % 1; if (ph < 0.8) sig.push({ curve: P.bus, u: ph / 0.8, s: 1 }); }
+    S.B.sig.material.color.set((t >= s1 && t < E.fanOn) || (t >= s2 && t < E.airOn) || (t >= E.flame && t < E.loggedA) || (t >= E.warm + 0.6 && t < s7) ? C.orange : C.green);
+    placeBeads(S.B.sig, sig);
+    // enable line: a rust pulse each time the interlock opens or closes
+    const cmds = [];
+    for (const [a, b] of ENABLE) for (const at of [a, b]) { const k = prog(t, at - 0.5, at); if (k > 0 && k < 1) cmds.push({ curve: P.enable, u: k, s: 1 }); }
+    placeBeads(S.B.cmd, cmds);
+    // smoke from the cut, and fumes drawn up the duct while the fan runs
+    const smoke = [];
+    const sk = Math.max(on ? 1 : 0, fk);
+    if (sk > 0) for (let i = 0; i < 14; i++) { const ph = (t * 0.8 + i / 14) % 1; smoke.push({ p: new THREE.Vector3(56 + hx + (rnd(i) - 0.5) * 3 + ph * 8, 91 + ph * 8, 26 + hz + (rnd(i + 4) - 0.5) * 3 - ph * 10), s: sk * 0.8 * Math.sin(ph * Math.PI) }); }
+    placeBeads(S.B.smoke, smoke);
+    const fume = [];
+    if (fanRunning(t) && (on || fk > 0)) { const c = S.ductCurve; for (let i = 0; i < 10; i++) fume.push({ curve: c, u: (t * 0.6 + i / 10) % 1, s: 0.8 }); }
+    placeBeads(S.B.fume, fume);
+  },
+});
+</script>
