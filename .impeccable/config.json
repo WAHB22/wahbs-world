@@ -101,6 +101,15 @@
         ],
         "createdAt": "2026-11-09T03:11:22.202Z",
         "reason": "User's video brief for this assignment specifies Inter for body text"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "prevumo/overview/index.html"
+        ],
+        "createdAt": "2026-11-16T17:26:34.222Z",
+        "reason": "Claude, false positive: .sheet has 44px 48px padding; the only children on its border are decorative drawing-sheet tick marks (empty <i> elements) placed there on purpose"
       }
     ]
   }
