@@ -22,6 +22,18 @@ npm test             # simulation unit tests (Vitest)
 npm run e2e          # builds, then runs the scripted demo at 1440x900 and 390px (Playwright)
 ```
 
+## The prototype site
+
+https://prevumo.vercel.app hosts every prototype in two parts, so nothing depends on a Claude link:
+
+| Path | What it is |
+| --- | --- |
+| `/` | Home: the two parts side by side |
+| `/software` | Software prototype: the owner dashboard (`/dashboard`, this React app), the owner app (`/software/owner-app/`) and the QR machine manual (`/software/manual/`) |
+| `/hardware` | Hardware prototypes: the system overview (`/hardware/system/`) and the five modules (`/hardware/welder/`, `/hardware/printer/`, `/hardware/enclosed-printer/`, `/hardware/multimaker/`, `/hardware/laser-cutter/`) |
+
+The static pages are generated into `public/` by `npm run site` (`kit/site.mjs` copies each page with three.js and the fonts from `public/vendor`, so they load nothing from other sites; `kit/shots.sh` makes the card images). Run it after changing any page, then commit `public/`. `vercel.json` gives those pages their own security policy, because they run inline scripts.
+
 ## Deploy
 
 Live demo: https://prevumo.vercel.app (Vercel project `prevumo`, built from `claude/wahb-satisfaction-skill-45vtx4` with Root Directory `prevumo`). The project is not linked to Git, so a new push needs a new deployment.

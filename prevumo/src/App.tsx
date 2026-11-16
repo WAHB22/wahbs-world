@@ -14,6 +14,7 @@ import { MachineDetail } from "./pages/MachineDetail";
 import { Notifications } from "./pages/Notifications";
 import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
+import { Prototypes } from "./pages/Prototypes";
 
 function Shell() {
   const { world } = useApp();
@@ -54,7 +55,7 @@ function NotFound() {
       <h1 className="mt-2 text-[32px] font-semibold">We can't find that page.</h1>
       <p className="mt-2 text-[15px] text-muted">The link may be old, or the demo data was reset.</p>
       <Link to="/" className="mt-6 inline-flex h-10 items-center rounded-[8px] bg-green px-4 text-sm font-medium text-white">
-        Back to your locations
+        Back to the prototypes
       </Link>
     </main>
   );
@@ -65,7 +66,10 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Prototypes />} />
+        <Route path="/software" element={<Prototypes part="software" />} />
+        <Route path="/hardware" element={<Prototypes part="hardware" />} />
+        <Route path="/dashboard" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route element={<Shell />}>
           <Route path="/locations" element={<Locations />} />

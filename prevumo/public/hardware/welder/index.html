@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3EBDD">
+<meta name="description" content="PREVUMO welder module: NFC fob, QR manual, gas valve, gas leak sensor and wire scale.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Welder module · PREVUMO hardware prototypes</title>
+</head>
+<body>
+<nav class="pv-site" aria-label="PREVUMO prototypes">
+  <a class="pv-home" href="/"><span class="pv-mark" aria-hidden="true"></span>PREVUMO <span class="pv-sub">prototypes</span></a>
+  <span class="pv-parts">
+    <a href="/software">Software prototype</a>
+    <a href="/hardware" aria-current="true">Hardware prototypes</a>
+  </span>
+  <span class="pv-here">Welder module</span>
+</nav>
+<style>
+  .pv-site { position: relative; z-index: 20; display: flex; align-items: center; gap: 6px 18px; flex-wrap: wrap; min-height: 54px; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); background: #FFFDF8; border-bottom: 1.5px solid #E3D6C0; font: 500 14px/1.2 "Inter", ui-sans-serif, system-ui, sans-serif; color: #1F3D2B; }
+  .pv-site a { color: #1F3D2B; text-decoration: none; border-radius: 8px; }
+  .pv-site a:focus-visible { outline: 3px solid #2F6B45; outline-offset: 2px; }
+  .pv-home { display: inline-flex; align-items: center; gap: 8px; font: 700 15px/1 "Space Grotesk", "Inter", sans-serif; letter-spacing: 0.08em; }
+  .pv-sub { font: 500 13px/1 "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0; color: #5B6B5F; }
+  .pv-mark { width: 16px; height: 21px; border-radius: 4px; background: #1F3D2B; display: inline-block; }
+  .pv-parts { display: inline-flex; gap: 4px; padding: 3px; border-radius: 11px; background: #EDE4D3; }
+  .pv-parts a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; }
+  .pv-parts a[aria-current] { background: #1F3D2B; color: #F3EBDD; }
+  .pv-here { margin-left: auto; font: 500 13px/1.2 "JetBrains Mono", ui-monospace, monospace; color: #5B6B5F; }
+  @media (max-width: 640px) { .pv-here { display: none; } .pv-parts a { padding: 0 9px; font-size: 13px; } }
+</style>
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("/vendor/fonts/space-grotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: "Inter"; src: url("/vendor/fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "JetBrains Mono"; src: url("/vendor/fonts/jetbrains-mono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+</style>
+<link rel="stylesheet" href="/hardware/kit/engine.css">
+<script type="importmap">{ "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }</script>
+<script type="module">
+import { run, plan, U, C } from "/hardware/kit/engine.js";
+const { prog, clamp, rnd, within, outBack, lerp } = U;
+
+// ---------------- timeline (seconds) ----------------
+const T = plan(7, 5, [5.6, 3.6, 6.0, 6.6, 4.6, 5.6, 7.8]);
+const [s0, s1, s2, s3, s4, s5, s6, s7] = T.steps;
+const E = {
+  jonah: s0 + 0.9, amira: s0 + 3.6,
+  contClose: s1 + 0.3, valveOpen: s1 + 0.8,
+  spike: s3 + 0.6, alertIn: s3 + 1.6, tapShut: s3 + 3.4, confirmIn: s3 + 4.0, tapConfirm: s3 + 5.2, logged: s3 + 5.8, stop: s4 + 0.2,
+  lucas: s5 + 0.4, idleOn: s5 + 1.0, countdown: s5 + 2.4, autoOff: s5 + 4.6,
+  priya: s6 + 0.4, p2on: s6 + 1.0, leak: s6 + 2.0, detect: s6 + 2.6, alert2: s6 + 4.2, tapTech: s6 + 6.2, logged2: s6 + 6.7,
+};
+const POWER = [[E.contClose, E.stop], [E.idleOn, E.autoOff], [E.p2on, E.detect + 0.05]];
+const GAS = [[E.valveOpen, E.stop + 0.15], [E.idleOn + 0.3, E.autoOff + 0.15], [E.p2on + 0.3, E.detect]];
+const WIRE = (t) => Math.round(42 * clamp((t - (E.contClose + 0.6)) / (s3 - E.contClose - 0.6)));
+
+// the welder's current, as the app would chart it (illustrative)
+function current(tt) {
+  if (tt < E.contClose + 0.6) return 0;
+  if (tt >= E.stop) return 0;
+  const base = 0.62 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.09 + Math.sin(tt * 2.1) * 0.025;
+  if (tt < E.spike) return base;
+  const k = tt - E.spike;
+  if (k < 2.2) return base + [0.15, 0.52, 0.2, 0.68, 0.31, 0.6, 0.42][Math.floor(k / 0.32) % 7];
+  return 0.98 + (rnd(Math.floor(tt * 10) + 7) - 0.5) * 0.2;
+}
+const idleCurrent = (tt) => (tt >= E.idleOn && tt < E.autoOff ? 0.05 + rnd(Math.floor(tt * 10)) * 0.025 : 0);
+// the leak sensor near the regulator (illustrative)
+const gasLevel = (tt) => {
+  const base = 0.14 + (rnd(Math.floor(tt * 10) + 3) - 0.5) * 0.05;
+  if (tt < E.leak) return base;
+  const up = clamp((tt - E.leak) / (E.detect + 0.2 - E.leak));
+  const down = clamp((tt - E.detect - 0.8) / 4.5) * 0.35;
+  return base + up * 0.74 - down;
+};
+
+const ICONFLAG = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>';
+
+run({
+  name: "Welder module", machine: "Welder 2", kicker: "PREVUMO · PD B3 concept", sysTitle: "On the welder",
+  sub: "A box on the wall beside a MIG welder. A member's fob unlocks it; it opens the gas, weighs the wire and watches the current.",
+  T,
+  box: { glands: 4, coil: true },
+  parts: [
+    { key: "reader" },
+    { key: "disp" },
+    { key: "qr", role: "Opens the Welder 2 manual." },
+    { key: "cover" },
+    { key: "board", role: "ESP32 with Wi-Fi; drives the contactor and valve." },
+    { key: "psu", role: "Runs the box from the welder's line." },
+    { key: "base", role: "Wall mount and four cable glands." },
+    { ref: "ct", name: "Current clamp", role: "Clips around one supply wire. Nothing is cut.", a: [-2, 0.6, 0], d: [-110, 40] },
+    { ref: "cont", name: "Contactor, 240 V", role: "Switches the welder. Licensed electrician installs.", a: [-2.8, 2.5, 3.5], d: [-110, -50] },
+    { ref: "valve", name: "Gas valve", role: "Closed without power: open only in a fob session.", a: [0, 4.6, 0], d: [-40, -110] },
+    { ref: "leak", name: "Gas leak sensor", role: "On the wall by the regulator, watched day and night.", a: [0, 2.4, 0.8], d: [60, -100] },
+    { ref: "spool", name: "Wire scale", role: "Weighs the wire spool: grams per session.", a: [-3, 1.0, 4.5], d: [-110, 30] },
+  ],
+  steps: [
+    ["Locked until a fob tap", "Jonah's fob is not on Welder 2's trained list, so it stays locked. Amira is trained: it unlocks."],
+    ["Power and gas on", "The box closes the contactor and opens the gas valve. The session is logged to Amira."],
+    ["Watches current and wire", "The clamp reads the current every second and the scale weighs the spool. The first two weeks only learn the normal range."],
+    ["Flags an irregular pattern", "The owner gets one alert: Shut down, Call technician or Mark as OK."],
+    ["Stops power and gas together", "Nothing restarts on its own. Amira's session is logged with the wire she used."],
+    ["Idle? Both off", "If nobody welds for the idle time the owner sets, the box turns power and gas off."],
+    ["Gas leak? Valve shuts", "The sensor by the regulator is watched even with no session. The valve closes first, then the owner is told."],
+  ],
+  sysView: { p: [24, 60, 22], h: 196, oy: 70 },
+  cam: [
+    [s0 + 0.3, -10, 101, 2, 24, 7, 64, 10, 40],
+    [s1 - 0.4, -10, 101, 2, 28, 8, 64, 10, 40],
+    [s1 + 0.5, 24, 60, 22, 34, 15, 196, -30, 60],
+    [s2 - 0.2, 24, 60, 22, 36, 15, 196, -30, 60],
+    [s2 + 0.7, 8, 79, 4, 32, 14, 110, 0, 30],
+    [s3 - 0.2, 8, 79, 4, 35, 14, 110, 0, 30],
+    [s3 + 0.5, -9, 99, 2, 28, 9, 66, -10, 40],
+    [s4 - 0.4, -9, 99, 2, 31, 9, 66, -10, 40],
+    [s4 + 0.6, 24, 60, 22, 34, 15, 196, -40, 60],
+    [s5 - 0.3, 24, 60, 22, 37, 15, 196, -40, 60],
+    [s5 + 0.5, -9, 101, 2, 22, 8, 66, -10, 40],
+    [s6 - 0.2, -9, 101, 2, 26, 8, 66, -10, 40],
+    [s6 + 1.4, 24, 88, 2, 40, 13, 135, -20, 30],
+    [s7 - 0.2, 24, 88, 2, 43, 13, 135, -20, 30],
+  ],
+  fob: [{ at: E.jonah, ok: false }, { at: E.amira, ok: true }, { at: E.lucas, ok: true }, { at: E.priya, ok: true }],
+  display: [
+    [0, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.jonah, ["Checking fob", "Welder 2 trained list"]],
+    [E.jonah + 0.6, ["Locked", "Not trained on this machine"]],
+    [s0 + 3.0, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.amira, ["Checking fob", "Welder 2 trained list"]],
+    [E.amira + 0.6, ["Hi, Amira", "Trained · unlocking"]],
+    [s1, ["Hi, Amira", "Power on · Gas on"]],
+    [s2, (t) => ["Amira · welding", `Wire used: ${WIRE(t)} g`]],
+    [E.spike + 0.5, ["Irregular current", "Owner notified"]],
+    [E.stop, ["Stopped by owner", "Won't restart on its own"]],
+    [s4 + 2.2, ["Session logged", "Amira · wire 42 g"]],
+    [s5, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.lucas, ["Checking fob", "Welder 2 trained list"]],
+    [E.idleOn, ["Hi, Lucas", "Power on · Gas on"]],
+    [E.countdown, (t) => ["Idle", `Turning off in 0:0${Math.max(0, Math.ceil((E.autoOff - t) / ((E.autoOff - E.countdown) / 3)))}`]],
+    [E.autoOff, ["Turned off", "Power off · Gas off"]],
+    [s6, ["Tap your fob", "PREVUMO · Welder 2"]],
+    [E.priya, ["Checking fob", "Welder 2 trained list"]],
+    [E.p2on, ["Hi, Priya", "Power on · Gas on"]],
+    [E.detect, ["Gas leak detected", "Valve closed"]],
+  ],
+  light: [[0, "idle"], [E.jonah + 0.5, "rust"], [s0 + 3.0, "idle"], [E.amira + 0.6, "green"], [E.spike + 0.5, "orange"], [E.stop, "rust"], [s5, "idle"],
+    [E.idleOn, "green"], [E.countdown, "orange"], [E.autoOff, "idle"], [E.p2on, "green"], [E.detect, "rust"], [T.end, "idle"]],
+  sessions: [[E.contClose, E.stop], [E.idleOn, E.autoOff], [E.p2on, s7]],
+  alarm: [[E.spike + 0.5, E.stop], [E.detect, s7]],
+  charts: [
+    { in: s2 + 0.2, out: s5 - 0.3, title: "Welder 2 · current", ta: s2, tb: s5, I: current, sc: 128, lapse: false,
+      band: () => [0.48, 0.79], bandText: "normal range, learned in weeks 1 and 2", hot: (tt, v) => v > 0.79 && tt < E.stop,
+      lineCol: (t) => (t >= E.stop ? C.idlemark : C.green),
+      tag: (t) => (t >= E.stop ? ["Shut down", "off"] : t >= E.spike + 0.5 ? ["Irregular", "irr"] : ["Normal range", "ok"]) },
+    { in: s5 + 0.6, out: s6 - 0.3, title: "Welder 2 · on, nobody welding", ta: s5 + 0.6, tb: s6 - 0.2, I: idleCurrent, sc: 150,
+      tag: (t) => (t >= E.autoOff ? ["Turned off", "off"] : ["Idle", "idle"]) },
+    { in: s6 + 0.6, out: s7 - 0.1, title: "Gas sensor · regulator", ta: s6 + 0.4, tb: s7, I: gasLevel, sc: 150, lapse: false,
+      guide: { v: 0.6, text: "alarm level" }, hot: (tt, v) => v > 0.6,
+      tag: (t) => (t >= E.detect ? ["Gas leak", "hot"] : ["Normal", "ok"]) },
+  ],
+  alerts: [
+    { in: E.alertIn, out: s4 + 0.3, tone: "irr", badge: "Irregular pattern", title: "Welder 2 · irregular current",
+      phases: [
+        { at: E.alertIn, reason: "Current above its normal range. In use by Amira Haddad.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
+        { at: E.confirmIn, reason: "The machine will stop and won't restart on its own.", buttons: ["cancel", "gap", "confirm"], ring: 2, tap: E.tapConfirm },
+        { at: E.logged, reason: "Power and gas are off. Logged for Amira's session.", logged: "Decision logged: Shut down" },
+      ] },
+    { in: E.alert2, out: s7 - 0.1, tone: "safety", badge: "Safety · stopped first", title: "Gas leak near Welder 2",
+      phases: [
+        { at: E.alert2, reason: "Valve closed automatically. Welder power is off too.", buttons: ["tech", "gap", "ok"], ring: 0, tap: E.tapTech },
+        { at: E.logged2, reason: "Valve stays closed until a technician checks it.", logged: "Decision logged: Call technician" },
+      ] },
+  ],
+  cards: [
+    { in: s4 + 0.7, out: s5 + 0.2, top: 494, html: () => `<p class="lbl">Owner app · Members · illustrative</p>
+      <p class="tt" style="margin-top:10px">Amira Haddad · Welder 2</p>
+      <div class="rows"><div class="r"><span class="k">Session</span><b>18 min</b></div>
+      <div class="r"><span class="k">Wire used</span><b>42 g, billed at $0.10 a gram: $4.20</b></div>
+      <div class="r"><span class="k">Her usual</span><b>about 14 g a session</b></div></div>
+      <span class="chip warn">${ICONFLAG}Review: 3x usual wire</span>
+      <p class="foot">A review for the owner, not an accusation</p>` },
+  ],
+  tags: [
+    { text: "Jonah: not trained on Welder 2", tone: "bad", icon: "stop", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 200], in: E.jonah + 0.6, out: s0 + 3.0, ctx: false },
+    { text: "Amira: trained", tone: "ok", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 200], in: E.amira + 0.6, out: s1 + 0.3, ctx: false },
+    { text: "Wire scale · grams per session", tone: "ok", obj: "spool", a: [0, 14, 0], d: [-150, -50], in: s2 + 1.0, out: s3 - 0.1 },
+    { text: "Gas leak detected", tone: "warn", icon: "warn", obj: "leak", a: [0, 2.8, 0.8], d: [-170, -90], in: E.detect, out: s7 - 0.1 },
+    { text: "Valve closed", tone: "bad", icon: "stop", obj: "valve", a: [0, 4.6, 0], d: [-150, -60], in: E.detect + 0.3, out: s7 - 0.1 },
+  ],
+  about: "The welder module sits on the wall beside a MIG welder. It unlocks with a member's NFC fob if that fob is on Welder 2's trained list, opens the shielding gas only during a session, weighs the wire each member uses, and closes the gas valve as soon as the leak sensor trips, with or without a session.",
+  evidence: [
+    "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
+    "Grey Bruce Makers bills wire at $0.10 a gram, and today removes and weighs the spool by hand.",
+  ],
+  chapters: [{ label: "Gas leak", at: [s6, T.end], still: 4.2 }],
+
+  scene(api) {
+    const { THREE, C, ctx, cm, RB, CYL, canvasTex, texPlane, rr, curve, tube, beads } = api;
+    const S = {};
+    // wall board the box and the contactor sit on
+    ctx.add(cm(RB(40, 44, 1.2, 0.4), C.idle, { p: [-11, 102.5, -3.6] }));
+    ctx.add(cm(RB(7, 7, 4.2, 0.5), C.surface, { p: [-26, 116.5, -0.9] }));
+    ctx.add(cm(RB(12, 3.5, 0.8, 0.2), C.muted, { p: [-26, 100.5, -2.6] }));
+    // contactor
+    const cont = new THREE.Group(); cont.position.set(-26, 100.5, 0.5); ctx.add(cont); S.cont = cont;
+    cont.add(cm(RB(5.6, 8.8, 7, 0.4), C.surface));
+    cont.add(cm(RB(4.6, 4.6, 1.2, 0.3), C.surface, { p: [0, -0.4, 3.9] }));
+    for (const y of [3.9, -4.15]) for (const x of [-1.7, 0, 1.7]) cont.add(cm(CYL(0.42, 0.4, 14), C.idlemark, { p: [x, y, 2.4], r: [Math.PI / 2, 0, 0] }));
+    S.armature = cm(RB(1.6, 0.9, 0.5, 0.2), C.ink, { p: [0, 1.0, 4.7] }); cont.add(S.armature);
+    S.contTex = canvasTex(200, 120);
+    const contWin = texPlane(1.9, 1.14, S.contTex, true); contWin.position.set(0, -1.1, 4.52); cont.add(contWin);
+    // gas valve on its wall bracket
+    ctx.add(cm(RB(6, 8, 0.6, 0.25), C.idle, { p: [56, 74, -2.7] }));
+    const valve = new THREE.Group(); valve.position.set(56, 74, 0); ctx.add(valve); S.valve = valve;
+    valve.add(cm(RB(3.4, 2.6, 2.6, 0.3), C.idlemark));
+    valve.add(cm(CYL(1.35, 3.0), C.ink, { p: [0, 2.8, 0] }));
+    for (const s of [-1, 1]) valve.add(cm(CYL(0.6, 1.6, 16), C.muted, { p: [s * 2.4, 0, 0], r: [0, 0, Math.PI / 2] }));
+    S.plunger = cm(CYL(0.55, 0.7, 16), C.muted, { p: [0, 4.6, 0] }); valve.add(S.plunger);
+    S.valveRingMat = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); api.ctxMats.push(S.valveRingMat);
+    const valveRing = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.24, 10, 28), S.valveRingMat); valveRing.rotation.x = Math.PI / 2; valveRing.position.y = 4.35; valve.add(valveRing);
+    // gas leak sensor on the wall by the regulator
+    const leak = new THREE.Group(); leak.position.set(68, 91, -2.4); ctx.add(leak); S.leak = leak;
+    leak.add(cm(RB(4.6, 5.6, 1.4, 0.4), C.surface));
+    const grille = canvasTex(200, 200);
+    { const g = grille.g; g.clearRect(0, 0, 200, 200); g.fillStyle = C.muted; for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.beginPath(); g.arc(40 + x * 40, 40 + y * 40, 9, 0, 7); g.fill(); } grille.tx.needsUpdate = true; }
+    const gp = texPlane(3.2, 3.2, grille, true); gp.position.set(0, 0.5, 0.72); leak.add(gp);
+    S.leakMat = new THREE.MeshBasicMaterial({ color: C.green, transparent: true }); api.ctxMats.push(S.leakMat);
+    const led = new THREE.Mesh(RB(2.6, 0.6, 0.3, 0.14), S.leakMat); led.position.set(0, -2.0, 0.72); leak.add(led);
+    // welder
+    const welder = new THREE.Group(); welder.position.set(40, 0, 22); ctx.add(welder); S.welder = welder;
+    welder.add(cm(RB(26, 40, 46, 1.4), C.surface, { p: [0, 20, 0] }));
+    welder.add(cm(RB(22, 26, 0.7, 0.3), C.idle, { p: [0, 24, 23.1] }));
+    for (const x of [-5, 5]) welder.add(cm(CYL(2.5, 1.6), C.ink, { p: [x, 21.5, 24.0], r: [Math.PI / 2, 0, 0] }));
+    welder.add(cm(CYL(2.2, 1.8), C.muted, { p: [0, 12.5, 24.1], r: [Math.PI / 2, 0, 0] }));
+    for (const z of [-11, 11]) welder.add(cm(RB(2.2, 4.4, 2.2, 0.4), C.ink, { p: [0, 41.8, z] }));
+    welder.add(cm(RB(2.2, 1.8, 24.2, 0.6), C.ink, { p: [0, 44.6, 0] }));
+    S.wdTex = canvasTex(240, 100);
+    const wdisp = texPlane(7, 2.9, S.wdTex, true); wdisp.position.set(0, 31.5, 23.5); welder.add(wdisp);
+    const ventTex = canvasTex(400, 300);
+    { const g = ventTex.g; g.fillStyle = C.muted; for (let i = 0; i < 9; i++) { rr(g, 40, 30 + i * 28, 320, 12, 6); g.fill(); } ventTex.tx.needsUpdate = true; }
+    const vent = texPlane(16, 12, ventTex, true); vent.position.set(13.05, 26, -8); vent.rotation.y = Math.PI / 2; welder.add(vent);
+    // wire scale: the spool sits on a small load cell plate on top of the welder
+    const spool = new THREE.Group(); spool.position.set(40, 40, 4.5); ctx.add(spool); S.spool = spool;
+    spool.add(cm(RB(11, 1.6, 9, 0.4), C.ink, { p: [0, 0.8, 0] }));
+    spool.add(cm(RB(3.2, 0.9, 3.2, 0.2), C.idlemark, { p: [0, 2.05, 0] }));
+    for (const x of [-3.2, 3.2]) spool.add(cm(RB(0.9, 6.2, 1.2, 0.3), C.ink, { p: [x, 5.4, 0] }));
+    spool.add(cm(CYL(5.0, 4.4, 36), C.muted, { p: [0, 8.2, 0], r: [0, 0, Math.PI / 2] }));
+    for (const s of [-1, 1]) spool.add(cm(CYL(5.8, 0.5, 36), C.ink, { p: [s * 2.45, 8.2, 0], r: [0, 0, Math.PI / 2] }));
+    tube(curve([[40, 43.4, 9.6], [40, 41.2, 11.6], [40, 40.2, 13.5]]), 0.22, C.idlemark, { outline: false, seg: 20 });
+    // torch on its lead
+    const torchPath = curve([[40, 12.5, 46.6], [39, 8, 52], [32, 2.2, 58], [20, 2.2, 61], [12, 3, 60]]);
+    tube(torchPath, 0.8, C.ink, { seg: 60 });
+    const torch = new THREE.Group(); torch.position.set(12, 3, 60); torch.rotation.y = 0.25; ctx.add(torch);
+    torch.add(cm(new THREE.CapsuleGeometry(1.4, 6, 6, 16), C.ink, { r: [0, 0, Math.PI / 2], p: [-3.6, 0, 0] }));
+    torch.add(cm(CYL(0.9, 4, 16), C.idlemark, { r: [0, 0, Math.PI / 2 - 0.5], p: [-9.2, -1.1, 0] }));
+    // shielding gas cylinder and regulator
+    const cyl = new THREE.Group(); cyl.position.set(80, 0, 9); ctx.add(cyl); S.cyl = cyl;
+    const prof = [[0, 0], [9.6, 0], [10, 0.6], [10, 62], [9.4, 66], [7.4, 69.2], [4.2, 71.2], [2.4, 72], [2.4, 77.5], [0, 77.5]].map(([x, y]) => new THREE.Vector2(x, y));
+    cyl.add(cm(new THREE.LatheGeometry(prof, 40), C.gtint));
+    cyl.add(cm(new THREE.CylinderGeometry(10.05, 10.05, 7, 40, 1, true), C.surface, { p: [0, 47, 0], outline: false }));
+    cyl.add(cm(new THREE.TorusGeometry(2.4, 0.45, 10, 24), C.ink, { p: [0, 76.6, 0], r: [Math.PI / 2, 0, 0] }));
+    cyl.add(cm(RB(4.4, 4.4, 4.4, 0.6), C.surface, { p: [0, 81, 0] }));
+    cyl.add(cm(CYL(2.3, 0.9), C.surface, { p: [0, 83.6, 2.6], r: [Math.PI / 2, 0, 0] }));
+    const gaugeTex = canvasTex(200, 200);
+    { const g = gaugeTex.g; g.fillStyle = C.surface; g.beginPath(); g.arc(100, 100, 96, 0, 7); g.fill(); g.strokeStyle = C.ink; g.lineWidth = 5;
+      for (let i = 0; i <= 10; i++) { const a = Math.PI * (0.75 + i * 0.15); g.beginPath(); g.moveTo(100 + Math.cos(a) * 70, 100 + Math.sin(a) * 70); g.lineTo(100 + Math.cos(a) * 86, 100 + Math.sin(a) * 86); g.stroke(); }
+      g.strokeStyle = C.rust; g.lineWidth = 7; g.beginPath(); g.moveTo(100, 100); g.lineTo(100 + Math.cos(Math.PI * 1.6) * 64, 100 + Math.sin(Math.PI * 1.6) * 64); g.stroke(); gaugeTex.tx.needsUpdate = true; }
+    const gauge = texPlane(4.2, 4.2, gaugeTex, true); gauge.position.set(0, 83.6, 3.08); cyl.add(gauge);
+    cyl.add(cm(CYL(0.55, 2.2, 12), C.muted, { p: [-3.2, 80.4, 0], r: [0, 0, Math.PI / 2] }));
+    // soft footprints
+    for (const [x, z, sx, sz] of [[40, 22, 17, 27], [80, 9, 12.5, 12.5]]) {
+      const m = new THREE.MeshBasicMaterial({ color: C.border, transparent: true }); api.ctxMats.push(m);
+      const f = new THREE.Mesh(new THREE.CircleGeometry(1, 48), m); f.rotation.x = -Math.PI / 2; f.position.set(x, 0.05, z); f.scale.set(sx, sz, 1); ctx.add(f);
+    }
+    // cables, hose and signal wires (the four glands, left to right: clamp, contactor, valve, leak sensor)
+    S.PATH = {
+      supplyIn: curve([[-26, 113, 0.4], [-26, 109, 1.6], [-26, 105.2, 1.8]]),
+      supplyOut: curve([[-26, 96.2, 1.8], [-26, 89, 1.8], [-26, 80, 2.4], [-24, 62, 2.6], [-10, 38, 0.8], [12, 28, -1.6], [27, 26.5, -1.8], [34, 26.5, -1.2]]),
+      ctSig: curve([[-24.2, 89, 1.8], [-17, 87.2, -1.6], [-8, 86, -2.0], [-4.5, 86.8, -1.4], [-4.5, 89.2, -0.8]]),
+      ctrlCont: curve([[-1.5, 89.2, -0.8], [-1.5, 85.6, -2.0], [-9, 84.4, -2.3], [-19, 88, -2.2], [-22.6, 95, 0.3], [-23.2, 99, 1.0]]),
+      ctrlValve: curve([[1.5, 89.2, -0.8], [1.5, 85.4, -2.1], [16, 83.6, -2.4], [42, 80.6, -2.4], [52, 77.8, -1.7], [55.2, 76.2, -0.2]]),
+      leakSig: curve([[65.6, 91, -2.4], [58, 90.2, -2.6], [30, 88.8, -2.6], [8, 87.2, -2.4], [4.5, 87.4, -1.6], [4.5, 89.2, -0.8]]),
+      gasIn: curve([[76.8, 80.4, 9], [70, 80.6, 7.8], [63, 77, 3.4], [58.8, 74, 0]]),
+      gasOut: curve([[53.2, 74, 0], [50.4, 68, -1.6], [47.6, 48, -2.4], [46.2, 34, -1.8], [46, 30, -1.1]]),
+    };
+    const P = S.PATH;
+    tube(P.supplyIn, 0.75, C.ink, { seg: 30 }); tube(P.supplyOut, 0.75, C.ink, { seg: 160 });
+    tube(P.gasIn, 0.55, C.muted, { seg: 60 }); tube(P.gasOut, 0.55, C.muted, { seg: 80 });
+    for (const k of ["ctSig", "ctrlCont", "ctrlValve", "leakSig"]) tube(P[k], 0.26, C.idlemark, { outline: false, seg: 120 });
+    // current clamp around one supply wire, in two hinged halves
+    const ct = new THREE.Group(); ct.position.set(-26, 89, 1.8); ctx.add(ct); S.ct = ct;
+    const ringProf = [[1.0, -0.9], [2.0, -0.9], [2.0, 0.9], [1.0, 0.9], [1.0, -0.9]].map(([x, y]) => new THREE.Vector2(x, y));
+    ct.add(cm(new THREE.LatheGeometry(ringProf, 24, 0, Math.PI), C.ink));
+    S.ctHinge = new THREE.Group(); ct.add(S.ctHinge);
+    S.ctB = cm(new THREE.LatheGeometry(ringProf, 24, Math.PI, Math.PI), C.ink); S.ctHinge.add(S.ctB);
+    ct.add(cm(RB(1.2, 1.4, 1.6, 0.3), C.idlemark, { p: [1.9, 0, 0] }));
+    // flow beads
+    S.B = { power: beads(22, 0.95, C.green), gas: beads(16, 0.78, C.surface), sig: beads(6, 0.55, C.gtint), cmd: beads(6, 0.75, C.green), cloud: beads(14, 0.9, C.otint) };
+    return S;
+  },
+
+  update(t, api) {
+    const { S, C, placeBeads, flow } = api, P = S.PATH;
+    const on = within(t, POWER), gas = within(t, GAS);
+    const closeK = POWER.reduce((s, [a, b]) => s + outBack(prog(t, a, a + 0.18), 2) * (1 - prog(t, b, b + 0.15)), 0);
+    S.armature.position.y = 1.0 - 0.75 * clamp(closeK, 0, 1.2);
+    const key = on ? "I" : "O";
+    if (S.contTex.key !== key) { S.contTex.key = key; const g = S.contTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 200, 120); g.fillStyle = on ? C.green : C.muted; g.font = "700 80px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 100, 66); S.contTex.tx.needsUpdate = true; }
+    const openK = GAS.reduce((s, [a, b]) => s + prog(t, a, a + 0.15) * (1 - prog(t, b, b + 0.15)), 0);
+    S.plunger.position.y = 4.6 + 0.45 * openK;
+    const leakOn = t >= E.detect && t < T.end;
+    S.valveRingMat.color.set(gas ? C.green : leakOn ? C.rust : C.idle);
+    const wk = on ? "ON" : "OFF";
+    if (S.wdTex.key !== wk) { S.wdTex.key = wk; const g = S.wdTex.g; g.fillStyle = on ? C.gtint : C.idle; g.fillRect(0, 0, 240, 100); g.fillStyle = on ? C.green : C.idlemark; g.font = "700 56px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(wk, 120, 54); S.wdTex.tx.needsUpdate = true; }
+    // leak sensor light: green, orange pulse when it trips
+    if (t >= E.detect - 0.3 && t < T.end) { S.leakMat.color.set(C.orange); S.leakMat.color.lerp(new api.THREE.Color(C.otint), 0.5 + 0.5 * Math.sin(t * 10)); }
+    else S.leakMat.color.set(C.green);
+    // the clamp clicks open and shut when it is introduced
+    const clipAt = T.sys0;
+    const clip = Math.sin(clamp(prog(t, clipAt - 0.6, clipAt + 0.5)) * Math.PI);
+    S.ctHinge.position.set(0, 0, -2.0); S.ctB.position.set(0, 0, 2.0); S.ctHinge.rotation.y = 1.0 * clip;
+    placeBeads(S.B.power, flow(t, POWER, 34, 22, [P.supplyIn, P.supplyOut]));
+    placeBeads(S.B.gas, flow(t, GAS, 22, 16, [P.gasIn, P.gasOut]));
+    const sig = [];
+    if (within(t, [[E.contClose + 0.6, E.stop], [E.idleOn, E.autoOff]])) { const ph = t - Math.floor(t); if (ph < 0.7) sig.push({ curve: P.ctSig, u: ph / 0.7, s: 1 }); }
+    // the leak sensor reports all the time, even with no session
+    if (t >= T.steps[0] && t < T.end) { const ph = (t * 0.8) % 1; if (ph < 0.8) sig.push({ curve: P.leakSig, u: ph / 0.8, s: 1 }); }
+    S.B.sig.material.color.set((t >= E.spike && t < E.stop) || t >= E.leak ? C.orange : C.green);
+    placeBeads(S.B.sig, sig);
+    const cmds = [];
+    const cmd = (c, at) => { const k = prog(t, at - 0.55, at); if (k > 0 && k < 1) cmds.push({ curve: c, u: k, s: 1 }); };
+    cmd(P.ctrlCont, E.contClose); cmd(P.ctrlValve, E.valveOpen); cmd(P.ctrlCont, E.stop + 0.02); cmd(P.ctrlValve, E.stop + 0.17);
+    cmd(P.ctrlCont, E.idleOn); cmd(P.ctrlValve, E.idleOn + 0.3); cmd(P.ctrlCont, E.autoOff); cmd(P.ctrlValve, E.autoOff + 0.15);
+    cmd(P.ctrlCont, E.p2on); cmd(P.ctrlValve, E.p2on + 0.3); cmd(P.ctrlValve, E.detect); cmd(P.ctrlCont, E.detect + 0.05);
+    S.B.cmd.material.color.set((t > E.stop - 0.6 && t < E.stop + 0.4) || (t > E.detect - 0.6 && t < E.detect + 0.4) ? C.rust : C.green);
+    placeBeads(S.B.cmd, cmds);
+    // a faint cloud of escaping gas by the regulator while the leak lasts
+    const cloud = [];
+    const ck = clamp(prog(t, E.leak, E.leak + 0.6) * (1 - prog(t, T.end - 1.2, T.end)));
+    if (ck > 0) for (let i = 0; i < 14; i++) {
+      const ph = ((t * 0.35) + i / 14) % 1, a = rnd(i) * Math.PI * 2;
+      cloud.push({ p: new api.THREE.Vector3(78 + Math.cos(a) * (2 + ph * 7), 84 + ph * 12, 7 + Math.sin(a) * (2 + ph * 6)), s: ck * (1 - ph) * (0.7 + rnd(i + 5) * 0.6) });
+    }
+    placeBeads(S.B.cloud, cloud);
+  },
+});
+</script>
+
+</body>
+</html>

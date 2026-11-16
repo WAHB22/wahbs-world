@@ -128,6 +128,9 @@ export function TopBar({ locId }: { locId?: string }) {
         <Link to="/locations" aria-label="PREVUMO, all locations" className="mr-1 shrink-0 rounded-[8px]">
           <Wordmark />
         </Link>
+        <Link to="/" className="hidden h-8 shrink-0 items-center rounded-[8px] px-2 text-[13px] font-medium text-muted hover:text-ink md:inline-flex">
+          All prototypes
+        </Link>
         {locId && (
           <>
             <span aria-hidden className="mx-1 hidden h-5 w-px bg-border sm:block" />

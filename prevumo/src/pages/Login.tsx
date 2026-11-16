@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router";
-import { ArrowRight } from "lucide-react";
+import { Link, Navigate, useNavigate } from "react-router";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { logIn, useApp } from "../store/store";
 import { sampleAt } from "../sim/signal";
 import type { Sample } from "../sim/types";
@@ -30,13 +30,19 @@ export function Login() {
   const { world } = useApp();
   const nav = useNavigate();
   const trace = useTrace();
-  if (world.loggedIn) return <Navigate to="/" replace />;
+  if (world.loggedIn) return <Navigate to="/dashboard" replace />;
   const irregular = trace.slice(-30).some((s) => s.out);
 
   return (
     <main className="grid min-h-dvh lg:grid-cols-[1.25fr_1fr]">
       <section className="relative flex flex-col justify-between overflow-hidden px-6 pt-6 pb-8 sm:px-10 lg:px-14 lg:pt-10 lg:pb-12">
-        <Wordmark />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Wordmark />
+          <Link to="/" className="inline-flex h-9 items-center gap-1.5 rounded-[8px] px-2 text-[13px] font-medium text-muted hover:text-ink">
+            <ArrowLeft className="size-4" aria-hidden />
+            All prototypes
+          </Link>
+        </div>
         <div className="my-10 lg:my-0">
           <p className="max-w-[34ch] font-display text-[20px] leading-snug text-muted sm:text-[22px]">Booking software tells you who booked the machine.</p>
           <h1 className="mt-3 max-w-[18ch] text-[34px] font-semibold text-balance sm:text-[44px] lg:text-[52px]">PREVUMO tells you what happened to it, and when it's about to fail.</h1>

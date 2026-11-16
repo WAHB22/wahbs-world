@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3EBDD">
+<meta name="description" content="PREVUMO 3D printer module: spool scale, failed print pause and heating timeout.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>3D printer module · PREVUMO hardware prototypes</title>
+</head>
+<body>
+<nav class="pv-site" aria-label="PREVUMO prototypes">
+  <a class="pv-home" href="/"><span class="pv-mark" aria-hidden="true"></span>PREVUMO <span class="pv-sub">prototypes</span></a>
+  <span class="pv-parts">
+    <a href="/software">Software prototype</a>
+    <a href="/hardware" aria-current="true">Hardware prototypes</a>
+  </span>
+  <span class="pv-here">3D printer module</span>
+</nav>
+<style>
+  .pv-site { position: relative; z-index: 20; display: flex; align-items: center; gap: 6px 18px; flex-wrap: wrap; min-height: 54px; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); background: #FFFDF8; border-bottom: 1.5px solid #E3D6C0; font: 500 14px/1.2 "Inter", ui-sans-serif, system-ui, sans-serif; color: #1F3D2B; }
+  .pv-site a { color: #1F3D2B; text-decoration: none; border-radius: 8px; }
+  .pv-site a:focus-visible { outline: 3px solid #2F6B45; outline-offset: 2px; }
+  .pv-home { display: inline-flex; align-items: center; gap: 8px; font: 700 15px/1 "Space Grotesk", "Inter", sans-serif; letter-spacing: 0.08em; }
+  .pv-sub { font: 500 13px/1 "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0; color: #5B6B5F; }
+  .pv-mark { width: 16px; height: 21px; border-radius: 4px; background: #1F3D2B; display: inline-block; }
+  .pv-parts { display: inline-flex; gap: 4px; padding: 3px; border-radius: 11px; background: #EDE4D3; }
+  .pv-parts a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; }
+  .pv-parts a[aria-current] { background: #1F3D2B; color: #F3EBDD; }
+  .pv-here { margin-left: auto; font: 500 13px/1.2 "JetBrains Mono", ui-monospace, monospace; color: #5B6B5F; }
+  @media (max-width: 640px) { .pv-here { display: none; } .pv-parts a { padding: 0 9px; font-size: 13px; } }
+</style>
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("/vendor/fonts/space-grotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: "Inter"; src: url("/vendor/fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "JetBrains Mono"; src: url("/vendor/fonts/jetbrains-mono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+</style>
+<link rel="stylesheet" href="/hardware/kit/engine.css">
+<script type="importmap">{ "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }</script>
+<script type="module">
+import { run, plan, U, C } from "/hardware/kit/engine.js";
+const { prog, clamp, rnd, within, lerp, ease, outCubic } = U;
+
+// ---------------- timeline (seconds) ----------------
+const T = plan(8, 2, [5.6, 3.0, 5.6, 6.0, 9.0, 7.0]);
+const [s0, s1, s2, s3, s4, s5, s6] = T.steps;
+const E = {
+  amira: s0 + 0.9, priya: s0 + 3.6,
+  relay: s1 + 0.3, warmEnd: s3 - 0.9, settle: s3 - 0.1, printStart: s3 + 0.3,
+  fail: s4 + 0.4, detect: s4 + 2.0, alertIn: s4 + 2.4, tapShut: s4 + 3.8, confirmIn: s4 + 4.2, tapConfirm: s4 + 5.2, logged: s4 + 5.7, stop: s4 + 6.0,
+  lucas: s5 + 0.4, on2: s5 + 1.0, cut: s5 + 4.6,
+};
+const POWER = [[E.relay, E.stop], [E.on2, E.cut]];
+const GRAMS = (t) => Math.round(18 * clamp((t - E.printStart) / (E.fail - E.printStart)));
+const warming = (t) => (t >= E.relay + 0.2 && t < E.settle) || (t >= E.on2 + 0.2 && t < E.cut);
+const printing = (t) => t >= E.printStart && t < E.stop;
+const extruding = (t) => t >= E.printStart && t < E.fail;
+
+// illustrative readings
+const normalI = (tt) => 0.5 + 0.11 * Math.tanh(3 * Math.sin(tt * 6.5)) + (rnd(Math.floor(tt * 10)) - 0.5) * 0.06;
+function current(tt) {
+  if (tt < E.relay + 0.15 || tt >= E.stop) return 0;
+  const warm = 0.9 + (rnd(Math.floor(tt * 10) + 3) - 0.5) * 0.06;
+  if (tt < E.warmEnd) return warm * outCubic(prog(tt, E.relay + 0.15, E.relay + 0.6));
+  if (tt < E.settle) return lerp(warm, normalI(tt), ease(prog(tt, E.warmEnd, E.settle)));
+  return normalI(tt);
+}
+const bandAt = (tt) => { const k = ease(prog(tt, E.warmEnd, E.settle)); return [lerp(0.78, 0.32, k), lerp(1.05, 0.7, k)]; };
+const gramsLine = (tt) => (tt < E.printStart ? 0 : 0.04 + GRAMS(tt) / 18 * 0.86 + (tt < E.fail ? (rnd(Math.floor(tt * 10)) - 0.5) * 0.015 : 0));
+const holdI = (tt) => (tt < E.on2 + 0.15 || tt >= E.cut ? 0 : 0.62 + (rnd(Math.floor(tt * 10) + 5) - 0.5) * 0.05);
+
+const ICONFLAG = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>';
+
+run({
+  name: "3D printer module", machine: "3D printer 4", kicker: "PREVUMO · PD B3 concept", sysTitle: "On the printer",
+  sub: "A box on the wall that the printer plugs into. A fob unlocks it; it weighs the filament and cuts power when heat is left on.",
+  T,
+  box: { glands: 3, outlet: true, relay: ["15 A", "120 V"], ct: true },
+  parts: [
+    { key: "reader" },
+    { key: "disp" },
+    { key: "qr", role: "Opens the 3D printer 4 manual." },
+    { key: "cover" },
+    { key: "board", role: "ESP32 with Wi-Fi and a current sensor." },
+    { key: "relay", role: "Certified, 15 A at 120 V. Switches the printer." },
+    { key: "psu", role: "Runs the box from the same outlet." },
+    { key: "base", role: "Wall mount, cord to the wall, outlet for the printer." },
+    { ref: "scale", name: "Spool scale", role: "Load cell under the spool: grams per session.", a: [2.4, 0, 2], d: [110, -50] },
+    { ref: "usb", name: "Printer link", role: "USB cable: reads the job, can pause it.", a: [-1.3, 0, 0.4], d: [-150, -20] },
+  ],
+  steps: [
+    ["Locked until a fob tap", "Amira's fob is not on this printer's trained list, so it stays locked. Priya is trained: it unlocks."],
+    ["Power on", "The box closes its relay and the printer turns on. The session is logged to Priya."],
+    ["Heats up first: that's normal", "A printer draws the most current while the bed and nozzle heat. PREVUMO knows this warm-up, so it raises no alert."],
+    ["Prints and weighs filament", "Once warm, the current settles into its normal range. The scale under the spool counts grams; the first two weeks only learn the normal range."],
+    ["Failed print? Pause", "Print time far past the estimate, or the spool stops losing weight: the box pauses the job and alerts the member."],
+    ["Left heating? Power off", "Heaters on and nothing moving for the time the owner sets, or a finished job still hot: the relay cuts power."],
+  ],
+  sysView: { p: [35, 108, 20], h: 118, ox: -160, oy: 80 },
+  cam: [
+    [s0 + 0.3, 2, 97, 2, 24, 7, 50, 0, 30],
+    [s1 - 0.3, 2, 97, 2, 28, 8, 50, 0, 30],
+    [s1 + 0.6, 35, 108, 20, 34, 15, 116, -13, 50],
+    [s2 - 0.2, 35, 108, 20, 36, 15, 116, -13, 50],
+    [s2 + 0.8, 36, 108, 20, 30, 13, 104, -13, 50],
+    [s5 - 0.4, 36, 108, 20, 37, 14, 104, -13, 50],
+    [s5 + 0.6, 35, 108, 20, 33, 15, 116, 0, 50],
+    [s6 - 0.2, 35, 108, 20, 35, 15, 116, 0, 50],
+  ],
+  fob: [{ at: E.amira, ok: false }, { at: E.priya, ok: true }, { at: E.lucas, ok: true }],
+  display: [
+    [0, ["Tap your fob", "PREVUMO · 3D printer 4"]],
+    [E.amira, ["Checking fob", "Printer 4 trained list"]],
+    [E.amira + 0.6, ["Locked", "Not trained on this machine"]],
+    [s0 + 3.0, ["Tap your fob", "PREVUMO · 3D printer 4"]],
+    [E.priya, ["Checking fob", "Printer 4 trained list"]],
+    [E.priya + 0.6, ["Hi, Priya", "Trained · unlocking"]],
+    [s1, ["Hi, Priya", "Power on"]],
+    [s2, ["Warming up", "Normal for this printer"]],
+    [E.printStart, (t) => ["Priya · printing", `Filament: ${GRAMS(t)} g`]],
+    [E.detect, ["Print paused", "Extrusion stopped"]],
+    [E.stop, ["Stopped by Priya", "Filament 18 g · logged"]],
+    [s5, ["Tap your fob", "PREVUMO · 3D printer 4"]],
+    [E.lucas, ["Checking fob", "Printer 4 trained list"]],
+    [E.on2, ["Hi, Lucas", "Power on"]],
+    [E.on2 + 0.8, (t) => ["Heating", `No print · ${Math.min(20, Math.floor((t - E.on2 - 0.8) / (E.cut - E.on2 - 0.8) * 20))} min`]],
+    [E.cut, ["Heated 20 min", "with no print · Power off"]],
+  ],
+  light: [[0, "idle"], [E.amira + 0.5, "rust"], [s0 + 3.0, "idle"], [E.priya + 0.6, "green"], [E.detect, "orange"], [E.stop, "rust"], [s5, "idle"],
+    [E.on2, "green"], [E.on2 + 2.4, "orange"], [E.cut, "rust"], [T.end, "idle"]],
+  sessions: [[E.relay, E.stop], [E.on2, E.cut + 0.6]],
+  alarm: [[E.detect, E.stop], [E.cut - 0.4, E.cut + 0.6]],
+  charts: [
+    { in: s2 + 0.2, out: s3 + 1.0, title: "3D printer 4 · current", ta: s1, tb: s3 + 1.5, I: current, band: bandAt, lapse: true,
+      bandText: "normal range, learned in weeks 1 and 2",
+      flags: [{ tt: s2 + 1.6, at: s2 + 1.2, text: "warm-up: normal", tone: "ok", y: 1.08 }],
+      tag: (t) => (warming(t) ? ["Warming up · normal", "warm"] : ["Normal range", "ok"]) },
+    { in: s3 + 1.6, out: s5 - 0.3, title: "Filament used", ta: E.printStart, tb: s5 - 0.2, I: gramsLine, unit: "grams, spool scale",
+      flags: [{ tt: E.fail, at: E.fail + 1.0, text: "no change", tone: "warn", y: 0.98 }],
+      lineCol: (t) => (t >= E.stop ? C.idlemark : C.green), hot: (tt) => tt >= E.fail && tt < E.stop,
+      tag: (t) => (t >= E.stop ? ["Shut down", "off"] : t >= E.detect ? ["Paused", "irr"] : t >= E.fail + 1.0 ? ["Extrusion stopped", "hot"] : ["Printing", "ok"]) },
+    { in: s5 + 0.6, out: s6 - 0.1, title: "Heaters on, no motion", ta: s5 + 0.6, tb: s6, I: holdI,
+      guide: { v: 0.82, text: "owner limit: 20 min" },
+      tag: (t) => (t >= E.cut ? ["Power off", "off"] : t >= E.on2 ? ["Heating, no print", "warm"] : ["Idle", "idle"]) },
+  ],
+  alerts: [
+    { in: E.alertIn, out: E.logged + 0.9, tone: "paused", badge: "Paused · check the print", title: "3D printer 4 · failed print?", label: "Priya's phone · illustrative",
+      phases: [
+        { at: E.alertIn, reason: "The spool stopped losing weight 6 min ago. Job paused.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
+        { at: E.confirmIn, reason: "The printer will stop and won't restart on its own.", buttons: ["cancel", "gap", "confirm"], ring: 2, tap: E.tapConfirm },
+        { at: E.logged, reason: "Power is off. Logged for Priya's session.", logged: "Decision logged: Shut down" },
+      ] },
+  ],
+  cards: [
+    { in: E.logged + 1.2, out: s5 + 0.2, top: 494, html: () => `<p class="lbl">Owner app · Members · illustrative</p>
+      <p class="tt" style="margin-top:10px">Priya Nair · 3D printer 4</p>
+      <div class="rows"><div class="r"><span class="k">Session</span><b>1 h 40 min</b></div>
+      <div class="r"><span class="k">Filament</span><b>18 g, billed at $0.10 a gram: $1.80</b></div>
+      <div class="r"><span class="k">Result</span><b>Failed print, paused at 64%</b></div></div>
+      <span class="chip ok">${ICONFLAG}Added to Priya's record</span>` },
+  ],
+  tags: [
+    { text: "Amira: not trained on this printer", tone: "bad", icon: "stop", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.amira + 0.6, out: s0 + 3.0, ctx: false },
+    { text: "Priya: trained", tone: "ok", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.priya + 0.6, out: s1 + 0.3, ctx: false },
+    { text: "Heating up: normal", tone: "ok", obj: "bed", a: [-13, 9, 6], d: [-150, 40], in: s2 + 0.8, out: s3 - 0.2 },
+    { text: "Spool scale · grams per session", tone: "ok", obj: "scale", a: [-2.4, 0, 2], d: [-170, -40], in: s3 + 0.6, out: s4 + 0.2 },
+    { text: "Spool stopped turning", tone: "warn", icon: "warn", obj: "scale", a: [-2.4, 0, 2], d: [-170, -40], in: E.fail + 1.0, out: E.stop + 0.4 },
+    { text: "Heated 20 min, no print", tone: "warn", icon: "warn", obj: "bed", a: [-13, 9, 6], d: [-170, 40], in: E.on2 + 2.4, out: E.cut },
+    { text: "Power off", tone: "bad", icon: "stop", obj: "bed", a: [-13, 9, 6], d: [-120, 40], in: E.cut, out: s6 - 0.1 },
+  ],
+  about: "The 3D printer module sits on the wall and the printer plugs into it. A member's NFC fob unlocks it if that fob is on the printer's trained list. A scale under the spool counts the grams each member uses, a USB link lets the box pause a failed job, and the relay cuts power when the heaters are left on with nothing printing. The current spike while the printer warms up is normal and raises no alert.",
+  evidence: [
+    "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
+    "University of Regina charges $0.10 a gram for 3D printing; Grey Bruce Makers bills filament by weight.",
+    "Nozzles run at 250 °C and more, and guidance says to check prints every 30 minutes (Alveo3D).",
+  ],
+  chapters: [{ label: "Failed print", at: [s4, s5], still: 4.0 }, { label: "Left heating", at: [s5, T.end], still: 5.2 }],
+
+  scene(api) {
+    const { THREE, C, ctx, cm, mk, RB, CYL, toon, canvasTex, texPlane, curve, tube, beads, wallOutlet, LineMaterial, LineGeometry, Line2, lineMats } = api;
+    const S = {};
+    // wall with a normal 120 V outlet, the box's plug, and the printer's plug in the box
+    ctx.add(cm(RB(60, 66, 1.2, 0.4), C.idle, { p: [16, 109, -3.6] }));
+    wallOutlet(-6.5, 81.5);
+    ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [-6.5, 83.2, -1.6] }));
+    ctx.add(cm(RB(2.6, 2.2, 1.8, 0.45), C.ink, { p: [8.75, 95.4, -0.8] }));
+    // bench
+    ctx.add(cm(RB(70, 3, 51, 0.5), C.border, { p: [43, 70.5, 23] }));
+    for (const [x, z] of [[11, 1.5], [75, 1.5], [11, 44.5], [75, 44.5]]) ctx.add(cm(RB(3, 69, 3, 0.4), C.border, { p: [x, 34.5, z] }));
+    // generic open frame 3D printer
+    const pr = new THREE.Group(); pr.position.set(42, 72, 22); ctx.add(pr); S.pr = pr;
+    pr.add(cm(RB(36, 7, 30, 1), C.surface, { p: [0, 3.5, 0] }));
+    S.prTex = canvasTex(260, 110);
+    const prLcd = texPlane(8, 3.4, S.prTex, true); prLcd.position.set(-9, 3.7, 15.04); pr.add(prLcd);
+    pr.add(cm(CYL(1.3, 1.2), C.ink, { p: [1.5, 3.7, 15.3], r: [Math.PI / 2, 0, 0] }));
+    const bed = new THREE.Group(); pr.add(bed); S.bed = bed;
+    S.bedMat = toon(C.inkSoft, true);
+    bed.add(mk(RB(26, 1.0, 24, 0.3), null, { mat: S.bedMat, ctx: true, p: [0, 8.6, 0] }));
+    for (const x of [-16.5, 16.5]) pr.add(cm(RB(3, 44, 4, 0.4), C.ink, { p: [x, 29, -6] }));
+    pr.add(cm(RB(36, 3, 4, 0.4), C.ink, { p: [0, 52.5, -6] }));
+    S.gantry = new THREE.Group(); pr.add(S.gantry);
+    S.gantry.add(cm(RB(30, 2.2, 3, 0.4), C.ink, { p: [0, 2.5, -3.6] }));
+    S.head = new THREE.Group(); S.gantry.add(S.head);
+    S.head.add(cm(RB(5.4, 6.6, 4.6, 0.6), C.surface, { p: [0, 2.2, -0.8] }));
+    S.head.add(cm(CYL(1.7, 0.4, 24), C.idlemark, { p: [0, 2.6, 1.6], r: [Math.PI / 2, 0, 0] }));
+    S.nozzleMat = toon(C.idlemark, true);
+    S.head.add(mk(new THREE.ConeGeometry(0.75, 1.4, 16), null, { mat: S.nozzleMat, ctx: true, p: [0, -1.8, -0.8], r: [Math.PI, 0, 0] }));
+    pr.add(cm(RB(2, 6, 2, 0.4), C.ink, { p: [0, 57, -6] }));
+    // spool scale: a load cell between the holder post and the spool
+    const scale = new THREE.Group(); scale.position.set(0, 60.6, -6); pr.add(scale); S.scale = scale;
+    scale.add(cm(RB(4.8, 1.2, 3.6, 0.3), C.idlemark));
+    scale.add(cm(RB(1.4, 0.6, 1.4, 0.2), C.ink, { p: [2.0, 0, 1.9] }));
+    S.spool = new THREE.Group(); S.spool.position.set(0, 69.4, -6); pr.add(S.spool);
+    S.spool.add(cm(CYL(8, 5.4, 32), C.green, { r: [0, 0, Math.PI / 2] }));
+    for (const s of [-1, 1]) S.spool.add(cm(CYL(9, 0.6, 32), C.ink, { r: [0, 0, Math.PI / 2], p: [s * 3, 0, 0] }));
+    S.spool.add(cm(RB(6.8, 0.6, 0.6, 0.2), C.surface, { p: [0, 0, 8.05], outline: false }));
+    pr.add(cm(RB(2.4, 1.6, 1.6, 0.3), C.ink, { p: [0, 61.4, -6] }));
+    const filMat = new LineMaterial({ color: C.green, linewidth: 2.4, worldUnits: false, transparent: true });
+    filMat.userData.w = 2.4; filMat.userData.ctx = true; lineMats.push(filMat);
+    S.filGeo = new LineGeometry(); S.filGeo.setPositions([0, 64, -6, 0, 30, -3]);
+    pr.add(new Line2(S.filGeo, filMat));
+    // the print: a small vase that grows layer by layer
+    const vase = [[0, 0], [3.2, 0], [3.6, 1.5], [4.2, 4.5], [3.4, 7.5], [2.6, 9], [0, 9]].map(([x, y]) => new THREE.Vector2(x, y));
+    S.part = cm(new THREE.LatheGeometry(vase, 36), C.green, { p: [0, 9.1, 0] }); bed.add(S.part);
+    { const m = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); api.ctxMats.push(m);
+      const f = new THREE.Mesh(new THREE.PlaneGeometry(40, 33), m); f.rotation.x = -Math.PI / 2; f.position.set(42, 72.03, 22); ctx.add(f); }
+    // USB port on the printer's left side
+    const usb = new THREE.Group(); usb.position.set(27, 75.2, 37.2); ctx.add(usb); S.usb = usb;
+    usb.add(cm(RB(2.6, 1.3, 0.8, 0.3), C.ink));
+    // cords and cables: wall to box, box to printer, box to the scale, box to the printer's USB
+    S.PATH = {
+      cordIn: curve([[-6.5, 84.6, -1.6], [-6.4, 86.6, -1.6], [-4.4, 87.4, -1.2], [-3.5, 88.6, -0.9], [-3.5, 89.3, -0.8]]),
+      cordOut: curve([[10.0, 95.4, -0.8], [13, 93.6, 0.2], [16, 84, 1.8], [19, 74.5, 3.4], [23, 72.7, 5.0], [27.5, 72.8, 6.6], [30, 74.6, 7.3]]),
+      scaleSig: curve([[42, 133, 13.9], [42, 132.4, 9], [38, 128, -2.6], [22, 116, -2.8], [6, 92, -2.6], [0.2, 87.6, -1.8], [0, 89.3, -0.8]]),
+      usb: curve([[3.5, 89.3, -0.8], [3.5, 87, -1.8], [8, 81, 0], [14, 74.6, 8], [20, 73.4, 24], [24, 73.6, 34], [26.4, 74.6, 37.8], [27, 75.2, 37.8]]),
+    };
+    const P = S.PATH;
+    tube(P.cordIn, 0.55, C.ink, { seg: 40 }); tube(P.cordOut, 0.6, C.ink, { seg: 120 });
+    tube(P.scaleSig, 0.26, C.idlemark, { outline: false, seg: 120 }); tube(P.usb, 0.32, C.idlemark, { outline: false, seg: 120 });
+    S.B = { power: beads(16, 0.8, C.green), sig: beads(4, 0.55, C.green), heat: beads(10, 0.55, C.orange) };
+    return S;
+  },
+
+  update(t, api) {
+    const { S, C, placeBeads, flow, THREE } = api, P = S.PATH;
+    const on = within(t, POWER);
+    const key = !on ? "OFF" : t >= E.on2 ? "HEATING" : t >= E.detect ? "PAUSED" : warming(t) ? "HEATING" : printing(t) ? "PRINTING" : "READY";
+    if (S.prTex.key !== key) { S.prTex.key = key; const g = S.prTex.g; g.fillStyle = on ? (key === "PAUSED" ? C.otint : C.gtint) : C.idle; g.fillRect(0, 0, 260, 110); g.fillStyle = on ? (key === "PAUSED" ? C.rust : C.green) : C.idlemark; g.font = "700 40px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 130, 58, 236); S.prTex.tx.needsUpdate = true; }
+    const tm = Math.min(t, E.detect - 0.3);
+    const pk = printing(t) ? tm - E.printStart : 0;
+    const runK = printing(t) ? clamp((t - E.printStart) * 2) : 0;
+    const grow = t >= E.printStart && t < s5 ? 0.1 + 0.5 * prog(Math.min(t, E.fail), E.printStart, E.fail) : 0;
+    S.part.visible = grow > 0.01; S.part.scale.set(1, Math.max(0.01, grow), 1);
+    const park = t >= E.detect - 0.3 && t < s5 ? prog(t, E.detect - 0.3, E.detect + 0.4) : 0;
+    S.head.position.x = lerp(lerp(11, 6 * Math.sin(pk * 2.6), runK), 11, park);
+    S.bed.position.z = lerp(5, 5 * Math.sin(pk * 1.7), runK);
+    S.gantry.position.y = 9.1 + 2.6 + grow * 9;
+    const hx = S.head.position.x, hy = S.gantry.position.y + 6.2;
+    S.filGeo.setPositions([0, 62.6, -6, hx * 0.4, (62.6 + hy) / 2 + 2, -4, hx, hy, -0.8]);
+    // the spool turns only while filament feeds
+    S.spool.rotation.x = -(extruding(t) ? (t - E.printStart) * 0.9 : t >= E.fail && t < s5 ? (E.fail - E.printStart) * 0.9 : 0);
+    const hot = warming(t) ? 0.45 : printing(t) && t < E.detect ? 0.25 : 0;
+    S.nozzleMat.color.set(C.idlemark).lerp(new THREE.Color(C.orange), hot > 0 ? 0.9 : 0);
+    placeBeads(S.B.power, flow(t, POWER, warming(t) ? 30 : 18, 16, [P.cordIn, P.cordOut]));
+    const sig = [];
+    if (t >= E.printStart && t < E.stop) { const ph = t - Math.floor(t); if (ph < 0.8) sig.push({ curve: P.scaleSig, u: 1 - ph / 0.8, s: 1 }); }
+    if (t >= E.detect - 0.6 && t < E.detect) sig.push({ curve: P.usb, u: prog(t, E.detect - 0.6, E.detect), s: 1 });
+    S.B.sig.material.color.set(t >= E.fail + 1.0 && t < E.stop ? C.orange : C.green);
+    placeBeads(S.B.sig, sig);
+    // heat shimmer over the bed while it is hot and nothing prints
+    const heat = [];
+    const hk = clamp(prog(t, E.on2 + 0.6, E.on2 + 1.2) * (1 - prog(t, E.cut, E.cut + 0.6)) + prog(t, E.relay + 0.4, E.relay + 1.0) * (1 - prog(t, E.settle - 0.4, E.settle + 0.2)));
+    if (hk > 0) for (let i = 0; i < 10; i++) { const ph = ((t * 0.6) + i / 10) % 1; heat.push({ p: new THREE.Vector3(42 - 10 + rnd(i) * 20, 82 + ph * 10, 22 - 8 + rnd(i + 9) * 16), s: hk * Math.sin(ph * Math.PI) }); }
+    placeBeads(S.B.heat, heat);
+  },
+});
+</script>
+
+</body>
+</html>

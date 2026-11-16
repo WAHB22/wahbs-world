@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3EBDD">
+<meta name="description" content="PREVUMO multimaker module: print, laser or CNC picked on the box, each with its own resource.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Multimaker module · PREVUMO hardware prototypes</title>
+</head>
+<body>
+<nav class="pv-site" aria-label="PREVUMO prototypes">
+  <a class="pv-home" href="/"><span class="pv-mark" aria-hidden="true"></span>PREVUMO <span class="pv-sub">prototypes</span></a>
+  <span class="pv-parts">
+    <a href="/software">Software prototype</a>
+    <a href="/hardware" aria-current="true">Hardware prototypes</a>
+  </span>
+  <span class="pv-here">Multimaker module</span>
+</nav>
+<style>
+  .pv-site { position: relative; z-index: 20; display: flex; align-items: center; gap: 6px 18px; flex-wrap: wrap; min-height: 54px; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); background: #FFFDF8; border-bottom: 1.5px solid #E3D6C0; font: 500 14px/1.2 "Inter", ui-sans-serif, system-ui, sans-serif; color: #1F3D2B; }
+  .pv-site a { color: #1F3D2B; text-decoration: none; border-radius: 8px; }
+  .pv-site a:focus-visible { outline: 3px solid #2F6B45; outline-offset: 2px; }
+  .pv-home { display: inline-flex; align-items: center; gap: 8px; font: 700 15px/1 "Space Grotesk", "Inter", sans-serif; letter-spacing: 0.08em; }
+  .pv-sub { font: 500 13px/1 "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0; color: #5B6B5F; }
+  .pv-mark { width: 16px; height: 21px; border-radius: 4px; background: #1F3D2B; display: inline-block; }
+  .pv-parts { display: inline-flex; gap: 4px; padding: 3px; border-radius: 11px; background: #EDE4D3; }
+  .pv-parts a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; }
+  .pv-parts a[aria-current] { background: #1F3D2B; color: #F3EBDD; }
+  .pv-here { margin-left: auto; font: 500 13px/1.2 "JetBrains Mono", ui-monospace, monospace; color: #5B6B5F; }
+  @media (max-width: 640px) { .pv-here { display: none; } .pv-parts a { padding: 0 9px; font-size: 13px; } }
+</style>
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("/vendor/fonts/space-grotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: "Inter"; src: url("/vendor/fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "JetBrains Mono"; src: url("/vendor/fonts/jetbrains-mono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+</style>
+<link rel="stylesheet" href="/hardware/kit/engine.css">
+<script type="importmap">{ "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }</script>
+<script type="module">
+import { run, plan, U, C } from "/hardware/kit/engine.js";
+const { prog, clamp, rnd, within, lerp, ease, outCubic } = U;
+
+// ---------------- timeline (seconds) ----------------
+const T = plan(9, 2, [5.4, 3.0, 5.0, 7.2, 7.4, 5.0, 5.2]);
+const [s0, s1, s2, s3, s4, s5, s6, s7] = T.steps;
+const E = {
+  jonah: s0 + 0.9, priya: s0 + 3.4,
+  pickCnc: s1 + 1.2, relay: s1 + 1.7,
+  spin: s2 + 0.5, spinEnd: s2 + 1.4,
+  climb: s3 + 0.6, alertIn: s3 + 2.0, tapShut: s3 + 3.4, confirmIn: s3 + 3.8, tapConfirm: s3 + 4.8, logged: s3 + 5.3, stop: s3 + 5.6,
+  amira: s4 + 0.3, pickLaser: s4 + 1.0, laserOn: s4 + 1.3, fanOn: s4 + 3.0, unlock: s4 + 3.6, beam: s4 + 4.2,
+  lucas: s5 + 0.3, pickPrint: s5 + 1.0, printOn: s5 + 1.4, printStart: s5 + 1.8,
+  done: s6 + 0.4, countdown: s6 + 1.8, autoOff: s6 + 4.0,
+};
+const POWER = [[E.relay, E.stop], [E.laserOn, s5], [E.printOn, E.autoOff]];
+const mode = (t) => (t >= E.pickPrint ? "print" : t >= E.pickLaser ? "laser" : t >= E.pickCnc ? "cnc" : "print");
+const spinning = (t) => t >= E.spin && t < E.stop;
+const cutting = (t) => t >= E.spinEnd && t < E.stop;
+const lasing = (t) => t >= E.beam && t < s5;
+const printing = (t) => t >= E.printStart && t < E.done;
+const fanRunning = (t) => t >= E.fanOn && t < s5;
+const SPINDLE = (t) => Math.round(42 * clamp((t - E.spin) / (E.stop - E.spin)));
+const LASERMIN = (t) => Math.round(18 * clamp((t - E.beam) / (s5 - 0.2 - E.beam)));
+const GRAMS = (t) => Math.round(12 * clamp((t - E.printStart) / (E.done - E.printStart)));
+
+// illustrative readings
+const loadI = (tt) => 0.5 + (rnd(Math.floor(tt * 10)) - 0.5) * 0.14 + 0.04 * Math.sin(tt * 3.1);
+function current(tt) {
+  if (tt < E.relay + 0.15 || tt >= E.stop) return 0;
+  if (tt < E.spin) return 0.14 + (rnd(Math.floor(tt * 10) + 5) - 0.5) * 0.03;
+  if (tt < E.spinEnd) { const k = prog(tt, E.spin, E.spinEnd); return 0.14 + (k < 0.2 ? k / 0.2 : Math.exp(-(k - 0.2) * 4)) * 0.98; }
+  if (tt < E.climb) return loadI(tt);
+  return loadI(tt) + 0.5 * outCubic(prog(tt, E.climb, E.climb + 2.2));
+}
+function bandAt(tt) {
+  if (tt < E.spin - 0.1) return [0.05, 0.3];
+  if (tt < E.spinEnd + 0.1) return [0.1, 1.2];
+  const k = ease(prog(tt, E.spinEnd + 0.1, E.spinEnd + 0.5));
+  return [lerp(0.1, 0.33, k), lerp(1.2, 0.72, k)];
+}
+const fanI = (tt) => (fanRunning(tt) ? 0.55 * outCubic(prog(tt, E.fanOn, E.fanOn + 0.3)) + (rnd(Math.floor(tt * 10) + 4) - 0.5) * 0.05 : 0.02);
+const gramsLine = (tt) => (tt < E.printStart ? 0 : 0.04 + GRAMS(tt) / 12 * 0.8 + (tt < E.done ? (rnd(Math.floor(tt * 10)) - 0.5) * 0.015 : 0));
+
+const ICONFLAG = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 21V4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M5.5 4h12l-3 4.5 3 4.5h-12z" fill="currentColor"/></svg>';
+const row = (n, m, use, on) => `<div class="mrow${on ? " on" : ""}" style="grid-template-columns:110px 1fr 220px"><span class="mn">${n}</span><span style="font:400 19px/1.2 var(--body);color:var(--muted)">${m}</span><span class="use">${use}</span></div>`;
+
+run({
+  name: "Multimaker module", machine: "Multimaker 1", kicker: "PREVUMO · PD B3 concept", sysTitle: "On the multimaker",
+  sub: "One box for a 3-in-1 machine. After the fob tap the member picks print, laser or CNC, and each mode tracks its own resource.",
+  T,
+  box: { glands: 3, outlet: true, relay: ["15 A", "120 V"], ct: true, modes: ["Print", "Laser", "CNC"] },
+  parts: [
+    { key: "reader" },
+    { key: "modes" },
+    { key: "disp", role: "Who is on, the mode, and what the box is doing." },
+    { key: "qr", role: "Opens the Multimaker 1 manual." },
+    { key: "cover" },
+    { key: "board", role: "ESP32 with Wi-Fi and a current sensor." },
+    { key: "relay", role: "Certified, 15 A at 120 V. Switches the machine." },
+    { key: "psu", role: "Runs the box from the same outlet." },
+    { key: "base", role: "Wall mount, cord to the wall, outlet for the machine." },
+    { ref: "scale", name: "Spool scale", role: "Print mode: grams of filament per session.", a: [2.4, 0, 1.4], d: [110, -40] },
+    { ref: "fanct", name: "Exhaust clamp", role: "Laser mode: no exhaust current, no laser.", a: [0.6, 0.6, 0], d: [90, -60] },
+  ],
+  steps: [
+    ["Locked until a fob tap", "Jonah's fob is not on Multimaker 1's trained list, so it stays locked. Priya is trained: it unlocks."],
+    ["Picks the mode", "Priya presses CNC on the box. Each mode has its own trained list and its own normal range."],
+    ["CNC: counts spindle minutes", "The spin-up spike is normal for CNC, so no alert. The box logs the minutes the spindle runs."],
+    ["Flags an irregular pattern", "The current keeps climbing during the cut. The owner gets one alert and decides what happens."],
+    ["Laser: exhaust first", "Amira picks laser. The laser stays locked until the exhaust fan draws current, then laser-on minutes are logged."],
+    ["Print: weighs filament", "Lucas picks print. The scale under the spool counts the grams of his session."],
+    ["Idle? Off", "A finished job left switched on: the box turns it off after the idle time the owner sets."],
+  ],
+  sysView: { p: [30, 100, 18], h: 112, ox: -230, oy: 60 },
+  cam: [
+    [s0 + 0.3, 2, 97, 2, 24, 7, 50, 0, 30],
+    [s1 + 1.3, 2, 97, 2, 28, 8, 50, 0, 30],
+    [s2 - 0.1, 36, 96, 20, 32, 15, 104, -60, 40],
+    [s7 - 0.2, 36, 96, 20, 37, 15, 104, -60, 40],
+  ],
+  fob: [{ at: E.jonah, ok: false }, { at: E.priya, ok: true }, { at: E.amira, ok: true }, { at: E.lucas, ok: true }],
+  press: [{ btn: 2, at: E.pickCnc }, { btn: 1, at: E.pickLaser }, { btn: 0, at: E.pickPrint }],
+  display: [
+    [0, ["Tap your fob", "PREVUMO · Multimaker 1"]],
+    [E.jonah, ["Checking fob", "Multimaker trained list"]],
+    [E.jonah + 0.6, ["Locked", "Not trained on this machine"]],
+    [s0 + 2.8, ["Tap your fob", "PREVUMO · Multimaker 1"]],
+    [E.priya, ["Checking fob", "Multimaker trained list"]],
+    [E.priya + 0.6, ["Hi, Priya", "Trained · unlocking"]],
+    [s1, ["Pick a mode", "Print · Laser · CNC"]],
+    [E.pickCnc, ["Hi, Priya", "CNC · power on"]],
+    [E.spin, (t) => ["Priya · CNC", `Spindle: ${SPINDLE(t)} min`]],
+    [E.climb + 1.4, ["Irregular current", "Owner notified"]],
+    [E.stop, ["Stopped by owner", "Spindle 42 min · logged"]],
+    [s4, ["Tap your fob", "PREVUMO · Multimaker 1"]],
+    [E.amira, ["Hi, Amira", "Pick a mode"]],
+    [E.pickLaser, ["Exhaust off", "Laser locked"]],
+    [E.unlock, ["Exhaust on", "Laser unlocked"]],
+    [E.beam, (t) => ["Amira · laser", `Laser on: ${LASERMIN(t)} min`]],
+    [s5, ["Tap your fob", "PREVUMO · Multimaker 1"]],
+    [E.lucas, ["Hi, Lucas", "Pick a mode"]],
+    [E.pickPrint, (t) => ["Lucas · print", `Filament: ${GRAMS(t)} g`]],
+    [E.done, ["Print done", "Machine still on"]],
+    [E.countdown, (t) => ["Idle", `Turning off in 0:0${Math.max(0, Math.ceil((E.autoOff - t) / ((E.autoOff - E.countdown) / 3)))}`]],
+    [E.autoOff, ["Turned off", "Power off"]],
+  ],
+  light: [[0, "idle"], [E.jonah + 0.5, "rust"], [s0 + 2.8, "idle"], [E.priya + 0.6, "green"], [E.climb + 1.4, "orange"], [E.stop, "rust"], [s4, "idle"],
+    [E.amira + 0.5, "green"], [E.pickLaser, "orange"], [E.unlock, "green"], [s5, "idle"], [E.lucas + 0.5, "green"], [E.countdown, "orange"], [E.autoOff, "idle"], [T.end, "idle"]],
+  sessions: [[E.relay, E.stop], [E.laserOn, s5], [E.printOn, E.autoOff]],
+  alarm: [[E.climb + 1.4, E.stop]],
+  charts: [
+    { in: s2 + 0.2, out: s4 - 0.3, title: "Multimaker 1 · CNC current", ta: s2, tb: s4, I: current, band: bandAt, lapse: false,
+      bandText: "CNC normal, learned in weeks 1 and 2",
+      flags: [{ tt: E.spin + 0.3, at: E.spin + 0.4, text: "spin-up: normal", tone: "ok", y: 1.14 }],
+      hot: (tt, v) => tt >= E.climb && v > 0.72 && tt < E.stop, lineCol: (t) => (t >= E.stop ? C.idlemark : C.green),
+      tag: (t) => (t >= E.stop ? ["Shut down", "off"] : t >= E.climb + 1.4 ? ["Irregular", "irr"] : t >= E.spin && t < E.spinEnd + 0.6 ? ["Spin-up · normal", "warm"] : ["Normal range", "ok"]) },
+    { in: s4 + 0.8, out: s5 - 0.3, title: "Exhaust fan · current", ta: s4 + 0.6, tb: s5, I: fanI, lapse: false,
+      guide: { v: 0.3, text: "fan running" },
+      tag: (t) => (t >= E.unlock ? ["Fan on · laser unlocked", "ok"] : ["Fan off · laser locked", "off"]) },
+    { in: s5 + 0.8, out: s6 - 0.3, title: "Filament used", ta: E.printStart, tb: s6, I: gramsLine, unit: "grams, spool scale",
+      tag: (t) => (t >= E.done ? ["Print done", "idle"] : ["Printing", "ok"]) },
+  ],
+  alerts: [
+    { in: E.alertIn, out: E.logged + 0.9, tone: "irr", badge: "Irregular pattern", title: "Multimaker 1 · CNC current",
+      phases: [
+        { at: E.alertIn, reason: "Current keeps climbing during the cut. In use by Priya Nair.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
+        { at: E.confirmIn, reason: "The machine will stop and won't restart on its own.", buttons: ["cancel", "gap", "confirm"], ring: 2, tap: E.tapConfirm },
+        { at: E.logged, reason: "Power is off. Logged for Priya's session.", logged: "Decision logged: Shut down" },
+      ] },
+  ],
+  cards: [
+    { in: s6 + 0.5, out: s7 - 0.1, top: 494, html: (t) => `<p class="lbl">Owner app · Multimaker 1 · today · illustrative</p>
+      <div class="rows" style="margin-top:6px">${row("Priya", "CNC", "spindle 42 min")}${row("Amira", "Laser", "laser on 18 min")}${row("Lucas", "Print", `filament ${GRAMS(t)} g`, true)}</div>
+      <p class="foot">Each session adds to the member's record</p>` },
+  ],
+  tags: [
+    { text: "Jonah: not trained on Multimaker 1", tone: "bad", icon: "stop", obj: "reader", a: [-2.6, -4.0, 3.2], d: [-60, 200], in: E.jonah + 0.6, out: s0 + 2.8, ctx: false },
+    { text: "Priya: trained", tone: "ok", obj: "reader", a: [-2.6, -4.0, 3.2], d: [-60, 200], in: E.priya + 0.6, out: s1 + 0.6, ctx: false },
+    { text: "CNC picked", tone: "ok", obj: "reader", a: [3.4, -6.1, 3.2], d: [120, 120], in: E.pickCnc + 0.2, out: s2 - 0.2, ctx: false },
+    { text: "Spin-up: normal", tone: "ok", obj: "carriage", a: [0, 4, 0], d: [-80, -150], in: E.spin + 0.3, out: E.spinEnd + 1.2 },
+    { text: "Exhaust off: laser locked", tone: "bad", icon: "stop", obj: "fan", a: [-4, 0, 1.8], d: [-210, -40], in: E.pickLaser + 0.2, out: E.unlock },
+    { text: "Exhaust on: laser unlocked", tone: "ok", obj: "fan", a: [-4, 0, 1.8], d: [-210, -40], in: E.unlock, out: s5 - 0.2 },
+    { text: "Spool scale · grams per session", tone: "ok", obj: "scale", a: [-2.4, 0, 1.4], d: [-180, -40], in: E.printStart, out: s6 - 0.2 },
+  ],
+  about: "The multimaker module is one box for a 3-in-1 machine that prints, engraves with a laser, and carves with a CNC spindle. A member taps an NFC fob, then picks the mode on the box. Each mode has its own trained list, its own learned normal range and its own resource: grams of filament from a spool scale, laser-on minutes behind an exhaust interlock, and spindle minutes from the current reading.",
+  evidence: [
+    "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
+    "CMU EHS: ventilation must be on before a laser operates.",
+    "University of Regina charges $0.10 a gram for 3D printing; Grey Bruce Makers bills filament by weight.",
+  ],
+  chapters: [{ label: "CNC", at: [s2, s4], still: 3.0 }, { label: "Laser", at: [s4, s5], still: 5.0 }, { label: "Print", at: [s5, T.end], still: 3.0 }],
+
+  scene(api) {
+    const { THREE, C, ctx, cm, RB, CYL, canvasTex, texPlane, rr, curve, tube, beads, wallOutlet, LineMaterial, LineGeometry, Line2, lineMats } = api;
+    const S = {};
+    ctx.add(cm(RB(28, 40, 1.2, 0.4), C.idle, { p: [1, 96, -3.6] }));
+    wallOutlet(-6.5, 81.5);
+    ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [-6.5, 83.2, -1.6] }));
+    ctx.add(cm(RB(2.6, 2.2, 1.8, 0.45), C.ink, { p: [8.75, 95.4, -0.8] }));
+    ctx.add(cm(RB(70, 3, 51, 0.5), C.border, { p: [43, 70.5, 23] }));
+    for (const [x, z] of [[11, 1.5], [75, 1.5], [11, 44.5], [75, 44.5]]) ctx.add(cm(RB(3, 69, 3, 0.4), C.border, { p: [x, 34.5, z] }));
+    // the multimaker: a square base, two vertical modules, an X beam that rides up and down, one swappable head
+    const mm = new THREE.Group(); mm.position.set(46, 72, 22); ctx.add(mm); S.mm = mm;
+    mm.add(cm(RB(40, 5, 36, 1), C.surface, { p: [0, 2.5, 0] }));
+    S.mmTex = canvasTex(260, 110);
+    const mmLcd = texPlane(8, 3.4, S.mmTex, true); mmLcd.position.set(-10, 2.6, 18.04); mm.add(mmLcd);
+    const plate = new THREE.Group(); mm.add(plate);
+    plate.add(cm(RB(30, 1.2, 28, 0.3), C.idle, { p: [0, 5.6, 0] }));
+    S.stock = new THREE.Group(); plate.add(S.stock);
+    S.stock.add(cm(RB(16, 3, 11, 0.3), C.border, { p: [0, 7.7, 0] }));
+    S.pocket = cm(RB(1, 0.2, 2.4, 0.08), C.inkSoft, { p: [0, 9.25, 0], outline: false }); S.stock.add(S.pocket);
+    S.boardL = new THREE.Group(); plate.add(S.boardL);
+    S.boardL.add(cm(RB(18, 0.8, 12, 0.2), C.border, { p: [0, 6.6, 0] }));
+    S.engTex = canvasTex(540, 360);
+    const engr = texPlane(16, 10.7, S.engTex, true); engr.rotation.x = -Math.PI / 2; engr.position.set(0, 7.03, 0); S.boardL.add(engr);
+    const vase = [[0, 0], [3.2, 0], [3.6, 1.5], [4.2, 4.5], [3.4, 7.5], [2.6, 9], [0, 9]].map(([x, y]) => new THREE.Vector2(x, y));
+    S.part = cm(new THREE.LatheGeometry(vase, 36), C.green, { p: [0, 6.2, 0] }); plate.add(S.part);
+    for (const x of [-20, 20]) mm.add(cm(RB(4, 46, 5, 0.5), C.ink, { p: [x, 28, -9] }));
+    S.beam = new THREE.Group(); mm.add(S.beam);
+    S.beam.add(cm(RB(36, 3.6, 4.4, 0.5), C.ink, { p: [0, 0, -6.4] }));
+    S.carriage = new THREE.Group(); S.beam.add(S.carriage);
+    S.carriage.add(cm(RB(7, 5, 2, 0.4), C.ink, { p: [0, 0, -3.6] }));
+    const headPrint = () => { const g = new THREE.Group(); g.add(cm(RB(6, 7, 5, 0.6), C.surface)); g.add(cm(new THREE.ConeGeometry(0.75, 1.4, 16), C.idlemark, { p: [0, -4.2, 0], r: [Math.PI, 0, 0] })); g.userData.tip = -4.9; return g; };
+    const headLaser = () => { const g = new THREE.Group(); g.add(cm(RB(6, 7, 5, 0.6), C.inkSoft)); g.add(cm(CYL(1.2, 2.2, 20), C.idlemark, { p: [0, -4.6, 0] })); g.add(cm(RB(3.4, 1.4, 0.3, 0.1), C.gtint, { p: [0, 1.4, 2.55], outline: false })); g.userData.tip = -5.7; return g; };
+    const headCnc = () => { const g = new THREE.Group(); g.add(cm(CYL(2.7, 7.4, 28), C.ink, { p: [0, 0.4, 0] })); g.add(cm(CYL(1.25, 1.4, 20), C.idlemark, { p: [0, -4.0, 0] })); const bit = cm(CYL(0.38, 2.6, 10), C.muted, { p: [0, -6.0, 0] }); g.add(bit); g.userData.bit = bit; g.userData.tip = -7.3; return g; };
+    S.HEADS = { print: headPrint(), laser: headLaser(), cnc: headCnc() };
+    S.shelf = new THREE.Group(); S.shelf.position.set(18, 72, 36); ctx.add(S.shelf);
+    S.shelf.add(cm(RB(16, 1.6, 9, 0.3), C.idle, { p: [0, 0.8, 0] }));
+    // laser beam: a short orange line under the laser head
+    S.beamMat = new THREE.MeshBasicMaterial({ color: C.orange, transparent: true }); api.ctxMats.push(S.beamMat);
+    S.laserBeam = new THREE.Mesh(CYL(0.16, 1.2, 8), S.beamMat); S.laserBeam.visible = false; mm.add(S.laserBeam);
+    // spool scale on top of the right column
+    const scale = new THREE.Group(); scale.position.set(66, 123.6, 13); ctx.add(scale); S.scale = scale;
+    scale.add(cm(RB(4.8, 1.2, 4.4, 0.3), C.idlemark));
+    scale.add(cm(RB(1.4, 0.6, 1.4, 0.2), C.ink, { p: [2.0, 0, 2.2] }));
+    scale.add(cm(RB(1.6, 3.4, 1.6, 0.3), C.ink, { p: [0, 2.2, 0] }));
+    S.spool = new THREE.Group(); S.spool.position.set(66, 131, 13); ctx.add(S.spool);
+    S.spool.add(cm(CYL(5.6, 4.4, 32), C.green, { r: [0, 0, Math.PI / 2] }));
+    for (const s of [-1, 1]) S.spool.add(cm(CYL(6.3, 0.5, 32), C.ink, { r: [0, 0, Math.PI / 2], p: [s * 2.45, 0, 0] }));
+    S.spool.add(cm(RB(0.6, 0.5, 4.2, 0.2), C.surface, { p: [2.7, 5.4, 0], outline: false }));
+    const filMat = new LineMaterial({ color: C.green, linewidth: 2.4, worldUnits: false, transparent: true });
+    filMat.userData.w = 2.4; filMat.userData.ctx = true; lineMats.push(filMat); S.filMat = filMat;
+    S.filGeo = new LineGeometry(); S.filGeo.setPositions([66, 125, 13, 50, 100, 20]);
+    S.fil = new Line2(S.filGeo, filMat); ctx.add(S.fil);
+    // exhaust fan on the wall between the box and the machine, a hose to the work area, its cord to a wall outlet
+    ctx.add(cm(RB(22, 40, 1.2, 0.4), C.idle, { p: [26, 110, -3.6] }));
+    const fan = new THREE.Group(); fan.position.set(25, 120, -1.2); ctx.add(fan); S.fan = fan;
+    fan.add(cm(RB(10, 10, 3.6, 0.6), C.surface));
+    fan.add(cm(new THREE.TorusGeometry(3.6, 0.35, 10, 32), C.ink, { p: [0, 0, 1.85] }));
+    S.blades = new THREE.Group(); S.blades.position.z = 1.9; fan.add(S.blades);
+    for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 + 0.3; const b = cm(RB(1.5, 2.6, 0.2, 0.1), C.muted, { outline: false }); b.position.set(Math.sin(a) * 1.8, Math.cos(a) * 1.8, 0); b.rotation.z = -a + 0.5; S.blades.add(b); }
+    S.blades.add(cm(CYL(0.7, 0.4, 16), C.ink, { r: [Math.PI / 2, 0, 0] }));
+    tube(curve([[25, 114.6, 1.0], [26, 106, 8], [28, 92, 16], [30, 84, 20], [31.5, 80.6, 22]]), 1.2, C.idlemark, { seg: 60 });
+    wallOutlet(33, 98);
+    ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [33, 99.7, -1.6] }));
+    S.PATH = {
+      cordIn: curve([[-6.5, 84.6, -1.6], [-6.4, 86.6, -1.6], [-4.4, 87.4, -1.2], [-3.5, 88.6, -0.9], [-3.5, 89.3, -0.8]]),
+      cordOut: curve([[10.0, 95.4, -0.8], [13, 93.6, 0.2], [16, 84, 1.8], [19, 74.5, 3.0], [23, 72.7, 3.4], [28, 72.8, 3.6], [31, 74.6, 3.8]]),
+      fanCord: curve([[28.6, 115.4, -1.0], [31.4, 112, -1.4], [33, 107, -1.6], [33, 103, -1.6], [33, 101.1, -1.6]]),
+      fanSig: curve([[31.8, 108, -1.6], [26, 104, -2.6], [14, 94, -2.6], [6, 88.4, -2.4], [3.5, 87.6, -1.6], [3.5, 89.3, -0.8]]),
+      scaleSig: curve([[66, 123.6, 10.6], [64, 122, 3], [50, 112, -2.6], [40, 100, -2.6], [20, 91.6, -2.6], [8, 88.6, -2.4], [0, 87.6, -1.6], [0, 89.3, -0.8]]),
+    };
+    const P = S.PATH;
+    tube(P.cordIn, 0.55, C.ink, { seg: 40 }); tube(P.cordOut, 0.6, C.ink, { seg: 120 }); tube(P.fanCord, 0.45, C.ink, { seg: 60 });
+    for (const k of ["fanSig", "scaleSig"]) tube(P[k], 0.26, C.idlemark, { outline: false, seg: 140 });
+    // current clamp on the fan's cord
+    const fanct = new THREE.Group(); fanct.position.set(33, 108, -1.6); ctx.add(fanct); S.fanct = fanct;
+    fanct.add(cm(new THREE.TorusGeometry(1.0, 0.45, 10, 24), C.ink, { r: [Math.PI / 2, 0, 0] }));
+    fanct.add(cm(RB(1.0, 1.2, 1.2, 0.3), C.idlemark, { p: [-1.5, 0, 0] }));
+    { const m = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); api.ctxMats.push(m);
+      const f = new THREE.Mesh(new THREE.PlaneGeometry(44, 40), m); f.rotation.x = -Math.PI / 2; f.position.set(46, 72.03, 22); ctx.add(f); }
+    S.chips = beads(18, 0.35, C.border, mm);
+    S.B = { power: beads(16, 0.8, C.green), sig: beads(4, 0.55, C.green), smoke: beads(12, 0.7, C.idle) };
+    return S;
+  },
+
+  repaint(api) {
+    const { S, C, U } = api, g = S.engTex.g;
+    g.clearRect(0, 0, 540, 360); g.strokeStyle = C.inkSoft; g.lineWidth = 12; g.lineJoin = g.lineCap = "round";
+    g.beginPath(); g.moveTo(40, 200); for (let x = 40; x < 300; x += 20) g.lineTo(x, 200 + (U.rnd(x) - 0.5) * 14);
+    g.lineTo(320, 120); g.lineTo(345, 290); g.lineTo(370, 160); g.lineTo(392, 230); g.lineTo(410, 200); for (let x = 420; x <= 500; x += 20) g.lineTo(x, 200 + (U.rnd(x + 3) - 0.5) * 14); g.stroke(); S.engTex.tx.needsUpdate = true;
+  },
+
+  update(t, api) {
+    const { S, C, placeBeads, flow, THREE } = api, P = S.PATH;
+    const on = within(t, POWER), md = mode(t);
+    const key = !on ? "OFF" : t >= E.done ? "DONE" : md === "cnc" ? (cutting(t) ? "CARVING" : "CNC") : md === "laser" ? (lasing(t) ? "LASER" : "LOCKED") : printing(t) ? "PRINTING" : "PRINT";
+    if (S.mmTex.key !== key) { S.mmTex.key = key; const g = S.mmTex.g; const warn = key === "LOCKED"; g.fillStyle = on ? (warn ? C.otint : C.gtint) : C.idle; g.fillRect(0, 0, 260, 110); g.fillStyle = on ? (warn ? C.rust : C.green) : C.idlemark; g.font = "700 40px 'JetBrains Mono'"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(key, 130, 58, 236); S.mmTex.tx.needsUpdate = true; }
+    // mount the head for this mode, park the others on the shelf
+    let slot = 0;
+    for (const [name, h] of Object.entries(S.HEADS)) {
+      if (name === md) { S.carriage.add(h); h.position.set(0, 0, 0); }
+      else { S.shelf.add(h); const sx = slot++ ? 4 : -4; h.position.set(sx, 1.6 - h.userData.tip, 0); }
+    }
+    S.stock.visible = md === "cnc"; S.boardL.visible = md === "laser"; S.part.visible = md === "print" && t >= E.printStart;
+    S.part.scale.set(1, Math.max(0.01, 0.1 + 0.5 * prog(t, E.printStart, E.done)), 1);
+    const ck = md === "cnc" ? (cutting(t) ? prog(t, E.spinEnd, E.stop) : t >= E.stop ? 1 : 0) : 0;
+    const tip = S.HEADS[md].userData.tip;
+    const surface = md === "cnc" ? 9.2 : md === "laser" ? 7.1 : 6.2 + 9 * S.part.scale.y + 0.4;
+    const moving = cutting(t) || lasing(t) || printing(t);
+    const tt = t * (md === "print" ? 2.6 : 9);
+    S.carriage.position.x = md === "cnc" ? -5 + 10 * ck + (cutting(t) ? Math.sin(tt) * 0.4 : 0) : moving ? 6 * Math.sin(t * 2.2) : 4;
+    S.beam.position.y = surface - tip - (cutting(t) ? 0.6 : 0) + (moving || spinning(t) ? 0 : 3);
+    S.pocket.scale.set(Math.max(0.01, 10 * ck), 1, 1); S.pocket.position.x = -5 + 5 * ck; S.pocket.visible = ck > 0.01;
+    S.HEADS.cnc.userData.bit.rotation.y = spinning(t) ? t * 40 : 0;
+    S.laserBeam.visible = lasing(t) && api.ca > 0.5;
+    if (S.laserBeam.visible) S.laserBeam.position.set(S.carriage.position.x, 7.1 + 0.6, 0);
+    S.blades.rotation.z = fanRunning(t) ? -(t - E.fanOn) * 14 : 0;
+    // filament only feeds in print mode
+    const feeding = md === "print" && t >= E.pickPrint;
+    S.fil.visible = feeding;
+    if (feeding) { const hx = 46 + S.carriage.position.x, hy = 72 + S.beam.position.y + 3.6; S.filGeo.setPositions([66, 125.4, 13, (66 + hx) / 2 + 6, (125.4 + hy) / 2 + 10, 16, hx, hy, 22 - 0.8]); }
+    S.spool.rotation.x = -(printing(t) ? (t - E.printStart) * 0.9 : t >= E.done ? (E.done - E.printStart) * 0.9 : 0);
+    placeBeads(S.B.power, flow(t, POWER, cutting(t) ? 26 : 16, 16, [P.cordIn, P.cordOut]));
+    const sig = [];
+    if (t >= E.pickLaser && t < s5) { const ph = (t * 1.2) % 1; if (ph < 0.8) sig.push({ curve: P.fanSig, u: ph / 0.8, s: 1 }); }
+    if (printing(t)) { const ph = t - Math.floor(t); if (ph < 0.8) sig.push({ curve: P.scaleSig, u: ph / 0.8, s: 1 }); }
+    S.B.sig.material.color.set(t >= E.pickLaser && t < E.unlock ? C.orange : C.green);
+    placeBeads(S.B.sig, sig);
+    // chips off the bit; smoke from the laser drawn into the hose
+    const chips = [];
+    if (cutting(t)) for (let i = 0; i < 18; i++) { const ph = (t * 1.6 + i / 18) % 1, a = rnd(i + 2) * Math.PI * 2, r = 1 + ph * 6; chips.push({ p: new THREE.Vector3(S.carriage.position.x + Math.cos(a) * r, surface + 0.4 + Math.sin(ph * Math.PI) * 3, Math.sin(a) * r), s: 1 - ph }); }
+    placeBeads(S.chips, chips);
+    const smoke = [];
+    if (lasing(t)) for (let i = 0; i < 12; i++) { const ph = (t * 0.7 + i / 12) % 1; const x0 = 46 + S.carriage.position.x; smoke.push({ p: new THREE.Vector3(lerp(x0, 31.5, ph), 80 + Math.sin(ph * Math.PI) * 4 + rnd(i) * 2, 22 + (rnd(i + 3) - 0.5) * 4), s: 0.8 * Math.sin(ph * Math.PI) }); }
+    placeBeads(S.B.smoke, smoke);
+  },
+});
+</script>
+
+</body>
+</html>
