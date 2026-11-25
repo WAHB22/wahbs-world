@@ -43,3 +43,20 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * Say "nothing is measured yet" once, aloud, and turn it into the pilot plan.
   * No sponsors, signed pilots or savings claims.
 * **Note:** Firecrawl's free daily limit ran out during the research; the investor marked seven figures as read from excerpts only, to recheck in loop 4.
+
+### Loop 2 (Tue 20:45): story editor
+* **Lead:** the story editor lens, working in the main session from the critique and Wahb's order (started, where we are, next step, value and customers and sponsors, market, where we go).
+* **Made:** `STORY.md`.
+  * The one sentence.
+  * The arc.
+  * Ten slides with time, speaker and words.
+  * A draft script of 633 words (4:52 at 130 words a minute).
+  * The numbers to verify.
+  * The three films.
+  * Seven appendix slides for questions.
+* **Decided:**
+  * One slide for the pivot.
+  * The welder in depth on the hardware slide, the other four as the same box with their own sensors.
+  * "Nothing is measured yet" said on slide 6, followed by the free pilot plan.
+  * Sponsors stated as "none yet".
+  * Pricing kept out of the 5 minutes, in the appendix.
