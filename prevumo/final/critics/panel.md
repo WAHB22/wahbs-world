@@ -70,7 +70,7 @@ Tally: 2 GOOD, 10 WEAK, 3 MISSING.
 
 1. **The live site the QR opens.** /dashboard ("Live simulation") says "uOttawa Engineering, 26 machines with a PREVUMO box", lists "Chem Lab B" (fume hood, centrifuge, sample freezer, "watched live, one reading per second"), says "keypad, current sensor and relay", and promises it "tells you when it's about to fail". The home page footer says certification is "needed before sale"; other pages say "before any use".
 2. **Slide 9 contradicts itself**: pilot at step 2, approval at step 3, footer "approval comes before any use".
-3. **"Quotes anonymized"** (slides 2 and 17), yet slides 15 and 17 name Yukonstruct, and the public site quotes "Rick Yorgason, Oct 27" and cites Grey Bruce Makers, which FACTS keeps off slides. Confirm he agreed to be named.
+3. **"Quotes anonymized"** (slides 2 and 17), yet slides 15 and 17 name Yukonstruct, and the public site quotes "the Yukonstruct contact, Oct 27" and cites Grey Bruce Makers, which FACTS keeps off slides. Confirm he agreed to be named.
 4. **"Live"**, which CRITIQUE banned: slide 10 "Every prototype, live"; "Monday, live" on the slide 5 poster.
 5. **Four or five?** Slide 3 shows four machines; slide 4 says "five modules"; B says "the other four". Say "the enclosed printer is the printer box plus a chamber sensor".
 6. **"Lasts longer"** in sentence one has no evidence; its only support (DOE 30 to 40%) was dropped. Cut it.

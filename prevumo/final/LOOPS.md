@@ -213,7 +213,7 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * Four answers strengthened: pilot approval, the welder's own solenoid, safety device or monitor, the enclosure exception.
 * **Left for Wahb:**
   * The names of the spaces open to a free pilot.
-  * Whether Rick Yorgason agreed to be named on the public site (the PD B3 pages quote him by name).
+  * Whether the Yukonstruct contact agreed to be named on the public site (the PD B3 pages quote him by name).
 
 ### Loop 11 (Tue 22:46): projection check
 * **Lead:** the projection check, in the main session: a script read every text run in the deck, computed the colour contrast of every pair in use, and simulated a washed out projector seen from the back of the room.
@@ -271,3 +271,10 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * the script PDF tells the team how to embed the fonts in PowerPoint on a locked podium computer, and to present the PDF if anything reflows;
   * Q24 says what drives the cost without inventing a number; Q36 to Q40 answer the smart plug, kitchens, machine life, the normal band and the welder.
 * **Left for loop 15:** the free pilot claim (point 1) is the team's own; it is a decision, not a fix.
+
+### Loop 15 (Wed 06:23): the three decisions
+* **Lead:** the main session, deciding without asking, as Wahb asked. Written up in `DECISIONS.md`.
+* **1. Keep the free pilot interest, worded exactly:** "open to a free pilot" and "nothing signed"; names only if the team has them.
+* **2. Tell the truth on stage:** nothing built or measured yet, approval before a watch only pilot, the welder last, PREVUMO next to Fabman.
+* **3. Name organizations, not people, anywhere public:** the site credits the fob quote to "Yukonstruct (Oct 27)", as the deck's "owner quotes anonymized" promises. The submitted PD B3 report is left as it was.
+* **Applied:** the site regenerated and rebuilt without the name; FACTS, the loop log and the panel notes no longer name him either. The script PDF has a "before Friday" box with the four things only the team can do: speaker names, pilot space names, Yukonstruct's consent to be named on slides 15 and 17, and a check of fonts and films on the presenting computer.

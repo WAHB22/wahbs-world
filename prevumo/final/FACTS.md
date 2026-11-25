@@ -29,7 +29,7 @@ Checked on 24 and 25 November 2026 (Ottawa time) by reading the source itself, n
 * **Quote:** "Managing equipment is one of the biggest tasks we have." (Ontario makerspace executive director, anonymized.)
 * **Quote:** "I pay all the electricity and build that price into my monthly rent. Simple, easy, fair." (Manitoba shared kitchen owner.)
 * **Cafés:** cafés were not interested, so the team left them (PD B3 report, section 1).
-* **Yukonstruct:** "we wouldn't want it to be a personal code, we would want it to be an NFC fob." (Rick Yorgason, Oct 27.)
+* **Yukonstruct:** "we wouldn't want it to be a personal code, we would want it to be an NFC fob." (Oct 27. The contact is not named anywhere public: decision 3 in DECISIONS.md.)
 * **Free pilots:** makerspaces and Fab Labs open to a free pilot. Wahb's account; no names or emails are on file in the repo, so the deck calls it interest, and the team must be ready to name them.
 
 ## Dropped (cannot be verified for makerspaces, or could not be read)
