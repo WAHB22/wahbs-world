@@ -24,7 +24,7 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 | 13 | Consistency auditor | The same claims and numbers in the deck, notes, Q&A, site and report |
 | 14 | Gatekeeper | Refuses until no weak point is left |
 | 15 | Three decisions | The three calls made without asking, applied and written down |
-| 16 | Finalizer | Final build, checks, delivery, commit |
+| 16 | Finalizer | Final build, checks, delivery, commit (done) |
 
 (The table was redrawn in loop 12 to match what ran: loops 3 to 6 started early, so the films merged into one loop and the design critic got its own.)
 
@@ -278,3 +278,13 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 * **2. Tell the truth on stage:** nothing built or measured yet, approval before a watch only pilot, the welder last, PREVUMO next to Fabman.
 * **3. Name organizations, not people, anywhere public:** the site credits the fob quote to "Yukonstruct (Oct 27)", as the deck's "owner quotes anonymized" promises. The submitted PD B3 report is left as it was.
 * **Applied:** the site regenerated and rebuilt without the name; FACTS, the loop log and the panel notes no longer name him either. The script PDF has a "before Friday" box with the four things only the team can do: speaker names, pilot space names, Yukonstruct's consent to be named on slides 15 and 17, and a check of fonts and films on the presenting computer.
+
+### Loop 16 (Wed 06:54): finalizer
+* **Deploy:** the loop 15 site (no person named, the fob quote credited to "Yukonstruct (Oct 27)") deployed to prevumo.vercel.app from commit 201abdc and checked live.
+* **Final checks:**
+  * `PREVUMO-final.pptx`: passes the Office validator; 17 slides, notes on every slide; both films embedded and set to play by themselves;
+  * `PREVUMO-final.pdf` (17 pages), `PREVUMO-final-script.pdf` (5 pages) and `PREVUMO-final-QA.pdf` (8 pages): every font embedded; no em dash, en dash or spaced hyphen;
+  * the two films: H.264, 1920x1080, yuv420p, 35.3 s and 35.9 s, identical to the copies inside the deck;
+  * the slide 10 QR decodes to https://prevumo.vercel.app.
+* **Delivered:** the six files in `prevumo/deliverables/final/`, sent to Wahb. Scheduling stops here.
+* **Open, for the team before Friday:** speaker names; the names of the spaces open to a free pilot, if any; Yukonstruct's consent to be named on slides 15 and 17; the PD B3 report still has its old wording ("certified before sale", the gas leak sensor, Alveo3D, Grey Bruce) and names the Yukonstruct contact, which is fine in a submitted report but differs from the deck.
