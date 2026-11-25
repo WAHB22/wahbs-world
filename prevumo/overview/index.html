@@ -64,6 +64,8 @@
   .three span { font: 600 11.5px/1 var(--body); padding: 7px 9px; border-radius: 14px; background: var(--idle); }
   .three span:first-child { background: var(--surface); box-shadow: 0 0 0 1.5px var(--rust) inset; color: var(--rust); }
   .three span:nth-child(2) { background: var(--green); color: #fff; }
+  .three.safe span:first-child { background: var(--green); color: #fff; box-shadow: none; }
+  .three.safe span:nth-child(2) { background: var(--idle); color: var(--ink); }
   .minis { margin-top: 10px; display: grid; gap: 6px; }
   .minis div { display: flex; justify-content: space-between; align-items: center; font: 500 12.5px/1.2 var(--body); padding: 7px 9px; border-radius: 10px; background: var(--bg); }
   .minis em { font-style: normal; font: 600 11px/1 var(--body); padding: 5px 8px; border-radius: 10px; }
@@ -158,10 +160,10 @@
     <div class="shead"><h2 id="h-d">How it connects</h2><span class="dl">Drawing 1 · not to scale</span></div>
     <div class="diagram">
       <ol class="machines" aria-label="Machines with a PREVUMO module">
-        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="6" y="14" width="34" height="30" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><circle cx="16" cy="28" r="3.4" fill="#1F3D2B"/><circle cx="28" cy="28" r="3.4" fill="#1F3D2B"/><path d="M14 14v-4h18v4" fill="none" stroke="#1F3D2B" stroke-width="2.2"/><rect x="48" y="8" width="12" height="36" rx="6" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="2.2"/><path d="M54 8V4" stroke="#1F3D2B" stroke-width="2.2"/></svg><div><b>Welder 2</b><span>gas valve, leak sensor, wire scale</span></div><span class="boxg" aria-hidden="true"></span></li>
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="6" y="14" width="34" height="30" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><circle cx="16" cy="28" r="3.4" fill="#1F3D2B"/><circle cx="28" cy="28" r="3.4" fill="#1F3D2B"/><path d="M14 14v-4h18v4" fill="none" stroke="#1F3D2B" stroke-width="2.2"/><rect x="48" y="8" width="12" height="36" rx="6" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="2.2"/><path d="M54 8V4" stroke="#1F3D2B" stroke-width="2.2"/></svg><div><b>Welder 2</b><span>gas valve, oxygen sensor, wire scale</span></div><span class="boxg" aria-hidden="true"></span></li>
         <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="8" y="38" width="44" height="8" rx="2" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><path d="M12 38V12h36v26" fill="none" stroke="#1F3D2B" stroke-width="3"/><circle cx="30" cy="8" r="5.5" fill="#2F6B45" stroke="#1F3D2B" stroke-width="2"/><rect x="20" y="33" width="20" height="3" fill="#2C4D39"/></svg><div><b>3D printer 4</b><span>spool scale, printer link</span></div><span class="boxg" aria-hidden="true"></span></li>
         <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="8" y="4" width="40" height="42" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><rect x="13" y="10" width="30" height="24" rx="2" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="1.6"/><circle cx="56" cy="22" r="6" fill="#2F6B45" stroke="#1F3D2B" stroke-width="2"/></svg><div><b>3D printer 2</b><span>enclosed: plus a chamber sensor</span></div><span class="boxg" aria-hidden="true"></span></li>
-        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="4" y="24" width="54" height="20" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><rect x="8" y="20" width="40" height="5" rx="2" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="1.8"/><circle cx="54" cy="31" r="2.6" fill="#A63D1F"/><circle cx="20" cy="9" r="6" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2"/><path d="M20 15v5" stroke="#81897A" stroke-width="3"/></svg><div><b>Laser 1</b><span>exhaust clamp, coolant, air, flame</span></div><span class="boxg" aria-hidden="true"></span></li>
+        <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="4" y="24" width="54" height="20" rx="3" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><rect x="8" y="20" width="40" height="5" rx="2" fill="#D6E4D3" stroke="#1F3D2B" stroke-width="1.8"/><circle cx="54" cy="31" r="2.6" fill="#A63D1F"/><circle cx="20" cy="9" r="6" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2"/><path d="M20 15v5" stroke="#81897A" stroke-width="3"/></svg><div><b>Laser 1</b><span>exhaust airflow, coolant flow, air, flame</span></div><span class="boxg" aria-hidden="true"></span></li>
         <li><svg class="m" viewBox="0 0 68 50" aria-hidden="true"><rect x="8" y="38" width="46" height="8" rx="2" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2.2"/><path d="M12 38V8M50 38V8" stroke="#1F3D2B" stroke-width="3.2"/><path d="M12 20h38" stroke="#1F3D2B" stroke-width="3"/><rect x="26" y="20" width="9" height="9" rx="2" fill="#FFFDF8" stroke="#1F3D2B" stroke-width="2"/><circle cx="58" cy="10" r="4" fill="#2F6B45"/></svg><div><b>Multimaker 1</b><span>mode buttons: print, laser, CNC</span></div><span class="boxg" aria-hidden="true"></span></li>
       </ol>
       <svg class="fan" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -179,7 +181,7 @@
       <div class="owner ownerwrap">
         <div class="phone" aria-label="Owner app, illustrative">
           <div class="ptop">Owner app<span class="demo">demo data</span></div>
-          <div class="alertc"><span class="badge"><i></i>Safety · stopped first</span><b>Gas leak near Welder 2</b><p>Valve closed automatically.</p><div class="three"><span>Shut down</span><span>Call technician</span><span>Mark as OK</span></div></div>
+          <div class="alertc"><span class="badge"><i></i>Safety · stopped first</span><b>Low oxygen near Welder 2</b><p>Valve closed automatically.</p><div class="three safe"><span>Call technician</span><span>Reset at the machine only</span></div></div>
           <div class="minis"><div>3D printer 4<em class="e-use">In use</em></div><div>Laser 1<em class="e-idle">Idle</em></div><div>Multimaker 1<em class="e-learn">Learning mode</em></div></div>
         </div>
       </div>
@@ -200,8 +202,8 @@
     <table>
       <thead><tr><th>Machine</th><th>Risks watched</th><th>Resource tracked</th><th>Automatic action</th></tr></thead>
       <tbody>
-        <tr><td class="mn" data-k="Machine">Welder</td><td data-k="Risks watched">gas left open, gas leak, excessive wire, untrained user, abnormal load</td><td data-k="Resource tracked">gas, wire</td><td data-k="Automatic action">valve closes, machine locks</td></tr>
-        <tr><td class="mn" data-k="Machine">FDM printer</td><td data-k="Risks watched">heater stuck on, left heating, failed print, heavy filament use</td><td data-k="Resource tracked">filament, electricity</td><td data-k="Automatic action">power cut, pause</td></tr>
+        <tr><td class="mn" data-k="Machine">Welder</td><td data-k="Risks watched">gas left open, low oxygen from a leak, excessive wire, untrained user, abnormal load</td><td data-k="Resource tracked">gas, wire</td><td data-k="Automatic action">valve closes, machine locks</td></tr>
+        <tr><td class="mn" data-k="Machine">FDM printer</td><td data-k="Risks watched">heater stuck on, left heating, failed print, heavy filament use</td><td data-k="Resource tracked">filament, electricity</td><td data-k="Automatic action">pause; heaters off, then power off once cool</td></tr>
         <tr><td class="mn" data-k="Machine">Laser</td><td data-k="Risks watched">fire unattended, no exhaust, no air assist, tube overheating</td><td data-k="Resource tracked">tube minutes</td><td data-k="Automatic action">laser paused or locked</td></tr>
       </tbody>
     </table>
@@ -214,7 +216,7 @@
       <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><g fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round"><path d="M10 8a8 8 0 0 1 0 12"/><path d="M14 5a12 12 0 0 1 0 18"/><path d="M18 2a16 16 0 0 1 0 24"/></g><circle cx="6" cy="14" r="2.6" fill="#1F3D2B"/></svg></span><div class="t"><p class="n">1</p><b>Tap fob</b><p>The box checks that machine's trained list. No fob on the list, no power.</p></div></li>
       <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><g fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round"><path d="M14 3v11"/><path d="M20.4 7.4a9 9 0 1 1-12.8 0"/></g></svg></span><div class="t"><p class="n">2</p><b>On</b><p>Power, gas or the laser's enable line switches on for this member.</p></div></li>
       <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M2 16h5l3-8 4 14 3-9 2 3h7" fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="t"><p class="n">3</p><b>Watch</b><p>Current, sensors and resources are read every second against the learned normal.</p></div></li>
-      <li class="act"><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3 2 25h24z" fill="#A63D1F"/><path d="M14 11v6M14 21h.01" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><div class="t"><p class="n">4</p><b>Alert or act</b><p>Gas leak, fire or no exhaust: the machine stops first, then the owner is told. Anything else: Shut down, Call technician or Mark as OK.</p></div></li>
+      <li class="act"><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3 2 25h24z" fill="#A63D1F"/><path d="M14 11v6M14 21h.01" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><div class="t"><p class="n">4</p><b>Alert or act</b><p>Low oxygen, fire or no exhaust: the machine stops first, then the owner is told, and it is reset at the machine. Anything else: Shut down, Call technician or Mark as OK.</p></div></li>
       <li><span class="dot"><svg viewBox="0 0 28 28" aria-hidden="true"><g fill="none" stroke="#1F3D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="18" height="22" rx="2"/><path d="M9 9h10M9 14h10M9 19h6"/></g></svg></span><div class="t"><p class="n">5</p><b>Off and log</b><p>Tap out or idle timeout. Who, how long and what was used go to the member's record.</p></div></li>
     </ol>
   </section>
@@ -225,10 +227,11 @@
       <li><b>NFC fob, not a PIN</b><span>A round contactless reader. "Tap your fob", then "Checking fob", then "Hi, name".</span></li>
       <li><b>Trained list</b><span>A fob that is not on the machine's list sees "Not trained on this machine" and the machine stays locked.</span></li>
       <li><b>QR manual</b><span>A printed sticker beside the reader opens that machine's manual.</span></li>
-      <li><b>Learning mode</b><span>The first two weeks only record the normal range, with no automatic shutdown.</span></li>
-      <li><b>One alert format</b><span>Shut down, Call technician or Mark as OK. Safety events stop the machine first.</span></li>
+      <li><b>Learning mode</b><span>The first two weeks only record the normal range, with no automatic shutdown. Safety stops are always on.</span></li>
+      <li><b>One alert format</b><span>Shut down, Call technician or Mark as OK. Safety events stop the machine first and are reset at the machine.</span></li>
       <li><b>Idle timeout</b><span>Nothing happening for the time the owner sets: everything switches off.</span></li>
       <li><b>Resources per session</b><span>Who, how long and the resource used, added to the member's record.</span></li>
+      <li><b>Fail safe</b><span>No power or a frozen controller: everything off and closed. Trained lists and safety stops work without Wi-Fi.</span></li>
       <li><b>Illustrative labels</b><span>Every chart, number and alert in these drawings is illustrative, not measured.</span></li>
     </ol>
   </section>
@@ -263,7 +266,7 @@
     <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">System overview</p></div></div>
     <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.2 · PD B3</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
     <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
-    <p class="note">Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; CSA certification needed before sale.</p>
+    <p class="note">Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; approval (CSA, or an ESA field evaluation) needed before any use, pilots included.</p>
   </div>
 </div>
 </div>

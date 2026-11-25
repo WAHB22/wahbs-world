@@ -80,6 +80,8 @@
   .btn.pr { background: var(--green); color: #fff; }
   .btn.sec { background: var(--idle); color: var(--ink); }
   .btn.dg { background: var(--rust); color: #fff; }
+  .atbox { display: inline-flex; align-items: center; gap: 7px; height: 54px; padding: 0 4px; font: 600 17px/1 var(--body); color: var(--muted); white-space: nowrap; }
+  .atbox svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .btn .ring { position: absolute; inset: -7px; border-radius: 15px; border: 4px solid var(--green); opacity: 0; }
   .logged { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 20px; background: var(--rust); color: #fff; font: 600 20px/1 var(--body); }
 
@@ -190,7 +192,7 @@ const spanK = (t, spans, fin = 0.35, fout = 0.3) => clamp(spans.reduce((s, [a, b
 const seq = (t, list) => { let v = list[0][1]; for (const [a, x] of list) if (t >= a) v = x; return typeof v === "function" ? v(t) : v; };
 const U = { clamp, prog, lerp, ease, outCubic, outBack, rnd, within, spanK, seq };
 
-const TITLE_NOTE = "Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; CSA certification needed before sale.";
+const TITLE_NOTE = "Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; approval (CSA, or an ESA field evaluation) needed before any use, pilots included.";
 
 // The shared timeline: title, explode with box balloons, reassemble, the machine with its off-box parts, then the steps.
 function plan(nBox, nSys, stepDur) {
@@ -224,6 +226,8 @@ const BTN = {
   cancel: (r) => `<div class="btn sec">Cancel${r}</div>`,
   confirm: (r) => `<div class="btn dg">${ICON.power}Shut down${r}</div>`,
   gap: () => `<span style="flex:1"></span>`,
+  // safety stops are never cleared from a phone: someone resets them at the machine
+  atbox: () => `<span class="atbox">${ICON.shield}Reset at the machine only</span>`,
 };
 
 function run(cfg) {
@@ -883,8 +887,8 @@ run({
     ["Power on", "The box closes its relay and the printer turns on. The session is logged to Priya."],
     ["Heats up first: that's normal", "A printer draws the most current while the bed and nozzle heat. PREVUMO knows this warm-up, so it raises no alert."],
     ["Prints and weighs filament", "Once warm, the current settles into its normal range. The scale under the spool counts grams; the first two weeks only learn the normal range."],
-    ["Failed print? Pause", "Print time far past the estimate, or the spool stops losing weight: the box pauses the job and alerts the member."],
-    ["Left heating? Power off", "Heaters on and nothing moving for the time the owner sets, or a finished job still hot: the relay cuts power."],
+    ["Failed print? Pause", "Two signals must agree: the job is far past its estimate and the spool has stopped losing weight. Then the box pauses it and alerts the member."],
+    ["Left heating? Cool, then off", "Heaters on and nothing moving for the owner's time: heaters off over the printer link, fans cool the nozzle, then the relay cuts power."],
   ],
   sysView: { p: [35, 108, 20], h: 118, ox: -160, oy: 80 },
   cam: [
@@ -914,7 +918,7 @@ run({
     [E.lucas, ["Checking fob", "Printer 4 trained list"]],
     [E.on2, ["Hi, Lucas", "Power on"]],
     [E.on2 + 0.8, (t) => ["Heating", `No print · ${Math.min(20, Math.floor((t - E.on2 - 0.8) / (E.cut - E.on2 - 0.8) * 20))} min`]],
-    [E.cut, ["Heated 20 min", "with no print · Power off"]],
+    [E.cut, ["Heaters off, cooled", "then power off"]],
   ],
   light: [[0, "idle"], [E.amira + 0.5, "rust"], [s0 + 3.0, "idle"], [E.priya + 0.6, "green"], [E.detect, "orange"], [E.stop, "rust"], [s5, "idle"],
     [E.on2, "green"], [E.on2 + 2.4, "orange"], [E.cut, "rust"], [T.end, "idle"]],
@@ -931,12 +935,12 @@ run({
       tag: (t) => (t >= E.stop ? ["Shut down", "off"] : t >= E.detect ? ["Paused", "irr"] : t >= E.fail + 1.0 ? ["Extrusion stopped", "hot"] : ["Printing", "ok"]) },
     { in: s5 + 0.6, out: s6 - 0.1, title: "Heaters on, no motion", ta: s5 + 0.6, tb: s6, I: holdI,
       guide: { v: 0.82, text: "owner limit: 20 min" },
-      tag: (t) => (t >= E.cut ? ["Power off", "off"] : t >= E.on2 ? ["Heating, no print", "warm"] : ["Idle", "idle"]) },
+      tag: (t) => (t >= E.cut ? ["Cooled, then off", "off"] : t >= E.on2 ? ["Heating, no print", "warm"] : ["Idle", "idle"]) },
   ],
   alerts: [
     { in: E.alertIn, out: E.logged + 0.9, tone: "paused", badge: "Paused · check the print", title: "3D printer 4 · failed print?", label: "Priya's phone · illustrative",
       phases: [
-        { at: E.alertIn, reason: "The spool stopped losing weight 6 min ago. Job paused.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
+        { at: E.alertIn, reason: "Past its estimate, and the spool stopped losing weight 6 min ago. Job paused.", buttons: ["off", "tech", "gap", "ok"], ring: 0, tap: E.tapShut },
         { at: E.confirmIn, reason: "The printer will stop and won't restart on its own.", buttons: ["cancel", "gap", "confirm"], ring: 2, tap: E.tapConfirm },
         { at: E.logged, reason: "Power is off. Logged for Priya's session.", logged: "Decision logged: Shut down" },
       ] },
@@ -956,7 +960,7 @@ run({
     { text: "Spool scale · grams per session", tone: "ok", obj: "scale", a: [-2.4, 0, 2], d: [-170, -40], in: s3 + 0.6, out: s4 + 0.2 },
     { text: "Spool stopped turning", tone: "warn", icon: "warn", obj: "scale", a: [-2.4, 0, 2], d: [-170, -40], in: E.fail + 1.0, out: E.stop + 0.4 },
     { text: "Heated 20 min, no print", tone: "warn", icon: "warn", obj: "bed", a: [-13, 9, 6], d: [-170, 40], in: E.on2 + 2.4, out: E.cut },
-    { text: "Power off", tone: "bad", icon: "stop", obj: "bed", a: [-13, 9, 6], d: [-120, 40], in: E.cut, out: s6 - 0.1 },
+    { text: "Cooled, then power off", tone: "bad", icon: "stop", obj: "bed", a: [-13, 9, 6], d: [-170, 40], in: E.cut, out: s6 - 0.1 },
   ],
   about: "The 3D printer module sits on the wall and the printer plugs into it. A member's NFC fob unlocks it if that fob is on the printer's trained list. A scale under the spool counts the grams each member uses, a USB link lets the box pause a failed job, and the relay cuts power when the heaters are left on with nothing printing. The current spike while the printer warms up is normal and raises no alert.",
   evidence: [

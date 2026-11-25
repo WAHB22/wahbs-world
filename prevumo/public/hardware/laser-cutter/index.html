@@ -87,19 +87,19 @@ run({
     { key: "relay", name: "Interlock relay", role: "Opens the laser's enable line: no fob, no laser." },
     { key: "psu", role: "Runs the box from a wall outlet." },
     { key: "base", role: "Wall mount and four cable glands." },
-    { ref: "fanct", name: "Exhaust clamp", role: "Current clamp on the exhaust fan's cord.", a: [0.6, 0.6, 0], d: [100, -40] },
-    { ref: "cool", name: "Coolant sensor", role: "Water temperature on the chiller's return hose.", a: [0, 0, 0.8], d: [-100, 70] },
+    { ref: "fanct", name: "Exhaust airflow switch", role: "In the exhaust duct: no airflow, no laser.", a: [1.2, 0.6, 0], d: [110, -30] },
+    { ref: "cool", name: "Coolant sensor", role: "Flow and temperature on the chiller's return hose.", a: [0, 0, 0.8], d: [-100, 70] },
     { ref: "air", name: "Air pressure switch", role: "On the air assist hose: no pressure, no job.", a: [0, 0.6, 0.6], d: [-110, 50] },
     { ref: "flame", name: "Flame and smoke sensor", role: "Looks at the bed from inside the laser.", a: [0, 0.8, 0.6], d: [-60, -110] },
   ],
   steps: [
     ["Locked until a fob tap", "Priya's fob is not on Laser 1's trained list, so it stays locked. Lucas is trained: it unlocks."],
-    ["Exhaust on first", "The laser stays locked until the clamp sees the exhaust fan draw current."],
+    ["Exhaust on first", "The laser stays locked until the switch in the duct feels air moving."],
     ["Air assist, or no job", "No pressure at the air switch blocks the job."],
     ["Cuts and logs minutes", "Laser-on minutes go to Lucas's record. The coolant temperature is read the whole time."],
-    ["Flame in the bed? Pause", "The flame sensor pauses the laser first, then the owner is alerted."],
-    ["Tapped out mid-job? Pause", "A running laser is never left alone: tapping out pauses the job and alerts the owner."],
-    ["Coolant too warm? Stop", "The laser stops before the tube is damaged, then the owner is alerted."],
+    ["Flame in the bed? Pause", "A flame that lasts pauses the laser first, then the owner is alerted. It is reset at the machine."],
+    ["Left mid-job? Pause", "During a job the box asks for a tap every 15 minutes. A tap out, or no tap, pauses the job and alerts the owner."],
+    ["Coolant problem? Stop", "No flow, or water too warm: the laser stops before the tube is damaged, then the owner is alerted."],
     ["Idle? Off", "Nothing running for the owner's idle time: the enable line opens and the session ends."],
   ],
   sysView: { p: [40, 84, 20], h: 140, ox: -230, oy: 20 },
@@ -156,8 +156,8 @@ run({
   alerts: [
     { in: E.alertA, out: E.loggedA + 0.8, tone: "safety", badge: "Safety · paused first", title: "Flame in the bed · Laser 1",
       phases: [
-        { at: E.alertA, reason: "Laser paused. Lucas Tremblay is at the machine.", buttons: ["off", "tech", "gap", "ok"], ring: 3, tap: E.tapOk },
-        { at: E.loggedA, reason: "Small flare-up, put out. The job can resume.", logged: "Decision logged: Mark as OK", loggedOk: true },
+        { at: E.alertA, reason: "Laser paused. Lucas Tremblay is at the machine.", buttons: ["tech", "gap", "atbox"], ring: -1 },
+        { at: E.loggedA, reason: "Flare-up out. Lucas reset it at the box; the job resumes.", logged: "Logged: reset at the machine", loggedOk: true },
       ] },
     { in: E.alertB, out: s6 - 0.1, tone: "paused", badge: "Paused · left mid-job", title: "Laser 1 · operator tapped out",
       phases: [
@@ -166,7 +166,7 @@ run({
       ] },
     { in: E.alertC, out: s7 - 0.1, tone: "safety", badge: "Safety · stopped first", title: "Laser 1 · coolant too warm",
       phases: [
-        { at: E.alertC, reason: "Laser stopped before the tube overheated. Amira Haddad was cutting.", buttons: ["tech", "gap", "ok"], ring: 0, tap: E.tapTech },
+        { at: E.alertC, reason: "Laser stopped before the tube overheated. Amira Haddad was cutting.", buttons: ["tech", "gap", "atbox"], ring: 0, tap: E.tapTech },
         { at: E.loggedC, reason: "Laser stays locked until the chiller is checked.", logged: "Decision logged: Call technician" },
       ] },
   ],
@@ -194,7 +194,7 @@ run({
     { text: "Lucas tapped out: laser paused", tone: "warn", icon: "warn", obj: "reader", a: [-2.6, -5.2, 3.2], d: [-40, 190], in: E.tapOut + 0.4, out: s6 - 0.2, ctx: false },
     { text: "Coolant too warm", tone: "warn", icon: "warn", obj: "cool", a: [0, 0, 0.8], d: [150, -110], in: E.coolStop - 0.4, out: s7 - 0.1 },
   ],
-  about: "The laser cutter module sits on the wall beside a CO2 laser with its exhaust fan, water chiller and air assist. The box does not switch the laser's mains: an interlock relay opens the laser's enable line, so the laser can only fire for a trained member, with the exhaust drawing current, air pressure on the head and the coolant in range. A flame in the bed or the member tapping out mid-job pauses the laser and alerts the owner; laser-on minutes are logged per member.",
+  about: "The laser cutter module sits on the wall beside a CO2 laser with its exhaust fan, water chiller and air assist. The box does not switch the laser's mains: an interlock relay opens the laser's enable line, so the laser can only fire for a trained member, with air moving in the exhaust duct, air pressure on the head and the coolant flowing in range. It uses only an interlock input the laser's maker documents. A lasting flame in the bed, or a member who taps out or misses the 15 minute tap, pauses the laser and alerts the owner; laser-on minutes are logged per member.",
   evidence: [
     "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
     "CMU EHS: ventilation must be on before a laser operates, and a running laser is always attended.",
@@ -272,7 +272,7 @@ run({
       enable: curve([[-1.5, 89.3, -0.8], [-1.5, 86.6, -1.8], [6, 84, -2.2], [14, 80.4, 4], [20, 80.4, 12], [21.8, 80.4, 14]]),
       bus: curve([[1.5, 89.3, -0.8], [1.5, 86.4, -1.8], [8, 82, -1], [14, 78, 14], [19, 77, 26], [21.4, 77.4, 30]]),
       airHose: curve([[14, 78, 40], [16, 80.6, 41], [19, 82, 40], [21.6, 84, 38]]),
-      fanSig: curve([[40.8, 107, -1.6], [32, 104, -2.6], [16, 92, -2.6], [6, 88.4, -2.4], [4.5, 87.6, -1.6], [4.5, 89.3, -0.8]]),
+      fanSig: curve([[33.4, 104, 1.6], [34, 102, -1.6], [26, 97, -2.6], [14, 91, -2.6], [6, 88.4, -2.4], [4.5, 87.6, -1.6], [4.5, 89.3, -0.8]]),
       fanCord: curve([[36.6, 115.6, -1.0], [40, 112, -1.4], [42, 107, -1.6], [42, 103, -1.6], [42, 101.1, -1.6]]),
     };
     const P = S.PATH;
@@ -297,7 +297,7 @@ run({
     const dialTex = canvasTex(120, 120);
     { const g = dialTex.g; g.fillStyle = C.surface; g.beginPath(); g.arc(60, 60, 58, 0, 7); g.fill(); g.strokeStyle = C.ink; g.lineWidth = 8; g.beginPath(); g.moveTo(60, 60); g.lineTo(92, 34); g.stroke(); dialTex.tx.needsUpdate = true; }
     const dial = texPlane(2.2, 2.2, dialTex, true); dial.position.set(0, 0, 0.52); air.add(dial);
-    // exhaust fan on the wall above the laser's back left, its cord to an outlet with the clamp
+    // exhaust fan on the wall above the laser's back left, its cord to an outlet; an airflow switch sits in the duct
     ctx.add(cm(RB(24, 36, 1.2, 0.4), C.idle, { p: [36, 112, -3.6] }));
     const fan = new THREE.Group(); fan.position.set(32, 120, -1.2); ctx.add(fan); S.fan = fan;
     fan.add(cm(RB(10, 10, 3.6, 0.6), C.surface));
@@ -309,9 +309,9 @@ run({
     tube(S.ductCurve, 1.4, C.idlemark, { seg: 50 });
     wallOutlet(42, 98);
     ctx.add(cm(RB(2.4, 2.8, 1.8, 0.45), C.ink, { p: [42, 99.7, -1.6] }));
-    const fanct = new THREE.Group(); fanct.position.set(42, 107, -1.6); ctx.add(fanct); S.fanct = fanct;
-    fanct.add(cm(new THREE.TorusGeometry(1.0, 0.45, 10, 24), C.ink, { r: [Math.PI / 2, 0, 0] }));
-    fanct.add(cm(RB(1.0, 1.2, 1.2, 0.3), C.idlemark, { p: [-1.5, 0, 0] }));
+    const fanct = new THREE.Group(); fanct.position.set(31.6, 104, 1.8); ctx.add(fanct); S.fanct = fanct;
+    fanct.add(cm(RB(2.4, 3.0, 2.2, 0.4), C.ink, { p: [0.7, 0, 0] }));
+    fanct.add(cm(RB(0.8, 1.2, 1.0, 0.2), C.idlemark, { p: [2.1, 0.6, 0] }));
     { const m = new THREE.MeshBasicMaterial({ color: C.border, transparent: true }); api.ctxMats.push(m);
       const f = new THREE.Mesh(new THREE.CircleGeometry(1, 40), m); f.rotation.x = -Math.PI / 2; f.position.set(26, 0.05, 24); f.scale.set(13, 15, 1); ctx.add(f); }
     S.B = { cool: beads(14, 0.5, C.surface), sig: beads(6, 0.55, C.green), smoke: beads(14, 0.8, C.idle), cmd: beads(4, 0.7, C.rust), fume: beads(10, 0.6, C.idle) };

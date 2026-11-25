@@ -75,6 +75,8 @@
   .btn.qd { background: var(--surface); color: var(--rust); box-shadow: 0 0 0 2px var(--rust) inset; }
   .btn.pr { background: var(--green); color: #fff; }
   .btn.sec { background: var(--idle); }
+  .atbox { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; font: 600 14px/1.2 var(--body); color: var(--muted); }
+  .atbox svg { width: 18px; height: 18px; flex: none; }
   .btn.dg { background: var(--rust); color: #fff; }
   .btn.small { min-height: 38px; font-size: 14px; }
   .spacer { flex: 1; }
@@ -159,24 +161,24 @@ const IC = {
 };
 // ---------------- demo data ----------------
 const MACHINES = [
-  { id: "welder-2", name: "Welder 2", kind: "MIG welder", status: "alert", who: null, last: "Priya Nair, stopped 14:05", chart: "leak", cap: "gas leak sensor · valve closed", facts: [["Wire today", "86 g"], ["Gas valve open today", "1 h 10 min"]] },
+  { id: "welder-2", name: "Welder 2", kind: "MIG welder", status: "alert", who: null, last: "Priya Nair, stopped 14:05", chart: "leak", cap: "oxygen sensor · valve closed", facts: [["Wire today", "86 g"], ["Gas valve open today", "1 h 10 min"]] },
   { id: "printer-4", name: "3D printer 4", kind: "FDM printer", status: "use", who: ["Lucas Tremblay", "printing, 0:48"], chart: "print", cap: "current · normal range", facts: [["Filament this session", "9 g"], ["Est. left", "1 h 05 min"]], alert: "printer-irr" },
   { id: "laser-1", name: "Laser 1", kind: "CO2 laser cutter", status: "idle", who: null, last: "Amira Haddad, 11:20", chart: "idle", cap: "enabled line open · idle", facts: [["Laser on today", "18 min"], ["Coolant", "18 °C"]] },
   { id: "multimaker-1", name: "Multimaker 1", kind: "3-in-1: print, laser, CNC", status: "learn", who: ["Jonah Okafor", "CNC, 0:12"], chart: "cnc", cap: "learning mode · day 9 of 14, recording only", facts: [["Spindle today", "12 min"], ["Auto shutdown", "off while learning"]] },
 ];
 const STATUS = { use: ["In use", "s-use"], idle: ["Idle", "s-idle"], alert: ["Alert", "s-alert"], learn: ["Learning mode", "s-learn"] };
 const ALERTS = [
-  { id: "welder-leak", machine: "welder-2", tone: "safety", badge: "Safety · stopped first", title: "Gas leak near Welder 2", reason: "Valve closed automatically. Welder power is off too. Priya Nair was on.", time: "14:05" },
+  { id: "welder-leak", machine: "welder-2", tone: "safety", badge: "Safety · stopped first", title: "Low oxygen near Welder 2", reason: "Oxygen low by the cylinder fell under the alarm level. Valve closed and welder power off. Priya Nair was on.", time: "14:05" },
   { id: "printer-irr", machine: "printer-4", tone: "irr", badge: "Irregular pattern", title: "3D printer 4 · current stays high", reason: "Current is above its normal range after the warm-up. In use by Lucas Tremblay.", time: "14:29" },
 ];
 const EARLIER = [
   ["Laser 1 · coolant too warm", "Laser stopped before the tube overheated. Amira Haddad.", "11:20", "Call technician", "rust"],
   ["3D printer 4 · failed print?", "Job paused: the spool stopped losing weight. Priya Nair.", "09:55", "Shut down", ""],
-  ["Laser 1 · flame in the bed", "Laser paused; a small flare-up, put out. Lucas Tremblay.", "09:12", "Mark as OK", "ok"],
+  ["Laser 1 · flame in the bed", "Laser paused; a small flare-up, put out. Lucas Tremblay.", "09:12", "Reset at the machine by Lucas", "ok"],
 ];
 const MEMBERS = [
   { name: "Amira Haddad", sessions: 9, min: 412, wire: 312, fil: 0, laser: 64, spindle: 0, flag: "Review: 3x usual wire on Welder 2", log: ["Nov 9 · Welder 2 · 18 min · 42 g wire (about 14 g usual)", "Nov 9 · Laser 1 · 6 min laser on · coolant stop", "Nov 7 · Laser 1 · 22 min laser on"] },
-  { name: "Priya Nair", sessions: 11, min: 538, wire: 120, fil: 214, laser: 0, spindle: 96, flag: null, log: ["Nov 10 · Welder 2 · 32 min · 44 g wire · gas leak stop", "Nov 10 · 3D printer 4 · 1 h 40 min · 18 g · failed print", "Nov 8 · Multimaker 1 · CNC · 42 min spindle"] },
+  { name: "Priya Nair", sessions: 11, min: 538, wire: 120, fil: 214, laser: 0, spindle: 96, flag: null, log: ["Nov 10 · Welder 2 · 32 min · 44 g wire · low oxygen stop", "Nov 10 · 3D printer 4 · 1 h 40 min · 18 g · failed print", "Nov 8 · Multimaker 1 · CNC · 42 min spindle"] },
   { name: "Jonah Okafor", sessions: 6, min: 301, wire: 0, fil: 168, laser: 12, spindle: 24, flag: null, log: ["Nov 10 · Multimaker 1 · CNC · 12 min so far", "Nov 8 · 3D printer 2 · 2 h 10 min · 24 g · failed print", "Nov 6 · Laser 1 · 12 min laser on"] },
   { name: "Lucas Tremblay", sessions: 8, min: 466, wire: 0, fil: 236, laser: 58, spindle: 0, flag: null, log: ["Nov 10 · 3D printer 4 · 0:48 so far · 9 g", "Nov 10 · Laser 1 · 14 min laser on · tapped out mid-job", "Nov 9 · Multimaker 1 · print · 12 g"] },
 ];
@@ -196,7 +198,7 @@ const SERIES = {
   print: (k) => 0.48 + 0.1 * Math.tanh(3 * Math.sin(k * 0.65)) + (rnd(k) - 0.5) * 0.08,
   cnc: (k) => 0.5 + (rnd(k + 3) - 0.5) * 0.22 + 0.05 * Math.sin(k * 0.31),
   idle: () => 0.16,
-  leak: (k) => 0.62 + (rnd(k + 9) - 0.5) * 0.05,
+  leak: (k) => 0.3 + (rnd(k + 9) - 0.5) * 0.05,
 };
 const BAND = { print: [0.32, 0.7], cnc: null, idle: null, leak: null };
 let tick = 0;
@@ -225,13 +227,14 @@ const V = {
         <p class="facts">${m.facts.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join("")}</p>
         ${st === "alert" || alertOpen ? `<button class="chip warn" data-go="alerts" style="margin-top:12px">${IC.flag}${st === "alert" ? "Open alert: decide what happens" : "1 open alert"}</button>` : ""}</article>`;
     }).join("")}</div>
-    <p class="note">Charts are illustrative and update once a second. Learning mode: the first two weeks only record the normal range, with no automatic shutdown.</p>`,
+    <p class="note">Charts are illustrative and update once a second. Learning mode: the first two weeks only record the normal range, with no automatic shutdown. Safety stops are always on.</p>`,
   alerts: () => {
     const open = openAlerts();
     const decided = ALERTS.filter((a) => state.decisions[a.id]);
-    return `${head("Alerts", "One format for every machine: Shut down, Call technician or Mark as OK")}
+    return `${head("Alerts", "One format for every machine: Shut down, Call technician or Mark as OK. Safety stops are reset at the machine.")}
     <div class="alerts">${open.length ? open.map((a) => `<article class="card al"><div class="ah"><span class="badge ${a.tone === "safety" ? "safety" : ""}"><i></i>${a.badge}</span><h3>${a.title}</h3><p>${a.reason}</p><p class="meta">Today ${a.time}${a.tone === "safety" ? " · the machine stopped itself first" : ""}</p></div>
       <div class="af">${state.confirm === a.id ? `<div class="confirm"><p>Shut down ${MACHINES.find((m) => m.id === a.machine).name}? It won't restart on its own.</p><button class="btn sec" data-cancel="${a.id}">Cancel</button><span class="spacer"></span><button class="btn dg" data-do="${a.id}" data-d="Shut down">${IC.power}Shut down</button></div>`
+        : a.tone === "safety" ? `<button class="btn pr" data-do="${a.id}" data-d="Call technician">${IC.wrench}Call technician</button><span class="spacer"></span><span class="atbox">${IC.shield}Reset at the machine only</span>`
         : `<button class="btn qd" data-ask="${a.id}">${IC.power}Shut down</button><button class="btn pr" data-do="${a.id}" data-d="Call technician">${IC.wrench}Call technician</button><span class="spacer"></span><button class="btn sec" data-do="${a.id}" data-d="Mark as OK">${IC.shield}Mark as OK</button>`}</div></article>`).join("") : `<p class="empty">No open alerts. Every decision is logged below.</p>`}</div>
     <h2 class="sec">Logged today</h2>
     <div class="alerts">${decided.map((a) => `<article class="card al"><div class="ah"><h3 style="margin:0">${a.title}</h3><p>${a.reason}</p><p style="margin-top:10px"><span class="logged ${state.decisions[a.id] === "Mark as OK" ? "ok" : state.decisions[a.id] === "Call technician" ? "rust" : ""}">Decision logged: ${state.decisions[a.id]} · ${NOW} · you</span></p></div></article>`).join("")}
@@ -251,7 +254,7 @@ const V = {
     return `${head("Resources", "Totals this month, per resource and per machine")}
     <div class="bars">
       <section class="card"><p class="lbl">Welding wire · Welder 2</p><p class="big">${tot.wire} g</p><p class="lbl" style="margin-top:4px">$${(tot.wire * 0.1).toFixed(2)} at $0.10 a gram</p>${bars(MEMBERS.map((m) => [m.name.split(" ")[0], m.wire]), 320, "g")}</section>
-      <section class="card"><p class="lbl">Shielding gas · Welder 2</p><p class="big">8 h 00 min</p><p class="lbl" style="margin-top:4px">valve open time, only during fob sessions</p>${bars([["Amira", 230], ["Priya", 250], ["Jonah", 0], ["Lucas", 0]], 260, "min")}</section>
+      <section class="card"><p class="lbl">Shielding gas valve · Welder 2</p><p class="big">8 h 00 min</p><p class="lbl" style="margin-top:4px">valve open minutes, during fob sessions only</p>${bars([["Amira", 230], ["Priya", 250], ["Jonah", 0], ["Lucas", 0]], 260, "min")}</section>
       <section class="card"><p class="lbl">Filament · all printers</p><p class="big">${tot.fil} g</p><p class="lbl" style="margin-top:4px">from the spool scales</p>${bars([["3D printer 4", 352], ["3D printer 2", 182], ["Multimaker 1", 84]], 360, "g")}</section>
       <section class="card"><p class="lbl">Laser tube · Laser 1</p><p class="big">${tot.laser} min</p><p class="lbl" style="margin-top:4px">laser-on minutes</p>${bars(MEMBERS.map((m) => [m.name.split(" ")[0], m.laser]), 70, "min")}</section>
       <section class="card"><p class="lbl">CNC spindle · Multimaker 1</p><p class="big">${tot.spindle} min</p><p class="lbl" style="margin-top:4px">spindle running minutes</p>${bars(MEMBERS.map((m) => [m.name.split(" ")[0], m.spindle]), 100, "min")}</section>

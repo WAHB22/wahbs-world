@@ -24,7 +24,7 @@ const spanK = (t, spans, fin = 0.35, fout = 0.3) => clamp(spans.reduce((s, [a, b
 const seq = (t, list) => { let v = list[0][1]; for (const [a, x] of list) if (t >= a) v = x; return typeof v === "function" ? v(t) : v; };
 export const U = { clamp, prog, lerp, ease, outCubic, outBack, rnd, within, spanK, seq };
 
-const TITLE_NOTE = "Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; CSA certification needed before sale.";
+const TITLE_NOTE = "Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; approval (CSA, or an ESA field evaluation) needed before any use, pilots included.";
 
 // The shared timeline: title, explode with box balloons, reassemble, the machine with its off-box parts, then the steps.
 export function plan(nBox, nSys, stepDur) {
@@ -58,6 +58,8 @@ const BTN = {
   cancel: (r) => `<div class="btn sec">Cancel${r}</div>`,
   confirm: (r) => `<div class="btn dg">${ICON.power}Shut down${r}</div>`,
   gap: () => `<span style="flex:1"></span>`,
+  // safety stops are never cleared from a phone: someone resets them at the machine
+  atbox: () => `<span class="atbox">${ICON.shield}Reset at the machine only</span>`,
 };
 
 export function run(cfg) {

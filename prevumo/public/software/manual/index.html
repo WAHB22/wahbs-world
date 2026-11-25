@@ -124,15 +124,15 @@ const ICON = {
 const M = {
   "welder-2": {
     name: "Welder 2", type: "MIG welder with shielding gas",
-    what: "The PREVUMO box keeps the gas valve closed unless you are signed in, weighs the wire you use, and closes the gas if the leak sensor by the regulator trips.",
+    what: "The PREVUMO box keeps the gas valve closed unless you are signed in, weighs the wire you use, and closes the gas if the oxygen sensor low by the cylinder reads low.",
     before: ["Your fob is on Welder 2's trained list. If the box says <b>Not trained on this machine</b>, ask staff about training.", "Helmet, gloves and a long-sleeve jacket on. Screens around the bench.", "Nothing that can burn on or near the bench.", "The fire extinguisher is in its place and the area is ventilated."],
     start: ["Open the gas cylinder valve slowly.", "Tap your fob on the round reader on the PREVUMO box.", "Wait for <b>Hi, your name</b>, then <b>Power on · Gas on</b>.", "Set the welder for your material and start."],
     stop: ["Turn the welder off and hang up the torch.", "Close the gas cylinder valve.", "Tap your fob on the box to end your session. Your time and wire are logged."],
-    danger: [{ event: "Gas smell or leak alarm", steps: ["Close the cylinder valve if it is safe to reach.", "Do not stay in the area.", "Ventilate.", "Tell staff.", "Do not restart until it is checked."] }],
+    danger: [{ event: "Low oxygen alarm, or hissing at the cylinder", steps: ["Close the cylinder valve if it is safe to reach.", "Leave the area: argon and CO2 have no smell and sink low.", "Ventilate.", "Tell staff.", "Do not restart until it is checked."] }],
   },
   "printer-4": {
     name: "3D printer 4", type: "FDM printer, open frame",
-    what: "The PREVUMO box powers the printer only for trained members, weighs the filament you use, pauses a failed print, and cuts power if it is left heating with nothing printing. The warm-up at the start is normal.",
+    what: "The PREVUMO box powers the printer only for trained members, weighs the filament you use, pauses a failed print, and if it is left heating with nothing printing, turns the heaters off, lets it cool, then cuts power. The warm-up at the start is normal.",
     before: ["Your fob is on 3D printer 4's trained list.", "The bed is clean and clear of old prints.", "Enough filament on the spool for your print.", "Nothing that can burn on or around the printer."],
     start: ["Tap your fob on the round reader on the PREVUMO box.", "Wait for <b>Power on</b>. The heat-up that follows is normal.", "Start your print from the printer.", "Watch the first layer, then check the print every 30 minutes."],
     stop: ["Let the bed and nozzle cool.", "Remove your print and clear the bed.", "Tap your fob on the box to end your session. Your time and grams are logged."],
@@ -140,7 +140,7 @@ const M = {
   },
   "laser-1": {
     name: "Laser 1", type: "CO2 laser cutter",
-    what: "The PREVUMO box enables the laser only for trained members with the exhaust running, air assist on and the coolant in range. It pauses the laser if it sees a flame or you tap out mid-job, and logs your laser-on minutes.",
+    what: "The PREVUMO box enables the laser only for trained members with the exhaust running, air assist on and the coolant in range. It pauses the laser if it sees a flame that lasts, if you tap out mid-job, or if you miss the tap it asks for every 15 minutes, and logs your laser-on minutes.",
     before: ["Your fob is on Laser 1's trained list.", "Exhaust fan and air assist are switched on.", "The chiller is running.", "Your material is on the approved list for this laser."],
     start: ["Tap your fob on the round reader on the PREVUMO box.", "Wait for <b>Ready</b>. If it says <b>Exhaust off</b> or <b>Air assist low</b>, fix that first.", "Close the lid.", "Start the job, and stay at the machine until it ends."],
     stop: ["Wait for the job to end and the smoke to clear before you open the lid.", "Remove your parts and the scraps from the bed.", "Tap your fob on the box to end your session. Your laser-on minutes are logged."],

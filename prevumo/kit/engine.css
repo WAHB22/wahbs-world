@@ -74,6 +74,8 @@
   .btn.pr { background: var(--green); color: #fff; }
   .btn.sec { background: var(--idle); color: var(--ink); }
   .btn.dg { background: var(--rust); color: #fff; }
+  .atbox { display: inline-flex; align-items: center; gap: 7px; height: 54px; padding: 0 4px; font: 600 17px/1 var(--body); color: var(--muted); white-space: nowrap; }
+  .atbox svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .btn .ring { position: absolute; inset: -7px; border-radius: 15px; border: 4px solid var(--green); opacity: 0; }
   .logged { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 20px; background: var(--rust); color: #fff; font: 600 20px/1 var(--body); }
 

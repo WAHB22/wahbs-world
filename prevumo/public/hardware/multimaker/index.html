@@ -101,7 +101,7 @@ run({
     { key: "psu", role: "Runs the box from the same outlet." },
     { key: "base", role: "Wall mount, cord to the wall, outlet for the machine." },
     { ref: "scale", name: "Spool scale", role: "Print mode: grams of filament per session.", a: [2.4, 0, 1.4], d: [110, -40] },
-    { ref: "fanct", name: "Exhaust clamp", role: "Laser mode: no exhaust current, no laser.", a: [0.6, 0.6, 0], d: [90, -60] },
+    { ref: "fanct", name: "Exhaust current switch", role: "Laser mode: inline on the fan's cord. No fan current, no laser.", a: [0.6, 0.6, 0], d: [90, -60] },
   ],
   steps: [
     ["Locked until a fob tap", "Jonah's fob is not on Multimaker 1's trained list, so it stays locked. Priya is trained: it unlocks."],
@@ -264,9 +264,9 @@ run({
     const P = S.PATH;
     tube(P.cordIn, 0.55, C.ink, { seg: 40 }); tube(P.cordOut, 0.6, C.ink, { seg: 120 }); tube(P.fanCord, 0.45, C.ink, { seg: 60 });
     for (const k of ["fanSig", "scaleSig"]) tube(P[k], 0.26, C.idlemark, { outline: false, seg: 140 });
-    // current clamp on the fan's cord
+    // inline current switch on the fan's cord (the cord runs through it, one conductor past its sensor)
     const fanct = new THREE.Group(); fanct.position.set(33, 108, -1.6); ctx.add(fanct); S.fanct = fanct;
-    fanct.add(cm(new THREE.TorusGeometry(1.0, 0.45, 10, 24), C.ink, { r: [Math.PI / 2, 0, 0] }));
+    fanct.add(cm(RB(2.4, 3.4, 2.0, 0.4), C.ink));
     fanct.add(cm(RB(1.0, 1.2, 1.2, 0.3), C.idlemark, { p: [-1.5, 0, 0] }));
     { const m = new THREE.MeshBasicMaterial({ color: C.idle, transparent: true }); api.ctxMats.push(m);
       const f = new THREE.Mesh(new THREE.PlaneGeometry(44, 40), m); f.rotation.x = -Math.PI / 2; f.position.set(46, 72.03, 22); ctx.add(f); }
