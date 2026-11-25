@@ -1,6 +1,28 @@
 # PREVUMO final: questions we expect, and our answers
 
-Built from the four critics in loop 1 (`critics/`). Each answer is honest and invents nothing. Say the short answer first; add the longer one only if they push. "Show" names the appendix slide to jump to.
+Built from the four critics in loop 1 (`critics/`). Each answer is honest and invents nothing. Say the short answer first; add the longer one only if they push. "Show" names the appendix slide to jump to: A1 is slide 11, A2 slide 12, and so on to A7, slide 17.
+
+## Who takes which question
+
+* **A (the story):** the pivot, the interviews, which spaces were interested.
+* **B (the hardware):** sensors, gas, the laser, fail safe, certification.
+* **C (the software and the idea):** alerts, learning, false alarms, privacy.
+* **D (the business):** customers, price, competitors, market.
+* **E (what's next):** the bench test, the pilot, approval, timeline.
+* **The rule:** if it isn't your area, pass it with one sentence ("B will take that"). Never guess a number. "We don't know yet; that's what the pilot measures" is a good answer.
+
+## The ten likeliest, in one line each
+
+* **"What have you tested?"** Nothing is built or measured yet; the interviews tested the problem, and the pilot tests the device. (A5)
+* **"Why not Fabman?"** Fabman does access and idle shutoff; we add sensors made for each machine, and can sit next to it. (A2)
+* **"Which spaces want a free pilot?"** Names only if we have them; otherwise interest, not commitment, and written pilots are the next step.
+* **"Is a free pilot legal?"** Approval comes before any use in Ontario, so the first pilot only watches and switches nothing. (A1)
+* **"What does the welder sensor detect?"** Oxygen: argon and CO2 have no smell and sink, so it is mounted low, with an alarm at 19.5%.
+* **"What if the power or Wi-Fi goes?"** Everything goes off and closed; safety stops live on the box; nothing restarts on its own. (A1)
+* **"Can current tell a failing welder from a thicker plate?"** Not yet; anything beyond on, off and idle is a review, never a shutdown, until the pilot proves it. (A4)
+* **"How much does it cost?"** Not validated; printers near software prices, the premium on lasers and welders. (A3)
+* **"Isn't the market small?"** Yes, at first: about $3M a year in US makerspaces, as an estimate; campus and fabrication shops come next. (A3)
+* **"Do you have sponsors?"** No. We're looking for a first host site and help with certification.
 
 ## Evidence and progress
 

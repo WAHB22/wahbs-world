@@ -178,3 +178,12 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * `deliverables/final/PREVUMO-final-script.pdf` (4 pages): a run sheet, who says what with blanks for the names, the rules (films play by themselves; say "nothing is measured yet" once; what not to say), and every slide's words beside its thumbnail.
   * `deliverables/final/PREVUMO-final-QA.pdf` (5 pages), from `QA.md`.
   * Both are made by `docs.mjs` in the deck's palette and faces.
+
+### Loop 9 (Tue 22:16): Q&A coach
+* **Lead:** the Q&A coach lens, in the main session, working from the four critics' questions.
+* **`QA.md` and its PDF now open with:**
+  * who takes which question: A the story, B the hardware, C the software and the idea, D the business, E what's next, with the rule to pass a question in one sentence and never guess a number;
+  * the ten likeliest questions with a one line answer and the appendix slide to show.
+* Every "Show" reference now names its slide number (A1 is slide 11, up to A7, slide 17).
+* `PREVUMO-final-QA.pdf` is 6 pages.
+* **Next (loop 10):** a hostile panel agent that has not seen our answers asks its questions; the gaps it finds get patched.

@@ -100,7 +100,7 @@ for (const line of md.split("\n")) {
   if (line.startsWith("# ")) { html += `<h1>${inline(line.slice(2))}</h1>`; continue; }
   if (line.startsWith("## ")) { closeQ(); html += `<h2>${inline(line.slice(3))}</h2>`; continue; }
   const q = line.match(/^\*\*(\d+)\. (.+?)\*\*(?: Show: (A\d)\.)?\s*$/);
-  if (q) { closeQ(); html += `<div class="q"><p class="qt">${q[1]}. ${inline(q[2])}${q[3] ? `<span class="show">show ${q[3]}</span>` : ""}</p>`; inQ = true; continue; }
+  if (q) { closeQ(); html += `<div class="q"><p class="qt">${q[1]}. ${inline(q[2])}${q[3] ? `<span class="show">show ${q[3]}, slide ${10 + Number(q[3].slice(1))}</span>` : ""}</p>`; inQ = true; continue; }
   const b = line.match(/^(\s*)\* (.+)$/);
   if (b) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${inline(b[2])}</li>`; continue; }
   if (!line.trim()) { closeList(); continue; }
