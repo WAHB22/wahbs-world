@@ -120,6 +120,43 @@ async function qr(url, dark) {
   return "image/png;base64," + buf.toString("base64");
 }
 
+/**
+ * pptxgenjs embeds a video with no animation, so PowerPoint would only play it on a click on the video itself.
+ * This adds PowerPoint's own "Start: Automatically" timing, so each film plays as soon as its slide appears.
+ */
+async function autoplayFilms(file) {
+  const JSZip = require("jszip");
+  const zip = await JSZip.loadAsync(fs.readFileSync(file));
+  const slides = Object.keys(zip.files).filter((f) => /^ppt\/slides\/slide\d+\.xml$/.test(f));
+  let n = 0;
+  for (const part of slides) {
+    let xml = await zip.file(part).async("string");
+    const m = xml.match(/<p:cNvPr id="(\d+)" name="([^"]*film, no sound)"/);
+    if (!m) continue;
+    const spid = m[1];
+    const which = /Hardware/.test(m[2]) ? "hardware" : "software";
+    const ms = Math.round((FILMS[which].seconds || 60) * 1000);
+    const timing =
+      `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst>` +
+      `<p:seq concurrent="1" nextAc="seek"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst>` +
+      `<p:par><p:cTn id="3" fill="hold"><p:stCondLst><p:cond delay="indefinite"/><p:cond evt="onBegin" delay="0"><p:tn val="2"/></p:cond></p:stCondLst><p:childTnLst>` +
+      `<p:par><p:cTn id="4" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>` +
+      `<p:par><p:cTn id="5" presetID="1" presetClass="mediacall" presetSubtype="0" fill="hold" nodeType="afterEffect"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>` +
+      `<p:cmd type="call" cmd="playFrom(0.0)"><p:cBhvr><p:cTn id="6" dur="${ms}" fill="hold"/><p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl></p:cBhvr></p:cmd>` +
+      `</p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par>` +
+      `</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst>` +
+      `<p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq>` +
+      `<p:video><p:cMediaNode vol="80000"><p:cTn id="7" fill="hold" display="0"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst></p:cTn>` +
+      `<p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl></p:cMediaNode></p:video>` +
+      `</p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`;
+    xml = xml.replace("</p:clrMapOvr></p:sld>", `</p:clrMapOvr>${timing}</p:sld>`);
+    zip.file(part, xml);
+    n++;
+  }
+  fs.writeFileSync(file, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
+  return n;
+}
+
 /* ---------- deck ---------- */
 
 (async () => {
@@ -150,7 +187,10 @@ async function qr(url, dark) {
     machines: Object.fromEntries(["welder", "printer", "laser", "multimaker", "enclosed"].map((m) => [m, file64(path.join(ASSETS, `machine-${m}.png`))])),
     qrDark: await qr(URL_LIVE, true),
   };
-  for (const f of Object.values(FILMS)) f.posterData = fs.existsSync(f.poster) ? file64(f.poster, "image/jpeg") : file64(f.fallback);
+  for (const f of Object.values(FILMS)) {
+    f.posterData = fs.existsSync(f.poster) ? file64(f.poster, "image/jpeg") : file64(f.fallback);
+    if (fs.existsSync(f.file)) f.seconds = +require("child_process").execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f.file]).toString().trim();
+  }
 
   /* Layouts, as in the first deck: dark (title, close), light content with a title, light appendix. */
   pres.defineSlideMaster({ title: "PREVUMO Dark", background: { color: HEX.ink }, objects: [] });
@@ -484,7 +524,8 @@ async function qr(url, dark) {
 
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
-  console.log(`wrote ${OUT}`);
+  const auto = await autoplayFilms(OUT);
+  console.log(`wrote ${OUT}, ${auto} film(s) set to play automatically`);
 })().catch((e) => {
   console.error(e);
   process.exit(1);

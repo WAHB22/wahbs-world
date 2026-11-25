@@ -6,3 +6,6 @@ playwright-report/
 */build/
 */.film.html
 */.page.html
+
+# frames rendered for the final films
+final/build/

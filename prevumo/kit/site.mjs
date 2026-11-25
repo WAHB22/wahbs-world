@@ -18,11 +18,11 @@ const PAGES = [
   ["app", "software", "owner-app", "Owner app", "PREVUMO owner app concept: machines, alerts, members, resources and manuals, with demo data."],
   ["manual", "software", "manual", "QR machine manual", "PREVUMO QR machine manual: what a member sees after scanning the sticker on a box."],
   ["overview", "hardware", "system", "System overview", "PREVUMO system overview: modules on each machine, Wi-Fi, the PREVUMO cloud and the owner app."],
-  ["welder", "hardware", "welder", "Welder module", "PREVUMO welder module: NFC fob, QR manual, gas valve, gas leak sensor and wire scale."],
-  ["printer", "hardware", "printer", "3D printer module", "PREVUMO 3D printer module: spool scale, failed print pause and heating timeout."],
+  ["welder", "hardware", "welder", "Welder module", "PREVUMO welder module: NFC fob, QR manual, gas valve, oxygen sensor and wire scale."],
+  ["printer", "hardware", "printer", "3D printer module", "PREVUMO 3D printer module: spool scale, failed print pause and a cool down before power off."],
   ["enclosed", "hardware", "enclosed-printer", "Enclosed printer module", "PREVUMO enclosed printer module: the printer box plus a chamber temperature sensor."],
   ["multimaker", "hardware", "multimaker", "Multimaker module", "PREVUMO multimaker module: print, laser or CNC picked on the box, each with its own resource."],
-  ["laser", "hardware", "laser-cutter", "Laser cutter module", "PREVUMO laser cutter module: exhaust and air interlocks, flame and tap out pause, coolant stop."],
+  ["laser", "hardware", "laser-cutter", "Laser cutter module", "PREVUMO laser cutter module: exhaust airflow and air interlocks, flame and missed tap pause, coolant stop."],
 ];
 // the Claude links the pages used before, and where each page lives now
 const MOVED = {
