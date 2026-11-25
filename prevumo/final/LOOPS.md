@@ -300,3 +300,12 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * a summary video (80.5 s: title, problem, both films, customers, business model, close) at prevumo.vercel.app/video, linked from slides 1 and 11;
   * Q&A 41 to 46 cover the monthly fee, printer pricing, paying for the pilot, the biggest limit, market size and the video;
   * every new fact was read on its official page with Firecrawl (FACTS.md).
+
+### GA5 and PD B5 (Wed night): the latest numbers and interviews
+* **Trigger:** Wahb shared the GA5 Financial Snapshot and the PD B5 report (Nov 20) and asked to use their latest information.
+* **Business model (slide 9):** the GA3 guess (a $300 box and $25 a month) is gone. A pack of 4 modules: $575 installation, $73.50 a month for 24 months, $40 a month for the service, after a free 30 day pilot; $3,779 over three years against $1,796 of cost, a 52% margin, payback in month 11. The untested price and the boards' preference for one purchase are said on the slide.
+* **Finance (slide 10):** the $23,300 funding need, years 1 to 3 (losses of $19,589 and $1,902, then $4,968), the funding avenues, and the GA5 limits (price untested, certification about $8,000, cash timing, no salaries).
+* **Customers (slide 7) and problem (slides 2 and 3):** the PD B4 and B5 interviews: maintenance records, a training check at the machine, material per member, the electrician's and gas fitter's conditions, one pilot accepted and three conditional; real failure costs ($700 and two days, $1,800 and four days, $450 and four days). Names stay off the slides; Q3 names the pilot spaces.
+* **Market (slide 8):** Make's directory (460 US makerspaces, about 3,300 worldwide as a rough estimate) now anchors the plan: 23 spaces in three years, 5%.
+* **Appendix:** the numbers behind the plan (A3) and the evidence table (A5) rewritten from GA5 and PD B4/B5; sources added.
+* **Checked:** Make's counts, the Adafruit controller ($17.50) and the Digi-Key contactor ($55.68), read with Firecrawl. The talk is 526 words, 4:41.

@@ -256,7 +256,7 @@ async function autoplayFilms(file) {
     if (st.who) text(s, st.who, { x: x + 0.25, y: 5.08, w: 3.3, h: 0.3, fontSize: 13, color: HEX.greenTint });
     text(s, st.out, { x: x + 0.25, y: 5.45, w: 3.25, h: 0.3, fontFace: HEAD, fontSize: 14, bold: true, color: last ? HEX.orange : HEX.rust });
   });
-  text(s, "Behind it: 10 interviews and 49 outreach emails (GA3, Oct 2026).", { x: 0.75, y: 6.05, w: 11.8, h: 0.35, fontSize: 15, color: C.text1 });
+  text(s, "Behind it: about 30 conversations in three rounds (GA3, PD B4, PD B5) and 49 outreach emails.", { x: 0.75, y: 6.05, w: 11.8, h: 0.35, fontSize: 15, color: C.text1 });
   source(s, "6 competitors studied in GA3. Owner quotes anonymized.");
   notes(s, "s2");
 
@@ -279,10 +279,10 @@ async function autoplayFilms(file) {
     });
   });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.75, w: 11.8, h: 0.62, rectRadius: 0.1, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Conclusion band" });
-  text(s, [{ text: "And the machines are costly: ", options: { bold: true } }, { text: "from a US$1,700 welder to a US$8,000 laser." }], {
-    x: 1.0, y: 5.75, w: 11.3, h: 0.62, fontFace: HEAD, fontSize: 18, color: HEX.surface, valign: "middle",
+  text(s, [{ text: "What it cost owners: ", options: { bold: true } }, { text: "an extraction failure, $700 and two days; a CNC spindle, $1,800 and four days; a laser pump, $450 and four days." }], {
+    x: 1.0, y: 5.75, w: 11.3, h: 0.62, fontFace: HEAD, fontSize: 15, color: HEX.surface, valign: "middle",
   });
-  source(s, "Prusa: PLA nozzle 210 to 215 °C. CCOHS: argon, CO2. U of Regina: $1.00 per 10 g. CMU, MIT EHS: lasers attended. FLUX: heat wears tubes. Cyberweld, Glowforge prices.");
+  source(s, "Prusa: PLA nozzle 210 to 215 °C. CCOHS: argon, CO2. U of Regina: $1.00 per 10 g. CMU, MIT EHS: lasers attended. FLUX: heat wears tubes. Costs: PD B5 interviews.");
   notes(s, "s3");
 
   /* 4. Hardware prototypes: how the solution answers each problem */
@@ -349,23 +349,23 @@ async function autoplayFilms(file) {
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
   crit(s, "Customer validation");
   s.addText("What our customers told us", { placeholder: "title" });
-  text(s, "The customer is whoever runs the space: university and community makerspaces, Fab Labs and libraries.", { x: 0.75, y: 1.4, w: 11.8, h: 0.45, fontSize: 17, color: C.text2 });
-  const cv = (t, o = {}) => ({ text: t, options: { fontSize: 14, color: HEX.ink, valign: "middle", ...o } });
+  text(s, "The buyer is whoever runs the space: an owner, a director or a manager, often with a board.", { x: 0.75, y: 1.38, w: 11.8, h: 0.4, fontSize: 16, color: C.text2 });
+  const cv = (t, o = {}) => ({ text: t, options: { fontSize: 13, color: HEX.ink, valign: "middle", ...o } });
   const cvh = (t) => ({ text: t, options: { fontSize: 12, bold: true, color: HEX.muted, fill: { color: HEX.bg }, valign: "middle" } });
   s.addTable([
     [cvh("What they need"), cvh("Who told us"), cvh("So PREVUMO")],
-    [cv("One place to manage every machine", { bold: true, fontFace: HEAD }), cv("Ontario makerspace director: “Managing equipment is one of the biggest tasks we have.”", { color: HEX.muted }), cv("One app, one alert format", { bold: true, color: HEX.green })],
-    [cv("A fob, not a code", { bold: true, fontFace: HEAD }), cv("Yukonstruct: “we would want it to be an NFC fob”", { color: HEX.muted }), cv("An NFC fob reader on every box", { bold: true, color: HEX.green })],
-    [cv("Bill material, not electricity", { bold: true, fontFace: HEAD }), cv("3 of 3 owners put electricity in rent; U of Regina and Pickering bill filament by the gram", { color: HEX.muted }), cv("Spool and wire scales; per user power billing dropped", { bold: true, color: HEX.green })],
-    [cv("Try it before paying", { bold: true, fontFace: HEAD }), cv("Makerspaces and Fab Labs we spoke with: open to a free pilot", { color: HEX.muted }), cv("A free pilot that only watches, first", { bold: true, color: HEX.green })],
-  ], { x: 0.75, y: 2.05, w: 11.8, colW: [3.3, 5.2, 3.3], rowH: [0.42, 0.78, 0.66, 0.78, 0.66], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.06, 0.15, 0.06, 0.15], objectName: "Customer needs" });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.6, w: 11.8, h: 0.8, rectRadius: 0.12, fill: { color: C.background1 }, line: { color: HEX.border, width: 0.75 }, objectName: "Partners" });
-  s.addImage({ data: A.handshake, x: 1.0, y: 5.78, w: 0.44, h: 0.44 });
+    [cv("Maintenance records and alerts", { bold: true, fontFace: HEAD }), cv("Raised unprompted by two spaces; a treasurer wants alerts tied to repairs avoided", { color: HEX.muted }), cv("Service alerts and a maintenance log", { bold: true, color: HEX.green })],
+    [cv("A training check at the machine", { bold: true, fontFace: HEAD }), cv("Two site managers; Yukonstruct: “we would want it to be an NFC fob”", { color: HEX.muted }), cv("A fob and a trained list on every box", { bold: true, color: HEX.green })],
+    [cv("Material tracked per member", { bold: true, fontFace: HEAD }), cv("Spaces weigh wire and filament by hand, then bill it", { color: HEX.muted }), cv("Spool and wire scales, grams per member", { bold: true, color: HEX.green })],
+    [cv("Nothing that bypasses safety", { bold: true, fontFace: HEAD }), cv("An electrician: CSA certified, never bypass the e-stop. A gas fitter: on TIG, an idle flow check, not a leak sensor", { color: HEX.muted }), cv("Safety stops first; the e-stop stays; the gas check revised", { bold: true, color: HEX.green })],
+    [cv("Proof before paying", { bold: true, fontFace: HEAD }), cv("1 space accepted a free 30 day pilot; 3 more would after a safety review", { color: HEX.muted }), cv("A free 30 day pilot on one machine", { bold: true, color: HEX.green })],
+  ], { x: 0.75, y: 1.9, w: 11.8, colW: [3.0, 5.6, 3.2], rowH: [0.38, 0.62, 0.62, 0.55, 0.72, 0.62], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.05, 0.14, 0.05, 0.14], objectName: "Customer needs" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.65, w: 11.8, h: 0.78, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint }, objectName: "Preferences" });
   text(s, [
-    { text: "Customers: interest in a free pilot, nothing signed. Sponsors: none yet. ", options: { bold: true, fontFace: HEAD } },
-    { text: "We are looking for a first host site." },
-  ], { x: 1.7, y: 5.6, w: 10.6, h: 0.8, fontSize: 15, color: C.text1, valign: "middle" });
-  source(s, "GA3 interviews (Oct 2026); Yukonstruct, Oct 27. U of Regina: $1.00 per 10 g; Pickering Public Library: $0.10 a gram. Owner quotes anonymized.");
+    { text: "Their preferences: ", options: { bold: true, fontFace: HEAD } },
+    { text: "2 of 3 boards would rather approve one purchase than a monthly fee, and a device that cuts power needs the insurer's written yes. Sponsors: none yet." },
+  ], { x: 1.05, y: 5.65, w: 11.2, h: 0.78, fontSize: 14, color: HEX.ink, valign: "middle" });
+  source(s, "PD B4 (8 replies, 2 owner interviews) and PD B5 (10 interviews), Nov 2026; Yukonstruct, Oct 27. Interview names withheld on the slide.");
   notes(s, "s7");
 
   /* 8. Market validation */
@@ -374,89 +374,106 @@ async function autoplayFilms(file) {
   s.addText("A market we can count, and it's growing", { placeholder: "title" });
   [
     { big: "2,032", t: "active Fab Labs worldwide, 29 of them in Canada", src: "Fab Foundation, fablabs.io" },
-    { big: "2,000+", t: "makerspaces and Fab Labs in the US", src: "Nation of Makers" },
+    { big: "3,300", t: "makerspaces worldwide, a rough estimate", src: "Make, makerspace directory" },
     { big: "9 in 10", t: "Fab Labs list a laser cutter (1,858 of 2,032)", src: "Fab Foundation, fablabs.io" },
   ].forEach((st, i) => {
     const x = 0.75 + i * 4.0;
     text(s, st.big, { x, y: 1.5, w: 3.7, h: 1.1, fontFace: MONO, fontSize: 56, color: C.text1, valign: "bottom" });
-    text(s, st.t, { x, y: 2.72, w: 3.5, h: 0.7, fontSize: 17, color: C.text1, valign: "top" });
+    text(s, st.t, { x, y: 2.72, w: 3.6, h: 0.7, fontSize: 17, color: C.text1, valign: "top" });
     text(s, st.src, { x, y: 3.45, w: 3.5, h: 0.3, fontSize: 11, color: C.text2 });
   });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 3.95, w: 11.8, h: 0.8, rectRadius: 0.12, fill: { color: HEX.greenTint }, line: { color: HEX.greenTint }, objectName: "Trend band" });
-  s.addImage({ data: A.trend, x: 1.0, y: 4.13, w: 0.44, h: 0.44 });
-  text(s, [{ text: "Trend: ", options: { bold: true, fontFace: HEAD } }, { text: "the number of Fab Labs has doubled roughly every two years; more than 2,500 today, in 125 countries." }], { x: 1.65, y: 3.95, w: 10.7, h: 0.8, fontSize: 16, color: HEX.ink, valign: "middle" });
-  text(s, "Customer segments, in order", { x: 0.75, y: 5.05, w: 4, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
-  ["Canadian makerspaces", "Campus and college shops", "Small fabrication shops"].forEach((t, i) => {
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 3.95, w: 11.8, h: 0.75, rectRadius: 0.12, fill: { color: HEX.greenTint }, line: { color: HEX.greenTint }, objectName: "Trend band" });
+  s.addImage({ data: A.trend, x: 1.0, y: 4.11, w: 0.44, h: 0.44 });
+  text(s, [{ text: "Trend: ", options: { bold: true, fontFace: HEAD } }, { text: "the number of Fab Labs has doubled roughly every two years; more than 2,500 today, in 125 countries." }], { x: 1.65, y: 3.95, w: 10.7, h: 0.75, fontSize: 16, color: HEX.ink, valign: "middle" });
+  text(s, [{ text: "Our plan: ", options: { bold: true, fontFace: HEAD } }, { text: "23 US makerspaces in three years (6, 8, then 9), 5% of the 460 in Make's directory." }], { x: 0.75, y: 4.88, w: 11.8, h: 0.4, fontSize: 16, color: C.text1 });
+  ["Community makerspaces", "Institutional Fab Labs", "Campus and fabrication shops"].forEach((t, i) => {
     const x = 0.75 + i * 4.0;
     pill(s, { x, y: 5.45, w: 3.6, h: 0.68, fill: { color: i === 0 ? HEX.green : C.background1 }, line: { color: i === 0 ? HEX.green : HEX.border, width: 0.75 } });
-    text(s, t, { x: x + 0.28, y: 5.45, w: 3.1, h: 0.68, fontSize: 16, bold: i === 0, color: i === 0 ? HEX.surface : C.text1, valign: "middle" });
+    text(s, t, { x: x + 0.28, y: 5.45, w: 3.2, h: 0.68, fontSize: 16, bold: i === 0, color: i === 0 ? HEX.surface : C.text1, valign: "middle" });
     if (i < 2) s.addImage({ data: A.arrow, x: x + 3.66, y: 5.69, w: 0.2, h: 0.2 });
   });
-  source(s, "fablabs.io lab list, active labs counted Nov 25, 2026. Nation of Makers. Trend: Gershenfeld, in “How MIT's fab labs scaled around the world”, MIT Global.");
+  source(s, "fablabs.io, active labs counted Nov 25, 2026. Make: “The directory lists 716 makerspaces, 460 of which are in the US”. Trend: Gershenfeld, MIT Global. Plan: GA5.");
   notes(s, "s8");
 
   /* 9. Business model */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
   crit(s, "Business model");
   s.addText("How PREVUMO makes money", { placeholder: "title" });
-  const bm = [
-    { icon: A.box, t: "Two revenue streams", items: [["The box", "one per machine, sold once"], ["The subscription", "per machine, per month: app, alerts, logs"]] },
-    { icon: A.coins, t: "Price follows risk", items: [["3D printers", "close to print monitoring software, a few dollars a month"], ["Lasers and welders", "the premium: interlocks, gas control, fire sensing"]] },
-    { icon: A.plug, t: "Path to revenue", items: [["Free pilot, then paid", "a watch only pilot; paid once the owner keeps it on"], ["Next to Fabman", "connects through Fabman's open API, not against it"]] },
-  ];
-  bm.forEach((c, i) => {
-    const x = 0.75 + i * 4.0;
-    card(s, { x, y: 1.5, w: 3.8, h: 3.55, objectName: c.t });
-    s.addImage({ data: c.icon, x: x + 0.28, y: 1.75, w: 0.42, h: 0.42 });
-    text(s, c.t, { x: x + 0.85, y: 1.72, w: 2.85, h: 0.5, fontFace: HEAD, fontSize: 19, bold: true, color: C.text1, valign: "middle" });
-    c.items.forEach(([h, d], j) => {
-      const y = 2.45 + j * 1.25;
-      text(s, h, { x: x + 0.28, y, w: 3.3, h: 0.35, fontFace: HEAD, fontSize: 16, bold: true, color: HEX.green });
-      text(s, d, { x: x + 0.28, y: y + 0.36, w: 3.3, h: 0.75, fontSize: 14, color: C.text1, valign: "top" });
-    });
+  card(s, { x: 0.75, y: 1.5, w: 4.3, h: 3.65, objectName: "Price" });
+  s.addImage({ data: A.box, x: 1.03, y: 1.72, w: 0.42, h: 0.42 });
+  text(s, "One pack of 4 modules", { x: 1.6, y: 1.7, w: 3.3, h: 0.46, fontFace: HEAD, fontSize: 19, bold: true, color: C.text1, valign: "middle" });
+  [["Installation", "$575 once", "an electrician and a gas fitter"], ["Modules", "$73.50 a month", "for 24 months: $441 each"], ["Service", "$40 a month", "app, alerts, logs, manuals"], ["First", "free 30 day pilot", "on one machine"]].forEach(([k, v, d], j) => {
+    const y = 2.35 + j * 0.68;
+    s.addShape(pres.shapes.LINE, { x: 1.03, y: y - 0.05, w: 3.75, h: 0, line: { color: HEX.border, width: 0.75 } });
+    text(s, k, { x: 1.03, y, w: 1.3, h: 0.3, fontSize: 13, color: C.text2 });
+    text(s, v, { x: 2.3, y, w: 2.6, h: 0.3, fontFace: MONO, fontSize: 15, bold: true, color: HEX.green });
+    text(s, d, { x: 2.3, y: y + 0.29, w: 2.6, h: 0.3, fontSize: 12, color: C.text2 });
   });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.3, w: 11.8, h: 0.95, rectRadius: 0.12, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Unit revenue" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 5.25, y: 1.5, w: 3.6, h: 3.65, rectRadius: 0.12, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Per pack" });
+  text(s, "Per pack, over three years", { x: 5.53, y: 1.72, w: 3.1, h: 0.4, fontFace: MONO, fontSize: 12, color: HEX.greenTint });
+  [["$3,779", "revenue"], ["$1,796", "cost to us"], ["52%", "margin"], ["month 11", "payback"]].forEach(([v, d], j) => {
+    const y = 2.2 + j * 0.72;
+    text(s, v, { x: 5.53, y, w: 1.9, h: 0.5, fontFace: MONO, fontSize: 24, bold: true, color: j === 2 ? HEX.orange : HEX.surface, valign: "middle" });
+    text(s, d, { x: 7.45, y, w: 1.3, h: 0.5, fontSize: 14, color: HEX.greenTint, valign: "middle" });
+  });
+  card(s, { x: 9.05, y: 1.5, w: 3.5, h: 3.65, objectName: "Path" });
+  s.addImage({ data: A.plug, x: 9.33, y: 1.72, w: 0.42, h: 0.42 });
+  text(s, "Path to revenue", { x: 9.9, y: 1.7, w: 2.6, h: 0.46, fontFace: HEAD, fontSize: 19, bold: true, color: C.text1, valign: "middle" });
+  [["Pilot, then paid", "a free month on one machine, then the pack"], ["Reach", "direct outreach, referrals, LinkedIn and Google ads"], ["Partners", "electricians, gas fitters, a testing lab, booking software"]].forEach(([h, d], j) => {
+    const y = 2.35 + j * 0.92;
+    text(s, h, { x: 9.33, y, w: 3.05, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: HEX.green });
+    text(s, d, { x: 9.33, y: y + 0.3, w: 3.05, h: 0.55, fontSize: 13, color: C.text1, valign: "top" });
+  });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.35, w: 11.8, h: 0.85, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint }, objectName: "Untested" });
   text(s, [
-    { text: "First guess (GA3): ", options: { bold: true, fontFace: HEAD, color: HEX.orange } },
-    { text: "a US$300 box + US$25 a machine a month = ", options: { color: HEX.surface } },
-    { text: "US$600 per machine in year one.", options: { bold: true, fontFace: HEAD, color: HEX.surface } },
-    { text: " The pilot tests it.", options: { color: HEX.greenTint } },
-  ], { x: 1.05, y: 5.3, w: 11.3, h: 0.95, fontSize: 16, valign: "middle" });
-  source(s, "Obico: US$6.99 a month, then US$2 per extra printer. Fabman: “full functionality and data are available through our open JSON API”. PREVUMO prices are assumptions.");
+    { text: "Untested: ", options: { bold: true, fontFace: HEAD } },
+    { text: "no owner has agreed to this price yet. 2 of 3 boards prefer one purchase to a monthly fee, so a one time option is the next price we test." },
+  ], { x: 1.05, y: 5.35, w: 11.2, h: 0.85, fontSize: 15, color: HEX.ink, valign: "middle" });
+  source(s, "GA5 Financial Snapshot, in US dollars: parts from Adafruit, SparkFun, Digi-Key, RobotShop, U.S. Solid; labour from Green Building Canada and Job Bank. PD B5 price interviews.");
   notes(s, "s9");
 
   /* 10. Financial considerations, then next steps */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
   crit(s, "Financial considerations");
   s.addText("Funding, limits and next steps", { placeholder: "title" });
-  const fcol = (x, icon, t, rows, accent) => {
-    s.addImage({ data: icon, x, y: 1.5, w: 0.4, h: 0.4 });
-    text(s, t, { x: x + 0.55, y: 1.47, w: 5, h: 0.45, fontFace: HEAD, fontSize: 20, bold: true, color: C.text1, valign: "middle" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 1.5, w: 3.7, h: 3.6, rectRadius: 0.12, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Funding need" });
+  text(s, "$23,300", { x: 1.03, y: 1.7, w: 3.2, h: 0.75, fontFace: MONO, fontSize: 38, bold: true, color: HEX.orange, valign: "middle" });
+  text(s, "funding need: our lowest point of cash", { x: 1.03, y: 2.45, w: 3.2, h: 0.35, fontSize: 13, color: HEX.greenTint });
+  [["Year 1", "−$19,589", HEX.orange], ["Year 2", "−$1,902", HEX.orange], ["Year 3", "+$4,968", HEX.greenTint]].forEach(([y, v, c], j) => {
+    const yy = 3.0 + j * 0.6;
+    s.addShape(pres.shapes.LINE, { x: 1.03, y: yy - 0.04, w: 3.15, h: 0, line: { color: HEX.green, width: 0.75 } });
+    text(s, y, { x: 1.03, y: yy, w: 1.2, h: 0.45, fontSize: 14, color: HEX.greenTint, valign: "middle" });
+    text(s, v, { x: 2.2, y: yy, w: 2.0, h: 0.45, fontFace: MONO, fontSize: 18, bold: true, color: c, align: "right", valign: "middle" });
+  });
+  const fcol = (x, w, icon, t, rows, accent) => {
+    s.addImage({ data: icon, x, y: 1.5, w: 0.38, h: 0.38 });
+    text(s, t, { x: x + 0.5, y: 1.46, w: w - 0.5, h: 0.45, fontFace: HEAD, fontSize: 19, bold: true, color: C.text1, valign: "middle" });
     rows.forEach(([h, d], j) => {
-      const y = 2.12 + j * 0.72;
-      s.addShape(pres.shapes.LINE, { x, y: y - 0.06, w: 5.6, h: 0, line: { color: HEX.border, width: 0.75 } });
-      text(s, [{ text: h + "  ", options: { bold: true, fontFace: HEAD, color: accent } }, { text: d, options: { color: C.text1 } }], { x, y, w: 5.65, h: 0.62, fontSize: 14, valign: "top" });
+      const y = 2.1 + j * 0.74;
+      s.addShape(pres.shapes.LINE, { x, y: y - 0.06, w, h: 0, line: { color: HEX.border, width: 0.75 } });
+      text(s, h, { x, y, w, h: 0.3, fontFace: HEAD, fontSize: 14, bold: true, color: accent });
+      text(s, d, { x, y: y + 0.29, w, h: 0.36, fontSize: 12.5, color: C.text1, valign: "top" });
     });
   };
-  fcol(0.75, A.bank, "Funding avenues", [
-    ["uOttawa Startup Garage", "cash prizes at RevUp; grants in the Exploration Circuit"],
-    ["NRC IRAP", "for incorporated, for profit companies in Canada"],
-    ["Futurpreneur", "an equity free loan up to $75,000, founders 18 to 39"],
-    ["Pilot hosts", "their space and their data, in place of cash"],
+  fcol(4.75, 3.75, A.bank, "Funding avenues", [
+    ["uOttawa Startup Garage", "RevUp cash prizes; Exploration Circuit grants"],
+    ["NRC IRAP", "for incorporated, for profit companies"],
+    ["Futurpreneur", "a loan up to $75,000, ages 18 to 39"],
+    ["Pilot hosts", "space and data, in place of cash"],
   ], HEX.green);
-  fcol(6.95, A.warn, "Limits", [
-    ["No revenue yet", "and nothing signed"],
-    ["Incorporate first", "IRAP and the Exploration Circuit require it"],
-    ["Approval per pilot box", "ESA: before any use in Ontario"],
-    ["Installs cost", "welders and lasers need an electrician; gas, a gas fitter"],
+  fcol(8.8, 3.75, A.warn, "Limits", [
+    ["Price untested", "boards prefer one purchase to a monthly fee"],
+    ["Certification", "about $8,000, 29% of the first year's costs"],
+    ["Cash timing", "we pay for parts and labour up front"],
+    ["No salaries", "for three years: the plan understates cost"],
   ], HEX.rust);
-  ["Bench test", "Approval", "Watch only pilot", "Welder last"].forEach((t, i) => {
-    const x = 0.75 + i * 3.0, dark = i === 2;
-    pill(s, { x, y: 5.3, w: 2.7, h: 0.62, fill: { color: dark ? HEX.ink : C.background1 }, line: { color: dark ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Next step ${i + 1}` });
-    text(s, `${i + 1}  ${t}`, { x: x + 0.25, y: 5.3, w: 2.4, h: 0.62, fontSize: 15, bold: true, color: dark ? HEX.surface : C.text1, valign: "middle" });
-    if (i < 3) s.addImage({ data: A.arrow, x: x + 2.76, y: 5.52, w: 0.18, h: 0.18 });
+  ["Build one module", "Bench test", "Safety review", "30 day pilot"].forEach((t, i) => {
+    const x = 0.75 + i * 3.0, dark = i === 3;
+    pill(s, { x, y: 5.35, w: 2.7, h: 0.62, fill: { color: dark ? HEX.ink : C.background1 }, line: { color: dark ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Next step ${i + 1}` });
+    text(s, `${i + 1}  ${t}`, { x: x + 0.25, y: 5.35, w: 2.4, h: 0.62, fontSize: 15, bold: true, color: dark ? HEX.surface : C.text1, valign: "middle" });
+    if (i < 3) s.addImage({ data: A.arrow, x: x + 2.76, y: 5.57, w: 0.18, h: 0.18 });
   });
-  source(s, "Startup Garage (startupgarage.ca/support); NRC IRAP eligibility; Futurpreneur Startup Program; ESA approval marks. Each test has a pass rule written first (slide 17).");
+  source(s, "GA5 Financial Snapshot (base case, USD). Startup Garage circuits; NRC IRAP eligibility; Futurpreneur Startup Program. Bench test pass rules: slide 17.");
   notes(s, "s10");
 
   /* 11. Close */
@@ -497,29 +514,31 @@ async function autoplayFilms(file) {
     [head("Product"), head("What it does"), head("Price")],
     [cell("Fabman", { bold: true, fontFace: HEAD }), cell("Card access, trained lists, booking and billing; its Bridge has dead man control and idle detection from power"), cell("€49 to €199 a month + €10 to €14 per machine; Bridge €249", { fontFace: MONO, fontSize: 11 })],
     [cell("Obico", { bold: true, fontFace: HEAD }), cell("Camera AI that pauses failed 3D prints"), cell("Free for 1 printer; $6.99 a month + $2 per extra printer", { fontFace: MONO, fontSize: 11 })],
-    [cell("PREVUMO", { bold: true, fontFace: HEAD, color: HEX.surface, fill: { color: HEX.ink } }), cell("Sensors made for each machine: welder gas and wire, laser airflow, coolant and flame, filament by the gram; one alert format", { color: HEX.surface, fill: { color: HEX.ink } }), cell("Assumption, next slide", { fontFace: MONO, fontSize: 11, color: HEX.greenTint, fill: { color: HEX.ink } })],
+    [cell("PREVUMO", { bold: true, fontFace: HEAD, color: HEX.surface, fill: { color: HEX.ink } }), cell("Sensors made for each machine: welder gas and wire, laser airflow, coolant and flame, filament by the gram; one alert format", { color: HEX.surface, fill: { color: HEX.ink } }), cell("Pack of 4: $575 + $73.50 a month for 24 months + $40 a month (GA5, untested)", { fontFace: MONO, fontSize: 11, color: HEX.greenTint, fill: { color: HEX.ink } })],
   ], tableOpts({ colW: [2.0, 6.3, 3.5], rowH: [0.42, 0.85, 0.7, 0.85], objectName: "Alternatives table" }));
   text(s, "Fabman has an open API: their card reader, our machine sensors. As far as we found, nobody watches a welder's gas and wire, or a laser's airflow, coolant and flame, per member.", { x: 0.75, y: 4.7, w: 11.8, h: 0.8, fontSize: 15, color: C.text1, valign: "top" });
   source(s, "fabman.io/pricing and shop.fabman.io; obico.io pricing guide; accessed Nov 25, 2026.");
 
-  s = appx("Pricing and market, as assumptions", "a3");
-  card(s, { x: 0.75, y: 1.55, w: 5.7, h: 3.05, objectName: "Pricing" });
-  text(s, "Pricing, by risk (to validate)", { x: 1.05, y: 1.75, w: 5.2, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
-  text(s, [
-    { text: "Printers: ", options: { bold: true } }, { text: "close to print monitoring software, a few dollars a month.", options: { breakLine: true } },
-    { text: "Lasers and welders: ", options: { bold: true } }, { text: "the premium, where the box adds interlocks, gas control and fire sensing.", options: { breakLine: true } },
-    { text: "First round assumption (GA3): ", options: { bold: true } }, { text: "a US$300 box and US$25 per machine per month." },
-  ], { x: 1.05, y: 2.2, w: 5.15, h: 2.3, fontSize: 15, color: C.text1, valign: "top", paraSpaceAfter: 10 });
-  card(s, { x: 6.85, y: 1.55, w: 5.7, h: 3.05, objectName: "Market arithmetic" });
-  text(s, "Bottom up, as an estimate", { x: 7.15, y: 1.75, w: 5.2, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
-  text(s, [
-    { text: "2,000", options: { fontFace: MONO, bold: true } }, { text: " US makerspaces and Fab Labs", options: { breakLine: true } },
-    { text: "× 5", options: { fontFace: MONO, bold: true } }, { text: " monitored machines each", options: { breakLine: true } },
-    { text: "× US$300", options: { fontFace: MONO, bold: true } }, { text: " a year per machine", options: { breakLine: true } },
-    { text: "≈ US$3M a year at most", options: { fontFace: MONO, bold: true, color: HEX.green } },
-  ], { x: 7.15, y: 2.2, w: 5.15, h: 2.0, fontSize: 17, color: C.text1, valign: "top", paraSpaceAfter: 6 });
-  text(s, "Small: makerspaces are where we prove it, then campus and fabrication shops. Only the US count is verified; Canada has 29 active Fab Labs.", { x: 7.15, y: 3.7, w: 5.15, h: 0.8, fontSize: 13, color: C.text2, valign: "top" });
-  source(s, "Machines per space and price are team assumptions. US count: Nation of Makers.");
+  s = appx("The numbers behind the plan (GA5)", "a3");
+  s.addTable([
+    [head("Cost per pack of 4"), head("USD")],
+    [cell("Parts: 4 modules (welder about $297, others about $290)"), cell("$1,160", { fontFace: MONO, bold: true })],
+    [cell("Installation: an electrician and a gas fitter"), cell("$565", { fontFace: MONO, bold: true })],
+    [cell("Shipping and warranty"), cell("$71", { fontFace: MONO, bold: true })],
+    [cell("Total cost per pack", { bold: true }), cell("$1,796", { fontFace: MONO, bold: true, color: HEX.green })],
+    [cell("One time: certification $8,000 + incorporation $235"), cell("$8,235", { fontFace: MONO, bold: true })],
+    [cell("Yearly: insurance, hosting, domain, bookkeeping"), cell("$2,204", { fontFace: MONO, bold: true })],
+  ], tableOpts({ w: 5.9, colW: [4.6, 1.3], rowH: [0.42, 0.55, 0.55, 0.5, 0.5, 0.55, 0.55], objectName: "Cost table" }));
+  s.addTable([
+    [head("Plan, base case"), head("Year 1"), head("Year 2"), head("Year 3")],
+    [cell("Packs installed"), cell("6", { fontFace: MONO, fontSize: 12 }), cell("8", { fontFace: MONO, fontSize: 12 }), cell("9", { fontFace: MONO, fontSize: 12 })],
+    [cell("Revenue"), cell("$8,444", { fontFace: MONO, fontSize: 12 }), cell("", { fontFace: MONO, fontSize: 12 }), cell("$27,252", { fontFace: MONO, fontSize: 12 })],
+    [cell("Profit", { bold: true }), cell("−$19,589", { fontFace: MONO, fontSize: 12, bold: true, color: HEX.rust }), cell("−$1,902", { fontFace: MONO, fontSize: 12, bold: true, color: HEX.rust }), cell("+$4,968", { fontFace: MONO, fontSize: 12, bold: true, color: HEX.green })],
+    [cell("Low case, year 3"), cell(""), cell(""), cell("−$594", { fontFace: MONO, fontSize: 12, color: HEX.rust })],
+    [cell("High case, year 3"), cell(""), cell(""), cell("+$10,159", { fontFace: MONO, fontSize: 12, color: HEX.green })],
+  ], tableOpts({ x: 6.95, w: 5.6, colW: [1.85, 1.25, 1.25, 1.25], rowH: [0.42, 0.5, 0.5, 0.5, 0.5, 0.5], objectName: "Plan table" }));
+  text(s, "Lowest cash about −$23,300 (the funding need); cumulative cash is recovered around month 46. No salaries for three years: a stated limit.", { x: 6.95, y: 4.95, w: 5.6, h: 0.75, fontSize: 13, color: C.text1, valign: "top" });
+  source(s, "GA5 Financial Snapshot, USD; Year 2 revenue is in the GA5 spreadsheet, sheet 6. Market: 460 US makerspaces (Make). All prices are proposals, untested with owners.");
 
   s = appx("Learning and false alerts", "a4");
   const two = [
@@ -535,17 +554,20 @@ async function autoplayFilms(file) {
   text(s, "So anything beyond on, off and idle is a review for the owner, never an automatic shutdown, until pilot data shows it works. Learning runs two weeks today; the next version should count sessions, not only days. It never switches off a safety stop. The pilot metric: false alerts per machine per month, each one labelled by the owner.", { x: 0.75, y: 4.2, w: 11.8, h: 1.2, fontSize: 16, color: C.text1, valign: "top" });
 
   s = appx("Evidence so far, and what is untested", "a5");
+  const cell12 = (t, o = {}) => cell(t, { fontSize: 12, ...o });
   s.addTable([
     [head("What we learned"), head("Source"), head("What changed")],
-    [cell("Owners build electricity into rent or membership"), cell("3 owners: a makerspace, two shared kitchens", { color: HEX.muted }), cell("Per user billing dropped", { bold: true })],
-    [cell("Cafés were not interested in a device"), cell("Café interviews, GA3", { color: HEX.muted }), cell("Makerspaces only", { bold: true })],
-    [cell("“We would want it to be an NFC fob”"), cell("Yukonstruct, Oct 27", { color: HEX.muted }), cell("Keypad replaced by an NFC fob", { bold: true })],
-    [cell("Filament is billed by the gram"), cell("U of Regina, Pickering Library", { color: HEX.muted }), cell("Spool scales", { bold: true })],
-    [cell("An argon or CO2 leak has no smell"), cell("CCOHS", { color: HEX.muted }), cell("Oxygen sensor, not a gas sensor", { bold: true })],
-    [cell("Lasers need ventilation on and someone present"), cell("CMU and MIT laser guidelines", { color: HEX.muted }), cell("Airflow interlock; a 15 minute tap (our choice)", { bold: true })],
-  ], tableOpts({ colW: [4.6, 3.6, 3.6], rowH: [0.42, 0.52, 0.52, 0.52, 0.52, 0.52, 0.52], objectName: "Evidence table" }));
+    [cell12("Owners build electricity into rent or membership"), cell12("3 owners, GA3", { color: HEX.muted }), cell12("Per user billing dropped", { bold: true })],
+    [cell12("Cafés were not interested in a device"), cell12("Café interviews, GA3", { color: HEX.muted }), cell12("Makerspaces only", { bold: true })],
+    [cell12("“We would want it to be an NFC fob”"), cell12("Yukonstruct, Oct 27", { color: HEX.muted }), cell12("Keypad replaced by an NFC fob", { bold: true })],
+    [cell12("Maintenance records came up unprompted"), cell12("Two spaces, PD B4", { color: HEX.muted }), cell12("Service alerts and a log first", { bold: true })],
+    [cell12("A regulator left open, found by 2 of 2 owners"), cell12("Owner interviews, PD B4", { color: HEX.muted }), cell12("Gas valve timed to the session", { bold: true })],
+    [cell12("A leak sensor on a TIG welder would false alarm"), cell12("A gas fitter; Edinburgh Hacklab", { color: HEX.muted }), cell12("Idle flow check; O2 sensor for leaks", { bold: true })],
+    [cell12("Cloud control was challenged"), cell12("Two spaces, PD B4", { color: HEX.muted }), cell12("Local server, offline study", { bold: true })],
+    [cell12("Installation costs about $565 a pack"), cell12("Trade rates, GA5", { color: HEX.muted }), cell12("Installation fee $300 to $575", { bold: true })],
+  ], tableOpts({ colW: [4.6, 3.6, 3.6], rowH: [0.38, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42], fontSize: 12, objectName: "Evidence table" }));
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.45, w: 11.8, h: 0.85, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint } });
-  text(s, [{ text: "Untested: ", options: { bold: true, fontFace: HEAD } }, { text: "whether owners will pay, the false alert rate, and every safety function on real hardware." }], { x: 1.05, y: 5.45, w: 11.2, h: 0.85, fontSize: 15, color: HEX.ink, valign: "middle" });
+  text(s, [{ text: "Untested: ", options: { bold: true, fontFace: HEAD } }, { text: "whether owners will pay this price, the false alert rate, and every safety function on real hardware." }], { x: 1.05, y: 5.45, w: 11.2, h: 0.85, fontSize: 15, color: HEX.ink, valign: "middle" });
 
   s = appx("Bench test plan", "a6");
   s.addTable([
@@ -563,9 +585,8 @@ async function autoplayFilms(file) {
   s = appx("Sources", "a7");
   const src = [
     "Fab Foundation, fablabs.io lab list (api.fablabs.io): 2,032 active labs, 29 in Canada, 1,858 with laser cutting; counted Nov 25, 2026.",
-    "Nation of Makers, working groups page: “more than 2,000 makerspaces and Fab Labs” in the US.",
+    "Make, “How many makerspaces?”: “The directory lists 716 makerspaces, 460 of which are in the US”; about 3,300 worldwide, a rough estimate. Nation of Makers: “more than 2,000 makerspaces and Fab Labs” in the US.",
     "University of Regina Library, 3D printing policy: “10 grams of filament costs $1.00”. Pickering Public Library: “3D Printing $0.10 per gram”.",
-    "Cyberweld, Millermatic 211 PRO: $1,699. Glowforge shop, Pro HD: $7,999.",
     "Prusa Knowledge Base: PLA nozzle 210 to 215 °C, PETG 240 °C.",
     "CCOHS: argon and CO2 shielding gases are simple asphyxiants; low oxygen is 19.5% or less.",
     "Fabman pricing and Fabman Bridge FB-V2 (€249). Obico pricing guide.",
@@ -573,7 +594,8 @@ async function autoplayFilms(file) {
     "ESA, Recognized Approval Marks: approval before a product is used, sold, displayed or advertised in Ontario.",
     "MIT Global, “How MIT's fab labs scaled around the world”: doubling roughly every two years; more than 2,500 in 125 countries. Fabman: open JSON API.",
     "Funding: Startup Garage circuits (startupgarage.ca/support); NRC IRAP eligibility; Futurpreneur Startup Program (a loan up to $75,000, ages 18 to 39).",
-    "Group 10 interviews and outreach, Oct 2026 (GA3), and Yukonstruct, Oct 27. Owner quotes anonymized. PREVUMO prices are assumptions to validate.",
+    "GA5 Financial Snapshot (parts from Adafruit, SparkFun, Digi-Key, RobotShop, U.S. Solid; labour from Green Building Canada and Job Bank; certification from Predictable Designs).",
+    "Group 10 interviews: GA3 (Oct 2026), Yukonstruct (Oct 27), PD B4 and PD B5 (Nov 2026). Quotes anonymized on slides. PREVUMO prices are proposals, untested with owners.",
   ];
   text(s, src.map((t, i) => ({ text: t, options: { bullet: { code: "25CF", indent: 20 }, breakLine: i < src.length - 1 } })), { x: 0.75, y: 1.55, w: 11.8, h: 5.0, fontSize: 13, color: HEX.ink, valign: "top", paraSpaceAfter: 7 });
 

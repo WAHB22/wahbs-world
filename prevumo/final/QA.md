@@ -15,21 +15,21 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 * **"What have you tested?"** Nothing is built or measured yet; the interviews tested the problem, and the pilot tests the device. (A5)
 * **"Why not Fabman?"** Fabman does access and idle shutoff; we add sensors made for each machine, and can sit next to it. (A2)
-* **"Which spaces want a free pilot?"** Names only if we have them; otherwise interest, not commitment, and written pilots are the next step.
+* **"Which spaces want a free pilot?"** MakerLabs accepted a free 30 day pilot; Ironwood, Maple Junction and NIHERST would try one after a safety review. Nothing is signed or paid.
 * **"Is a free pilot legal?"** Approval comes before any use in Ontario, so every pilot box is field evaluated by ESA, or certified, before it is installed, and it only watches. We haven't asked ESA yet. (A1)
 * **"What does the welder sensor detect?"** Oxygen: argon and CO2 have no smell and sink, so it is mounted low, with an alarm at 19.5%.
 * **"What if the power or Wi-Fi goes?"** Everything goes off and closed; safety stops live on the box; nothing restarts on its own. (A1)
 * **"Can current tell a failing welder from a thicker plate?"** Not yet; anything beyond on, off and idle is a review, never a shutdown, until the pilot proves it. (A4)
-* **"How much does it cost?"** Not validated; printers near software prices, the premium on lasers and welders. (A3)
-* **"Isn't the market small?"** Yes, at first: at most about US$3M a year in US makerspaces, as an estimate; campus and fabrication shops come next. (A3)
+* **"How much does it cost?"** A pack of 4 modules: $575 to install, $73.50 a month for 24 months, $40 a month for the service, after a free 30 day pilot (GA5, USD). Untested with owners. (slide 9, A3)
+* **"Isn't the market small?"** Yes, at first: our plan is 23 US makerspaces in three years, 5% of the 460 in Make's directory; Fab Labs keep doubling, and campus and fabrication shops come next. (slide 8, A3)
 * **"Do you have sponsors?"** No. We're looking for a first host site and help with certification.
-* **"How do you make money?"** A box per machine plus a monthly fee per machine, priced by risk; our first guess is US$600 per machine in year one, to validate in the pilot. (slide 9)
-* **"How will you fund the pilot boxes?"** Startup Garage prizes and grants first, then NRC IRAP and a Futurpreneur loan once we incorporate; the pilot host gives space and data. (slide 10)
+* **"How do you make money?"** A pack of 4 modules per space: installation, a 24 month module payment and a monthly service fee. One pack earns $3,779 over three years against $1,796 of cost: a 52% margin, paid back in month 11. (slide 9)
+* **"How will you fund it?"** We need about $23,300, our lowest point of cash: Startup Garage prizes and grants first, then NRC IRAP and a Futurpreneur loan once we incorporate. (slide 10)
 
 ## Evidence and progress
 
 **1. "What have you actually tested?"** Show: A5.
-* **Short:** Nothing is built or measured yet. The prototypes are interactive drawings and a clickable app with demo data. What we tested is the problem: ten interviews and forty nine emails in GA3, and conversations that changed the design.
+* **Short:** Nothing is built or measured yet. The prototypes are interactive drawings and a clickable app with demo data. What we tested is the problem: about thirty conversations over three rounds (GA3, PD B4, PD B5) and forty nine emails, and conversations that changed the design.
 * **Longer:**
   * Three owners told us they build electricity into rent, so billing went.
   * Cafés weren't interested, so we kept makerspaces.
@@ -41,9 +41,8 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **Don't:** claim interviews that did not happen.
 
 **3. "Which makerspaces want to run it for free? Name one."**
-* **Short:** Use the real names and emails if the team has them.
-* **If not:** "We heard interest, not a commitment. Turning that into one to three written pilots, each with a start date and a success measure, is our next step."
-* **Don't:** say "many" without names.
+* **Short:** MakerLabs accepted a free 30 day pilot (PD B4). Ironwood Community Fabrication Hub and Maple Junction Makers Collective would try one on a single machine after a gas fitter and electrician review, and NIHERST once a working prototype exists (PD B4 and B5).
+* **Honest limit:** conditional interest is not a commitment, and nothing is signed or paid. The first pilot comes after the module passes its bench test and safety review.
 
 **4. "Your only supported finding, equipment left on at night, came from cafés, and you dropped cafés."**
 * **Short:** Yes, that came from cafés. For makerspaces we have a director calling equipment one of their biggest tasks, and published laser rules that require ventilation and attendance. Whether owners will pay is the next test.
@@ -112,17 +111,20 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 ## Business
 
-**21. "Who pays, and how much?"** Show: A3.
-* **Short:** Whoever runs the space. The price isn't validated. Our first round assumption was a US$300 box and US$25 per machine per month, but a flat price doesn't work for printers. Printers should be priced near monitoring software; the premium belongs on lasers and welders.
+**21. "Who pays, and how much?"** Show: slide 9 and A3.
+* **Short:** Whoever runs the space: an owner, a director or a manager, often with a board. For a pack of 4 modules: $575 installation, $73.50 a month for 24 months for the modules, and $40 a month for the service, after a free 30 day pilot (GA5, USD). That is $1,937 in year 1 and $3,779 over three years.
+* **Honest limit:** no owner has agreed to this price; it is the core assumption we test next.
 
 **22. "Why would a non profit makerspace pay at all, if it bundles everything into membership?"**
-* **Short:** They already charge for material by the gram: the University of Regina charges $1.00 for 10 g. Protection of a US$1,700 welder or a US$8,000 laser is the other half. We have not yet asked anyone about a specific price; that is the first question for the next round.
+* **Short:** Because a breakdown costs more. Owners told us about an extraction failure at about $700 and two days lost, and a $1,800 spindle repair that took four days to approve. One space said a single avoided repair a year is worth about $1,500 to them. They also already bill material by the gram.
+* **What they need to see:** a monthly report of alerts, what each one led to and the repairs avoided; a treasurer told us renewal depends on it.
 
-**23. "Your market looks tiny."** Show: A3.
-* **Short:** It is small at first: about 2,000 US makerspaces and Fab Labs, times about five machines, times US$300 a year, is at most about US$3 million a year, as an estimate; the flat price is an upper bound. The US is the only verified count; Canada has 29 active Fab Labs. Makerspaces are where we prove it. Campus and college shops and small fabrication shops run the same machines, and that is where we'd grow.
+**23. "Your market looks tiny."** Show: slide 8 and A3.
+* **Short:** It is small at first, and we say so: 23 US makerspaces in three years, 5% of the 460 in Make's directory, with about 3,300 makerspaces worldwide as a rough estimate. Fab Labs have doubled roughly every two years, and campus and fabrication shops run the same machines.
 
-**24. "What does a box cost to build? What's your margin?"**
-* **Short:** We haven't costed it yet, so we won't quote a margin. What drives the cost is clear: a printer box is a controller, a fob reader, a display and a scale; the welder adds a contactor, a gas valve and an oxygen sensor, installed by an electrician. So the printer box should sit near software prices and the welder box is the expensive one. Pricing each module's parts list at one distributor comes before the pilot.
+**24. "What does a box cost to build? What's your margin?"** Show: A3.
+* **Short:** About $297 for the welder module, priced part by part from supplier listings (an ESP32 controller, an NFC reader, a current clamp, a 25 A contactor, a gas valve, a load cell), and about $290 for the others. A pack of 4 costs us $1,796 with installation, shipping and warranty, so the margin over three years is about 52%, paid back in month 11.
+* **Honest limit:** the power supply, enclosure and board are allowances, and the contactor rating still needs an electrician's check.
 
 **25. "Is 'data from free pilots' a moat?"**
 * **Short:** Not by itself. Pilot data tunes our defaults and cuts false alarms per machine type. If we have a defence later, it would come from certified hardware, a tested rule set per machine type, and owners trusting us to switch machines off.
@@ -149,9 +151,9 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **Short:** Today, the display and the light on the box, and the owner's phone. That isn't enough for the person in the room.
 * **Next:** a loud local alarm, and backup power so the oxygen sensor keeps watching when the welder's line is off. Neither is designed yet.
 
-**30. "Of your ten interviews, how many were makerspaces? Did anyone tell you about an actual leak or fire?"**
-* **Short:** The ten covered a makerspace, two shared kitchens, manufacturing, café staff and a university student office; later came Yukonstruct.
-* **On incidents:** the hazards on slide 3 come from published safety rules (CMU and MIT for lasers, CCOHS for gas, Prusa for nozzle heat), not from incidents owners reported to us. The pilot's alert log will show how often they happen.
+**30. "How many of your interviews were makerspaces? Did anyone tell you about an actual failure?"**
+* **Short:** GA3 was broad: a makerspace, two shared kitchens, manufacturing, café staff and a student office, then Yukonstruct. PD B4 and B5 were all makerspaces and the trades around them: 8 written replies, 2 owner interviews, then 10 interviews with site managers, decision makers, a treasurer, an electrician, a gas fitter, a repair technician and a Tool Champion.
+* **On failures:** yes, in PD B5: an extraction failure at about $700 and two days lost, a clogged laser filter that took a laser out for most of a weekend, a $1,800 spindle repair, a $450 laser pump and four days down, and a regulator left open in both interviewed spaces. The safety rules on slide 3 come from CMU, MIT, CCOHS and Prusa.
 
 **31. "People get hurt on table saws and lathes. Why welders and printers? And can't a member just plug the printer into the wall?"**
 * **Short:** We chose machines whose hazard shows up in a sensor or the power draw, and where spaces already bill material. A box can't see a hand near a blade. We have no injury data by machine type, and we should get it.
@@ -188,21 +190,38 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 ## From the judges' scorecard (business model and finance)
 
-**41. "Why would a makerspace pay every month, not just once for the box?"** Show: slide 9.
-* **Short:** Because the value is ongoing: the alerts, the member logs, the material billing and the manual all run in the app. The box alone only switches; the subscription is what turns grams and minutes into bills and alerts into decisions. Whether owners accept a monthly fee is exactly what the pilot has to show.
+**41. "Your own interviews say boards prefer one purchase. Why a monthly fee?"** Show: slide 9.
+* **Short:** Two of the three decision makers we asked would rather approve one purchase, and one said a monthly fee counts as a service contract. So the monthly price is our core assumption, not a fact, and a one time option is the next price we test. The service fee pays for what runs every month: the alerts, the logs, the reports and the manuals.
 
-**42. "Isn't US$25 a month too much for a 3D printer?"**
-* **Short:** Probably, and we say so on slide 9: printers should sit near print monitoring software, a few dollars a month (Obico charges US$2 per extra printer). The US$25 is a first guess from GA3; the premium belongs on lasers and welders, where the box adds interlocks, gas control and fire sensing.
+**42. "Why $575 to install?"**
+* **Short:** Because the installer costs that much. An electrician at about $115 CAD an hour for five hours, a gas fitter for an hour and a service call come to about $565 USD per pack of 4. Our earlier $300 fee left a gap of about $265, so GA5 raised it.
 
-**43. "How will you pay for the pilot boxes and the approval?"** Show: slide 10.
-* **Short:** First Startup Garage at uOttawa: cash prizes in the RevUp Circuit, and grant funding in the Exploration Circuit once we incorporate. Then NRC IRAP, which also needs an incorporated company, and Futurpreneur, an equity free loan up to $75,000 for founders aged 18 to 39. The pilot host gives the space and the data.
-* **Honest limit:** we have not applied to any of them yet, and we are not incorporated.
+**43. "How much money do you need, and where will it come from?"** Show: slide 10.
+* **Short:** About $23,300: the lowest point of cash in our three year plan, with losses of $19,589 in year 1 and $1,902 in year 2, then a $4,968 profit in year 3. First Startup Garage at uOttawa (RevUp prizes, Exploration Circuit grants once we incorporate), then NRC IRAP, which also needs an incorporated company, and Futurpreneur, a loan up to $75,000 for founders aged 18 to 39.
+* **Honest limit:** we have not applied yet, we are not incorporated, and the plan pays no salaries for three years.
 
 **44. "What is the biggest limit on this business?"**
 * **Short:** Approval and installation. Every box has to be approved before it is used in Ontario, and welders and lasers need an electrician, and gas a gas fitter. That is why we start with printers and lasers, watch only, and leave the welder last.
 
 **45. "Is the market big enough for a business?"** Show: slide 8 and A3.
-* **Short:** At first it is small: at most about US$3 million a year from US makerspaces at our first guess. But Fab Labs have doubled roughly every two years, and campus and fabrication shops run the same machines. Makerspaces are where we prove it, not where we stop.
+* **Short:** For a first business, yes; for a large one, not yet. The plan reaches 23 spaces and a $4,968 profit in year 3, and is still about $16,500 below zero after 36 months. Growth comes from Fab Labs, which keep doubling, then campus and fabrication shops.
 
 **46. "What does your summary video show?"**
 * **Short:** The same two films as slides 4 and 5, with the problem, the business model and the close, about a minute and a quarter, at prevumo.vercel.app/video.
+
+## From GA5 and PD B5 (the latest numbers and interviews)
+
+**47. "When do you break even?"** Show: A3.
+* **Short:** Each pack pays for itself in month 11. The business as a whole first makes a profit in year 3, and recovers its cumulative losses around month 46 if sales stop growing. In the low case it is still losing money in year 3 ($594); in the high case it earns $10,159.
+
+**48. "Is $8,000 enough for certification?"**
+* **Short:** It is the top of a published range for a simpler electronic product, and our box switches mains power and gas, so it may not be. A real quote from a testing lab is on our next steps list. It is already 29% of our first year's costs, which is why it is on the limits list.
+
+**49. "Will an electrician even install this?"**
+* **Short:** A certified electrician told us yes, if the box is CSA certified, comes with a wiring diagram, and never bypasses the machine's emergency stop; about $150 to $250 for a 120 V machine and $400 to $800 for 240 V. A gas fitter called a solenoid valve routine, at $150 to $300 a welder.
+
+**50. "Your welder senses a gas leak. Won't a TIG welder set it off?"**
+* **Short:** Yes, a leak sensor would: a gas fitter and Edinburgh Hacklab both warned us. Our design uses an oxygen sensor low by the cylinder for a real leak, and we are adding an idle flow check: gas flowing with no session means something is open.
+
+**51. "What if the network goes down?"**
+* **Short:** Safety stops and the trained list live on the box, so they work without Wi-Fi. Two spaces challenged cloud control, so we are studying a local server and offline operation before committing to the cloud.

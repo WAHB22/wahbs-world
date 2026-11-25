@@ -4,9 +4,9 @@ const WPM = 120;
 const SLIDES = [
   { key: "s1", who: "A", say: `Hi, we're Group 10. This is PREVUMO: preventive boxes for makerspaces, one for each common machine, so every machine runs safely and lasts longer. Here's where we started, and where we're going.`,
     cue: `click on "where we're going".` },
-  { key: "s2", who: "A", say: `We started with a box that measured electricity, so shared spaces could bill each user. Ten interviews and forty nine emails later, kitchens and cafés said no: the three owners we asked build electricity into rent. But a makerspace director told us: "Managing equipment is one of the biggest tasks we have." So we kept one customer.`,
+  { key: "s2", who: "A", say: `We started with a box that measured electricity, so shared spaces could bill each user. Kitchens and cafés said no: the owners we asked build electricity into rent. Makerspaces said yes: "Managing equipment is one of the biggest tasks we have." Thirty conversations later, makerspaces are our only customer.`,
     handoff: `A: B, why does it matter?` },
-  { key: "s3", who: "B", say: `Safety rules show the real problem: every machine breaks, and gets misused, in its own way. A welder's gas left open. A printer nozzle above two hundred degrees after a failed print. A laser fire when someone walks away. So each common machine gets its own module.`,
+  { key: "s3", who: "B", say: `Every machine breaks, and gets misused, in its own way: a welder's gas left open, a printer nozzle left hot, a laser left alone. And it costs: owners told us about an extraction failure, seven hundred dollars and two days lost, and a spindle repair, eighteen hundred dollars and four days. So each machine gets its own module.`,
     cue: `click on "its own module". The film starts by itself.` },
   { key: "s4", who: "B", film: "The film (about 30 s, no sound) plays by itself; the words follow it: pieces, locked out, power and gas, oxygen, then the other modules.", say: `Every box has a fob reader, a display, a QR sticker and Wi-Fi. An untrained member stays locked out. A trained one gets power and gas, and a scale weighs the wire. If oxygen drops by the cylinder, the valve shuts first. [pause] The printers, the multimaker and the laser get the same box, with their own sensors.`,
     handoff: `B: C, and the owner?` },
@@ -14,15 +14,15 @@ const SLIDES = [
     cue: `click on "opens its manual".` },
   { key: "s6", who: "C", say: `Underneath is one idea: every machine draws current in its own pattern, warming up, cutting, or idle. PREVUMO learns each machine's normal and flags what doesn't fit. Nothing is measured yet; the pilot is how it learns.`,
     cue: `click on "how it learns".` },
-  { key: "s7", who: "C", say: `Our customer runs the space: a university, community makerspace, Fab Lab or library. They told us what they need: one place to manage equipment, an NFC fob instead of a code, and material billed by the gram. All three are built in. And they were open to a free pilot.`,
-    note: `If asked which spaces: name them only if the team has their names and emails. Otherwise: "Interest so far, nothing signed. Turning that into one to three written pilots is our next step."`,
+  { key: "s7", who: "C", say: `Owners told us what they need: maintenance records and alerts, a fob that checks training at the machine, and material tracked per member. And what they prefer: proof first. One makerspace accepted a free thirty day pilot; three more would try one after a safety review. Their boards want a monthly report of repairs avoided.`,
+    note: `If asked which spaces: MakerLabs accepted a free 30 day pilot (PD B4); Ironwood, Maple Junction and NIHERST would try one after a safety review (PD B4 and B5). Nothing is signed or paid.`,
     handoff: `C: D, how big is this?` },
-  { key: "s8", who: "D", say: `Our market: two thousand and thirty two active Fab Labs, twenty nine in Canada, and over two thousand makerspaces and Fab Labs in the US. Nine in ten list a laser cutter, and Fab Labs have doubled roughly every two years. We start in Canadian makerspaces, then campus and fabrication shops.`,
+  { key: "s8", who: "D", say: `Our market: two thousand and thirty two active Fab Labs, doubling roughly every two years, and about three thousand three hundred makerspaces worldwide. Our plan targets twenty three US makerspaces in three years: five percent of the four hundred and sixty in Make's directory.`,
     cue: `click on "fabrication shops".` },
-  { key: "s9", who: "D", say: `Two revenue streams: a box per machine, sold once, and a monthly fee per machine for the app and alerts. Price follows risk: printers near what print monitoring software costs, the premium on lasers and welders. We start with a free pilot, convert it to paid, and connect to Fabman's open API rather than compete. First guess: a three hundred dollar box plus twenty five dollars a month, six hundred dollars a machine in year one.`,
-    note: `Say "first guess" clearly: the prices are GA3 assumptions, not validated. If asked about margin: we have not costed the parts yet (Q24).`,
+  { key: "s9", who: "D", say: `Each space buys a pack of four modules: five hundred and seventy five dollars to install, seventy three fifty a month for two years, and forty dollars a month for the app. A pack costs us about eighteen hundred dollars and earns thirty seven hundred over three years: a fifty two percent margin, paid back in month eleven.`,
+    note: `All prices are US dollars from GA5, and no owner has agreed to them yet. If asked: $575 covers an electrician and a gas fitter (about $565 per pack); two of three boards we asked prefer a one time purchase, so we will test one.`,
     handoff: `D: E, how do we pay for it?` },
-  { key: "s10", who: "E", say: `Funding: uOttawa's Startup Garage for prizes and grants, then NRC IRAP and a Futurpreneur loan once we incorporate. Our limits: no revenue yet, every pilot box needs approval before use, and welders need an electrician and a gas fitter. So next: bench tests, approval, a watch only pilot, and the welder last.`,
+  { key: "s10", who: "E", say: `We lose money for two years and profit in year three, so we need about twenty three thousand dollars: Startup Garage, then NRC IRAP and a Futurpreneur loan once we incorporate. The limits: the price is untested, boards prefer one time purchases, and certification costs about eight thousand. Next: build and bench test one module, then the pilot.`,
     cue: `click on "the welder last".` },
   { key: "s11", who: "E", say: `Every machine fails its own way. [pause] PREVUMO gives each one its own guard. [pause] Thank you, we'd love your questions.`,
     note: `The QR opens prevumo.vercel.app: every prototype, online; the summary video is at prevumo.vercel.app/video. Leave this slide up during questions; jump to an appendix slide only when a question needs one.` },
@@ -60,10 +60,13 @@ Honest limit: none of this is built or tested yet; the bench test plan is the ne
 "Why not printer software?" Obico and similar tools catch failed prints with a camera for free up to a few dollars a printer. For printers we should be priced close to that, and read what the printer already reports. Our value is the machines software can't see: welders and lasers.
 Say "as far as we found": we have not tested every product.`,
 
-  a3: `APPENDIX, for questions. Pricing and the market, as assumptions.
+  a3: `APPENDIX, for questions. The numbers behind the plan (GA5 Financial Snapshot, US dollars).
 
-Pricing is not validated. Our first round assumption was a US$300 box and US$25 per machine per month; the critics were right that a flat price doesn't work for printers, which software monitors for a few dollars. So: printers near software prices, the premium on lasers and welders, where the box adds interlocks, gas control and fire sensing.
-Market arithmetic, as an estimate: about 2,000 US makerspaces and Fab Labs, times about 5 monitored machines, times US$300 a year (the flat price, so an upper bound), is at most about US$3 million a year. The US is the only verified count; Canada has 29 active Fab Labs. That is small, which is why makerspaces are where we prove it, not where we stop: campus and college shops and small fabrication shops run the same machines.`,
+Price, for a pack of 4 modules (one space): $575 installation, then $73.50 a month for 24 months for the modules ($441 each), plus $40 a month for the service, after a free 30 day pilot. Year 1: $1,937 per pack; three years: $3,779.
+Cost per pack: parts $1,160 (welder module about $297, the others about $290, priced from Adafruit, SparkFun, Digi-Key, RobotShop and U.S. Solid) + installation $565 (an electrician and a gas fitter) + shipping $13 + warranty $58 = $1,796. Margin over three years about 52%; payback in month 11.
+One time: certification about $8,000 (a real quote is still needed) and incorporation $235. Fixed yearly: insurance $1,080, hosting $240, domain $20, bookkeeping $864.
+Plan: 6, 8 and 9 packs in years 1 to 3, 23 spaces, 5% of the 460 US makerspaces in Make's directory. Year 1 loss $19,589, year 2 loss $1,902, year 3 profit $4,968. Lowest cash about minus $23,300: that is the funding need. Low case: still a loss in year 3 ($594). High case: $10,159 in year 3.
+Limits to say plainly: no salaries for three years (sweat equity), the price is untested, and parts and labour are paid at installation while customers pay over 24 months.`,
 
   a4: `APPENDIX, for questions. Learning and false alerts.
 
@@ -73,8 +76,9 @@ The pilot metric: false alerts per machine per month, with the owner labelling e
 
   a5: `APPENDIX, for questions. Evidence so far, and what is still untested.
 
-What changed the design: owners bundle electricity into rent (billing dropped); cafés weren't interested (makerspaces only); Yukonstruct asked for an NFC fob instead of a code (keypad dropped); spaces bill material by the gram (scales); CMU and MIT laser rules require ventilation and attendance (the airflow interlock; the 15 minute tap is our own design choice); an argon or CO2 leak has no smell (CCOHS), so the gas sensor became an oxygen sensor.
-Untested: whether owners will pay, the false alert rate, and every safety function on real hardware. Our PD B3 interview sheets are still to be filled in; say that plainly if asked.`,
+Three rounds, about thirty conversations: GA3 (10 interviews, 49 emails), PD B4 (8 written replies and 2 interviews with owners) and PD B5 (10 interviews: two site managers, three decision makers, a treasurer, an electrician, a gas fitter, a repair technician and a Tool Champion).
+What changed the design: owners bundle electricity into rent (billing dropped); cafés weren't interested (makerspaces only); Yukonstruct asked for an NFC fob (keypad dropped); maintenance records came up unprompted (service alerts first); both owners interviewed had found a regulator left open (the fob timed valve); a gas fitter and Edinburgh Hacklab warned that a leak sensor on a TIG welder would give false alarms (an idle flow check instead); cloud control was challenged (a local server study); installation costs about $565 a pack (the fee went from $300 to $575).
+Untested: whether owners will pay this price, the false alert rate, and every safety function on real hardware.`,
 
   a6: `APPENDIX, for questions. The bench test plan, each test with its pass rule, written before it starts.
 

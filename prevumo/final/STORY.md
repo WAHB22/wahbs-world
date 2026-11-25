@@ -33,10 +33,10 @@ The table was redrawn after the course shared the judges' scorecard (Nov 25): on
 | 4 | 1:13 | B | Solution validation | One box, five modules | Hardware film; each problem beside what the box does about it |
 | 5 | 1:44 | C | Solution validation | One app for the owner | Owner app film; one alert, three choices |
 | 6 | 2:14 | C | Solution validation | Every machine has its own electrical signature | The idea, labelled; nothing measured yet, the pilot learns |
-| 7 | 2:35 | C | Customer validation | What our customers told us | Needs, who said them, what PREVUMO does; pilot interest, no sponsors |
+| 7 | 2:35 | C | Customer validation | What our customers told us | PD B4 and B5: needs, who said them, what PREVUMO does; preferences (one purchase over a monthly fee); no sponsors |
 | 8 | 3:00 | D | Market validation | A market we can count, and it's growing | Verified counts, the doubling trend, segments in order |
-| 9 | 3:27 | D | Business model | How PREVUMO makes money | Two revenue streams, price by risk, pilot to paid, next to Fabman; US$600 a machine in year one, a first guess |
-| 10 | 4:09 | E | Financial considerations | Funding, limits and next steps | Startup Garage, NRC IRAP, Futurpreneur, pilot hosts; the limits; four next steps |
+| 9 | 3:27 | D | Business model | How PREVUMO makes money | GA5: a pack of 4 ($575 + $73.50 a month for 24 months + $40 a month); $3,779 revenue, $1,796 cost, 52% margin, payback month 11; untested |
+| 10 | 4:09 | E | Financial considerations | Funding, limits and next steps | GA5: $23,300 funding need, years 1 to 3; Startup Garage, NRC IRAP, Futurpreneur, pilot hosts; the limits; four next steps |
 | 11 | 4:37 | E | (close) | (closing line) | The line, thank you, the summary video link, QR to prevumo.vercel.app |
 
 ## Draft script (superseded: the final words and timings live in `notes.cjs`, loop 8)

@@ -37,6 +37,20 @@ Checked on 24 and 25 November 2026 (Ottawa time) by reading the source itself, n
 * **Yukonstruct:** "we wouldn't want it to be a personal code, we would want it to be an NFC fob." (Oct 27. The contact is not named anywhere public: decision 3 in DECISIONS.md.)
 * **Free pilots:** makerspaces and Fab Labs open to a free pilot. Wahb's account; no names or emails are on file in the repo, so the deck calls it interest, and the team must be ready to name them.
 
+## The team's own evidence, round 2 and 3 (PD B4 and PD B5, Nov 2026, not checkable online)
+
+* **PD B4:** the concept went to more than a dozen makerspaces and Fab Labs in Canada, the US and Europe; 8 written replies and 2 owner interviews. MakerLabs accepted a free 30 day pilot; NIHERST would pilot once a working prototype exists; both interviewed owners would consider a 30 day trial after a safety review. Maintenance records came up unprompted (InterAccess, NIHERST). Cloud control was challenged (Edinburgh Hacklab, Harbour Bench). Both interviewed owners had found a regulator left open; Edinburgh warned that a leak sensor on a TIG welder would false alarm.
+* **PD B5 (10 interviews):** an extraction failure, about $700 and two days lost (a site manager); a clogged laser filter, most of a weekend lost (a program manager); a board approves anything over about $500 and expects $200 to $300 per machine for hardware (a director); a $1,800 spindle repair took four days to approve, one avoided repair a year is worth about $1,500 (a director); a monthly fee counts as a service contract (a lab); an electrician needs CSA certification and never bypasses the e-stop, $150 to $250 for 120 V and $400 to $800 for 240 V; a gas fitter calls a solenoid valve routine at $150 to $300 a welder and prefers an idle flow check on TIG; a repair technician lost four days and $450 to a laser pump; a treasurer wants a monthly report of repairs avoided, and the insurer's written yes.
+* **On slides:** names of people are withheld; MakerLabs, NIHERST and the other spaces are named only in the Q&A, so the team can answer "name one".
+
+## GA5 Financial Snapshot (team's model, US dollars, sources listed in GA5)
+
+* **Price, pack of 4:** $575 installation + $73.50 a month for 24 months ($441 a module) + $40 a month per space, after a free 30 day pilot. Year 1 $1,937; three years $3,779.
+* **Cost:** welder module about $297 (sourced parts $221.66, checked: Adafruit ESP32-S3-DevKitC $17.50, Digi-Key DPE25BL contactor $55.68); others about $290; parts per pack $1,160; installation $565; shipping $13; warranty $58; total $1,796. Margin about 52%; payback month 11.
+* **One time:** certification about $8,000; incorporation $235. **Yearly:** $2,204 fixed.
+* **Plan:** 6, 8 and 9 packs (23 spaces, 5% of 460 US makerspaces); year 1 $19,589 loss, year 2 $1,902 loss, year 3 $4,968 profit; lowest cash about $23,308; low case year 3 loss $594; high case year 3 profit $10,159.
+* **Market base:** Make, "How many makerspaces?" (https://makethings.make.co/p/many-makerspaces): "The directory lists 716 makerspaces, 460 of which are in the US"; "you could estimate 3300 such spaces worldwide" (read with Firecrawl, Nov 25, 2026).
+
 ## Dropped (cannot be verified for makerspaces, or could not be read)
 
 * **$754 average emergency repair call:** 86 Repairs restaurant data.
