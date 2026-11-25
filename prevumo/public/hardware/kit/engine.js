@@ -86,7 +86,7 @@ export function run(cfg) {
     <section id="alert" class="card fade"><div class="ah"><span class="badge" id="abadge"></span><p class="at" id="atitle"></p><p class="ar" id="areason"></p></div><div class="af" id="afoot"></div></section>
     <footer id="tblock" class="fade">
       <div class="r"><div class="c"><p class="k">Project</p><p class="v">PREVUMO</p></div><div class="c"><p class="k">Drawing</p><p class="v">${cfg.name}</p></div></div>
-      <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.2 · PD B3</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG4120</p></div></div>
+      <div class="r"><div class="c"><p class="k">Revision</p><p class="v">Concept v0.2 · PD B3</p></div><div class="c"><p class="k">Team</p><p class="v">Group 10 · GNG 4120</p></div></div>
       <div class="r"><div class="c"><p class="k">Date</p><p class="v">Nov 2026</p></div><div class="c"><p class="k">Scale</p><p class="v">Not to scale</p></div></div>
       <p class="note">${TITLE_NOTE}</p>
     </footer>

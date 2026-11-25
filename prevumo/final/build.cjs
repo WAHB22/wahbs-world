@@ -231,7 +231,7 @@ async function autoplayFilms(file) {
   s.addText("Where we started", { placeholder: "title" });
   s.addImage({ data: A.path, x: 0.75, y: 1.55, w: 11.8, h: 11.8 * (120 / 2400), objectName: "Pivot path" });
   const stops = [
-    { tag: "PD A", t: "Share electricity", d: "A box that measures each user's electricity, so the space can bill it.", ev: "Every owner we asked builds electricity into rent or membership.", out: "Billing dropped" },
+    { tag: "PD A", t: "Share electricity", d: "A box that measures each user's electricity, so the space can bill it.", ev: "All three owners we asked build electricity into rent or membership.", out: "Billing dropped" },
     { tag: "GA3", t: "Any shared space", d: "Shared kitchens, restaurants, cafés and makerspaces with costly equipment.", ev: "Cafés leave equipment on at closing, but were not interested in a device.", out: "Cafés dropped" },
     { tag: "PD B3, now", t: "Makerspaces only", d: "One box per machine type, made for how each one fails.", ev: "“Managing equipment is one of the biggest tasks we have.”", who: "Ontario makerspace director", out: "Our customer" },
   ];
@@ -253,7 +253,7 @@ async function autoplayFilms(file) {
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
   s.addText("Every machine fails its own way", { placeholder: "title" });
   const machines = [
-    { m: "welder", t: "Welder", f: ["Shielding gas left open", "A leak has no smell and sinks", "Wire used, never counted"] },
+    { m: "welder", t: "Welder", f: ["Shielding gas left open", "A leak has no smell and sinks", "Wire weighed by hand, if at all"] },
     { m: "printer", t: "3D printers", f: ["Nozzle left hot, over 200 °C", "Prints fail unwatched", "Filament billed by the gram"] },
     { m: "laser", t: "Laser cutter", f: ["Fire when left alone", "Runs with no exhaust or air", "Coolant stops, tube is ruined"] },
     { m: "multimaker", t: "Multimaker", f: ["Print, laser and CNC in one", "Three machines, three risks", "The box must know the mode"] },
@@ -333,7 +333,7 @@ async function autoplayFilms(file) {
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
   s.addText("Who it's for, and why they'd pay", { placeholder: "title" });
   text(s, "Whoever runs the space pays: university and community makerspaces, Fab Labs and libraries.", { x: 0.75, y: 1.45, w: 11.8, h: 0.45, fontSize: 17, color: C.text2 });
-  [[A.wrench, "Machines protected", "From a US$1,700 welder to a US$8,000 laser."], [A.shield, "Members kept safe", "Gas, fire and heat stop the machine first."], [A.coins, "Materials billed fairly", "Spaces already bill about $0.10 a gram."]].forEach(([img, t, d], i) => {
+  [[A.wrench, "Machines protected", "From a US$1,700 welder to a US$8,000 laser."], [A.shield, "Members kept safe", "Low oxygen, flame or overheating stop it first."], [A.coins, "Materials billed fairly", "Spaces already bill about $0.10 a gram."]].forEach(([img, t, d], i) => {
     const y = 2.2 + i * 0.95;
     s.addImage({ data: img, x: 0.75, y: y + 0.04, w: 0.42, h: 0.42 });
     text(s, t, { x: 1.4, y, w: 6.6, h: 0.45, fontFace: HEAD, fontSize: 24, bold: true, color: C.text1 });
@@ -384,7 +384,7 @@ async function autoplayFilms(file) {
   s.addText("What we do next", { placeholder: "title" });
   [
     { t: "Bench test", d: "Printer and laser boxes: power cut 50 times, current checked against a meter.", pass: "Pass: every output goes safe on power loss." },
-    { t: "Approval", d: "Pilot boxes built from approved parts, or field evaluated by ESA. In Ontario this comes before any use.", pass: "Pass: an approval label on every pilot box." },
+    { t: "Approval", d: "Every pilot box field evaluated by ESA, or certified, before it is installed. In Ontario this comes before any use.", pass: "Pass: an approval label on every pilot box." },
     { t: "Watch only pilot", d: "Free, four weeks in a makerspace. The box switches nothing; the owner labels every alert.", pass: "Pass: the owner keeps it on. Stop if it is ignored." },
     { t: "Welder last", d: "The most valuable module, and the hardest: an electrician and a gas fitter.", pass: "After a pilot that passes." },
   ].forEach((st, i) => {
@@ -427,9 +427,9 @@ async function autoplayFilms(file) {
     [cell("The controller freezes", { bold: true }), cell("A hardware watchdog drops every output when the firmware stops answering.")],
     [cell("Wi-Fi is down", { bold: true }), cell("Trained lists and safety stops live on the box. Sessions and alerts queue until it is back.")],
     [cell("After any stop", { bold: true }), cell("Nothing restarts on its own. It waits for a trained member's fob.")],
-    [cell("A safety event", { bold: true }), cell("Low oxygen, a lasting flame, no exhaust or no coolant: the machine stops first, and it is reset at the machine, never from a phone.")],
+    [cell("A safety event", { bold: true }), cell("Low oxygen, a lasting flame, no exhaust, no coolant or an overheating enclosure: the machine stops first, and it is reset at the machine, never from a phone.")],
   ], tableOpts({ colW: [3.0, 8.8], rowH: [0.42, 0.62, 0.62, 0.62, 0.62, 0.72], objectName: "Fail safe table" }));
-  text(s, "Approval before any use, pilots included: pilot boxes are built from approved parts or field evaluated by ESA, and they watch and switch nothing. A licensed electrician installs anything that switches; a gas fitter reviews gas parts.", { x: 0.75, y: 5.5, w: 11.8, h: 0.7, fontSize: 15, color: C.text1, valign: "top" });
+  text(s, "Approval before any use, pilots included: every pilot box is field evaluated by ESA, or certified, before it is installed, and it watches and switches nothing. A licensed electrician installs anything that switches; a gas fitter reviews gas parts.", { x: 0.75, y: 5.5, w: 11.8, h: 0.7, fontSize: 15, color: C.text1, valign: "top" });
   source(s, "ESA Recognized Approval Marks. Design requirements for a concept: none of this is built or tested yet.");
 
   s = appx("What already exists, and where we sit", "a2");
@@ -448,23 +448,23 @@ async function autoplayFilms(file) {
   text(s, [
     { text: "Printers: ", options: { bold: true } }, { text: "close to print monitoring software, a few dollars a month.", options: { breakLine: true } },
     { text: "Lasers and welders: ", options: { bold: true } }, { text: "the premium, where the box adds interlocks, gas control and fire sensing.", options: { breakLine: true } },
-    { text: "First round assumption (GA3): ", options: { bold: true } }, { text: "a $300 box and $25 per machine per month." },
+    { text: "First round assumption (GA3): ", options: { bold: true } }, { text: "a US$300 box and US$25 per machine per month." },
   ], { x: 1.05, y: 2.2, w: 5.15, h: 2.3, fontSize: 15, color: C.text1, valign: "top", paraSpaceAfter: 10 });
   card(s, { x: 6.85, y: 1.55, w: 5.7, h: 3.05, objectName: "Market arithmetic" });
   text(s, "Bottom up, as an estimate", { x: 7.15, y: 1.75, w: 5.2, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
   text(s, [
     { text: "2,000", options: { fontFace: MONO, bold: true } }, { text: " US makerspaces and Fab Labs", options: { breakLine: true } },
     { text: "× 5", options: { fontFace: MONO, bold: true } }, { text: " monitored machines each", options: { breakLine: true } },
-    { text: "× $300", options: { fontFace: MONO, bold: true } }, { text: " a year per machine", options: { breakLine: true } },
-    { text: "≈ $3M a year", options: { fontFace: MONO, bold: true, color: HEX.green } },
+    { text: "× US$300", options: { fontFace: MONO, bold: true } }, { text: " a year per machine (an upper bound)", options: { breakLine: true } },
+    { text: "≈ US$3M a year at most", options: { fontFace: MONO, bold: true, color: HEX.green } },
   ], { x: 7.15, y: 2.2, w: 5.15, h: 2.0, fontSize: 17, color: C.text1, valign: "top", paraSpaceAfter: 6 });
-  text(s, "Small: makerspaces are where we prove it. Campus shops and small fabrication shops run the same machines.", { x: 7.15, y: 3.75, w: 5.15, h: 0.75, fontSize: 13, color: C.text2, valign: "top" });
+  text(s, "Small: makerspaces are where we prove it, then campus and fabrication shops. Only the US count is verified; Canada has 29 active Fab Labs.", { x: 7.15, y: 3.7, w: 5.15, h: 0.8, fontSize: 13, color: C.text2, valign: "top" });
   source(s, "Machines per space and price are team assumptions. US count: Nation of Makers.");
 
   s = appx("Learning and false alerts", "a4");
   const two = [
-    { t: "What current can tell", items: ["On or off, and for how long", "Idle draw with nobody working", "A warm up shape it already knows", "Slow drift at the same settings"], color: HEX.green },
-    { t: "What it cannot tell yet", items: ["A failing welder from a thicker plate", "A spaghetti print that keeps extruding", "Anything, before real data from a pilot"], color: HEX.rust },
+    { t: "What current can tell", items: ["On or off, and for how long", "Idle draw with nobody working", "A warm up shape it already knows"], color: HEX.green },
+    { t: "What it cannot tell yet", items: ["A failing welder from a thicker plate", "A spaghetti print that keeps extruding", "Slow wear, until a pilot shows it"], color: HEX.rust },
   ];
   two.forEach((c, i) => {
     const x = 0.75 + i * 6.1;
@@ -472,31 +472,33 @@ async function autoplayFilms(file) {
     text(s, c.t, { x: x + 0.3, y: 1.75, w: 5.1, h: 0.4, fontFace: HEAD, fontSize: 18, bold: true, color: c.color });
     text(s, c.items.map((it, j) => ({ text: it, options: { bullet: { code: "25CF", indent: 20 }, breakLine: j < c.items.length - 1 } })), { x: x + 0.3, y: 2.2, w: 5.1, h: 1.65, fontSize: 15, color: C.text1, valign: "top", paraSpaceAfter: 6 });
   });
-  text(s, "So anything beyond on, off and idle is a review for the owner, never an automatic shutdown, until pilot data shows it works. Learning should count sessions, not only days, and it never switches off a safety stop. The pilot metric: false alerts per machine per month, each one labelled by the owner.", { x: 0.75, y: 4.2, w: 11.8, h: 1.2, fontSize: 16, color: C.text1, valign: "top" });
+  text(s, "So anything beyond on, off and idle is a review for the owner, never an automatic shutdown, until pilot data shows it works. Learning runs two weeks today; the next version should count sessions, not only days. It never switches off a safety stop. The pilot metric: false alerts per machine per month, each one labelled by the owner.", { x: 0.75, y: 4.2, w: 11.8, h: 1.2, fontSize: 16, color: C.text1, valign: "top" });
 
   s = appx("Evidence so far, and what is untested", "a5");
   s.addTable([
-    [head("What we heard"), head("Source"), head("What changed")],
+    [head("What we learned"), head("Source"), head("What changed")],
     [cell("Owners build electricity into rent or membership"), cell("3 owners: a makerspace, two shared kitchens", { color: HEX.muted }), cell("Per user billing dropped", { bold: true })],
     [cell("Cafés were not interested in a device"), cell("Café interviews, GA3", { color: HEX.muted }), cell("Makerspaces only", { bold: true })],
     [cell("“We would want it to be an NFC fob”"), cell("Yukonstruct, Oct 27", { color: HEX.muted }), cell("Keypad replaced by an NFC fob", { bold: true })],
-    [cell("Material is billed by the gram"), cell("U of Regina, Pickering Library", { color: HEX.muted }), cell("Spool and wire scales", { bold: true })],
-    [cell("Ventilation on and someone present for lasers"), cell("Published laser safety rules", { color: HEX.muted }), cell("Airflow interlock, 15 minute tap", { bold: true })],
-  ], tableOpts({ colW: [4.6, 3.6, 3.6], rowH: [0.42, 0.55, 0.55, 0.55, 0.55, 0.55], objectName: "Evidence table" }));
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.2, w: 11.8, h: 0.9, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint } });
-  text(s, [{ text: "Untested: ", options: { bold: true, fontFace: HEAD } }, { text: "whether owners will pay, the false alert rate, and every safety function on real hardware." }], { x: 1.05, y: 5.2, w: 11.2, h: 0.9, fontSize: 15, color: HEX.ink, valign: "middle" });
+    [cell("Filament is billed by the gram"), cell("U of Regina, Pickering Library", { color: HEX.muted }), cell("Spool scales", { bold: true })],
+    [cell("An argon or CO2 leak has no smell"), cell("CCOHS", { color: HEX.muted }), cell("Oxygen sensor, not a gas sensor", { bold: true })],
+    [cell("Lasers need ventilation on and someone present"), cell("CMU and MIT laser guidelines", { color: HEX.muted }), cell("Airflow interlock; a 15 minute tap (our choice)", { bold: true })],
+  ], tableOpts({ colW: [4.6, 3.6, 3.6], rowH: [0.42, 0.52, 0.52, 0.52, 0.52, 0.52, 0.52], objectName: "Evidence table" }));
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.45, w: 11.8, h: 0.85, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint } });
+  text(s, [{ text: "Untested: ", options: { bold: true, fontFace: HEAD } }, { text: "whether owners will pay, the false alert rate, and every safety function on real hardware." }], { x: 1.05, y: 5.45, w: 11.2, h: 0.85, fontSize: 15, color: HEX.ink, valign: "middle" });
 
   s = appx("Bench test plan", "a6");
   s.addTable([
-    [head("Test"), head("How"), head("What it proves")],
-    [cell("1  Fail safe", { bold: true }), cell("Cut power and halt the firmware 50 times per box"), cell("Every output goes safe and stays off")],
-    [cell("2  Current accuracy", { bold: true }), cell("Box against a true RMS meter: printer, fan, MIG welder, with Wi-Fi on"), cell("The error band of the reading")],
-    [cell("3  Welding noise", { bold: true }), cell("A day beside a welding bench"), cell("No resets, no fob misreads")],
-    [cell("4  Gas", { bold: true }), cell("Oxygen sensor, controlled argon release in a closed box, with a gas fitter"), cell("It sees the real gas")],
-    [cell("5  Printers", { bold: true }), cell("Pause command, scale noise, staged detachment and clog, two models"), cell("What each rule catches")],
-    [cell("6  Laser, watch only", { bold: true }), cell("Duct open and blocked, pump off, flame sensor over 20 normal cuts"), cell("Trip rates, false trips")],
-    [cell("7  Watch only pilot", { bold: true }), cell("Four weeks, the owner labels every alert"), cell("False alerts per machine per month")],
-  ], tableOpts({ colW: [2.6, 5.6, 3.6], rowH: [0.42, 0.56, 0.56, 0.56, 0.56, 0.56, 0.56, 0.56], objectName: "Bench test table" }));
+    [head("Test"), head("How"), head("Pass rule (a target, set before the test)")],
+    [cell("1  Fail safe", { bold: true }), cell("Cut power and halt the firmware 50 times per box"), cell("Every output safe, 50 times out of 50")],
+    [cell("2  Current", { bold: true }), cell("A real printer's power trace; the box against a true RMS meter, with Wi-Fi on"), cell("Within 5% of the meter")],
+    [cell("3  Printers", { bold: true }), cell("Pause command, scale noise, a staged detachment and clog, two models"), cell("Pauses on every staged failure, none in 10 good prints")],
+    [cell("4  Laser, watch only", { bold: true }), cell("Duct open and blocked, pump off, flame sensor over 20 normal cuts"), cell("Every blocked duct caught; no false trip in 20 cuts")],
+    [cell("5  Watch only pilot", { bold: true }), cell("Four weeks; the owner labels every alert"), cell("Owner keeps it on; false alerts under the limit set first")],
+    [cell("6  Welding noise (later)", { bold: true }), cell("A day beside a welding bench"), cell("No resets, no fob misreads")],
+    [cell("7  Gas (later)", { bold: true }), cell("Oxygen sensor, controlled argon release in a closed box, with a gas fitter"), cell("Alarm at 19.5% oxygen, every time")],
+  ], tableOpts({ colW: [2.6, 5.3, 3.9], rowH: [0.42, 0.56, 0.56, 0.56, 0.56, 0.56, 0.56, 0.56], objectName: "Bench test table" }));
+  text(s, "The welder tests come after the pilot, as slide 9 says. The targets are ours, written down so the results can say no.", { x: 0.75, y: 6.0, w: 11.8, h: 0.4, fontSize: 14, color: C.text1 });
 
   s = appx("Sources", "a7");
   const src = [
@@ -507,6 +509,7 @@ async function autoplayFilms(file) {
     "Prusa Knowledge Base: PLA nozzle 210 to 215 °C, PETG 240 °C.",
     "CCOHS: argon and CO2 shielding gases are simple asphyxiants; low oxygen is 19.5% or less.",
     "Fabman pricing and Fabman Bridge FB-V2 (€249). Obico pricing guide.",
+    "CMU EHS laser cutter guideline v.11 (ventilation on before operation; always attended). MIT EHS: never leave an operating laser cutter unattended.",
     "ESA, Recognized Approval Marks: approval before a product is used, sold, displayed or advertised in Ontario.",
     "Group 10 interviews and outreach, Oct 2026 (GA3), and Yukonstruct, Oct 27. Owner quotes anonymized. PREVUMO prices are assumptions to validate.",
   ];

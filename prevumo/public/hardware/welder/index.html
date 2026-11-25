@@ -93,7 +93,7 @@ run({
     { ref: "ct", name: "Current clamp", role: "Around one supply wire, inside the electrician's enclosure.", a: [-2, 0.6, 0], d: [-110, 40] },
     { ref: "cont", name: "Contactor, 240 V", role: "Switches the welder. Licensed electrician installs.", a: [-2.8, 2.5, 3.5], d: [-110, -50] },
     { ref: "valve", name: "Gas valve", role: "Closed without power: open only in a fob session.", a: [0, 4.6, 0], d: [-40, -110] },
-    { ref: "leak", name: "Oxygen sensor", role: "Low by the cylinder: argon and CO2 sink. Watched day and night.", a: [0, 2.4, 0.8], d: [90, -70] },
+    { ref: "leak", name: "Oxygen sensor", role: "Low by the cylinder: argon and CO2 sink. Watched even with no session.", a: [0, 2.4, 0.8], d: [90, -70] },
     { ref: "spool", name: "Wire scale", role: "Weighs the wire spool: grams per session.", a: [-3, 1.0, 4.5], d: [-110, 30] },
   ],
   steps: [
@@ -103,7 +103,7 @@ run({
     ["Flags an irregular pattern", "The owner gets one alert: Shut down, Call technician or Mark as OK."],
     ["Stops power and gas together", "Nothing restarts on its own. Amira's session is logged with the wire she used."],
     ["Idle? Both off", "If nobody welds for the idle time the owner sets, the box turns power and gas off."],
-    ["Low oxygen? Valve shuts", "A leak has no smell, so a sensor low by the cylinder watches day and night. The valve closes first, then the owner is told."],
+    ["Low oxygen? Valve shuts", "A leak has no smell, so a sensor low by the cylinder watches even with no session. The valve closes first, then the owner is told."],
   ],
   sysView: { p: [24, 60, 22], h: 196, oy: 70 },
   cam: [
@@ -192,7 +192,7 @@ run({
   about: "The welder module sits on the wall beside a MIG welder. It unlocks with a member's NFC fob if that fob is on Welder 2's trained list, opens the shielding gas only during a session, weighs the wire each member uses, and closes the gas valve as soon as the oxygen sensor low by the cylinder reads low, with or without a session.",
   evidence: [
     "Yukonstruct (Rick Yorgason, Oct 27): “we wouldn't want it to be a personal code, we would want it to be an NFC fob.”",
-    "Grey Bruce Makers bills wire at $0.10 a gram, and today removes and weighs the spool by hand.",
+    "Grey Bruce Makers bills wire by weight and weighs the spool by hand (from the team's research).",
   ],
   chapters: [{ label: "Low oxygen", at: [s6, T.end], still: 4.2 }],
 

@@ -239,3 +239,19 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * do not convert to Google Slides, which drops the films;
   * the PDF and film fallback;
   * install the fonts.
+
+### Loop 13 (Tue 23:46): consistency auditor
+* **Lead:** a consistency auditor agent read the deck, the notes, QA.md, FACTS.md, the site and the PD B3 report side by side, and ranked 16 drifts by cost (`critics/consistency.md`).
+* **Fixed in the deck and the notes:**
+  * slide 2 says all three owners we asked, not every owner;
+  * the approval route is one sentence everywhere: every pilot box is field evaluated by ESA, or certified, before it is installed;
+  * the market sum is "at most", in US dollars, and says only the US count is verified (Canada has 29 Fab Labs);
+  * learning says two weeks today, sessions in the next version; slow drift moved to what current can't tell yet;
+  * the bench test table has a pass rule per test, a real printer's power trace in test 2, and the welder tests marked later;
+  * one safety stop list everywhere: low oxygen, a lasting flame, no exhaust, no coolant, an overheating enclosure;
+  * slide 15 adds the oxygen sensor change and names the laser sources (CMU EHS v.11 and MIT EHS, both read on their official pages); the 15 minute tap is marked as our own choice;
+  * the spoken lines now use the slides' words (list, online) and the pilot's false alert limit.
+* **Fixed on the site:** the dropped facts (Alveo3D's 250 °C, the Grey Bruce price, HSE EIS45) are gone or labelled as the team's research; Prusa, the University of Regina and Pickering are quoted; GNG 4120 is spelled one way; the owner app's date matches its logs.
+* **Q&A:** Q8 says the PD B3 report's "before sale" became "before use"; Q12 lists the rules the box acts on; Q35 covers what changed since PD B3.
+* **Films:** the hardware film is tightened to fit B's 34 seconds (intro 2 s, faster pieces), and both films re-recorded with the new site text.
+* **Kept:** the free pilot interest stays, as the team's own claim, flagged in the notes (decision for loop 15).

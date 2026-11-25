@@ -74,15 +74,15 @@ async function hardware() {
   await lp.screenshot({ path: join(dir, "hub.png") });
   await live.close();
   console.log("hub from", hubFrom);
-  const INTRO = Math.round(2.6 * FPS);
+  const INTRO = Math.round(2.0 * FPS);
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-loop", "1", "-i", join(dir, "hub.png"), "-vf",
     `scale=3840:2160,zoompan=z='1+0.06*on/${INTRO}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/3':d=${INTRO}:s=1920x1080:fps=${FPS}`,
     "-frames:v", String(INTRO), "-q:v", "2", join(dir, "f%05d.jpg")]);
 
   // 2. each module page renders any moment with window.render(t); speed > 1 plays a stretch faster
   const SEG = [
-    ["welder", 3.0, 12.0, 1.5], ["welder", 22.75, 28.35, 1.25], ["welder", 28.35, 37.95, 1.5], ["welder", 54.75, 62.75, 1.25],
-    ["printer", 29.9, 34.5, 1.15], ["enclosed", 50.5, 55.5, 1.25], ["multimaker", 43.0, 47.5, 1.1], ["laser", 40.4, 45.4, 1.25],
+    ["welder", 3.0, 12.0, 1.8], ["welder", 22.75, 28.35, 1.4], ["welder", 28.35, 37.95, 1.8], ["welder", 54.75, 62.75, 1.4],
+    ["printer", 29.9, 34.5, 1.4], ["enclosed", 50.5, 55.5, 1.5], ["multimaker", 43.0, 47.5, 1.35], ["laser", 40.4, 45.4, 1.5],
   ];
   const PAGE = { welder: "welder", printer: "printer", enclosed: "enclosed-printer", multimaker: "multimaker", laser: "laser-cutter" };
   const jobs = [];
@@ -119,7 +119,7 @@ async function hardware() {
   await browser.close();
   const out = join(media, "hardware.mp4");
   encode(join(dir, "f%05d.jpg"), out);
-  poster(out, 24.5, join(media, "hardware.jpg"));
+  poster(out, 20.8, join(media, "hardware.jpg"));
   console.log(`hardware.mp4 ${dur(out).toFixed(2)} s, ${n} frames`);
 }
 

@@ -16,12 +16,12 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **"What have you tested?"** Nothing is built or measured yet; the interviews tested the problem, and the pilot tests the device. (A5)
 * **"Why not Fabman?"** Fabman does access and idle shutoff; we add sensors made for each machine, and can sit next to it. (A2)
 * **"Which spaces want a free pilot?"** Names only if we have them; otherwise interest, not commitment, and written pilots are the next step.
-* **"Is a free pilot legal?"** Approval comes before any use in Ontario, so pilot boxes are built from approved parts or field evaluated, and they only watch. We haven't asked ESA yet. (A1)
+* **"Is a free pilot legal?"** Approval comes before any use in Ontario, so every pilot box is field evaluated by ESA, or certified, before it is installed, and it only watches. We haven't asked ESA yet. (A1)
 * **"What does the welder sensor detect?"** Oxygen: argon and CO2 have no smell and sink, so it is mounted low, with an alarm at 19.5%.
 * **"What if the power or Wi-Fi goes?"** Everything goes off and closed; safety stops live on the box; nothing restarts on its own. (A1)
 * **"Can current tell a failing welder from a thicker plate?"** Not yet; anything beyond on, off and idle is a review, never a shutdown, until the pilot proves it. (A4)
 * **"How much does it cost?"** Not validated; printers near software prices, the premium on lasers and welders. (A3)
-* **"Isn't the market small?"** Yes, at first: about $3M a year in US makerspaces, as an estimate; campus and fabrication shops come next. (A3)
+* **"Isn't the market small?"** Yes, at first: at most about US$3M a year in US makerspaces, as an estimate; campus and fabrication shops come next. (A3)
 * **"Do you have sponsors?"** No. We're looking for a first host site and help with certification.
 
 ## Evidence and progress
@@ -61,8 +61,8 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 ## Safety, certification, liability
 
 **8. "Can an uncertified box switch a 240 V welder, even in a free pilot? And slide 9 puts approval before the pilot: is a watch only box exempt?"** Show: A1.
-* **Short:** No, and no. In Ontario a product must be approved before it is used, not only before it is sold (ESA), and watching does not exempt it. So the pilot boxes are built from parts that already carry approval, or field evaluated by ESA, and they switch nothing. Anything that switches comes later, installed by a licensed electrician.
-* **Honest limit:** we haven't asked ESA yet; that is part of step 2 on slide 9.
+* **Short:** No, and no. In Ontario a product must be approved before it is used, not only before it is sold (ESA), and watching does not exempt it. So every pilot box is field evaluated by ESA, or certified, before it is installed; approved parts make that easier. The pilot boxes switch nothing. Anything that switches comes later, installed by a licensed electrician.
+* **Honest limit:** we haven't asked ESA yet; that is part of step 2 on slide 9. Our PD B3 report said "before sale"; ESA says before use, so we changed it.
 
 **9. "Argon and CO2 don't burn and have no smell. What does your sensor detect?"**
 * **Short:** Oxygen. Argon and CO2 push the oxygen out and sink, so the sensor is an oxygen monitor mounted low by the cylinder, with an alarm at 19.5% (CCOHS).
@@ -78,7 +78,7 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **Short:** We would only use an interlock input the laser's maker documents, with their written approval. Until then the laser module only watches and alerts.
 
 **12. "Who is liable if your box kills a 14 hour print or stops a weld?"**
-* **Short:** Outside a safety event the box never acts on its own: the owner sets the rules, and every action is logged with its reason. Safety stops are reset at the machine.
+* **Short:** Outside a safety event the box acts only on rules the owner sets: the idle time, the laser's 15 minute tap, and a print pause when two signals agree. Every action is logged with its reason. Safety stops are reset at the machine.
 * **If they ask "safety device or monitor?":** until it is certified and tested, nobody should rely on it. The welder's own controls, the cylinder valve, the laser's interlocks and the space's rules stay in charge. Whether our stops need safety rated parts, and the liability terms, need certification work and a lawyer; we haven't done that yet.
 
 **13. "Cutting power to a hot printer stops its cooling fan."**
@@ -97,7 +97,7 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **Illustration if they push:** at 1% false per session, 10 machines and 5 sessions a day give one false alert every two days. That is why the first weeks only learn.
 
 **17. "Two weeks of learning on a welder used three times a week is six sessions."**
-* **Short:** Good point. Learning should count sessions and hours per mode, not days, and a technician check at install sets a known good start. Learning never switches off a safety stop.
+* **Short:** Good point. Today the design learns over two weeks; the next version should count sessions and hours per mode, not days, and a technician check at install sets a known good start. Learning never switches off a safety stop.
 
 **18. "A spaghetti print keeps pulling filament, so your scale misses it."**
 * **Short:** True. The scale catches clogs, run outs and tangles, not spaghetti; cameras catch that. So we pause only when two signals agree, and we would read what the printer already reports.
@@ -111,13 +111,13 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 ## Business
 
 **21. "Who pays, and how much?"** Show: A3.
-* **Short:** Whoever runs the space. The price isn't validated. Our first round assumption was a $300 box and $25 per machine per month, but a flat price doesn't work for printers. Printers should be priced near monitoring software; the premium belongs on lasers and welders.
+* **Short:** Whoever runs the space. The price isn't validated. Our first round assumption was a US$300 box and US$25 per machine per month, but a flat price doesn't work for printers. Printers should be priced near monitoring software; the premium belongs on lasers and welders.
 
 **22. "Why would a non profit makerspace pay at all, if it bundles everything into membership?"**
-* **Short:** They already charge for material by the gram: the University of Regina charges $1.00 for 10 g. Protection of a $1,700 welder or an $8,000 laser is the other half. We have not yet asked anyone about a specific price; that is the first question for the next round.
+* **Short:** They already charge for material by the gram: the University of Regina charges $1.00 for 10 g. Protection of a US$1,700 welder or a US$8,000 laser is the other half. We have not yet asked anyone about a specific price; that is the first question for the next round.
 
 **23. "Your market looks tiny."** Show: A3.
-* **Short:** It is small at first: about 2,000 US makerspaces and Fab Labs, times about five machines, times $300 a year, is about $3 million a year, as an estimate. Makerspaces are where we prove it. Campus and college shops and small fabrication shops run the same machines, and that is where we'd grow.
+* **Short:** It is small at first: about 2,000 US makerspaces and Fab Labs, times about five machines, times US$300 a year, is at most about US$3 million a year, as an estimate; the flat price is an upper bound. The US is the only verified count; Canada has 29 active Fab Labs. Makerspaces are where we prove it. Campus and college shops and small fabrication shops run the same machines, and that is where we'd grow.
 
 **24. "What does a box cost to build? What's your margin?"**
 * **Short:** We haven't costed it yet, so we won't quote a margin. A parts list per module, with the welder's install cost separate, is part of the next round.
@@ -149,7 +149,7 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 **30. "Of your ten interviews, how many were makerspaces? Did anyone tell you about an actual leak or fire?"**
 * **Short:** The ten covered a makerspace, two shared kitchens, manufacturing, café staff and a university student office; later came Yukonstruct.
-* **On incidents:** the hazards on slide 3 come from published safety rules, not from incidents owners reported to us. The pilot's alert log will show how often they happen.
+* **On incidents:** the hazards on slide 3 come from published safety rules (CMU and MIT for lasers, CCOHS for gas, Prusa for nozzle heat), not from incidents owners reported to us. The pilot's alert log will show how often they happen.
 
 **31. "People get hurt on table saws and lathes. Why welders and printers? And can't a member just plug the printer into the wall?"**
 * **Short:** We chose machines whose hazard shows up in a sensor or the power draw, and where spaces already bill material. A box can't see a hand near a blade. We have no injury data by machine type, and we should get it.
@@ -163,3 +163,6 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 **34. "What physically exists? Did you power on a single sensor?"**
 * **Short:** Nothing is built or powered yet. What we engineered is the design: where each sensor goes, how every output fails safe, and tests with pass rules written first. The cheapest test of the core idea is one real printer's power trace, and it comes first.
+
+**35. "What changed since PD B3?"** Show: A5.
+* **Short:** Four things, each from a source or a critic. The gas leak sensor became an oxygen sensor, because an argon or CO2 leak has no smell (CCOHS). "Certified before sale" became "approved before any use", because that is what ESA says. A failed print now needs two signals to agree, and the printer cools down before it is switched off. The exhaust clamp became an airflow switch in the duct, because a fan can run with the duct blocked.
