@@ -31,7 +31,7 @@ The budget is 5:00 at 130 words a minute, so about 630 spoken words. Five speake
 | 4 | 1:35 | B | Hardware prototypes | Film from /hardware: the welder module in depth, then the other four; the five modules named with their own sensors | 95 |
 | 5 | 2:20 | C | Software prototype | Film from /software: owner app (machines, one alert with three choices, members and materials) and the QR manual on a phone | 70 |
 | 6 | 2:55 | C | Every machine has its own electrical signature | The heartbeat motif labelled: warm up is normal, on with nobody working, irregular; a strip saying nothing is measured yet and the free pilot plan | 75 |
-| 7 | 3:30 | D | Who it's for, and why they'd pay | Customers (university, community, Fab Lab), value (machine, members, materials), next to what exists (Fabman, printer software), sponsors: none yet | 75 |
+| 7 | 3:30 | D | Who it's for, and what they get | Customers (university, community, Fab Lab), value (machine, members, materials), next to what exists (Fabman, printer software), sponsors: none yet | 75 |
 | 8 | 4:05 | D | Where we go | Verified counts, the expansion path | 55 |
 | 9 | 4:30 | E | What we do next | Bench test, four week watch only pilot with a pass rule, approval, welder last | 45 |
 | 10 | 4:50 | E | (closing line) | Dark close, the line, Thank you, questions, QR to prevumo.vercel.app | 20 |

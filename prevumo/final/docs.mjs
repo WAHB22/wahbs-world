@@ -77,13 +77,13 @@ const slides = N.SLIDES.map((s, i) => {
 }).join("");
 const script = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PREVUMO final: speaker script</title><style>${CSS}</style></head><body>
 <h1>Speaker script</h1>
-<p class="lede">Five minutes, five speakers, ten slides. Every word below is in the deck's speaker notes too. Times are at 130 words a minute plus a beat for each hand off: ${clock(N.TOTAL)} in all, so about 15 seconds to spare.</p>
+<p class="lede">Five minutes, five speakers, ten slides. Every word below is in the deck's speaker notes too. Times are at 120 words a minute, a nervous pace, plus a beat for each hand off: ${clock(N.TOTAL)} in all, so about ${Math.round((300 - N.TOTAL) / 5) * 5} seconds to spare.</p>
 <h2>Run sheet</h2>
 <table><thead><tr><th>#</th><th>Slide</th><th>Who</th><th>Time</th><th>Words</th></tr></thead><tbody>${rows}
 <tr class="total"><td></td><td>Total</td><td></td><td class="t">${clock(N.TOTAL)}</td><td class="t">${N.SLIDES.reduce((a, s) => a + s.words, 0)}</td></tr></tbody></table>
 <h2>Who says what</h2>
 <table><thead><tr><th>Speaker</th><th>Slides</th><th>Time</th><th>Name</th></tr></thead><tbody>${speakers}</tbody></table>
-<div class="box"><b>Present from PowerPoint</b> (Windows or Mac). The films play by themselves on slides 4 and 5 as soon as the slide appears, with no sound; keep talking over them. If a film does not start, click it once. Google Slides drops embedded films, so do not convert the deck. If the presenting computer has no PowerPoint, open PREVUMO-final.pdf and play the two film files beside it. Nothing needs the internet except the QR on the last slide. <b>Fonts:</b> install the three in deliverables/fonts on the presenting laptop, or PowerPoint will swap them.</div>
+<div class="box"><b>Present from PowerPoint</b> (Windows or Mac). The films play by themselves on slides 4 and 5 as soon as the slide appears, with no sound; keep talking over them. If a film does not start, click it once. Google Slides drops embedded films, so do not convert the deck. If the presenting computer has no PowerPoint, open PREVUMO-final.pdf and play the two film files beside it. Nothing needs the internet except the QR on the last slide. <b>Fonts:</b> install the three in deliverables/fonts on the presenting laptop, or PowerPoint will swap them. On a locked podium computer, embed them first: open the deck in PowerPoint on a laptop that has the fonts, then File, Options, Save, tick "Embed fonts in the file" with all characters, and save. Check it on a computer without the fonts. If anything reflows, present the PDF.</div>
 <div class="box warn"><b>Say once, plainly:</b> nothing is measured yet; every chart and number in the prototypes is illustrative (slide 6). <b>Do not say:</b> sponsors, signed pilots, "saves 30 to 40%", "AI predicts failures", "certified", or "many makerspaces" without names.</div>
 <div class="box"><b>Rehearse twice with a timer.</b> If you pass 4:50, cut a clause rather than speed up. Stand so the screen is never blocked; the speaker of the next slide holds the clicker.</div>
 <h2>Slide by slide</h2>

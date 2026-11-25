@@ -221,7 +221,7 @@ async function autoplayFilms(file) {
   s.addImage({ data: A.curveDark, x: 0, y: 2.25, w: W, h: W * (520 / 3000), objectName: "Heartbeat motif" });
   text(s, "PREVUMO", { x: 0.75, y: 0.75, w: 11, h: 1.5, fontFace: HEAD, fontSize: 88, bold: true, charSpacing: 6, color: HEX.bg });
   text(s, "PREVentive Usage MOnitor", { x: 0.75, y: 2.0, w: 6, h: 0.45, fontFace: MONO, fontSize: 16, bold: true, color: HEX.orange });
-  text(s, "A preventive box for every machine in a makerspace.", { x: 0.75, y: 4.95, w: 10.5, h: 0.9, fontFace: HEAD, fontSize: 28, color: HEX.bg });
+  text(s, "A preventive box for each common\nmachine in a makerspace.", { x: 0.75, y: 4.95, w: 10.5, h: 0.9, fontFace: HEAD, fontSize: 28, color: HEX.bg });
   text(s, "Jana Mghabghab · Tobi Adebayo · Mohamed Wahb Berguia · Daksh Prabhulal Dholu · Akhil Matta", { x: 0.75, y: 6.55, w: 9.0, h: 0.35, fontSize: 12, color: HEX.greenTint });
   text(s, "GNG 4120 · Group 10 · Nov 27, 2026", { x: 9.3, y: 6.55, w: 3.3, h: 0.35, fontFace: MONO, fontSize: 11, color: HEX.greenTint, align: "right" });
   notes(s, "s1");
@@ -231,9 +231,9 @@ async function autoplayFilms(file) {
   s.addText("Where we started", { placeholder: "title" });
   s.addImage({ data: A.path, x: 0.75, y: 1.55, w: 11.8, h: 11.8 * (120 / 2400), objectName: "Pivot path" });
   const stops = [
-    { tag: "PD A", t: "Share electricity", d: "A box that measures each user's electricity, so the space can bill it.", ev: "All three owners we asked build electricity into rent or membership.", out: "Billing dropped" },
-    { tag: "GA3", t: "Any shared space", d: "Shared kitchens, restaurants, cafés and makerspaces with costly equipment.", ev: "Cafés leave equipment on at closing, but were not interested in a device.", out: "Cafés dropped" },
-    { tag: "PD B3, now", t: "Makerspaces only", d: "One box per machine type, made for how each one fails.", ev: "“Managing equipment is one of the biggest tasks we have.”", who: "Ontario makerspace director", out: "Our customer" },
+    { tag: "First idea (PD A)", t: "Share electricity", d: "A box that measures each user's electricity, so the space can bill it.", ev: "All three owners we asked build electricity into rent or membership.", out: "Billing dropped" },
+    { tag: "Then (GA3)", t: "Any shared space", d: "Shared kitchens, restaurants, cafés and makerspaces with costly equipment.", ev: "Cafés leave equipment on at closing, but were not interested in a device.", out: "Cafés dropped" },
+    { tag: "Now (PD B3)", t: "Makerspaces only", d: "One box per machine type, made for how each one fails.", ev: "“Managing equipment is one of the biggest tasks we have.”", who: "Ontario makerspace director", out: "Our customer" },
   ];
   stops.forEach((st, i) => {
     const x = 0.75 + i * 4.0, last = i === 2;
@@ -255,7 +255,7 @@ async function autoplayFilms(file) {
   const machines = [
     { m: "welder", t: "Welder", f: ["Shielding gas left open", "A leak has no smell and sinks", "Wire weighed by hand, if at all"] },
     { m: "printer", t: "3D printers", f: ["Nozzle left hot, over 200 °C", "Prints fail unwatched", "Filament billed by the gram"] },
-    { m: "laser", t: "Laser cutter", f: ["Fire when left alone", "Runs with no exhaust or air", "Coolant stops, tube is ruined"] },
+    { m: "laser", t: "Laser cutter", f: ["Fire when left alone", "Runs with no exhaust or air", "Coolant fails, tube wears out"] },
     { m: "multimaker", t: "Multimaker", f: ["Print, laser and CNC in one", "Three machines, three risks", "The box must know the mode"] },
   ];
   machines.forEach((mc, i) => {
@@ -270,7 +270,7 @@ async function autoplayFilms(file) {
   text(s, [{ text: "So each machine type gets its own module: ", options: { bold: true } }, { text: "one box, its own sensors." }], {
     x: 1.0, y: 5.75, w: 11.3, h: 0.62, fontFace: HEAD, fontSize: 18, color: HEX.surface, valign: "middle",
   });
-  source(s, "Drawings from our hardware prototypes (concept, not built). Prusa: PLA nozzle 210 to 215 °C; CCOHS: argon and CO2 are simple asphyxiants; U of Regina: $1.00 per 10 g.");
+  source(s, "Drawings: our prototypes, not built. Prusa: PLA nozzle 210 to 215 °C. CCOHS: argon, CO2. U of Regina: $1.00 per 10 g. CMU, MIT EHS: lasers attended. FLUX: heat wears tubes.");
   notes(s, "s3");
 
   /* 4. Hardware prototypes */
@@ -280,7 +280,7 @@ async function autoplayFilms(file) {
   film(s, "hardware", { x: 0.75, y: 1.55, w: vw, h: vh }, "Hardware film, no sound");
   source(s, "Hardware prototypes, from prevumo.vercel.app/hardware. Interactive 3D drawings: a concept, not built or tested.");
   text(s, "Every box: an NFC fob reader, a display, a QR sticker and a Wi-Fi controller.", { x: 9.35, y: 1.55, w: 3.3, h: 0.75, fontSize: 14, color: C.text1, valign: "top" });
-  [["Welder", "gas valve, oxygen sensor, wire scale"], ["3D printer", "spool scale, printer link"], ["Enclosed printer", "plus a chamber sensor"], ["Multimaker", "mode buttons, exhaust switch"], ["Laser cutter", "exhaust airflow, air assist, coolant, flame"]].forEach(([t, d], i) => {
+  [["Welder", "gas valve, oxygen sensor, wire scale"], ["3D printer", "spool scale, printer link"], ["Enclosed printer", "plus a chamber sensor"], ["Multimaker", "mode buttons, exhaust switch"], ["Laser cutter", "exhaust, air assist, coolant, flame"]].forEach(([t, d], i) => {
     const y = 2.55 + i * 0.72;
     s.addShape(pres.shapes.LINE, { x: 9.35, y: y - 0.06, w: 3.25, h: 0, line: { color: HEX.border, width: 0.75 } });
     text(s, t, { x: 9.35, y, w: 3.25, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: C.text1 });
@@ -321,7 +321,8 @@ async function autoplayFilms(file) {
   lab(gx + 3.4, "Working", "inside its own band", HEX.green);
   lab(gx + 5.55, "On, nobody working", "idle: shut off after a set time", HEX.muted);
   lab(gx + 9.1, "Out of its band", "one alert, the owner decides", HEX.orangeText);
-  text(s, "One machine's day, illustrative", { x: gx, y: gy + gh + 0.02, w: 6, h: 0.32, fontFace: MONO, fontSize: 13, color: C.text2 });
+  text(s, "Current over one machine's day, illustrative", { x: gx, y: gy + gh + 0.02, w: 7, h: 0.32, fontFace: MONO, fontSize: 13, color: C.text2 });
+  text(s, "Current", { x: 0.05, y: gy + gh * (375 / 700) - 0.15, w: 1.1, h: 0.3, fontFace: MONO, fontSize: 12, color: C.text2, align: "center", rotate: 270 });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.6, w: 11.8, h: 0.95, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint }, objectName: "Honesty band" });
   text(s, [
     { text: "Nothing here is measured yet. ", options: { bold: true, fontFace: HEAD } },
@@ -331,9 +332,9 @@ async function autoplayFilms(file) {
 
   /* 7. Value, customers, partners */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
-  s.addText("Who it's for, and why they'd pay", { placeholder: "title" });
+  s.addText("Who it's for, and what they get", { placeholder: "title" });
   text(s, "Whoever runs the space pays: university and community makerspaces, Fab Labs and libraries.", { x: 0.75, y: 1.45, w: 11.8, h: 0.45, fontSize: 17, color: C.text2 });
-  [[A.wrench, "Machines protected", "From a US$1,700 welder to a US$8,000 laser."], [A.shield, "Members kept safe", "Low oxygen, flame or overheating stop it first."], [A.coins, "Materials billed fairly", "Spaces already bill about $0.10 a gram."]].forEach(([img, t, d], i) => {
+  [[A.wrench, "Machines protected", "From a US$1,700 welder to a US$8,000 laser."], [A.shield, "Members kept safe", "Low oxygen, flame or overheating stop it first."], [A.coins, "Materials billed fairly", "Spaces already bill about CA$0.10 a gram."]].forEach(([img, t, d], i) => {
     const y = 2.2 + i * 0.95;
     s.addImage({ data: img, x: 0.75, y: y + 0.04, w: 0.42, h: 0.42 });
     text(s, t, { x: 1.4, y, w: 6.6, h: 0.45, fontFace: HEAD, fontSize: 24, bold: true, color: C.text1 });
@@ -386,7 +387,7 @@ async function autoplayFilms(file) {
     { t: "Bench test", d: "Printer and laser boxes: power cut 50 times, current checked against a meter.", pass: "Pass: every output goes safe on power loss." },
     { t: "Approval", d: "Every pilot box field evaluated by ESA, or certified, before it is installed. In Ontario this comes before any use.", pass: "Pass: an approval label on every pilot box." },
     { t: "Watch only pilot", d: "Free, four weeks in a makerspace. The box switches nothing; the owner labels every alert.", pass: "Pass: the owner keeps it on. Stop if it is ignored." },
-    { t: "Welder last", d: "The most valuable module, and the hardest: an electrician and a gas fitter.", pass: "After a pilot that passes." },
+    { t: "Welder last", d: "The biggest hazard, and the hardest to install: an electrician and a gas fitter.", pass: "After a pilot that passes." },
   ].forEach((st, i) => {
     const x = 0.75 + i * 3.0, dark = i === 2;
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.6, w: 2.8, h: 3.45, rectRadius: 0.12, fill: { color: dark ? HEX.ink : HEX.surface }, line: { color: dark ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Step ${i + 1}` });
@@ -509,7 +510,7 @@ async function autoplayFilms(file) {
     "Prusa Knowledge Base: PLA nozzle 210 to 215 °C, PETG 240 °C.",
     "CCOHS: argon and CO2 shielding gases are simple asphyxiants; low oxygen is 19.5% or less.",
     "Fabman pricing and Fabman Bridge FB-V2 (€249). Obico pricing guide.",
-    "CMU EHS laser cutter guideline v.11 (ventilation on before operation; always attended). MIT EHS: never leave an operating laser cutter unattended.",
+    "CMU EHS laser cutter guideline v.11 (ventilation on before operation; always attended). MIT EHS: never leave an operating laser cutter unattended. FLUX: temperature is the first thing that shortens a CO2 tube's life.",
     "ESA, Recognized Approval Marks: approval before a product is used, sold, displayed or advertised in Ontario.",
     "Group 10 interviews and outreach, Oct 2026 (GA3), and Yukonstruct, Oct 27. Owner quotes anonymized. PREVUMO prices are assumptions to validate.",
   ];

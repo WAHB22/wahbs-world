@@ -120,7 +120,7 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **Short:** It is small at first: about 2,000 US makerspaces and Fab Labs, times about five machines, times US$300 a year, is at most about US$3 million a year, as an estimate; the flat price is an upper bound. The US is the only verified count; Canada has 29 active Fab Labs. Makerspaces are where we prove it. Campus and college shops and small fabrication shops run the same machines, and that is where we'd grow.
 
 **24. "What does a box cost to build? What's your margin?"**
-* **Short:** We haven't costed it yet, so we won't quote a margin. A parts list per module, with the welder's install cost separate, is part of the next round.
+* **Short:** We haven't costed it yet, so we won't quote a margin. What drives the cost is clear: a printer box is a controller, a fob reader, a display and a scale; the welder adds a contactor, a gas valve and an oxygen sensor, installed by an electrician. So the printer box should sit near software prices and the welder box is the expensive one. Pricing each module's parts list at one distributor comes before the pilot.
 
 **25. "Is 'data from free pilots' a moat?"**
 * **Short:** Not by itself. Pilot data tunes our defaults and cuts false alarms per machine type. If we have a defence later, it would come from certified hardware, a tested rule set per machine type, and owners trusting us to switch machines off.
@@ -166,3 +166,20 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 **35. "What changed since PD B3?"** Show: A5.
 * **Short:** Four things, each from a source or a critic. The gas leak sensor became an oxygen sensor, because an argon or CO2 leak has no smell (CCOHS). "Certified before sale" became "approved before any use", because that is what ESA says. A failed print now needs two signals to agree, and the printer cools down before it is switched off. The exhaust clamp became an airflow switch in the duct, because a fan can run with the duct blocked.
+
+## From the gatekeeper (loop 14)
+
+**36. "A US$20 smart plug logs power and switches off idle machines. Why you?"** Show: A2.
+* **Short:** For on, off and idle, a smart plug is close, and it is our first bench test. It can't see oxygen, airflow, coolant, a flame, grams of material or who is on the machine, and it can't carry a 240 V welder.
+
+**37. "Why drop kitchens and restaurants?"**
+* **Short:** We never tested monitoring with kitchens; in our interviews, owners bundle electricity into rent and cafés weren't interested, while makerspaces showed the most pull. One customer, done well, before a second.
+
+**38. "You say machines last longer. How?"**
+* **Short:** By catching the misuse that wears them out: a laser run with no coolant or exhaust, a nozzle left hot, hours on with nobody working. That is an aim; we have no data yet, and the pilot's log is where it starts.
+
+**39. "How is each machine's normal band set?"** Show: A4.
+* **Short:** Per machine and per mode: the range of current seen while learning, plus a margin the pilot tunes. No method is chosen or tested yet; anything outside the band is a review for the owner, never a shutdown.
+
+**40. "Why is the welder your star if it comes last?"**
+* **Short:** Its hazard is invisible and nobody watches it today: a leak has no smell. It is also the hardest to install, with an electrician and a gas fitter, so it comes after the printer and laser boxes prove the idea.

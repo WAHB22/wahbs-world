@@ -255,3 +255,19 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 * **Q&A:** Q8 says the PD B3 report's "before sale" became "before use"; Q12 lists the rules the box acts on; Q35 covers what changed since PD B3.
 * **Films:** the hardware film is tightened to fit B's 34 seconds (intro 2 s, faster pieces), and both films re-recorded with the new site text.
 * **Kept:** the free pilot interest stays, as the team's own claim, flagged in the notes (decision for loop 15).
+
+### Loop 14 (Wed 05:50; the session sat idle about 3.5 hours after two worker restarts): gatekeeper
+* **Before it:** checked that the loop 13 site deploy went live (the owner app's Tuesday, Nov 10; CMU EHS and Prusa on the overview; no Alveo3D or GNG4120). Checked inside the pptx: both films embedded (35.3 s and 35.9 s) with autoplay timing, notes on all 17 slides; the slide 10 QR decodes to https://prevumo.vercel.app.
+* **Lead:** a gatekeeper agent read every slide image, the script, the Q&A, FACTS and the earlier critiques, and refused with 11 weak points (`critics/gatekeeper.md`).
+* **Fixed:**
+  * slide 1 says "each common machine in a makerspace", on two balanced lines; s1 says "each common type of machine";
+  * slide 2's stops read "First idea (PD A)", "Then (GA3)", "Now (PD B3)";
+  * slide 3: "Coolant fails, tube wears out", backed by FLUX, a laser maker ("Why Temperature Is the #1 Lifespan Killer", added to FACTS and slide 17); the source line now names CMU and MIT for lasers;
+  * slide 4: the laser line fits on one line;
+  * slide 6: a "Current" axis and the caption "Current over one machine's day, illustrative";
+  * slide 7: titled "Who it's for, and what they get", and "CA$0.10 a gram";
+  * slide 9: the welder is "the biggest hazard, and the hardest to install";
+  * timing is now planned at 120 words a minute, a nervous pace: 537 words, 4:47 in all;
+  * the script PDF tells the team how to embed the fonts in PowerPoint on a locked podium computer, and to present the PDF if anything reflows;
+  * Q24 says what drives the cost without inventing a number; Q36 to Q40 answer the smart plug, kitchens, machine life, the normal band and the welder.
+* **Left for loop 15:** the free pilot claim (point 1) is the team's own; it is a decision, not a fix.
