@@ -74,15 +74,15 @@ async function hardware() {
   await lp.screenshot({ path: join(dir, "hub.png") });
   await live.close();
   console.log("hub from", hubFrom);
-  const INTRO = Math.round(2.0 * FPS);
+  const INTRO = Math.round(1.5 * FPS);
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-loop", "1", "-i", join(dir, "hub.png"), "-vf",
     `scale=3840:2160,zoompan=z='1+0.06*on/${INTRO}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/3':d=${INTRO}:s=1920x1080:fps=${FPS}`,
     "-frames:v", String(INTRO), "-q:v", "2", join(dir, "f%05d.jpg")]);
 
   // 2. each module page renders any moment with window.render(t); speed > 1 plays a stretch faster
   const SEG = [
-    ["welder", 3.0, 12.0, 1.8], ["welder", 22.75, 28.35, 1.4], ["welder", 28.35, 37.95, 1.8], ["welder", 54.75, 62.75, 1.4],
-    ["printer", 29.9, 34.5, 1.4], ["enclosed", 50.5, 55.5, 1.5], ["multimaker", 43.0, 47.5, 1.35], ["laser", 40.4, 45.4, 1.5],
+    ["welder", 3.0, 12.0, 2.0], ["welder", 22.75, 28.35, 1.5], ["welder", 28.35, 37.95, 2.0], ["welder", 54.75, 62.75, 1.5],
+    ["printer", 29.9, 34.5, 1.7], ["enclosed", 50.5, 55.5, 2.0], ["multimaker", 43.0, 47.5, 1.7], ["laser", 40.4, 45.4, 1.8],
   ];
   const PAGE = { welder: "welder", printer: "printer", enclosed: "enclosed-printer", multimaker: "multimaker", laser: "laser-cutter" };
   const jobs = [];
@@ -119,7 +119,7 @@ async function hardware() {
   await browser.close();
   const out = join(media, "hardware.mp4");
   encode(join(dir, "f%05d.jpg"), out);
-  poster(out, 20.8, join(media, "hardware.jpg"));
+  poster(out, 17.5, join(media, "hardware.jpg"));
   console.log(`hardware.mp4 ${dur(out).toFixed(2)} s, ${n} frames`);
 }
 
@@ -204,26 +204,26 @@ async function software() {
   await wait(900);
   await page.mouse.move(mx, my);
   const appFrames = await screencast(page, async () => {
-    await wait(2200);
-    await moveTo(page.locator("article, .card").filter({ hasText: "Welder 2" }).first(), { fy: 0.35, steps: 34 });
-    await wait(2600);
-    // the alerts get the most time: the speaker spends about 14 s on them
+    await wait(1600);
+    await moveTo(page.locator("article, .card").filter({ hasText: "Welder 2" }).first(), { fy: 0.35, steps: 30 });
+    await wait(1900);
+    // the alerts get the most time: the speaker spends about 10 s on them
     await click(page.locator('.tab[data-v="alerts"]'));
-    await wait(2800);
+    await wait(2300);
     await click(page.locator('[data-do="welder-leak"][data-d="Call technician"]'));
-    await wait(2600);
+    await wait(2000);
     await click(page.locator('[data-ask="printer-irr"]'));
-    await wait(1300);
-    await click(page.locator('[data-do="printer-irr"][data-d="Shut down"]'));
-    await wait(2600);
-    await click(page.locator('.tab[data-v="members"]'));
     await wait(1000);
+    await click(page.locator('[data-do="printer-irr"][data-d="Shut down"]'));
+    await wait(2000);
+    await click(page.locator('.tab[data-v="members"]'));
+    await wait(700);
     await click(page.locator("details summary").first());
-    await wait(2200);
+    await wait(1700);
     await click(page.locator('.tab[data-v="resources"]'));
-    await wait(800);
+    await wait(600);
     await page.mouse.move(mx + 40, my + 30);
-    await wait(1400);
+    await wait(1000);
   });
   const appMp4 = framesToMp4(appFrames, "software-app");
 
@@ -234,15 +234,15 @@ async function software() {
   await phone.waitForTimeout(1500);
   await phone.evaluate(() => document.fonts.ready);
   const phoneFrames = await screencast(phone, async () => {
-    await phone.waitForTimeout(2600);
+    await phone.waitForTimeout(1500);
     const max = await phone.evaluate(() => { const d = document.getElementById("m").contentDocument; const el = d.querySelector(".danger"); return el ? el.getBoundingClientRect().top + d.defaultView.scrollY - 140 : 1400; });
-    const steps = 170;
+    const steps = 130;
     for (let i = 1; i <= steps; i++) {
       const k = i / steps, e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
       await phone.evaluate((y) => document.getElementById("m").contentWindow.scrollTo(0, y), Math.round(max * e));
       await phone.waitForTimeout(30);
     }
-    await phone.waitForTimeout(3200);
+    await phone.waitForTimeout(2200);
   });
   const phoneMp4 = framesToMp4(phoneFrames, "software-phone");
   await browser.close();

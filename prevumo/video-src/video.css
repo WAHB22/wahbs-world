@@ -1,0 +1,15 @@
+@font-face { font-family: "Space Grotesk"; src: url("/vendor/fonts/space-grotesk.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("/vendor/fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("/vendor/fonts/jetbrains-mono.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+:root { --bg: #F3EBDD; --surface: #FFFDF8; --ink: #1F3D2B; --muted: #5B6B5F; --green: #2F6B45; --orange-text: #B4561A; --border: #E3D6C0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 17px/1.55 "Inter", system-ui, sans-serif; }
+main { max-width: 1040px; margin: 0 auto; padding: 48px 16px 64px; }
+.eyebrow { font: 500 14px/1.4 "JetBrains Mono", ui-monospace, monospace; color: var(--orange-text); margin: 0 0 8px; }
+h1 { font: 700 clamp(30px, 5vw, 48px)/1.1 "Space Grotesk", system-ui, sans-serif; margin: 0 0 12px; }
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 24px; }
+video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--ink); border: 6px solid var(--ink); border-radius: 22px; }
+.note { color: var(--muted); font-size: 15px; margin: 16px 0 8px; }
+.links a { display: inline-block; padding: 10px 18px; border-radius: 999px; background: var(--green); color: var(--surface); text-decoration: none; font-weight: 600; }
+.links a:focus-visible { outline: 3px solid var(--orange-text); outline-offset: 3px; }

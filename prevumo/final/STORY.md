@@ -23,18 +23,21 @@ PREVUMO is a box for each machine type in a makerspace: it lets only trained mem
 
 The budget is 5:00 at 130 words a minute, so about 630 spoken words. Five speakers, A to E, give one hand off each. The films play while the speaker talks, with no sound.
 
-| # | Time | Speaker | Title on the slide | What is on it | Words |
+The table was redrawn after the course shared the judges' scorecard (Nov 25): one slide per criterion, with a small label above each title. Times are at 120 words a minute; notes.cjs has the exact words.
+
+| # | Time | Speaker | Scorecard | Title on the slide | What is on it |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 0:00 | A | PREVUMO | Dark title, heartbeat line, the one line promise, team names | 40 |
-| 2 | 0:20 | A | Where we started | Three stops on one line: share electricity, kitchens and cafés and makerspaces, makerspaces only; under each, what an owner told us | 85 |
-| 3 | 1:00 | B | Every machine fails its own way | Four machines, two or three real failure modes each; one line: one box, different sensors | 70 |
-| 4 | 1:35 | B | Hardware prototypes | Film from /hardware: the welder module in depth, then the other four; the five modules named with their own sensors | 95 |
-| 5 | 2:20 | C | Software prototype | Film from /software: owner app (machines, one alert with three choices, members and materials) and the QR manual on a phone | 70 |
-| 6 | 2:55 | C | Every machine has its own electrical signature | The heartbeat motif labelled: warm up is normal, on with nobody working, irregular; a strip saying nothing is measured yet and the free pilot plan | 75 |
-| 7 | 3:30 | D | Who it's for, and what they get | Customers (university, community, Fab Lab), value (machine, members, materials), next to what exists (Fabman, printer software), sponsors: none yet | 75 |
-| 8 | 4:05 | D | Where we go | Verified counts, the expansion path | 55 |
-| 9 | 4:30 | E | What we do next | Bench test, four week watch only pilot with a pass rule, approval, welder last | 45 |
-| 10 | 4:50 | E | (closing line) | Dark close, the line, Thank you, questions, QR to prevumo.vercel.app | 20 |
+| 1 | 0:00 | A | Team and solution name | PREVUMO | Dark title, the promise, the summary video link, team names |
+| 2 | 0:18 | A | Problem validation | Where we started | The pivot path, what owners said at each stop, 10 interviews and 49 emails |
+| 3 | 0:49 | B | Problem validation | Every machine fails its own way | Four machines and how each fails; machines from US$1,700 to US$8,000 |
+| 4 | 1:13 | B | Solution validation | One box, five modules | Hardware film; each problem beside what the box does about it |
+| 5 | 1:44 | C | Solution validation | One app for the owner | Owner app film; one alert, three choices |
+| 6 | 2:14 | C | Solution validation | Every machine has its own electrical signature | The idea, labelled; nothing measured yet, the pilot learns |
+| 7 | 2:35 | C | Customer validation | What our customers told us | Needs, who said them, what PREVUMO does; pilot interest, no sponsors |
+| 8 | 3:00 | D | Market validation | A market we can count, and it's growing | Verified counts, the doubling trend, segments in order |
+| 9 | 3:27 | D | Business model | How PREVUMO makes money | Two revenue streams, price by risk, pilot to paid, next to Fabman; US$600 a machine in year one, a first guess |
+| 10 | 4:09 | E | Financial considerations | Funding, limits and next steps | Startup Garage, NRC IRAP, Futurpreneur, pilot hosts; the limits; four next steps |
+| 11 | 4:37 | E | (close) | (closing line) | The line, thank you, the summary video link, QR to prevumo.vercel.app |
 
 ## Draft script (superseded: the final words and timings live in `notes.cjs`, loop 8)
 

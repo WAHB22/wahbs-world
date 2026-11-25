@@ -20,6 +20,7 @@ const OUT_DIR = path.join(HERE, "..", "deliverables", "final");
 fs.mkdirSync(OUT_DIR, { recursive: true });
 const OUT = process.argv.includes("--out") ? process.argv[process.argv.indexOf("--out") + 1] : path.join(OUT_DIR, "PREVUMO-final.pptx");
 const URL_LIVE = "https://prevumo.vercel.app";
+const URL_VIDEO = "https://prevumo.vercel.app/video";
 const MEDIA = path.join(HERE, "media");
 const ASSETS = path.join(HERE, "assets");
 const FILMS = {
@@ -184,6 +185,11 @@ async function autoplayFilms(file) {
     wrench: await icon(Pi.PiWrenchBold, HEX.green),
     coins: await icon(Pi.PiCoinsBold, HEX.green),
     handshake: await icon(Pi.PiHandshakeBold, HEX.ink),
+    box: await icon(Pi.PiPackageBold, HEX.green),
+    plug: await icon(Pi.PiPlugsConnectedBold, HEX.green),
+    bank: await icon(Pi.PiPiggyBankBold, HEX.green),
+    warn: await icon(Pi.PiWarningCircleBold, HEX.rust),
+    trend: await icon(Pi.PiTrendUpBold, HEX.ink),
     machines: Object.fromEntries(["welder", "printer", "laser", "multimaker", "enclosed"].map((m) => [m, file64(path.join(ASSETS, `machine-${m}.png`))])),
     qrLight: await qr(URL_LIVE, false),
   };
@@ -215,19 +221,24 @@ async function autoplayFilms(file) {
     else slide.addImage({ data: f.posterData, ...o, sizing: { type: "cover", w: o.w, h: o.h }, objectName: `${name} poster` });
   };
 
+  /* The scorecard criterion each talk slide answers, small, above the title. */
+  const crit = (slide, t) => text(slide, t, { x: 0.75, y: 0.16, w: 8, h: 0.3, fontFace: MONO, fontSize: 12, color: HEX.orangeText, objectName: "Scorecard criterion" });
+
   /* 1. Title */
   pres.addSection({ title: "Talk" });
   let s = pres.addSlide({ masterName: "PREVUMO Dark", sectionTitle: "Talk" });
   s.addImage({ data: A.curveDark, x: 0, y: 2.25, w: W, h: W * (520 / 3000), objectName: "Heartbeat motif" });
   text(s, "PREVUMO", { x: 0.75, y: 0.75, w: 11, h: 1.5, fontFace: HEAD, fontSize: 88, bold: true, charSpacing: 6, color: HEX.bg });
   text(s, "PREVentive Usage MOnitor", { x: 0.75, y: 2.0, w: 6, h: 0.45, fontFace: MONO, fontSize: 16, bold: true, color: HEX.orange });
-  text(s, "A preventive box for each common\nmachine in a makerspace.", { x: 0.75, y: 4.95, w: 10.5, h: 0.9, fontFace: HEAD, fontSize: 28, color: HEX.bg });
+  text(s, "A preventive box for each common\nmachine in a makerspace.", { x: 0.75, y: 4.75, w: 10.5, h: 0.9, fontFace: HEAD, fontSize: 28, color: HEX.bg });
+  text(s, [{ text: "Summary video  ", options: { color: HEX.greenTint } }, { text: URL_VIDEO.replace("https://", ""), options: { color: HEX.orange, bold: true } }], { x: 0.75, y: 5.85, w: 8, h: 0.4, fontFace: MONO, fontSize: 15 });
   text(s, "Jana Mghabghab · Tobi Adebayo · Mohamed Wahb Berguia · Daksh Prabhulal Dholu · Akhil Matta", { x: 0.75, y: 6.55, w: 9.0, h: 0.35, fontSize: 12, color: HEX.greenTint });
   text(s, "GNG 4120 · Group 10 · Nov 27, 2026", { x: 9.3, y: 6.55, w: 3.3, h: 0.35, fontFace: MONO, fontSize: 11, color: HEX.greenTint, align: "right" });
   notes(s, "s1");
 
   /* 2. Where we started */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
+  crit(s, "Problem validation");
   s.addText("Where we started", { placeholder: "title" });
   s.addImage({ data: A.path, x: 0.75, y: 1.55, w: 11.8, h: 11.8 * (120 / 2400), objectName: "Pivot path" });
   const stops = [
@@ -251,10 +262,11 @@ async function autoplayFilms(file) {
 
   /* 3. Every machine fails its own way */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
+  crit(s, "Problem validation");
   s.addText("Every machine fails its own way", { placeholder: "title" });
   const machines = [
     { m: "welder", t: "Welder", f: ["Shielding gas left open", "A leak has no smell and sinks", "Wire weighed by hand, if at all"] },
-    { m: "printer", t: "3D printers", f: ["Nozzle left hot, over 200 °C", "Prints fail unwatched", "Filament billed by the gram"] },
+    { m: "printer", t: "3D printers", f: ["Nozzle left hot, over 200 °C", "Prints fail unwatched", "Filament billed by the gram"] },
     { m: "laser", t: "Laser cutter", f: ["Fire when left alone", "Runs with no exhaust or air", "Coolant fails, tube wears out"] },
     { m: "multimaker", t: "Multimaker", f: ["Print, laser and CNC in one", "Three machines, three risks", "The box must know the mode"] },
   ];
@@ -267,29 +279,31 @@ async function autoplayFilms(file) {
     });
   });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.75, w: 11.8, h: 0.62, rectRadius: 0.1, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Conclusion band" });
-  text(s, [{ text: "So each machine type gets its own module: ", options: { bold: true } }, { text: "one box, its own sensors." }], {
+  text(s, [{ text: "And the machines are costly: ", options: { bold: true } }, { text: "from a US$1,700 welder to a US$8,000 laser." }], {
     x: 1.0, y: 5.75, w: 11.3, h: 0.62, fontFace: HEAD, fontSize: 18, color: HEX.surface, valign: "middle",
   });
-  source(s, "Drawings: our prototypes, not built. Prusa: PLA nozzle 210 to 215 °C. CCOHS: argon, CO2. U of Regina: $1.00 per 10 g. CMU, MIT EHS: lasers attended. FLUX: heat wears tubes.");
+  source(s, "Prusa: PLA nozzle 210 to 215 °C. CCOHS: argon, CO2. U of Regina: $1.00 per 10 g. CMU, MIT EHS: lasers attended. FLUX: heat wears tubes. Cyberweld, Glowforge prices.");
   notes(s, "s3");
 
-  /* 4. Hardware prototypes */
+  /* 4. Hardware prototypes: how the solution answers each problem */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
+  crit(s, "Solution validation");
   s.addText("One box, five modules", { placeholder: "title" });
   const vw = 8.2, vh = vw * 9 / 16;
   film(s, "hardware", { x: 0.75, y: 1.55, w: vw, h: vh }, "Hardware film, no sound");
   source(s, "Hardware prototypes, from prevumo.vercel.app/hardware. Interactive 3D drawings: a concept, not built or tested.");
-  text(s, "Every box: an NFC fob reader, a display, a QR sticker and a Wi-Fi controller.", { x: 9.35, y: 1.55, w: 3.3, h: 0.75, fontSize: 14, color: C.text1, valign: "top" });
-  [["Welder", "gas valve, oxygen sensor, wire scale"], ["3D printer", "spool scale, printer link"], ["Enclosed printer", "plus a chamber sensor"], ["Multimaker", "mode buttons, exhaust switch"], ["Laser cutter", "exhaust, air assist, coolant, flame"]].forEach(([t, d], i) => {
-    const y = 2.55 + i * 0.72;
+  text(s, "Problem, and what the box does", { x: 9.35, y: 1.5, w: 3.3, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
+  [["Gas left open", "valve opens only in a session"], ["A leak with no smell", "oxygen sensor shuts the valve"], ["Nozzle left hot", "cool down, then power off"], ["Laser fire or no exhaust", "flame sensor, airflow interlock"], ["Material never counted", "scales log grams per member"]].forEach(([t, d], i) => {
+    const y = 1.98 + i * 0.8;
     s.addShape(pres.shapes.LINE, { x: 9.35, y: y - 0.06, w: 3.25, h: 0, line: { color: HEX.border, width: 0.75 } });
-    text(s, t, { x: 9.35, y, w: 3.25, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: C.text1 });
-    text(s, d, { x: 9.35, y: y + 0.3, w: 3.35, h: 0.32, fontSize: 13, color: C.text2 });
+    text(s, t, { x: 9.35, y, w: 3.3, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: C.text1 });
+    text(s, d, { x: 9.35, y: y + 0.3, w: 3.35, h: 0.32, fontSize: 13, color: HEX.green });
   });
   notes(s, "s4");
 
   /* 5. Software prototype */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
+  crit(s, "Solution validation");
   s.addText("One app for the owner", { placeholder: "title" });
   film(s, "software", { x: 0.75, y: 1.55, w: vw, h: vh }, "Software film, no sound");
   source(s, "Software prototype, from prevumo.vercel.app/software. Demo data: nothing here is measured.");
@@ -310,6 +324,7 @@ async function autoplayFilms(file) {
 
   /* 6. The idea underneath */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
+  crit(s, "Solution validation");
   s.addText("Every machine has its own electrical signature", { placeholder: "title" });
   const gx = 0.75, gy = 1.75, gw = 11.8, gh = gw * (700 / 2400);
   s.addImage({ data: A.signature, x: gx, y: gy, w: gw, h: gh, objectName: "One machine's day, illustrative" });
@@ -326,93 +341,137 @@ async function autoplayFilms(file) {
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.6, w: 11.8, h: 0.95, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint }, objectName: "Honesty band" });
   text(s, [
     { text: "Nothing here is measured yet. ", options: { bold: true, fontFace: HEAD } },
-    { text: "Makerspaces and Fab Labs we spoke with were open to a free pilot. That real data is what will teach each machine's normal, and tell a real problem from a false alarm." },
+    { text: "A four week pilot that only watches is how each machine's normal gets learned, and how a real problem is told from a false alarm." },
   ], { x: 1.05, y: 5.6, w: 11.2, h: 0.95, fontSize: 15, color: HEX.ink, valign: "middle" });
   notes(s, "s6");
 
-  /* 7. Value, customers, partners */
+  /* 7. Customer validation */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
-  s.addText("Who it's for, and what they get", { placeholder: "title" });
-  text(s, "Whoever runs the space pays: university and community makerspaces, Fab Labs and libraries.", { x: 0.75, y: 1.45, w: 11.8, h: 0.45, fontSize: 17, color: C.text2 });
-  [[A.wrench, "Machines protected", "From a US$1,700 welder to a US$8,000 laser."], [A.shield, "Members kept safe", "Low oxygen, flame or overheating stop it first."], [A.coins, "Materials billed fairly", "Spaces already bill about CA$0.10 a gram."]].forEach(([img, t, d], i) => {
-    const y = 2.2 + i * 0.95;
-    s.addImage({ data: img, x: 0.75, y: y + 0.04, w: 0.42, h: 0.42 });
-    text(s, t, { x: 1.4, y, w: 6.6, h: 0.45, fontFace: HEAD, fontSize: 24, bold: true, color: C.text1 });
-    text(s, d, { x: 1.4, y: y + 0.46, w: 6.6, h: 0.38, fontSize: 16, color: C.text2 });
-  });
-  const cellT = (t, o = {}) => ({ text: t, options: { fontSize: 14, color: HEX.ink, valign: "middle", ...o } });
+  crit(s, "Customer validation");
+  s.addText("What our customers told us", { placeholder: "title" });
+  text(s, "The customer is whoever runs the space: university and community makerspaces, Fab Labs and libraries.", { x: 0.75, y: 1.4, w: 11.8, h: 0.45, fontSize: 17, color: C.text2 });
+  const cv = (t, o = {}) => ({ text: t, options: { fontSize: 14, color: HEX.ink, valign: "middle", ...o } });
+  const cvh = (t) => ({ text: t, options: { fontSize: 12, bold: true, color: HEX.muted, fill: { color: HEX.bg }, valign: "middle" } });
   s.addTable([
-    [cellT("Fabman", { bold: true, fontFace: HEAD }), cellT("Access and idle shutoff")],
-    [cellT("Printer software", { bold: true, fontFace: HEAD }), cellT("Failed prints, by camera")],
-    [cellT("PREVUMO", { bold: true, fontFace: HEAD, color: HEX.surface, fill: { color: HEX.ink } }), cellT("Sensors made for each machine, next to them", { color: HEX.surface, bold: true, fill: { color: HEX.ink } })],
-  ], { x: 8.6, y: 2.2, w: 3.95, colW: [1.45, 2.5], rowH: [0.8, 0.8, 0.95], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.06, 0.12, 0.06, 0.12], objectName: "Alternatives" });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.25, w: 11.8, h: 1.0, rectRadius: 0.12, fill: { color: C.background1 }, line: { color: HEX.border, width: 0.75 }, objectName: "Partners" });
-  s.addImage({ data: A.handshake, x: 1.0, y: 5.5, w: 0.48, h: 0.48 });
+    [cvh("What they need"), cvh("Who told us"), cvh("So PREVUMO")],
+    [cv("One place to manage every machine", { bold: true, fontFace: HEAD }), cv("Ontario makerspace director: “Managing equipment is one of the biggest tasks we have.”", { color: HEX.muted }), cv("One app, one alert format", { bold: true, color: HEX.green })],
+    [cv("A fob, not a code", { bold: true, fontFace: HEAD }), cv("Yukonstruct: “we would want it to be an NFC fob”", { color: HEX.muted }), cv("An NFC fob reader on every box", { bold: true, color: HEX.green })],
+    [cv("Bill material, not electricity", { bold: true, fontFace: HEAD }), cv("3 of 3 owners put electricity in rent; U of Regina and Pickering bill filament by the gram", { color: HEX.muted }), cv("Spool and wire scales; per user power billing dropped", { bold: true, color: HEX.green })],
+    [cv("Try it before paying", { bold: true, fontFace: HEAD }), cv("Makerspaces and Fab Labs we spoke with: open to a free pilot", { color: HEX.muted }), cv("A free pilot that only watches, first", { bold: true, color: HEX.green })],
+  ], { x: 0.75, y: 2.05, w: 11.8, colW: [3.3, 5.2, 3.3], rowH: [0.42, 0.78, 0.66, 0.78, 0.66], fontFace: "Inter", fill: { color: HEX.surface }, border: { type: "solid", pt: 0.75, color: HEX.border }, margin: [0.06, 0.15, 0.06, 0.15], objectName: "Customer needs" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.6, w: 11.8, h: 0.8, rectRadius: 0.12, fill: { color: C.background1 }, line: { color: HEX.border, width: 0.75 }, objectName: "Partners" });
+  s.addImage({ data: A.handshake, x: 1.0, y: 5.78, w: 0.44, h: 0.44 });
   text(s, [
-    { text: "Sponsors: none yet. ", options: { bold: true, fontFace: HEAD } },
-    { text: "Customers: interest in a free pilot, nothing signed. ", options: { bold: true, fontFace: HEAD } },
-    { text: "We are looking for a first host site and help with certification." },
-  ], { x: 1.7, y: 5.25, w: 10.6, h: 1.0, fontSize: 15, color: C.text1, valign: "middle" });
-  source(s, "Prices: Cyberweld (Millermatic 211 PRO, $1,699); Glowforge (Pro HD, $7,999); U of Regina ($1.00 per 10 g). Fabman pricing and Obico, Nov 2026.");
+    { text: "Customers: interest in a free pilot, nothing signed. Sponsors: none yet. ", options: { bold: true, fontFace: HEAD } },
+    { text: "We are looking for a first host site." },
+  ], { x: 1.7, y: 5.6, w: 10.6, h: 0.8, fontSize: 15, color: C.text1, valign: "middle" });
+  source(s, "GA3 interviews (Oct 2026); Yukonstruct, Oct 27. U of Regina: $1.00 per 10 g; Pickering Public Library: $0.10 a gram. Owner quotes anonymized.");
   notes(s, "s7");
 
-  /* 8. Market and where we go */
+  /* 8. Market validation */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
-  s.addText("A market we can count", { placeholder: "title" });
+  crit(s, "Market validation");
+  s.addText("A market we can count, and it's growing", { placeholder: "title" });
   [
-    { big: "2,032", t: "active Fab Labs worldwide, 29 of them in Canada", src: "Fab Foundation, fablabs.io" },
+    { big: "2,032", t: "active Fab Labs worldwide, 29 of them in Canada", src: "Fab Foundation, fablabs.io" },
     { big: "2,000+", t: "makerspaces and Fab Labs in the US", src: "Nation of Makers" },
     { big: "9 in 10", t: "Fab Labs list a laser cutter (1,858 of 2,032)", src: "Fab Foundation, fablabs.io" },
   ].forEach((st, i) => {
     const x = 0.75 + i * 4.0;
-    text(s, st.big, { x, y: 1.6, w: 3.7, h: 1.2, fontFace: MONO, fontSize: 60, color: C.text1, valign: "bottom" });
-    text(s, st.t, { x, y: 2.95, w: 3.5, h: 0.75, fontSize: 17, color: C.text1, valign: "top" });
-    text(s, st.src, { x, y: 3.75, w: 3.5, h: 0.3, fontSize: 11, color: C.text2 });
+    text(s, st.big, { x, y: 1.5, w: 3.7, h: 1.1, fontFace: MONO, fontSize: 56, color: C.text1, valign: "bottom" });
+    text(s, st.t, { x, y: 2.72, w: 3.5, h: 0.7, fontSize: 17, color: C.text1, valign: "top" });
+    text(s, st.src, { x, y: 3.45, w: 3.5, h: 0.3, fontSize: 11, color: C.text2 });
   });
-  s.addImage({ data: A.curveLight, x: 0.75, y: 4.3, w: 11.8, h: 11.8 * (150 / 3000), objectName: "Heartbeat divider" });
-  text(s, "Expansion path", { x: 0.75, y: 5.1, w: 3, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 3.95, w: 11.8, h: 0.8, rectRadius: 0.12, fill: { color: HEX.greenTint }, line: { color: HEX.greenTint }, objectName: "Trend band" });
+  s.addImage({ data: A.trend, x: 1.0, y: 4.13, w: 0.44, h: 0.44 });
+  text(s, [{ text: "Trend: ", options: { bold: true, fontFace: HEAD } }, { text: "the number of Fab Labs has doubled roughly every two years; more than 2,500 today, in 125 countries." }], { x: 1.65, y: 3.95, w: 10.7, h: 0.8, fontSize: 16, color: HEX.ink, valign: "middle" });
+  text(s, "Customer segments, in order", { x: 0.75, y: 5.05, w: 4, h: 0.35, fontFace: MONO, fontSize: 12, color: C.text2 });
   ["Canadian makerspaces", "Campus and college shops", "Small fabrication shops"].forEach((t, i) => {
     const x = 0.75 + i * 4.0;
-    pill(s, { x, y: 5.5, w: 3.6, h: 0.68, fill: { color: i === 0 ? HEX.green : C.background1 }, line: { color: i === 0 ? HEX.green : HEX.border, width: 0.75 } });
-    text(s, t, { x: x + 0.28, y: 5.5, w: 3.1, h: 0.68, fontSize: 16, bold: i === 0, color: i === 0 ? HEX.surface : C.text1, valign: "middle" });
-    if (i < 2) s.addImage({ data: A.arrow, x: x + 3.66, y: 5.74, w: 0.2, h: 0.2 });
+    pill(s, { x, y: 5.45, w: 3.6, h: 0.68, fill: { color: i === 0 ? HEX.green : C.background1 }, line: { color: i === 0 ? HEX.green : HEX.border, width: 0.75 } });
+    text(s, t, { x: x + 0.28, y: 5.45, w: 3.1, h: 0.68, fontSize: 16, bold: i === 0, color: i === 0 ? HEX.surface : C.text1, valign: "middle" });
+    if (i < 2) s.addImage({ data: A.arrow, x: x + 3.66, y: 5.69, w: 0.2, h: 0.2 });
   });
-  source(s, "fablabs.io lab list, active labs counted Nov 25, 2026. Nation of Makers: “more than 2,000 makerspaces and Fab Labs” in the US.");
+  source(s, "fablabs.io lab list, active labs counted Nov 25, 2026. Nation of Makers. Trend: Gershenfeld, in “How MIT's fab labs scaled around the world”, MIT Global.");
   notes(s, "s8");
 
-  /* 9. Next steps */
+  /* 9. Business model */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
-  s.addText("What we do next", { placeholder: "title" });
-  [
-    { t: "Bench test", d: "Printer and laser boxes: power cut 50 times, current checked against a meter.", pass: "Pass: every output goes safe on power loss." },
-    { t: "Approval", d: "Every pilot box field evaluated by ESA, or certified, before it is installed. In Ontario this comes before any use.", pass: "Pass: an approval label on every pilot box." },
-    { t: "Watch only pilot", d: "Free, four weeks in a makerspace. The box switches nothing; the owner labels every alert.", pass: "Pass: the owner keeps it on. Stop if it is ignored." },
-    { t: "Welder last", d: "The biggest hazard, and the hardest to install: an electrician and a gas fitter.", pass: "After a pilot that passes." },
-  ].forEach((st, i) => {
-    const x = 0.75 + i * 3.0, dark = i === 2;
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.6, w: 2.8, h: 3.45, rectRadius: 0.12, fill: { color: dark ? HEX.ink : HEX.surface }, line: { color: dark ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Step ${i + 1}` });
-    text(s, String(i + 1), { x: x + 0.3, y: 1.85, w: 0.6, h: 0.3, fontFace: MONO, fontSize: 14, color: dark ? HEX.greenTint : C.text2 });
-    text(s, st.t, { x: x + 0.3, y: 2.25, w: 2.35, h: 0.45, fontFace: HEAD, fontSize: 20, bold: true, color: dark ? HEX.surface : C.text1, valign: "top" });
-    text(s, st.d, { x: x + 0.3, y: 2.8, w: 2.25, h: 1.15, fontSize: 14, color: dark ? HEX.greenTint : C.text2, valign: "top" });
-    text(s, st.pass, { x: x + 0.3, y: 4.1, w: 2.3, h: 0.75, fontSize: 14, bold: true, color: dark ? HEX.orange : C.text1, valign: "top" });
-    if (i < 3) s.addImage({ data: A.arrow, x: x + 2.84, y: 3.24, w: 0.18, h: 0.18 });
+  crit(s, "Business model");
+  s.addText("How PREVUMO makes money", { placeholder: "title" });
+  const bm = [
+    { icon: A.box, t: "Two revenue streams", items: [["The box", "one per machine, sold once"], ["The subscription", "per machine, per month: app, alerts, logs"]] },
+    { icon: A.coins, t: "Price follows risk", items: [["3D printers", "close to print monitoring software, a few dollars a month"], ["Lasers and welders", "the premium: interlocks, gas control, fire sensing"]] },
+    { icon: A.plug, t: "Path to revenue", items: [["Free pilot, then paid", "a watch only pilot; paid once the owner keeps it on"], ["Next to Fabman", "connects through Fabman's open API, not against it"]] },
+  ];
+  bm.forEach((c, i) => {
+    const x = 0.75 + i * 4.0;
+    card(s, { x, y: 1.5, w: 3.8, h: 3.55, objectName: c.t });
+    s.addImage({ data: c.icon, x: x + 0.28, y: 1.75, w: 0.42, h: 0.42 });
+    text(s, c.t, { x: x + 0.85, y: 1.72, w: 2.85, h: 0.5, fontFace: HEAD, fontSize: 19, bold: true, color: C.text1, valign: "middle" });
+    c.items.forEach(([h, d], j) => {
+      const y = 2.45 + j * 1.25;
+      text(s, h, { x: x + 0.28, y, w: 3.3, h: 0.35, fontFace: HEAD, fontSize: 16, bold: true, color: HEX.green });
+      text(s, d, { x: x + 0.28, y: y + 0.36, w: 3.3, h: 0.75, fontSize: 14, color: C.text1, valign: "top" });
+    });
   });
-  text(s, "Each test has a pass rule written before it starts, so the results can say no.", { x: 0.75, y: 5.35, w: 11.8, h: 0.4, fontSize: 16, color: C.text1 });
-  source(s, "ESA: a product must be approved before it is used, sold, displayed or advertised in Ontario.");
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.3, w: 11.8, h: 0.95, rectRadius: 0.12, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: "Unit revenue" });
+  text(s, [
+    { text: "First guess (GA3): ", options: { bold: true, fontFace: HEAD, color: HEX.orange } },
+    { text: "a US$300 box + US$25 a machine a month = ", options: { color: HEX.surface } },
+    { text: "US$600 per machine in year one.", options: { bold: true, fontFace: HEAD, color: HEX.surface } },
+    { text: " The pilot tests it.", options: { color: HEX.greenTint } },
+  ], { x: 1.05, y: 5.3, w: 11.3, h: 0.95, fontSize: 16, valign: "middle" });
+  source(s, "Obico: US$6.99 a month, then US$2 per extra printer. Fabman: “full functionality and data are available through our open JSON API”. PREVUMO prices are assumptions.");
   notes(s, "s9");
 
-  /* 10. Close */
+  /* 10. Financial considerations, then next steps */
+  s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
+  crit(s, "Financial considerations");
+  s.addText("Funding, limits and next steps", { placeholder: "title" });
+  const fcol = (x, icon, t, rows, accent) => {
+    s.addImage({ data: icon, x, y: 1.5, w: 0.4, h: 0.4 });
+    text(s, t, { x: x + 0.55, y: 1.47, w: 5, h: 0.45, fontFace: HEAD, fontSize: 20, bold: true, color: C.text1, valign: "middle" });
+    rows.forEach(([h, d], j) => {
+      const y = 2.12 + j * 0.72;
+      s.addShape(pres.shapes.LINE, { x, y: y - 0.06, w: 5.6, h: 0, line: { color: HEX.border, width: 0.75 } });
+      text(s, [{ text: h + "  ", options: { bold: true, fontFace: HEAD, color: accent } }, { text: d, options: { color: C.text1 } }], { x, y, w: 5.65, h: 0.62, fontSize: 14, valign: "top" });
+    });
+  };
+  fcol(0.75, A.bank, "Funding avenues", [
+    ["uOttawa Startup Garage", "cash prizes at RevUp; grants in the Exploration Circuit"],
+    ["NRC IRAP", "for incorporated, for profit companies in Canada"],
+    ["Futurpreneur", "an equity free loan up to $75,000, founders 18 to 39"],
+    ["Pilot hosts", "their space and their data, in place of cash"],
+  ], HEX.green);
+  fcol(6.95, A.warn, "Limits", [
+    ["No revenue yet", "and nothing signed"],
+    ["Incorporate first", "IRAP and the Exploration Circuit require it"],
+    ["Approval per pilot box", "ESA: before any use in Ontario"],
+    ["Installs cost", "welders and lasers need an electrician; gas, a gas fitter"],
+  ], HEX.rust);
+  ["Bench test", "Approval", "Watch only pilot", "Welder last"].forEach((t, i) => {
+    const x = 0.75 + i * 3.0, dark = i === 2;
+    pill(s, { x, y: 5.3, w: 2.7, h: 0.62, fill: { color: dark ? HEX.ink : C.background1 }, line: { color: dark ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Next step ${i + 1}` });
+    text(s, `${i + 1}  ${t}`, { x: x + 0.25, y: 5.3, w: 2.4, h: 0.62, fontSize: 15, bold: true, color: dark ? HEX.surface : C.text1, valign: "middle" });
+    if (i < 3) s.addImage({ data: A.arrow, x: x + 2.76, y: 5.52, w: 0.18, h: 0.18 });
+  });
+  source(s, "Startup Garage (startupgarage.ca/support); NRC IRAP eligibility; Futurpreneur Startup Program; ESA approval marks. Each test has a pass rule written first (slide 17).");
+  notes(s, "s10");
+
+  /* 11. Close */
   s = pres.addSlide({ masterName: "PREVUMO Dark", sectionTitle: "Talk" });
   text(s, [{ text: "Every machine fails its own way.", options: { breakLine: true } }, { text: "PREVUMO gives each one its own guard." }], {
     x: 0.75, y: 0.75, w: 11.8, h: 1.9, fontFace: HEAD, fontSize: 36, bold: true, color: HEX.bg, valign: "top",
   });
   s.addImage({ data: A.curveDark, x: 0, y: 2.25, w: W, h: W * (520 / 3000), objectName: "Heartbeat motif" });
-  text(s, "Thank you. Questions?", { x: 0.75, y: 5.55, w: 8, h: 0.7, fontFace: HEAD, fontSize: 30, bold: true, color: HEX.orange });
+  text(s, "Thank you. Questions?", { x: 0.75, y: 5.35, w: 8, h: 0.7, fontFace: HEAD, fontSize: 30, bold: true, color: HEX.orange });
+  text(s, [{ text: "Summary video  ", options: { color: HEX.greenTint } }, { text: URL_VIDEO.replace("https://", ""), options: { color: HEX.bg, bold: true } }], { x: 0.75, y: 6.15, w: 7, h: 0.4, fontFace: MONO, fontSize: 15 });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 10.18, y: 4.2, w: 2.5, h: 2.5, rectRadius: 0.12, fill: { color: HEX.surface }, line: { color: HEX.surface }, objectName: "QR pad" });
   s.addImage({ data: A.qrLight, x: 10.33, y: 4.35, w: 2.2, h: 2.2, objectName: "QR prevumo.vercel.app" });
   text(s, "prevumo.vercel.app", { x: 4.9, y: 6.78, w: 5.1, h: 0.4, fontFace: MONO, fontSize: 18, color: HEX.greenTint, align: "right" });
   text(s, "Every prototype, online", { x: 6.7, y: 6.3, w: 3.3, h: 0.4, fontSize: 16, color: HEX.greenTint, align: "right" });
-  notes(s, "s10");
+  notes(s, "s11");
 
   /* ---------- appendix, for questions ---------- */
   pres.addSection({ title: "Appendix" });
@@ -499,7 +558,7 @@ async function autoplayFilms(file) {
     [cell("6  Welding noise (later)", { bold: true }), cell("A day beside a welding bench"), cell("No resets, no fob misreads")],
     [cell("7  Gas (later)", { bold: true }), cell("Oxygen sensor, controlled argon release in a closed box, with a gas fitter"), cell("Alarm at 19.5% oxygen, every time")],
   ], tableOpts({ colW: [2.6, 5.3, 3.9], rowH: [0.42, 0.56, 0.56, 0.56, 0.56, 0.56, 0.56, 0.56], objectName: "Bench test table" }));
-  text(s, "The welder tests come after the pilot, as slide 9 says. The targets are ours, written down so the results can say no.", { x: 0.75, y: 6.0, w: 11.8, h: 0.4, fontSize: 14, color: C.text1 });
+  text(s, "The welder tests come after the pilot, as slide 10 says. The targets are ours, written down so the results can say no.", { x: 0.75, y: 6.0, w: 11.8, h: 0.4, fontSize: 14, color: C.text1 });
 
   s = appx("Sources", "a7");
   const src = [
@@ -512,6 +571,8 @@ async function autoplayFilms(file) {
     "Fabman pricing and Fabman Bridge FB-V2 (€249). Obico pricing guide.",
     "CMU EHS laser cutter guideline v.11 (ventilation on before operation; always attended). MIT EHS: never leave an operating laser cutter unattended. FLUX: temperature is the first thing that shortens a CO2 tube's life.",
     "ESA, Recognized Approval Marks: approval before a product is used, sold, displayed or advertised in Ontario.",
+    "MIT Global, “How MIT's fab labs scaled around the world”: doubling roughly every two years; more than 2,500 in 125 countries. Fabman: open JSON API.",
+    "Funding: Startup Garage circuits (startupgarage.ca/support); NRC IRAP eligibility; Futurpreneur Startup Program (a loan up to $75,000, ages 18 to 39).",
     "Group 10 interviews and outreach, Oct 2026 (GA3), and Yukonstruct, Oct 27. Owner quotes anonymized. PREVUMO prices are assumptions to validate.",
   ];
   text(s, src.map((t, i) => ({ text: t, options: { bullet: { code: "25CF", indent: 20 }, breakLine: i < src.length - 1 } })), { x: 0.75, y: 1.55, w: 11.8, h: 5.0, fontSize: 13, color: HEX.ink, valign: "top", paraSpaceAfter: 7 });

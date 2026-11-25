@@ -2,27 +2,30 @@
 // plus 2 s for each hand off and click, so the plan adds up to under 5:00. The films play by themselves.
 const WPM = 120;
 const SLIDES = [
-  { key: "s1", who: "A", say: `Hi, we're Group 10, and this is PREVUMO: a series of preventive boxes for makerspaces, one for each common type of machine. Our aim: every machine runs safely and lasts longer. Here's where we started, where we are, and what's next.`,
-    cue: `click on "where we started".` },
-  { key: "s2", who: "A", say: `We started with a box that measured electricity, so shared spaces could bill each user. We aimed it at kitchens, restaurants, cafés and makerspaces. Ten interviews and forty nine emails later: all three owners we asked build electricity into rent, and cafés weren't interested. Makerspaces were. A director told us: "Managing equipment is one of the biggest tasks we have." So we kept one customer.`,
-    handoff: `A: B, what did we find inside the makerspace?` },
-  { key: "s3", who: "B", say: `Makerspace safety rules showed us the real problem: every machine breaks, and gets misused, in its own way. A welder's gas gets left open. A printer's nozzle stays above two hundred degrees after a failed print. A laser catches fire when someone walks away. So we gave each common machine its own module.`,
+  { key: "s1", who: "A", say: `Hi, we're Group 10. This is PREVUMO: preventive boxes for makerspaces, one for each common machine, so every machine runs safely and lasts longer. Here's where we started, and where we're going.`,
+    cue: `click on "where we're going".` },
+  { key: "s2", who: "A", say: `We started with a box that measured electricity, so shared spaces could bill each user. Ten interviews and forty nine emails later, kitchens and cafés said no: the three owners we asked build electricity into rent. But a makerspace director told us: "Managing equipment is one of the biggest tasks we have." So we kept one customer.`,
+    handoff: `A: B, why does it matter?` },
+  { key: "s3", who: "B", say: `Safety rules show the real problem: every machine breaks, and gets misused, in its own way. A welder's gas left open. A printer nozzle above two hundred degrees after a failed print. A laser fire when someone walks away. So each common machine gets its own module.`,
     cue: `click on "its own module". The film starts by itself.` },
-  { key: "s4", who: "B", film: "The film (35 s, no sound) plays by itself; the words follow it: pieces, locked out, power and gas, oxygen, then the other modules.", say: `Every box has a fob reader, a display, a QR sticker and Wi-Fi. An untrained member stays locked out. A trained one gets power and gas, and a scale weighs the wire. If oxygen drops by the cylinder, the valve shuts first. [pause] The other modules are the same box with their own sensors: the printers, the multimaker and the laser.`,
+  { key: "s4", who: "B", film: "The film (about 30 s, no sound) plays by itself; the words follow it: pieces, locked out, power and gas, oxygen, then the other modules.", say: `Every box has a fob reader, a display, a QR sticker and Wi-Fi. An untrained member stays locked out. A trained one gets power and gas, and a scale weighs the wire. If oxygen drops by the cylinder, the valve shuts first. [pause] The printers, the multimaker and the laser get the same box, with their own sensors.`,
     handoff: `B: C, and the owner?` },
-  { key: "s5", who: "C", film: "The film (36 s, no sound) plays by itself; the words follow it: machines, alerts, members, the manual on a phone.", say: `The owner runs it all from one app: every machine, and who's on it. When something looks wrong, there's one alert. A safety event, like low oxygen, has already stopped the machine; anything else gets three choices: shut it down, call a technician, or mark it OK. Every member's grams and minutes are logged. Scan the QR on any box, and its manual opens on your phone.`,
-    cue: `click on "on their phone".` },
-  { key: "s6", who: "C", say: `Underneath is one simple idea: every machine draws electricity in its own pattern, warming up, cutting, or left on with nobody working. PREVUMO learns each machine's normal range and flags what doesn't fit. Nothing here is measured yet. Makerspaces and Fab Labs we spoke with were open to a free pilot, and that data will teach it to tell a real problem from a false alarm.`,
+  { key: "s5", who: "C", film: "The film (about 28 s, no sound) plays by itself; the words follow it: machines, alerts, members, the manual on a phone.", say: `The owner runs it all from one app. When something looks wrong, there's one alert. A safety event, like low oxygen, has already stopped the machine; anything else gets three choices: shut down, call a technician, or mark OK. Every member's grams and minutes are logged, and the QR on each box opens its manual.`,
+    cue: `click on "opens its manual".` },
+  { key: "s6", who: "C", say: `Underneath is one idea: every machine draws current in its own pattern, warming up, cutting, or idle. PREVUMO learns each machine's normal and flags what doesn't fit. Nothing is measured yet; the pilot is how it learns.`,
+    cue: `click on "how it learns".` },
+  { key: "s7", who: "C", say: `Our customer runs the space: a university, community makerspace, Fab Lab or library. They told us what they need: one place to manage equipment, an NFC fob instead of a code, and material billed by the gram. All three are built in. And they were open to a free pilot.`,
     note: `If asked which spaces: name them only if the team has their names and emails. Otherwise: "Interest so far, nothing signed. Turning that into one to three written pilots is our next step."`,
-    handoff: `C: D, so who pays for this?` },
-  { key: "s7", who: "D", say: `Our customer is whoever runs the makerspace: a university, a community space or a Fab Lab. They get protected machines, safe members, and materials billed fairly, by the gram. Fabman, the access control company, already handles access and idle shutoff; we add sensors made for each machine, next to it. No sponsors yet: we're looking for a first host site.`,
-    cue: `click on "first host site".` },
-  { key: "s8", who: "D", say: `Here is our market: two thousand and thirty two active Fab Labs worldwide, twenty nine in Canada, and over two thousand makerspaces and Fab Labs in the US. Nine in ten Fab Labs list a laser cutter. We start in Canadian makerspaces, then campus shops, then small fabrication shops.`,
-    handoff: `D: E, what happens next?` },
-  { key: "s9", who: "E", say: `Next: bench tests on the printer and laser boxes, then approval for every pilot box. Then a four week free pilot that only watches, with the owner labelling every alert. If they keep it on, and false alerts stay under a limit we set first, we've earned the right to switch machines off. The welder comes last.`,
-    cue: `click on "the welder comes last".` },
-  { key: "s10", who: "E", say: `Every machine fails its own way. [pause] PREVUMO gives each one its own guard. [pause] Thank you, we'd love your questions.`,
-    note: `The QR opens prevumo.vercel.app: every prototype, online. Leave this slide up during questions; jump to an appendix slide only when a question needs one.` },
+    handoff: `C: D, how big is this?` },
+  { key: "s8", who: "D", say: `Our market: two thousand and thirty two active Fab Labs, twenty nine in Canada, and over two thousand makerspaces and Fab Labs in the US. Nine in ten list a laser cutter, and Fab Labs have doubled roughly every two years. We start in Canadian makerspaces, then campus and fabrication shops.`,
+    cue: `click on "fabrication shops".` },
+  { key: "s9", who: "D", say: `Two revenue streams: a box per machine, sold once, and a monthly fee per machine for the app and alerts. Price follows risk: printers near what print monitoring software costs, the premium on lasers and welders. We start with a free pilot, convert it to paid, and connect to Fabman's open API rather than compete. First guess: a three hundred dollar box plus twenty five dollars a month, six hundred dollars a machine in year one.`,
+    note: `Say "first guess" clearly: the prices are GA3 assumptions, not validated. If asked about margin: we have not costed the parts yet (Q24).`,
+    handoff: `D: E, how do we pay for it?` },
+  { key: "s10", who: "E", say: `Funding: uOttawa's Startup Garage for prizes and grants, then NRC IRAP and a Futurpreneur loan once we incorporate. Our limits: no revenue yet, every pilot box needs approval before use, and welders need an electrician and a gas fitter. So next: bench tests, approval, a watch only pilot, and the welder last.`,
+    cue: `click on "the welder last".` },
+  { key: "s11", who: "E", say: `Every machine fails its own way. [pause] PREVUMO gives each one its own guard. [pause] Thank you, we'd love your questions.`,
+    note: `The QR opens prevumo.vercel.app: every prototype, online; the summary video is at prevumo.vercel.app/video. Leave this slide up during questions; jump to an appendix slide only when a question needs one.` },
 ];
 const words = (t) => t.replace(/\[pause\]/g, "").split(/\s+/).filter(Boolean).length;
 const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
@@ -82,7 +85,7 @@ Untested: whether owners will pay, the false alert rate, and every safety functi
 5 Watch only pilot: four weeks, the owner labels every alert. Pass: the owner keeps it on, and false alerts stay under the limit set first.
 6 Welding noise, later: a day beside a welding bench. Pass: no resets, no fob misreads.
 7 Gas, later: the oxygen sensor on a controlled argon release in a closed test box, with a gas fitter. Pass: the alarm at 19.5% oxygen, every time.
-The targets are ours; say so if asked. The welder tests come after the pilot.`,
+The targets are ours; say so if asked. The welder tests come after the pilot, as slide 10 says.`,
 
   a7: `APPENDIX. Sources for every number in the deck, with the exact words, are in FACTS.md in the project folder. Prices for PREVUMO are assumptions to validate.`,
 };

@@ -13,6 +13,14 @@
       "destination": "/software/:page/index.html"
     },
     {
+      "source": "/video",
+      "destination": "/video/index.html"
+    },
+    {
+      "source": "/video/",
+      "destination": "/video/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

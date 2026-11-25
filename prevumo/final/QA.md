@@ -1,14 +1,14 @@
 # PREVUMO final: questions we expect, and our answers
 
-Built from the four critics in loop 1 (`critics/`). Each answer is honest and invents nothing. Say the short answer first; add the longer one only if they push. "Show" names the appendix slide to jump to: A1 is slide 11, A2 slide 12, and so on to A7, slide 17.
+Built from the four critics in loop 1 (`critics/`). Each answer is honest and invents nothing. Say the short answer first; add the longer one only if they push. "Show" names the appendix slide to jump to: A1 is slide 12, A2 slide 13, and so on to A7, slide 18. The judges get up to 3 minutes: give the short answer, then stop.
 
 ## Who takes which question
 
 * **A (the story):** the pivot, the interviews, which spaces were interested.
 * **B (the hardware):** sensors, gas, the laser, fail safe, certification.
 * **C (the software and the idea):** alerts, learning, false alarms, privacy.
-* **D (the business):** customers, price, competitors, market.
-* **E (what's next):** the bench test, the pilot, approval, timeline.
+* **D (the business):** customers, price, competitors, market, the business model.
+* **E (what's next):** funding, the bench test, the pilot, approval, timeline.
 * **The rule:** if it isn't your area, pass it with one sentence ("B will take that"). Never guess a number. "We don't know yet; that's what the pilot measures" is a good answer.
 
 ## The ten likeliest, in one line each
@@ -23,6 +23,8 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **"How much does it cost?"** Not validated; printers near software prices, the premium on lasers and welders. (A3)
 * **"Isn't the market small?"** Yes, at first: at most about US$3M a year in US makerspaces, as an estimate; campus and fabrication shops come next. (A3)
 * **"Do you have sponsors?"** No. We're looking for a first host site and help with certification.
+* **"How do you make money?"** A box per machine plus a monthly fee per machine, priced by risk; our first guess is US$600 per machine in year one, to validate in the pilot. (slide 9)
+* **"How will you fund the pilot boxes?"** Startup Garage prizes and grants first, then NRC IRAP and a Futurpreneur loan once we incorporate; the pilot host gives space and data. (slide 10)
 
 ## Evidence and progress
 
@@ -60,9 +62,9 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 ## Safety, certification, liability
 
-**8. "Can an uncertified box switch a 240 V welder, even in a free pilot? And slide 9 puts approval before the pilot: is a watch only box exempt?"** Show: A1.
+**8. "Can an uncertified box switch a 240 V welder, even in a free pilot? And slide 10 puts approval before the pilot: is a watch only box exempt?"** Show: A1.
 * **Short:** No, and no. In Ontario a product must be approved before it is used, not only before it is sold (ESA), and watching does not exempt it. So every pilot box is field evaluated by ESA, or certified, before it is installed; approved parts make that easier. The pilot boxes switch nothing. Anything that switches comes later, installed by a licensed electrician.
-* **Honest limit:** we haven't asked ESA yet; that is part of step 2 on slide 9. Our PD B3 report said "before sale"; ESA says before use, so we changed it.
+* **Honest limit:** we haven't asked ESA yet; that is part of step 2 on slide 10. Our PD B3 report said "before sale"; ESA says before use, so we changed it.
 
 **9. "Argon and CO2 don't burn and have no smell. What does your sensor detect?"**
 * **Short:** Oxygen. Argon and CO2 push the oxygen out and sink, so the sensor is an oxygen monitor mounted low by the cylinder, with an alarm at 19.5% (CCOHS).
@@ -183,3 +185,24 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 **40. "Why is the welder your star if it comes last?"**
 * **Short:** Its hazard is invisible and nobody watches it today: a leak has no smell. It is also the hardest to install, with an electrician and a gas fitter, so it comes after the printer and laser boxes prove the idea.
+
+## From the judges' scorecard (business model and finance)
+
+**41. "Why would a makerspace pay every month, not just once for the box?"** Show: slide 9.
+* **Short:** Because the value is ongoing: the alerts, the member logs, the material billing and the manual all run in the app. The box alone only switches; the subscription is what turns grams and minutes into bills and alerts into decisions. Whether owners accept a monthly fee is exactly what the pilot has to show.
+
+**42. "Isn't US$25 a month too much for a 3D printer?"**
+* **Short:** Probably, and we say so on slide 9: printers should sit near print monitoring software, a few dollars a month (Obico charges US$2 per extra printer). The US$25 is a first guess from GA3; the premium belongs on lasers and welders, where the box adds interlocks, gas control and fire sensing.
+
+**43. "How will you pay for the pilot boxes and the approval?"** Show: slide 10.
+* **Short:** First Startup Garage at uOttawa: cash prizes in the RevUp Circuit, and grant funding in the Exploration Circuit once we incorporate. Then NRC IRAP, which also needs an incorporated company, and Futurpreneur, an equity free loan up to $75,000 for founders aged 18 to 39. The pilot host gives the space and the data.
+* **Honest limit:** we have not applied to any of them yet, and we are not incorporated.
+
+**44. "What is the biggest limit on this business?"**
+* **Short:** Approval and installation. Every box has to be approved before it is used in Ontario, and welders and lasers need an electrician, and gas a gas fitter. That is why we start with printers and lasers, watch only, and leave the welder last.
+
+**45. "Is the market big enough for a business?"** Show: slide 8 and A3.
+* **Short:** At first it is small: at most about US$3 million a year from US makerspaces at our first guess. But Fab Labs have doubled roughly every two years, and campus and fabrication shops run the same machines. Makerspaces are where we prove it, not where we stop.
+
+**46. "What does your summary video show?"**
+* **Short:** The same two films as slides 4 and 5, with the problem, the business model and the close, about a minute and a quarter, at prevumo.vercel.app/video.
