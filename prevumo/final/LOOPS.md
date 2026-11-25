@@ -9,21 +9,37 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 
 | Loop | Lead | Aspect |
 | --- | --- | --- |
-| 1 | Four critics: course judge, makerspace buyer, safety engineer, investor | Destroy the project; decide what to fix and what to answer |
-| 2 | Story editor | The 5 minute arc and the slide list, word budget per slide |
-| 3 | Fact checker (Firecrawl on official sites) | Market, competitors, prices, every number on a slide |
-| 4 | Deck builder (pptx skill, the first deck's design) | Build v1 of the deck |
-| 5 | Film crew (Playwright on prevumo.vercel.app) | Record the site videos: hardware modules, owner app, QR manual |
-| 6 | Deck builder | Put the videos in, render the PDF, contact sheet |
-| 7 | Design critic (impeccable, frontend design lens) | Hierarchy, type, one bold move per slide |
-| 8 | Speech writer | Speaker notes and script, timing at 130 words per minute |
-| 9 | Q&A coach | Hard questions, answers, appendix slides |
-| 10 | Hostile panel rehearsal | Ask the deck the critics' questions; patch the gaps |
-| 11 | Accessibility and projection check | Contrast, size from the back of a room, no dashes |
-| 12 | Video editor | Durations, flags, file sizes, share copies |
-| 13 | Consistency auditor | Same numbers in deck, script, Q&A, report and site |
+| 1 | Four critics: course judge, makerspace buyers, safety engineer, investor | Destroy the project; decide what to fix and what to answer |
+| 2 | Story editor | The 5 minute arc, the slide list, the word budget per slide |
+| 3 | Safety engineer | Fix the technical errors on the prototype pages, regenerate and redeploy the site |
+| 4 | Fact checker | Every number on a slide, with a working link (Firecrawl is out of credits, so web search and page reads) |
+| 5 | Deck builder (pptx skill, the first deck's design) | Build v1 of the deck |
+| 6 | Film crew (Playwright on prevumo.vercel.app) | Record the site videos: hardware modules, owner app, QR manual |
+| 7 | Deck builder | Put the videos in, render the PDF, contact sheet |
+| 8 | Design critic | Hierarchy, type, one bold move per slide |
+| 9 | Speech writer | Speaker notes and script, timing at 130 words per minute |
+| 10 | Q&A coach | Hard questions, answers, appendix slides |
+| 11 | Hostile panel rehearsal | Ask the deck the critics' questions; patch the gaps |
+| 12 | Projection check | Contrast, size from the back of a room, no dashes |
+| 13 | Video editor and consistency auditor | Durations, file sizes, share copies; same numbers everywhere |
 | 14 | Gatekeeper | Refuses until no weak point is left |
 | 15 | Three decisions | The three calls made without asking, applied |
 | 16 | Finalizer | Final build, checks, delivery, commit |
 
 ## Log
+
+### Loop 1 (Tue 20:00): four critics
+* **Lead:** four agents in parallel. Course judge, makerspace buyers (university, non profit, library Fab Lab), safety engineer, investor. Reports are in `critics/`, synthesis in `CRITIQUE.md`.
+* **Found:**
+  * Fabman's Bridge already covers the fob, the trained list and idle shutoff, and the old competitor row understated it.
+  * The welder "gas leak sensor" is wrong for argon and CO2; it should be an oxygen sensor.
+  * Other technical errors on the pages: a clamp around a whole cord, power cut on a hot printer, a flame alert dismissed from a phone.
+  * Restaurant and industrial numbers had been used for makerspaces.
+  * Nothing is measured and no pilot is signed.
+* **Decided:**
+  * The deck stays a PowerPoint in the first deck's design, not a Claude link.
+  * Lead with what is machine specific (welder, laser) and sit next to Fabman.
+  * Fix the page errors before filming (loop 3).
+  * Say "nothing is measured yet" once, aloud, and turn it into the pilot plan.
+  * No sponsors, signed pilots or savings claims.
+* **Note:** Firecrawl's free daily limit ran out during the research; the investor marked seven figures as read from excerpts only, to recheck in loop 4.
