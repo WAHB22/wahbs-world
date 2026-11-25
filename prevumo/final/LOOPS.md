@@ -122,3 +122,21 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * the slide 6 caption under the honesty band;
   * the slide 2 attribution spacing.
 * **Open:** the two films are posters for now (loop 6 records them from the site). The deck file is committed at the end, to keep binary versions out of the history.
+
+### Loop 6 (Tue 21:27, started early): film crew
+* **Lead:** the film crew. `film.mjs` records from the site (dist, the same files as prevumo.vercel.app); the hardware film opens on the live site itself.
+* **Hardware film,** `media/hardware.mp4`, 41.9 s, 1920x1080, no sound:
+  * 2.6 s on the live /hardware page;
+  * the welder module drawn frame by frame at exact times: in pieces, the fob step, power and gas with the wire scale, the low oxygen step;
+  * about 4 s each on the printer warm up, the enclosed chamber, the multimaker laser mode and the laser flame stop.
+* **Software film,** `media/software.mp4`, 37.1 s:
+  * the owner app driven with a drawn cursor at 1.5x scale: machines, the low oxygen alert answered with Call technician, the printer alert shut down, a member's sessions, resources;
+  * then the QR manual on a phone, scrolling to what to do if something goes wrong.
+* **Fixed on the way:**
+  * the hub cards and page descriptions still said "gas leak sensor"; corrected and redeployed (commit 3e29777);
+  * the screencast dropped still frames at the end of a view; the last frame is now held until the run ends.
+* **Deck:**
+  * both films are embedded and set to play automatically when their slide appears, using PowerPoint's own timing;
+  * the posters are the low oxygen alert and the machines view;
+  * zip folder entries are removed so cloud drives open the file;
+  * 10 MB, `validate.py` passes.

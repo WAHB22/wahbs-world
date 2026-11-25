@@ -119,7 +119,7 @@ async function hardware() {
   await browser.close();
   const out = join(media, "hardware.mp4");
   encode(join(dir, "f%05d.jpg"), out);
-  poster(out, 3.4, join(media, "hardware.jpg"));
+  poster(out, 24.5, join(media, "hardware.jpg"));
   console.log(`hardware.mp4 ${dur(out).toFixed(2)} s, ${n} frames`);
 }
 

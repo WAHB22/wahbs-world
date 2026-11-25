@@ -525,6 +525,8 @@ async function autoplayFilms(file) {
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
   const auto = await autoplayFilms(OUT);
+  // folder entries in the zip can stop cloud services (OneDrive, Google Drive) from opening the deck
+  try { require("child_process").execFileSync("zip", ["-dq", OUT, "*/"]); } catch { /* none to remove */ }
   console.log(`wrote ${OUT}, ${auto} film(s) set to play automatically`);
 })().catch((e) => {
   console.error(e);
