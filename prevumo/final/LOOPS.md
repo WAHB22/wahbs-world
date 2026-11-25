@@ -140,3 +140,30 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * the posters are the low oxygen alert and the machines view;
   * zip folder entries are removed so cloud drives open the file;
   * 10 MB, `validate.py` passes.
+
+### Loop 7 (Tue 21:46): design critic
+* **Lead:** a design critic agent, which looked at the rendered slides fresh against the first deck and Wahb's dislikes. Its report is `critics/design.md`; all 12 findings applied:
+  1. **Slide 7:** rebuilt around the three benefits as the one bold move, with one subtitle and the table phrased as the speaker says it; no eyebrows.
+  2. **Slide 10:** QR 2.3 in (was 1.55), URL 18 pt; the heartbeat line now sits at the same height as on the title slide.
+  3. **Slide 3:**
+     * drawings re-rendered clean, with no part numbers, leader lines or tables (`stills.mjs`), and centred;
+     * the spoken risk is the bold first bullet.
+  4. **Slide 8:**
+     * titled "A first market we can count";
+     * "9 in 10 Fab Labs list a laser cutter";
+     * all numbers in ink.
+  5. **Slide 9:**
+     * small step numbers;
+     * pass rules at 14 pt;
+     * "Watch only pilot" named the same as in the appendix.
+  6. **Slide 2:**
+     * eyebrows and numbered tags gone;
+     * "10 interviews and 49 outreach emails" at 15 pt;
+     * path nodes on the column edges.
+  7. **Slide 5:** titled "One app for the owner"; the side column follows the speech; "Mark as OK" is visible on a projector; the film no longer shows a cut off note.
+  8. **Slide 4:** titled "One box, five modules"; the module lines are 13 pt.
+  9. **Slide 6:** chart sublabels at 14 pt.
+  10. No-break spaces keep numbers with their units.
+  11. Every source line is at the same place and size.
+  12. Appendix cards are sized to their content.
+* **Checked:** `validate.py` passes; every slide rendered and looked at again.

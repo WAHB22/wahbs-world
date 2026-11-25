@@ -199,6 +199,8 @@ async function software() {
   await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
   await page.reload();
   await page.evaluate(() => document.fonts.ready);
+  // the sidebar's demo note is cut off at this height; the slide's own source line says the data is a demo
+  await page.addStyleTag({ content: ".side-foot { display: none !important; }" });
   await wait(900);
   await page.mouse.move(mx, my);
   const appFrames = await screencast(page, async () => {
