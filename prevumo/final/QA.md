@@ -16,7 +16,7 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **"What have you tested?"** Nothing is built or measured yet; the interviews tested the problem, and the pilot tests the device. (A5)
 * **"Why not Fabman?"** Fabman does access and idle shutoff; we add sensors made for each machine, and can sit next to it. (A2)
 * **"Which spaces want a free pilot?"** Names only if we have them; otherwise interest, not commitment, and written pilots are the next step.
-* **"Is a free pilot legal?"** Approval comes before any use in Ontario, so the first pilot only watches and switches nothing. (A1)
+* **"Is a free pilot legal?"** Approval comes before any use in Ontario, so pilot boxes are built from approved parts or field evaluated, and they only watch. We haven't asked ESA yet. (A1)
 * **"What does the welder sensor detect?"** Oxygen: argon and CO2 have no smell and sink, so it is mounted low, with an alarm at 19.5%.
 * **"What if the power or Wi-Fi goes?"** Everything goes off and closed; safety stops live on the box; nothing restarts on its own. (A1)
 * **"Can current tell a failing welder from a thicker plate?"** Not yet; anything beyond on, off and idle is a review, never a shutdown, until the pilot proves it. (A4)
@@ -60,13 +60,14 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 ## Safety, certification, liability
 
-**8. "Can an uncertified box switch a 240 V welder, even in a free pilot?"** Show: A1.
-* **Short:** No. In Ontario a product must be approved before it is used, not only before it is sold (ESA). So the first pilot only watches and switches nothing. Anything that switches comes after CSA approval or an ESA field evaluation, installed by a licensed electrician.
+**8. "Can an uncertified box switch a 240 V welder, even in a free pilot? And slide 9 puts approval before the pilot: is a watch only box exempt?"** Show: A1.
+* **Short:** No, and no. In Ontario a product must be approved before it is used, not only before it is sold (ESA), and watching does not exempt it. So the pilot boxes are built from parts that already carry approval, or field evaluated by ESA, and they switch nothing. Anything that switches comes later, installed by a licensed electrician.
+* **Honest limit:** we haven't asked ESA yet; that is part of step 2 on slide 9.
 
 **9. "Argon and CO2 don't burn and have no smell. What does your sensor detect?"**
 * **Short:** Oxygen. Argon and CO2 push the oxygen out and sink, so the sensor is an oxygen monitor mounted low by the cylinder, with an alarm at 19.5% (CCOHS).
 * **Longer:**
-  * Our valve protects only the hose and the welder; the cylinder is still closed by hand, and the box reminds the owner.
+  * The welder's own solenoid already stops gas between trigger pulls. Our valve only adds protection for the hose when nobody is signed in. It can't stop a leak at the cylinder or the regulator, which is why the oxygen sensor and "close the cylinder valve" in the manual matter more.
   * No sensor model is chosen or tested yet.
 
 **10. "What happens if the power goes, the controller freezes, or the Wi-Fi drops?"** Show: A1.
@@ -77,10 +78,11 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 * **Short:** We would only use an interlock input the laser's maker documents, with their written approval. Until then the laser module only watches and alerts.
 
 **12. "Who is liable if your box kills a 14 hour print or stops a weld?"**
-* **Short:** Outside a safety event the box never acts on its own: the owner sets the rules, and every action is logged with its reason. Safety stops are reset at the machine. Liability terms come with certification and are written by lawyers, not by us.
+* **Short:** Outside a safety event the box never acts on its own: the owner sets the rules, and every action is logged with its reason. Safety stops are reset at the machine.
+* **If they ask "safety device or monitor?":** until it is certified and tested, nobody should rely on it. The welder's own controls, the cylinder valve, the laser's interlocks and the space's rules stay in charge. Whether our stops need safety rated parts, and the liability terms, need certification work and a lawyer; we haven't done that yet.
 
 **13. "Cutting power to a hot printer stops its cooling fan."**
-* **Short:** Right, so it doesn't. The box turns the heaters off over the printer link, lets the fans cool the nozzle, and cuts power only once it is cool.
+* **Short:** Right, so for a printer left heating it doesn't. The box turns the heaters off over the printer link, lets the fans cool the nozzle, and cuts power only once it is cool. An overheating enclosure is different: that is a fire risk, so power is cut first.
 
 **14. "The person who walks away from the laser never taps out."**
 * **Short:** So during a job the box asks for a tap every fifteen minutes. A tap out, or a missed tap, pauses the job. Fabman does the same with its dead man control.
@@ -135,3 +137,29 @@ Built from the four critics in loop 1 (`critics/`). Each answer is honest and in
 
 * **A film doesn't start:** click it once. If PowerPoint shows no video at all, open prevumo.vercel.app/hardware or /software in a browser and keep talking.
 * **The Wi-Fi is down:** the films are inside the deck, so nothing needs the internet. Only the QR on the last slide does.
+
+## From the panel rehearsal (loop 10)
+
+**28. "I scanned your QR. The dashboard said uOttawa Engineering. Is uOttawa a customer?"**
+* **Short:** No. That was a demo account name in our earlier PD B2 dashboard. It now says "Demo account" and is marked as an earlier version; the current design is the owner app.
+
+**29. "Your app says Priya was at the welder when the oxygen dropped. What warns her in the room?"**
+* **Short:** Today, the display and the light on the box, and the owner's phone. That isn't enough for the person in the room.
+* **Next:** a loud local alarm, and backup power so the oxygen sensor keeps watching when the welder's line is off. Neither is designed yet.
+
+**30. "Of your ten interviews, how many were makerspaces? Did anyone tell you about an actual leak or fire?"**
+* **Short:** The ten covered a makerspace, two shared kitchens, manufacturing, café staff and a university student office; later came Yukonstruct.
+* **On incidents:** the hazards on slide 3 come from published safety rules, not from incidents owners reported to us. The pilot's alert log will show how often they happen.
+
+**31. "People get hurt on table saws and lathes. Why welders and printers? And can't a member just plug the printer into the wall?"**
+* **Short:** We chose machines whose hazard shows up in a sensor or the power draw, and where spaces already bill material. A box can't see a hand near a blade. We have no injury data by machine type, and we should get it.
+* **On the bypass:** yes, a printer can be bypassed. The welder's contactor and the laser's interlock are wired in by an electrician.
+
+**32. "In a Fabman space, why does every box have its own fob reader?"**
+* **Short:** Fair point: there it would duplicate theirs. That version of the box should take the member from Fabman's open API instead. We haven't designed it yet.
+
+**33. "What pilot result would make you stop?"**
+* **Short:** If the owner switches it off or ignores the alerts, or no owner will name a price, we stop or change course. We'll write the false alert limit down before the pilot starts.
+
+**34. "What physically exists? Did you power on a single sensor?"**
+* **Short:** Nothing is built or powered yet. What we engineered is the design: where each sensor goes, how every output fails safe, and tests with pass rules written first. The cheapest test of the core idea is one real printer's power trace, and it comes first.

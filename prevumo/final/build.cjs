@@ -185,7 +185,7 @@ async function autoplayFilms(file) {
     coins: await icon(Pi.PiCoinsBold, HEX.green),
     handshake: await icon(Pi.PiHandshakeBold, HEX.ink),
     machines: Object.fromEntries(["welder", "printer", "laser", "multimaker", "enclosed"].map((m) => [m, file64(path.join(ASSETS, `machine-${m}.png`))])),
-    qrDark: await qr(URL_LIVE, true),
+    qrLight: await qr(URL_LIVE, false),
   };
   for (const f of Object.values(FILMS)) {
     f.posterData = fs.existsSync(f.poster) ? file64(f.poster, "image/jpeg") : file64(f.fallback);
@@ -246,7 +246,7 @@ async function autoplayFilms(file) {
     text(s, st.out, { x: x + 0.25, y: 5.45, w: 3.25, h: 0.3, fontFace: HEAD, fontSize: 14, bold: true, color: last ? HEX.orange : HEX.rust });
   });
   text(s, "Behind it: 10 interviews and 49 outreach emails (GA3, Oct 2026).", { x: 0.75, y: 6.05, w: 11.8, h: 0.35, fontSize: 15, color: C.text1 });
-  source(s, "6 competitors studied in GA3. Quotes anonymized.");
+  source(s, "6 competitors studied in GA3. Owner quotes anonymized.");
   notes(s, "s2");
 
   /* 3. Every machine fails its own way */
@@ -254,7 +254,7 @@ async function autoplayFilms(file) {
   s.addText("Every machine fails its own way", { placeholder: "title" });
   const machines = [
     { m: "welder", t: "Welder", f: ["Shielding gas left open", "A leak has no smell and sinks", "Wire used, never counted"] },
-    { m: "printer", t: "3D printer", f: ["Nozzle left hot, over 200 °C", "A failed print runs for hours", "Filament billed by the gram"] },
+    { m: "printer", t: "3D printers", f: ["Nozzle left hot, over 200 °C", "Prints fail unwatched", "Filament billed by the gram"] },
     { m: "laser", t: "Laser cutter", f: ["Fire when left alone", "Runs with no exhaust or air", "Coolant stops, tube is ruined"] },
     { m: "multimaker", t: "Multimaker", f: ["Print, laser and CNC in one", "Three machines, three risks", "The box must know the mode"] },
   ];
@@ -280,7 +280,7 @@ async function autoplayFilms(file) {
   film(s, "hardware", { x: 0.75, y: 1.55, w: vw, h: vh }, "Hardware film, no sound");
   source(s, "Hardware prototypes, from prevumo.vercel.app/hardware. Interactive 3D drawings: a concept, not built or tested.");
   text(s, "Every box: an NFC fob reader, a display, a QR sticker and a Wi-Fi controller.", { x: 9.35, y: 1.55, w: 3.3, h: 0.75, fontSize: 14, color: C.text1, valign: "top" });
-  [["Welder", "gas valve, oxygen sensor, wire scale"], ["3D printer", "spool scale, printer link"], ["Enclosed printer", "plus a chamber sensor"], ["Multimaker", "mode buttons, exhaust switch"], ["Laser cutter", "airflow, air, coolant, flame"]].forEach(([t, d], i) => {
+  [["Welder", "gas valve, oxygen sensor, wire scale"], ["3D printer", "spool scale, printer link"], ["Enclosed printer", "plus a chamber sensor"], ["Multimaker", "mode buttons, exhaust switch"], ["Laser cutter", "exhaust airflow, air assist, coolant, flame"]].forEach(([t, d], i) => {
     const y = 2.55 + i * 0.72;
     s.addShape(pres.shapes.LINE, { x: 9.35, y: y - 0.06, w: 3.25, h: 0, line: { color: HEX.border, width: 0.75 } });
     text(s, t, { x: 9.35, y, w: 3.25, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: C.text1 });
@@ -333,7 +333,7 @@ async function autoplayFilms(file) {
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
   s.addText("Who it's for, and why they'd pay", { placeholder: "title" });
   text(s, "Whoever runs the space pays: university and community makerspaces, Fab Labs and libraries.", { x: 0.75, y: 1.45, w: 11.8, h: 0.45, fontSize: 17, color: C.text2 });
-  [[A.wrench, "Machines protected", "From a $1,700 welder to an $8,000 laser."], [A.shield, "Members kept safe", "Gas, fire and heat stop the machine first."], [A.coins, "Materials billed fairly", "Spaces already bill about $0.10 a gram."]].forEach(([img, t, d], i) => {
+  [[A.wrench, "Machines protected", "From a US$1,700 welder to a US$8,000 laser."], [A.shield, "Members kept safe", "Gas, fire and heat stop the machine first."], [A.coins, "Materials billed fairly", "Spaces already bill about $0.10 a gram."]].forEach(([img, t, d], i) => {
     const y = 2.2 + i * 0.95;
     s.addImage({ data: img, x: 0.75, y: y + 0.04, w: 0.42, h: 0.42 });
     text(s, t, { x: 1.4, y, w: 6.6, h: 0.45, fontFace: HEAD, fontSize: 24, bold: true, color: C.text1 });
@@ -357,7 +357,7 @@ async function autoplayFilms(file) {
 
   /* 8. Market and where we go */
   s = pres.addSlide({ masterName: "PREVUMO Content", sectionTitle: "Talk" });
-  s.addText("A first market we can count", { placeholder: "title" });
+  s.addText("A market we can count", { placeholder: "title" });
   [
     { big: "2,032", t: "active Fab Labs worldwide, 29 of them in Canada", src: "Fab Foundation, fablabs.io" },
     { big: "2,000+", t: "makerspaces and Fab Labs in the US", src: "Nation of Makers" },
@@ -384,11 +384,11 @@ async function autoplayFilms(file) {
   s.addText("What we do next", { placeholder: "title" });
   [
     { t: "Bench test", d: "Printer and laser boxes: power cut 50 times, current checked against a meter.", pass: "Pass: every output goes safe on power loss." },
-    { t: "Watch only pilot", d: "Free, four weeks in a makerspace. The box switches nothing; the owner labels every alert.", pass: "Pass: the owner keeps it on after learning." },
-    { t: "Approval", d: "CSA, or an ESA field evaluation, before any box switches a machine.", pass: "In Ontario, approval comes before any use." },
-    { t: "Welder last", d: "The most valuable module, and the hardest: an electrician and a gas fitter.", pass: "After approval and a pilot." },
+    { t: "Approval", d: "Pilot boxes built from approved parts, or field evaluated by ESA. In Ontario this comes before any use.", pass: "Pass: an approval label on every pilot box." },
+    { t: "Watch only pilot", d: "Free, four weeks in a makerspace. The box switches nothing; the owner labels every alert.", pass: "Pass: the owner keeps it on. Stop if it is ignored." },
+    { t: "Welder last", d: "The most valuable module, and the hardest: an electrician and a gas fitter.", pass: "After a pilot that passes." },
   ].forEach((st, i) => {
-    const x = 0.75 + i * 3.0, dark = i === 1;
+    const x = 0.75 + i * 3.0, dark = i === 2;
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.6, w: 2.8, h: 3.45, rectRadius: 0.12, fill: { color: dark ? HEX.ink : HEX.surface }, line: { color: dark ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Step ${i + 1}` });
     text(s, String(i + 1), { x: x + 0.3, y: 1.85, w: 0.6, h: 0.3, fontFace: MONO, fontSize: 14, color: dark ? HEX.greenTint : C.text2 });
     text(s, st.t, { x: x + 0.3, y: 2.25, w: 2.35, h: 0.45, fontFace: HEAD, fontSize: 20, bold: true, color: dark ? HEX.surface : C.text1, valign: "top" });
@@ -407,9 +407,10 @@ async function autoplayFilms(file) {
   });
   s.addImage({ data: A.curveDark, x: 0, y: 2.25, w: W, h: W * (520 / 3000), objectName: "Heartbeat motif" });
   text(s, "Thank you. Questions?", { x: 0.75, y: 5.55, w: 8, h: 0.7, fontFace: HEAD, fontSize: 30, bold: true, color: HEX.orange });
-  s.addImage({ data: A.qrDark, x: 10.28, y: 4.3, w: 2.3, h: 2.3, objectName: "QR prevumo.vercel.app" });
-  text(s, "prevumo.vercel.app", { x: 7.5, y: 6.7, w: 5.08, h: 0.4, fontFace: MONO, fontSize: 18, color: HEX.greenTint, align: "right" });
-  text(s, "Every prototype, live", { x: 6.9, y: 4.3, w: 3.2, h: 0.4, fontSize: 16, color: HEX.greenTint, align: "right" });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 10.18, y: 4.2, w: 2.5, h: 2.5, rectRadius: 0.12, fill: { color: HEX.surface }, line: { color: HEX.surface }, objectName: "QR pad" });
+  s.addImage({ data: A.qrLight, x: 10.33, y: 4.35, w: 2.2, h: 2.2, objectName: "QR prevumo.vercel.app" });
+  text(s, "prevumo.vercel.app", { x: 4.9, y: 6.78, w: 5.1, h: 0.4, fontFace: MONO, fontSize: 18, color: HEX.greenTint, align: "right" });
+  text(s, "Every prototype, online", { x: 6.7, y: 6.3, w: 3.3, h: 0.4, fontSize: 16, color: HEX.greenTint, align: "right" });
   notes(s, "s10");
 
   /* ---------- appendix, for questions ---------- */
@@ -428,7 +429,7 @@ async function autoplayFilms(file) {
     [cell("After any stop", { bold: true }), cell("Nothing restarts on its own. It waits for a trained member's fob.")],
     [cell("A safety event", { bold: true }), cell("Low oxygen, a lasting flame, no exhaust or no coolant: the machine stops first, and it is reset at the machine, never from a phone.")],
   ], tableOpts({ colW: [3.0, 8.8], rowH: [0.42, 0.62, 0.62, 0.62, 0.62, 0.72], objectName: "Fail safe table" }));
-  text(s, "Approval before any use, pilots included: the first pilot watches and switches nothing. A licensed electrician installs anything that switches; a gas fitter reviews gas parts.", { x: 0.75, y: 5.5, w: 11.8, h: 0.7, fontSize: 15, color: C.text1, valign: "top" });
+  text(s, "Approval before any use, pilots included: pilot boxes are built from approved parts or field evaluated by ESA, and they watch and switch nothing. A licensed electrician installs anything that switches; a gas fitter reviews gas parts.", { x: 0.75, y: 5.5, w: 11.8, h: 0.7, fontSize: 15, color: C.text1, valign: "top" });
   source(s, "ESA Recognized Approval Marks. Design requirements for a concept: none of this is built or tested yet.");
 
   s = appx("What already exists, and where we sit", "a2");
@@ -471,7 +472,7 @@ async function autoplayFilms(file) {
     text(s, c.t, { x: x + 0.3, y: 1.75, w: 5.1, h: 0.4, fontFace: HEAD, fontSize: 18, bold: true, color: c.color });
     text(s, c.items.map((it, j) => ({ text: it, options: { bullet: { code: "25CF", indent: 20 }, breakLine: j < c.items.length - 1 } })), { x: x + 0.3, y: 2.2, w: 5.1, h: 1.65, fontSize: 15, color: C.text1, valign: "top", paraSpaceAfter: 6 });
   });
-  text(s, "So anything beyond on, off and idle is a review for the owner, never an automatic shutdown, until pilot data shows it works. Learning counts sessions, not days, and never switches off a safety stop. The pilot metric: false alerts per machine per month, each one labelled by the owner.", { x: 0.75, y: 4.2, w: 11.8, h: 1.2, fontSize: 16, color: C.text1, valign: "top" });
+  text(s, "So anything beyond on, off and idle is a review for the owner, never an automatic shutdown, until pilot data shows it works. Learning should count sessions, not only days, and it never switches off a safety stop. The pilot metric: false alerts per machine per month, each one labelled by the owner.", { x: 0.75, y: 4.2, w: 11.8, h: 1.2, fontSize: 16, color: C.text1, valign: "top" });
 
   s = appx("Evidence so far, and what is untested", "a5");
   s.addTable([
@@ -507,7 +508,7 @@ async function autoplayFilms(file) {
     "CCOHS: argon and CO2 shielding gases are simple asphyxiants; low oxygen is 19.5% or less.",
     "Fabman pricing and Fabman Bridge FB-V2 (€249). Obico pricing guide.",
     "ESA, Recognized Approval Marks: approval before a product is used, sold, displayed or advertised in Ontario.",
-    "Group 10 interviews and outreach, Oct 2026 (GA3), and Yukonstruct, Oct 27. Quotes anonymized. PREVUMO prices are assumptions to validate.",
+    "Group 10 interviews and outreach, Oct 2026 (GA3), and Yukonstruct, Oct 27. Owner quotes anonymized. PREVUMO prices are assumptions to validate.",
   ];
   text(s, src.map((t, i) => ({ text: t, options: { bullet: { code: "25CF", indent: 20 }, breakLine: i < src.length - 1 } })), { x: 0.75, y: 1.55, w: 11.8, h: 5.0, fontSize: 13, color: HEX.ink, valign: "top", paraSpaceAfter: 7 });
 

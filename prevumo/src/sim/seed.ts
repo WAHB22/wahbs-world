@@ -31,7 +31,7 @@ export function uid(prefix: string): string {
 const LOCATIONS: Location[] = [
   { id: "ms1", name: "Makerspace 1 · STEM" },
   { id: "ms2", name: "Makerspace 2 · CBY" },
-  { id: "chem", name: "Chem Lab B" },
+  { id: "chem", name: "Demo lab" },
 ];
 
 const MACHINES: [string, string, MachineType, string, number][] = [

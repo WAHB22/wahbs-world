@@ -187,3 +187,28 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 * Every "Show" reference now names its slide number (A1 is slide 11, up to A7, slide 17).
 * `PREVUMO-final-QA.pdf` is 6 pages.
 * **Next (loop 10):** a hostile panel agent that has not seen our answers asks its questions; the gaps it finds get patched.
+
+### Loop 10 (Tue 22:17): hostile panel rehearsal
+* **Lead:** a panel agent (professor, makerspace engineer, startup coach) watched the talk cold, asked 15 questions, then checked them against our answers. The result was 2 good, 10 weak and 3 missing. Its report is `critics/panel.md`.
+* **Fixed on the site** (the QR on the last slide opens it):
+  * The old PD B2 dashboard said "uOttawa Engineering, 26 machines with a PREVUMO box" and had a chem lab. It is now a "Demo account", carries a banner saying it is an earlier version, and has moved to the end of the software part as "Owner dashboard, earlier version".
+  * The home page footer said approval comes "before sale"; it now says before any use, pilots included.
+  * The owner app said "Monday, live"; it now says demo data, and the software film was re-recorded.
+* **Fixed in the deck:**
+  * Slide 9 put the pilot before approval; approval now comes before the pilot.
+  * The QR on slide 10 is dark on light (it decodes to https://prevumo.vercel.app), and "live" is now "online".
+  * "3D printers" on slide 3; "Prints fail unwatched" replaces a claim the box can't keep.
+  * US$ on prices.
+  * "A market we can count".
+  * "Owner quotes anonymized".
+  * The appendix states pilot approval and learning plainly.
+* **Fixed in the words:**
+  * B's and C's lines now follow their films shot by shot.
+  * The talk is 549 words: 4:31 at 130 a minute, about 4:50 at 120.
+  * The opening states the aim ("our aim: every machine runs safely and lasts longer") rather than a result.
+* **Q&A:**
+  * Seven new answers: the dashboard, the person at the welder, the interview split, saws and lathes, a second fob reader in a Fabman space, what would make us stop, what physically exists.
+  * Four answers strengthened: pilot approval, the welder's own solenoid, safety device or monitor, the enclosure exception.
+* **Left for Wahb:**
+  * The names of the spaces open to a free pilot.
+  * Whether Rick Yorgason agreed to be named on the public site (the PD B3 pages quote him by name).

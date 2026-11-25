@@ -89,7 +89,7 @@ export function Settings() {
   return (
     <main className="mx-auto max-w-[1100px] px-4 pt-7 pb-24 sm:px-6 lg:px-8 lg:pt-10">
       <h1 className="text-[30px] font-semibold sm:text-[38px]">Settings</h1>
-      <p className="mt-1 mb-8 text-[15px] text-muted">Rules apply to every location of uOttawa Engineering.</p>
+      <p className="mt-1 mb-8 text-[15px] text-muted">Rules apply to every location of this demo account.</p>
 
       <Section title="Alerts" lead="The banner, the bell and the tab title always show a new irregularity. Sound is extra and only on this device.">
         <Card className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">

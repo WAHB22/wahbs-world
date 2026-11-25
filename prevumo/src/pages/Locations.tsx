@@ -23,7 +23,7 @@ export function Locations() {
   return (
     <main className="mx-auto max-w-[1320px] px-4 pt-8 pb-16 sm:px-6 lg:px-8 lg:pt-12">
       <h1 className="text-[30px] font-semibold sm:text-[38px]">Your locations</h1>
-      <p className="mt-1 text-[15px] text-muted">uOttawa Engineering · {world.machines.length} machines with a PREVUMO box</p>
+      <p className="mt-1 text-[15px] text-muted">Demo account · {world.machines.length} simulated machines</p>
 
       <div className="mt-8 grid gap-3">
         {world.locations.map((l) => {

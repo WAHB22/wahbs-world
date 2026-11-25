@@ -215,7 +215,7 @@ export function Reports() {
         Fridges and freezers are always on, so they count toward energy only. Sessions are attributed by PIN first, then by manual assignment, otherwise Unassigned.
       </p>
       <p className="print-only mt-6 text-[11px] text-muted">
-        Printed {fmtDate(now)} {fmtTime(now)} · PREVUMO owner dashboard demo · uOttawa Engineering
+        Printed {fmtDate(now)} {fmtTime(now)} · PREVUMO owner dashboard demo · Demo account
       </p>
     </main>
   );

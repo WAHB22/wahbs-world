@@ -221,7 +221,7 @@ function spark(m) {
 let view = "machines";
 const head = (t, s) => `<div class="top"><div><h1>${t}</h1><p class="sub">${s}</p></div><span class="demo"><i></i>Demo data · illustrative</span></div>`;
 const V = {
-  machines: () => `${head("Machines", "Makerspace (demo) · Monday, live")}
+  machines: () => `${head("Machines", "Makerspace (demo) · Monday, demo data")}
     <div class="grid">${MACHINES.map((m) => {
       const [st, why] = machineStatus(m); const [lab, cls] = STATUS[st];
       const alertOpen = m.alert && !state.decisions[m.alert];

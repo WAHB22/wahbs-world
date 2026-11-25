@@ -10,18 +10,9 @@ type Item = { href: string; app?: boolean; title: string; tag: string; img: stri
 const PARTS: Record<Part, { title: string; lede: string; icon: ReactNode; items: Item[] }> = {
   software: {
     title: "Software prototype",
-    lede: "What the owner and the members use: the owner dashboard and app, and the QR manual a member opens on their phone.",
+    lede: "What the owner and the members use: the owner app and the QR manual a member opens on their phone, plus our earlier dashboard.",
     icon: <MonitorSmartphone className="size-5" aria-hidden />,
     items: [
-      {
-        href: "/dashboard",
-        app: true,
-        title: "Owner dashboard",
-        tag: "Live simulation",
-        img: "/shots/dashboard.jpg",
-        text: "The clickable dashboard from the pitch. A simulation plays the boxes: live charts, alerts, idle shutdowns, assignments and a daily report.",
-        note: "Earlier version: members sign in with a PIN. The PD B3 boxes use an NFC fob.",
-      },
       {
         href: "/software/owner-app/",
         title: "Owner app",
@@ -35,6 +26,15 @@ const PARTS: Record<Part, { title: string; lede: string; icon: ReactNode; items:
         tag: "Phone first",
         img: "/shots/manual.jpg",
         text: "What a member sees after scanning the sticker on a box: checks, start, shut down and a red emergency section.",
+      },
+      {
+        href: "/dashboard",
+        app: true,
+        title: "Owner dashboard, earlier version",
+        tag: "PD B2 · simulation",
+        img: "/shots/dashboard.jpg",
+        text: "The clickable dashboard from our first pitch, kept for the record. A simulation plays the boxes: charts, alerts, idle shutdowns and a daily report.",
+        note: "Earlier version: keypad PINs, and labs and kitchens as well as makerspaces. The current design is the owner app.",
       },
     ],
   },
@@ -195,7 +195,7 @@ export function Prototypes({ part }: { part?: Part }) {
           </>
         )}
         <p className="mt-14 max-w-[70ch] border-t border-border pt-5 text-[13px] leading-relaxed text-muted">
-          PREVUMO, GNG 4120 Group 10. Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; CSA certification needed before sale.
+          PREVUMO, GNG 4120 Group 10. Concept only, not built or tested. A licensed electrician installs switching parts; gas parts reviewed by a licensed gas fitter; approval (CSA, or an ESA field evaluation) needed before any use, pilots included.
         </p>
       </main>
     </div>

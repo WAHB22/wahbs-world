@@ -43,13 +43,17 @@ export function Login() {
             All prototypes
           </Link>
         </div>
+        <p className="mt-6 max-w-[62ch] rounded-[12px] bg-orange-tint px-4 py-3 text-[14px] leading-snug text-ink">
+          Earlier version (PD B2), kept for the record: keypad PINs, and labs and kitchens as well as makerspaces. The current design is{" "}
+          <a href="/software/owner-app/" className="font-semibold underline underline-offset-2">the owner app</a>.
+        </p>
         <div className="my-10 lg:my-0">
           <p className="max-w-[34ch] font-display text-[20px] leading-snug text-muted sm:text-[22px]">Booking software tells you who booked the machine.</p>
-          <h1 className="mt-3 max-w-[18ch] text-[34px] font-semibold text-balance sm:text-[44px] lg:text-[52px]">PREVUMO tells you what happened to it, and when it's about to fail.</h1>
+          <h1 className="mt-3 max-w-[18ch] text-[34px] font-semibold text-balance sm:text-[44px] lg:text-[52px]">PREVUMO tells you what happened to it, and when it starts to look irregular.</h1>
           <div className="mt-10 max-w-[680px]" aria-hidden>
             <div className="mb-3 flex items-end justify-between gap-4">
               <div>
-                <p className="text-[13px] text-muted">Welder 2, live draw</p>
+                <p className="text-[13px] text-muted">Welder 2, simulated draw</p>
                 <p className="mt-1 leading-none">
                   <LiveNumber value={trace[trace.length - 1].kw} className="text-[30px] text-ink" />
                   <span className="num ml-1 text-[13px] text-muted">kW</span>
@@ -62,7 +66,7 @@ export function Login() {
             </div>
           </div>
         </div>
-        <p className="text-[13px] text-muted">PREVUMO = PREVentive Usage MOnitor. A box on each machine's power line: keypad, current sensor and relay.</p>
+        <p className="text-[13px] text-muted">PREVUMO = PREVentive Usage MOnitor. In PD B2, a box on each machine's power line: keypad, current sensor and relay. The keypad is now an NFC fob.</p>
       </section>
 
       <section className="flex items-center justify-center border-t border-border bg-surface px-6 py-12 lg:border-t-0 lg:border-l">
@@ -75,11 +79,11 @@ export function Login() {
           }}
         >
           <h2 className="text-[28px] font-semibold">Owner log in</h2>
-          <p className="mt-1 text-[15px] text-muted">Your machines, live, in every space you run.</p>
+          <p className="mt-1 text-[15px] text-muted">Simulated machines, in every space you run.</p>
           <div className="mt-8 flex items-center gap-3 rounded-[12px] border border-border bg-bg/60 px-4 py-3.5">
-            <span className="flex size-11 items-center justify-center rounded-full bg-ink font-display text-[15px] font-semibold text-white">UE</span>
+            <span className="flex size-11 items-center justify-center rounded-full bg-ink font-display text-[15px] font-semibold text-white">DA</span>
             <div className="min-w-0">
-              <p className="text-[15px] font-medium">Owner: uOttawa Engineering</p>
+              <p className="text-[15px] font-medium">Owner: Demo account</p>
               <p className="text-[13px] text-muted">Demo account · 3 locations</p>
             </div>
           </div>
