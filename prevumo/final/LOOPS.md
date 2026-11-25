@@ -288,3 +288,15 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * the slide 10 QR decodes to https://prevumo.vercel.app.
 * **Delivered:** the six files in `prevumo/deliverables/final/`, sent to Wahb. Scheduling stops here.
 * **Open, for the team before Friday:** speaker names; the names of the spaces open to a free pilot, if any; Yukonstruct's consent to be named on slides 15 and 17; the PD B3 report still has its old wording ("certified before sale", the gas leak sensor, Alveo3D, Grey Bruce) and names the Yukonstruct contact, which is fine in a submitted report but differs from the deck.
+
+### After the loops (Wed evening): the judges' scorecard
+* **Trigger:** Wahb shared the course announcement and the competition PDF: 5 minutes plus up to 3 of questions, strictly timed, and a scorecard of Problem, Solution, Market and Customer validation (15 each), Business model (20), Financial considerations (5, "funding avenues and limitations") and Presentation (15). The elements list also asks for a link to a summary video.
+* **What was missing:** the talk had no business model slide (pricing sat only in the appendix), nothing on funding, no market trend, no customer needs slide, and no summary video link.
+* **Changed:**
+  * the talk is now 11 slides, each with a small label naming the scorecard criterion it answers (`STORY.md` has the table);
+  * new slide 7, what customers told us (needs, who said them, what PREVUMO does); new slide 9, how PREVUMO makes money (two revenue streams, price by risk, pilot to paid, next to Fabman through its open API, US$600 a machine in year one as a first guess); new slide 10, funding avenues (Startup Garage, NRC IRAP, Futurpreneur, pilot hosts), limits and next steps;
+  * slide 8 adds the trend (Fab Labs doubling roughly every two years, MIT Global); slide 4 pairs each problem with what the box does;
+  * the films were cut to 30.4 s and 27.9 s so the words and pictures end together; the talk is 533 words, 4:47 at 120 words a minute;
+  * a summary video (80.5 s: title, problem, both films, customers, business model, close) at prevumo.vercel.app/video, linked from slides 1 and 11;
+  * Q&A 41 to 46 cover the monthly fee, printer pricing, paying for the pilot, the biggest limit, market size and the video;
+  * every new fact was read on its official page with Firecrawl (FACTS.md).
