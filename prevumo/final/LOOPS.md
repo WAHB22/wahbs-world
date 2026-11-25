@@ -89,3 +89,23 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * No dashes.
   * Page screenshots in `deliverables/pd-b3/` and the site's card images regenerated.
 * **Not changed:** the PD B3 Word report still has the old wording (it was already handed in); the deck and Q&A use the new wording.
+
+### Loop 4 (Tue 21:15): fact checker
+* **Lead:** the fact checker. Every number in the story was checked against its own source, read directly with curl or found through web search, plus the Fab Foundation's lab data counted from the official file. `FACTS.md` lists each claim, its link and the exact words.
+* **Verified:**
+  * 2,032 active Fab Labs worldwide (29 Canada, 182 US); 1,858 list laser cutting.
+  * More than 2,000 US makerspaces and Fab Labs (Nation of Makers).
+  * $0.10 a gram (University of Regina, Pickering Library).
+  * Machine prices: $1,699 Millermatic 211 PRO, $7,999 Glowforge Pro HD.
+  * Prusa nozzle temperatures.
+  * CCOHS on argon and 19.5% oxygen.
+  * Fabman prices and Bridge features.
+  * Obico prices.
+  * ESA: approval before any use in Ontario.
+* **Dropped:**
+  * $754, 30 to 40%, $600 to $6,000, and the restaurant and kitchen numbers.
+  * 138 Canadian makerspaces: the article could not be read.
+  * The Epilog price.
+  * Grey Bruce on a slide.
+  * Hackerspace counts.
+* **Script:** three lines changed (nozzle temperature, machine prices and per gram billing, the market counts); 632 words.

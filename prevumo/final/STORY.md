@@ -42,7 +42,7 @@ The budget is 5:00 at 130 words a minute, so about 630 spoken words. Five speake
 
 **2, A.** We started with a box that measured electricity, so shared spaces could bill each user. We took it to shared kitchens, restaurants, cafés and makerspaces. Ten interviews and forty nine emails later, two things were clear: every owner we asked builds electricity into rent, and cafés weren't interested. Makerspaces were. An Ontario makerspace director told us: "Managing equipment is one of the biggest tasks we have." So we kept one customer.
 
-**3, B.** Inside makerspaces we found the real problem: every machine breaks, and gets misused, in its own way. A welder's shielding gas gets left open. A 3D printer sits at two hundred and fifty degrees after a failed print. A laser cutter catches fire when someone walks away. So we studied the most common machines one by one, and gave each its own module.
+**3, B.** Inside makerspaces we found the real problem: every machine breaks, and gets misused, in its own way. A welder's shielding gas gets left open. A 3D printer's nozzle stays above two hundred degrees after a failed print. A laser cutter catches fire when someone walks away. So we studied the most common machines one by one, and gave each its own module.
 
 **4, B.** This is the welder module. Every box shares one core: an NFC reader for the member's fob, a display, a QR sticker that opens the machine's manual, and a controller on Wi-Fi. A member who isn't trained on this welder stays locked out. During a session the gas valve opens and a scale weighs the wire used, while an oxygen sensor by the cylinder watches day and night. The other four modules are the same box with their own sensors: spool scales, exhaust and air checks, flame and coolant.
 
@@ -50,26 +50,19 @@ The budget is 5:00 at 130 words a minute, so about 630 spoken words. Five speake
 
 **6, C.** Underneath is one simple idea. Every machine draws electricity in its own pattern: a printer warming up, a laser cutting, a machine left on with nobody working. PREVUMO learns each machine's normal range and flags what doesn't fit. To be clear, nothing here is measured yet; every chart is illustrative. Makerspaces and Fab Labs we spoke with were open to trying it for free, and that pilot data is what will teach it a real problem from a false alarm.
 
-**7, D.** Our customer is whoever runs the makerspace: a university, a community space or a Fab Lab. They get three things: machines worth seventeen hundred to seventeen thousand dollars stay protected, members stay safe, and materials are charged fairly, because spaces already bill ten cents a gram and weigh spools by hand. Tools like Fabman already handle access and idle shutoff; PREVUMO adds the sensors made for each machine, and works beside them. No sponsors yet: we're looking for a first host site.
+**7, D.** Our customer is whoever runs the makerspace: a university, a community space or a Fab Lab. They get three things: machines from a seventeen hundred dollar welder to an eight thousand dollar laser stay protected, members stay safe, and materials are charged fairly, because spaces like the University of Regina already bill ten cents a gram. Tools like Fabman already handle access and idle shutoff; PREVUMO adds the sensors made for each machine, and works beside them. No sponsors yet: we're looking for a first host site.
 
-**8, D.** Our first market is one we can count: more than two thousand active Fab Labs worldwide, more than two thousand makerspaces and Fab Labs in the US, and a hundred and thirty eight makerspaces in Canada's largest cities alone. Almost every Fab Lab has a laser cutter. We start in Canadian makerspaces, then campus and college shops, then small fabrication shops running the same machines.
+**8, D.** Our first market is one we can count: more than two thousand active Fab Labs worldwide, twenty nine of them in Canada, and more than two thousand makerspaces and Fab Labs in the US. Almost every Fab Lab lists a laser cutter. We start in Canadian makerspaces, then campus and college shops, then small fabrication shops running the same machines.
 
 **9, E.** Next, we bench test the printer and laser boxes. Then a four week free pilot that only watches, with the owner labelling every alert. If they keep it on after learning, we've earned the right to switch machines off. Approval comes first, and the welder comes last.
 
 **10, E.** Every machine fails its own way. PREVUMO gives each one its own guard. Thank you, we'd love your questions.
 
-Words: 633, about 4:52 at 130 words a minute, leaving a few seconds for the films and the hand offs.
+Words: 632, about 4:52 at 130 words a minute, leaving a few seconds for the films and the hand offs.
 
-## Numbers to verify in loop 4
+## Numbers
 
-* More than 2,000 active Fab Labs worldwide, 29 in Canada (fablabs.io).
-* More than 2,000 makerspaces and Fab Labs in the US (Nation of Makers).
-* 138 makerspaces in Canada's 79 largest municipalities (2026 study).
-* 1,858 of 2,032 active Fab Labs list laser cutting.
-* Machine prices: Millermatic 211 about $1,700 (only read in an excerpt so far); Epilog Fusion Edge 12 list $16,890.
-* $0.10 per gram at Grey Bruce Makers and the University of Regina, with spools weighed by hand at Grey Bruce.
-* The quote and the 10 interviews and 49 emails (from the first deck's evidence).
-* Oxygen alarm at 19.5% (CCOHS).
+Every number is checked in `FACTS.md`, with its source and the exact words.
 
 ## Films (loop 6)
 
