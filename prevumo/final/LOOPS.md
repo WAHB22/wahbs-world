@@ -212,3 +212,13 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 * **Left for Wahb:**
   * The names of the spaces open to a free pilot.
   * Whether Rick Yorgason agreed to be named on the public site (the PD B3 pages quote him by name).
+
+### Loop 11 (Tue 22:46): projection check
+* **Lead:** the projection check, in the main session: a script read every text run in the deck, computed the colour contrast of every pair in use, and simulated a washed out projector seen from the back of the room.
+* **Sizes:** on slides 1 to 10, everything under 13 pt is a source line or a caption. Raised:
+  * "One machine's day, illustrative" to 13 pt, since it carries the honesty;
+  * the slide 2 attribution to 13 pt, shortened to "Ontario makerspace director";
+  * the title slide's "PREVentive Usage MOnitor" to 16 pt bold. Orange on ink is 3.97:1, which passes only as large text.
+* **Contrast:** ink on bg 10.1:1, muted on bg 4.8:1, rust on surface 6.2:1, green on bg 5.4:1. Orange on ink (3.97:1) is used only at 14 pt bold or larger.
+* **Dashes:** none in any slide's text or notes.
+* **Washout test:** lifted blacks, 75% saturation, at a third of the resolution; titles, benefits, numbers and the honesty band all still read.

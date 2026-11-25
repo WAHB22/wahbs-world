@@ -220,7 +220,7 @@ async function autoplayFilms(file) {
   let s = pres.addSlide({ masterName: "PREVUMO Dark", sectionTitle: "Talk" });
   s.addImage({ data: A.curveDark, x: 0, y: 2.25, w: W, h: W * (520 / 3000), objectName: "Heartbeat motif" });
   text(s, "PREVUMO", { x: 0.75, y: 0.75, w: 11, h: 1.5, fontFace: HEAD, fontSize: 88, bold: true, charSpacing: 6, color: HEX.bg });
-  text(s, "PREVentive Usage MOnitor", { x: 0.75, y: 2.05, w: 6, h: 0.4, fontFace: MONO, fontSize: 13, color: HEX.orange });
+  text(s, "PREVentive Usage MOnitor", { x: 0.75, y: 2.0, w: 6, h: 0.45, fontFace: MONO, fontSize: 16, bold: true, color: HEX.orange });
   text(s, "A preventive box for every machine in a makerspace.", { x: 0.75, y: 4.95, w: 10.5, h: 0.9, fontFace: HEAD, fontSize: 28, color: HEX.bg });
   text(s, "Jana Mghabghab · Tobi Adebayo · Mohamed Wahb Berguia · Daksh Prabhulal Dholu · Akhil Matta", { x: 0.75, y: 6.55, w: 9.0, h: 0.35, fontSize: 12, color: HEX.greenTint });
   text(s, "GNG 4120 · Group 10 · Nov 27, 2026", { x: 9.3, y: 6.55, w: 3.3, h: 0.35, fontFace: MONO, fontSize: 11, color: HEX.greenTint, align: "right" });
@@ -233,7 +233,7 @@ async function autoplayFilms(file) {
   const stops = [
     { tag: "PD A", t: "Share electricity", d: "A box that measures each user's electricity, so the space can bill it.", ev: "Every owner we asked builds electricity into rent or membership.", out: "Billing dropped" },
     { tag: "GA3", t: "Any shared space", d: "Shared kitchens, restaurants, cafés and makerspaces with costly equipment.", ev: "Cafés leave equipment on at closing, but were not interested in a device.", out: "Cafés dropped" },
-    { tag: "PD B3, now", t: "Makerspaces only", d: "One box per machine type, made for how each one fails.", ev: "“Managing equipment is one of the biggest tasks we have.”", who: "Executive director, Ontario makerspace", out: "Our customer" },
+    { tag: "PD B3, now", t: "Makerspaces only", d: "One box per machine type, made for how each one fails.", ev: "“Managing equipment is one of the biggest tasks we have.”", who: "Ontario makerspace director", out: "Our customer" },
   ];
   stops.forEach((st, i) => {
     const x = 0.75 + i * 4.0, last = i === 2;
@@ -242,7 +242,7 @@ async function autoplayFilms(file) {
     text(s, st.d, { x, y: 3.25, w: 3.5, h: 0.75, fontSize: 14, color: C.text2, valign: "top" });
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 4.15, w: 3.7, h: 1.7, rectRadius: 0.12, fill: { color: last ? HEX.ink : HEX.surface }, line: { color: last ? HEX.ink : HEX.border, width: 0.75 }, objectName: `Evidence ${i + 1}` });
     text(s, st.ev, { x: x + 0.25, y: 4.35, w: 3.25, h: 0.75, fontFace: last ? HEAD : undefined, fontSize: last ? 15 : 14, bold: last, color: last ? HEX.surface : C.text1, valign: "top" });
-    if (st.who) text(s, st.who, { x: x + 0.25, y: 5.08, w: 3.25, h: 0.28, fontSize: 12, color: HEX.greenTint });
+    if (st.who) text(s, st.who, { x: x + 0.25, y: 5.08, w: 3.3, h: 0.3, fontSize: 13, color: HEX.greenTint });
     text(s, st.out, { x: x + 0.25, y: 5.45, w: 3.25, h: 0.3, fontFace: HEAD, fontSize: 14, bold: true, color: last ? HEX.orange : HEX.rust });
   });
   text(s, "Behind it: 10 interviews and 49 outreach emails (GA3, Oct 2026).", { x: 0.75, y: 6.05, w: 11.8, h: 0.35, fontSize: 15, color: C.text1 });
@@ -321,7 +321,7 @@ async function autoplayFilms(file) {
   lab(gx + 3.4, "Working", "inside its own band", HEX.green);
   lab(gx + 5.55, "On, nobody working", "idle: shut off after a set time", HEX.muted);
   lab(gx + 9.1, "Out of its band", "one alert, the owner decides", HEX.orangeText);
-  text(s, "One machine's day, illustrative", { x: gx, y: gy + gh + 0.02, w: 5, h: 0.28, fontFace: MONO, fontSize: 11, color: C.text2 });
+  text(s, "One machine's day, illustrative", { x: gx, y: gy + gh + 0.02, w: 6, h: 0.32, fontFace: MONO, fontSize: 13, color: C.text2 });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.75, y: 5.6, w: 11.8, h: 0.95, rectRadius: 0.12, fill: { color: HEX.orangeTint }, line: { color: HEX.orangeTint }, objectName: "Honesty band" });
   text(s, [
     { text: "Nothing here is measured yet. ", options: { bold: true, fontFace: HEAD } },
