@@ -455,7 +455,7 @@ async function autoplayFilms(file) {
   text(s, [
     { text: "2,000", options: { fontFace: MONO, bold: true } }, { text: " US makerspaces and Fab Labs", options: { breakLine: true } },
     { text: "× 5", options: { fontFace: MONO, bold: true } }, { text: " monitored machines each", options: { breakLine: true } },
-    { text: "× US$300", options: { fontFace: MONO, bold: true } }, { text: " a year per machine (an upper bound)", options: { breakLine: true } },
+    { text: "× US$300", options: { fontFace: MONO, bold: true } }, { text: " a year per machine", options: { breakLine: true } },
     { text: "≈ US$3M a year at most", options: { fontFace: MONO, bold: true, color: HEX.green } },
   ], { x: 7.15, y: 2.2, w: 5.15, h: 2.0, fontSize: 17, color: C.text1, valign: "top", paraSpaceAfter: 6 });
   text(s, "Small: makerspaces are where we prove it, then campus and fabrication shops. Only the US count is verified; Canada has 29 active Fab Labs.", { x: 7.15, y: 3.7, w: 5.15, h: 0.8, fontSize: 13, color: C.text2, valign: "top" });
