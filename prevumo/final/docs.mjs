@@ -21,7 +21,7 @@ const fonts = pathToFileURL(join(here, "..", "public", "vendor", "fonts")).href;
 execFileSync("python3", ["/mnt/skills/public/pptx/scripts/office/soffice.py", "--headless", "--convert-to", "pdf", "--outdir", tmp, join(out, "PREVUMO-final.pptx")], { stdio: "ignore" });
 execFileSync("pdftoppm", ["-r", "60", "-png", join(tmp, "PREVUMO-final.pdf"), join(tmp, "t")]);
 const thumbs = readdirSync(tmp).filter((f) => /^t-\d+\.png$/.test(f)).sort();
-const TITLES = ["PREVUMO (title)", "Where we started", "Every machine fails its own way", "One box, five modules", "One app for the owner", "Every machine has its own electrical signature", "Who it's for, and why they'd pay", "A first market we can count", "What we do next", "Every machine fails its own way (close)"];
+const TITLES = ["PREVUMO (title)", "Where we started", "Every machine fails its own way", "One box, five modules", "One app for the owner", "Every machine has its own electrical signature", "What our customers told us", "A market we can count, and it's growing", "How PREVUMO makes money", "Funding, limits and next steps", "Every machine fails its own way (close)"];
 
 const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
@@ -64,7 +64,7 @@ const rows = N.SLIDES.map((s, i) => `<tr><td>${i + 1}</td><td>${esc(TITLES[i])}<
 const speakers = ["A", "B", "C", "D", "E"].map((w) => {
   const mine = N.SLIDES.filter((s) => s.who === w);
   const secs = mine.reduce((a, s) => a + (s.to - s.from), 0);
-  return `<tr><td><span class="who">${w}</span></td><td>Slides ${mine.map((s) => N.SLIDES.indexOf(s) + 1).join(" and ")}</td><td class="t">${clock(secs)}</td><td>__________________________</td></tr>`;
+  return `<tr><td><span class="who">${w}</span></td><td>Slides ${mine.map((s) => N.SLIDES.indexOf(s) + 1).join(", ").replace(/, (\d+)$/, " and $1")}</td><td class="t">${clock(secs)}</td><td>__________________________</td></tr>`;
 }).join("");
 const slides = N.SLIDES.map((s, i) => {
   const say = esc(s.say).replace(/ \[pause\] /g, "\n[pause]\n");
