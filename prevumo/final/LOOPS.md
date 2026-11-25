@@ -60,3 +60,32 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * "Nothing is measured yet" said on slide 6, followed by the free pilot plan.
   * Sponsors stated as "none yet".
   * Pricing kept out of the 5 minutes, in the appendix.
+
+### Loop 3 (Tue 20:50, started early because loop 2 finished in minutes): safety engineer
+* **Lead:** the safety engineer's list from `CRITIQUE.md`, applied in the main session to the page sources, then the site regenerated and redeployed.
+* **Changed on prevumo.vercel.app:**
+  * **Welder:**
+    * The gas leak sensor is now an oxygen sensor, mounted low by the cylinder, with the escaping gas drawn sinking towards it.
+    * The chart shows oxygen falling under "alarm: 19.5% oxygen".
+    * The current clamp sits on one supply wire inside the electrician's enclosure.
+  * **Printers:** a failed print pauses only when two signals agree. A printer left heating has its heaters turned off over the printer link and cools before the relay cuts power.
+  * **Laser:**
+    * An airflow switch in the exhaust duct.
+    * Coolant flow and temperature.
+    * A tap every 15 minutes during a job.
+    * A lasting flame pauses the laser, and the stop is reset at the machine.
+    * Only a documented interlock input is used.
+  * **Multimaker:** an inline current switch on the fan cord.
+  * **Owner app, QR manual, overview:**
+    * Safety stops show "Call technician" and "Reset at the machine only", never a remote Mark as OK.
+    * Gas is shown as valve open minutes.
+    * "Low oxygen alarm, or hissing at the cylinder" replaces "gas smell".
+    * A fail safe rule.
+    * Approval is needed before any use, pilots included.
+* **Checked:**
+  * Stills of every changed step looked at.
+  * All 11 site pages load at 1440 and 390 px with no errors.
+  * The dashboard login works.
+  * No dashes.
+  * Page screenshots in `deliverables/pd-b3/` and the site's card images regenerated.
+* **Not changed:** the PD B3 Word report still has the old wording (it was already handed in); the deck and Q&A use the new wording.
