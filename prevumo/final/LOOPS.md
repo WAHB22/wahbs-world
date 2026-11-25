@@ -109,3 +109,16 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   * Grey Bruce on a slide.
   * Hackerspace counts.
 * **Script:** three lines changed (nozzle temperature, machine prices and per gram billing, the market counts); 632 words.
+
+### Loop 5 (Tue 21:20, started early): deck builder
+* **Lead:** the deck builder, with the pptx skill and the first deck's design code (`deck/build.js`): the same palette, faces, layouts, footer and heartbeat line.
+* **Made:**
+  * `build.cjs` and `notes.cjs`.
+  * `deliverables/final/PREVUMO-final.pptx`, version 1: ten slides for the five minutes plus seven appendix slides for questions.
+  * Word for word speaker notes on every slide, with speakers A to E, hand offs and cues.
+  * New drawings: the pivot path, one machine's day as an electrical signature, and crops of the five module drawings rendered from the live pages.
+* **Checked:** `validate.py` passes; rendered through LibreOffice and looked at every slide. Fixed:
+  * the slide 3 band that wrapped;
+  * the slide 6 caption under the honesty band;
+  * the slide 2 attribution spacing.
+* **Open:** the two films are posters for now (loop 6 records them from the site). The deck file is committed at the end, to keep binary versions out of the history.
