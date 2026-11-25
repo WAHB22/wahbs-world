@@ -12,19 +12,21 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 | 1 | Four critics: course judge, makerspace buyers, safety engineer, investor | Destroy the project; decide what to fix and what to answer |
 | 2 | Story editor | The 5 minute arc, the slide list, the word budget per slide |
 | 3 | Safety engineer | Fix the technical errors on the prototype pages, regenerate and redeploy the site |
-| 4 | Fact checker | Every number on a slide, with a working link (Firecrawl is out of credits, so web search and page reads) |
+| 4 | Fact checker | Every number on a slide, with a working link |
 | 5 | Deck builder (pptx skill, the first deck's design) | Build v1 of the deck |
-| 6 | Film crew (Playwright on prevumo.vercel.app) | Record the site videos: hardware modules, owner app, QR manual |
-| 7 | Deck builder | Put the videos in, render the PDF, contact sheet |
-| 8 | Design critic | Hierarchy, type, one bold move per slide |
-| 9 | Speech writer | Speaker notes and script, timing at 130 words per minute |
-| 10 | Q&A coach | Hard questions, answers, appendix slides |
-| 11 | Hostile panel rehearsal | Ask the deck the critics' questions; patch the gaps |
-| 12 | Projection check | Contrast, size from the back of a room, no dashes |
-| 13 | Video editor and consistency auditor | Durations, file sizes, share copies; same numbers everywhere |
+| 6 | Film crew (Playwright on the site) | Record the films and put them in the deck |
+| 7 | Design critic | A fresh look at every slide; apply the fixes |
+| 8 | Speech writer | Speaker notes as data, timing, the script PDF |
+| 9 | Q&A coach | Who answers what, the ten likeliest, the Q&A PDF |
+| 10 | Hostile panel rehearsal | Questions asked cold; patch the gaps in the site, the deck and the answers |
+| 11 | Projection check | Sizes, contrast, dashes, a washed out projector |
+| 12 | Video editor | Films against the words, share copies, the deck PDF |
+| 13 | Consistency auditor | The same claims and numbers in the deck, notes, Q&A, site and report |
 | 14 | Gatekeeper | Refuses until no weak point is left |
-| 15 | Three decisions | The three calls made without asking, applied |
+| 15 | Three decisions | The three calls made without asking, applied and written down |
 | 16 | Finalizer | Final build, checks, delivery, commit |
+
+(The table was redrawn in loop 12 to match what ran: loops 3 to 6 started early, so the films merged into one loop and the design critic got its own.)
 
 ## Log
 
@@ -222,3 +224,18 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 * **Contrast:** ink on bg 10.1:1, muted on bg 4.8:1, rust on surface 6.2:1, green on bg 5.4:1. Orange on ink (3.97:1) is used only at 14 pt bold or larger.
 * **Dashes:** none in any slide's text or notes.
 * **Washout test:** lifted blacks, 75% saturation, at a third of the resolution; titles, benefits, numbers and the honesty band all still read.
+
+### Loop 12 (Tue 23:16): video editor
+* **Lead:** the video editor lens, in the main session.
+* **Films against the words:**
+  * Cut times detected with ffmpeg. The software film is now Machines 0 s, Alerts 6 s (the safety alert answered at 9.4 s), Members 17.8 s, Resources 22.3 s, the phone manual 24.5 s, 35.9 s in all. The alerts got 1.6 s more, since C spends about 14 s on them.
+  * The hardware film is built shot by shot to B's lines: pieces 2.6 s, locked out 8.6 s, power and gas 13.1 s, oxygen 19.5 s, the other modules from 25.9 s.
+* **Files:** both films are H.264 High, 1920x1080, 30 fps, yuv420p, faststart, with no sound, so they play in PowerPoint on Windows and Mac.
+* **Share copies in `deliverables/final/`:**
+  * `PREVUMO-final.pdf`: the deck, 17 pages, every font embedded, the films shown as their posters;
+  * `PREVUMO-final-film-hardware.mp4` (7.2 MB) and `-software.mp4` (1.5 MB), as a fallback if the presenting computer has no PowerPoint.
+* **Script PDF:**
+  * present from PowerPoint;
+  * do not convert to Google Slides, which drops the films;
+  * the PDF and film fallback;
+  * install the fonts.

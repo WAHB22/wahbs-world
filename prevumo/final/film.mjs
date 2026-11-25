@@ -207,22 +207,23 @@ async function software() {
     await wait(2200);
     await moveTo(page.locator("article, .card").filter({ hasText: "Welder 2" }).first(), { fy: 0.35, steps: 34 });
     await wait(2600);
+    // the alerts get the most time: the speaker spends about 14 s on them
     await click(page.locator('.tab[data-v="alerts"]'));
-    await wait(2400);
+    await wait(2800);
     await click(page.locator('[data-do="welder-leak"][data-d="Call technician"]'));
-    await wait(2000);
+    await wait(2600);
     await click(page.locator('[data-ask="printer-irr"]'));
-    await wait(1100);
+    await wait(1300);
     await click(page.locator('[data-do="printer-irr"][data-d="Shut down"]'));
-    await wait(2200);
+    await wait(2600);
     await click(page.locator('.tab[data-v="members"]'));
-    await wait(1500);
+    await wait(1000);
     await click(page.locator("details summary").first());
-    await wait(3000);
+    await wait(2200);
     await click(page.locator('.tab[data-v="resources"]'));
-    await wait(1200);
+    await wait(800);
     await page.mouse.move(mx + 40, my + 30);
-    await wait(2400);
+    await wait(1400);
   });
   const appMp4 = framesToMp4(appFrames, "software-app");
 
