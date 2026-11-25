@@ -36,7 +36,7 @@ The budget is 5:00 at 130 words a minute, so about 630 spoken words. Five speake
 | 9 | 4:30 | E | What we do next | Bench test, four week watch only pilot with a pass rule, approval, welder last | 45 |
 | 10 | 4:50 | E | (closing line) | Dark close, the line, Thank you, questions, QR to prevumo.vercel.app | 20 |
 
-## Draft script (speech writer refines it in loop 9)
+## Draft script (superseded: the final words and timings live in `notes.cjs`, loop 8)
 
 **1, A.** Hi, we're Group 10, and this is PREVUMO: a series of preventive boxes for makerspaces, one for each type of machine, so every machine runs safely and lasts longer. Here's where we started, where we are, and where we go next.
 

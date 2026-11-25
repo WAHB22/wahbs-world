@@ -167,3 +167,14 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
   11. Every source line is at the same place and size.
   12. Appendix cards are sized to their content.
 * **Checked:** `validate.py` passes; every slide rendered and looked at again.
+
+### Loop 8 (Tue 22:05): speech writer
+* **Lead:** the speech writer lens, in the main session.
+* **Notes:** `notes.cjs` is now data. Each slide has its speaker, words, cue and hand off, and the times are computed at 130 words a minute plus 2 s for each hand off or click, so the header on every note is right by construction.
+* **Timing:**
+  * Cut from 4:55 to 4:42 (563 words): shorter lines on slides 2, 3, 4, 5, 6 and 7, and nothing that is only on the slide is repeated aloud.
+  * Speakers: A 0:54, B 1:10, C 1:12, D 1:04, E 0:32.
+* **New files:**
+  * `deliverables/final/PREVUMO-final-script.pdf` (4 pages): a run sheet, who says what with blanks for the names, the rules (films play by themselves; say "nothing is measured yet" once; what not to say), and every slide's words beside its thumbnail.
+  * `deliverables/final/PREVUMO-final-QA.pdf` (5 pages), from `QA.md`.
+  * Both are made by `docs.mjs` in the deck's palette and faces.

@@ -1,79 +1,49 @@
-// Speaker notes for the final presentation, word for word, at about 130 words a minute (5:00 in all).
-// Five speakers, A to E, one hand off each. The films play by themselves; nobody talks over a title card.
-const WHO = "Speakers: A, B, C, D, E. Write the names in at the first rehearsal.";
-
+// Speaker notes for the final presentation, word for word. Times are computed from the words at 130 a minute,
+// plus 2 s for each hand off and click, so the plan adds up to under 5:00. The films play by themselves.
+const WPM = 130;
+const SLIDES = [
+  { key: "s1", who: "A", say: `Hi, we're Group 10, and this is PREVUMO: a series of preventive boxes for makerspaces, one for each type of machine, so every machine runs safely and lasts longer. Here's where we started, where we are, and where we go next.`,
+    cue: `click on "where we started".` },
+  { key: "s2", who: "A", say: `We started with a box that measured electricity, so shared spaces could bill each user. We took it to kitchens, restaurants, cafés and makerspaces. Ten interviews and forty nine emails later, two things were clear: owners build electricity into rent, and cafés weren't interested. Makerspaces were. An Ontario makerspace director told us: "Managing equipment is one of the biggest tasks we have." So we kept one customer.`,
+    handoff: `A: B, what did we find inside the makerspace?` },
+  { key: "s3", who: "B", say: `Inside makerspaces we found the real problem: every machine breaks, and gets misused, in its own way. A welder's gas gets left open. A printer's nozzle stays above two hundred degrees after a failed print. A laser catches fire when someone walks away. So we gave each common machine its own module.`,
+    cue: `click on "its own module". The film starts by itself.` },
+  { key: "s4", who: "B", film: "The film (42 s, no sound) plays by itself and runs a little past the words; that is fine.", say: `This is the welder module. Every box shares one core: an NFC reader for the member's fob, a display, a QR sticker that opens its manual, and a Wi-Fi controller. A member who isn't trained on this welder stays locked out. During a session the gas valve opens and a scale weighs the wire, while an oxygen sensor by the cylinder watches day and night. The other four modules are the same box with their own sensors.`,
+    handoff: `B: C, and the owner?` },
+  { key: "s5", who: "C", film: "The film (37 s, no sound) plays by itself.", say: `The owner runs it all from one app: every machine, who's on it, and what they used, in grams or minutes. When something looks wrong, there's one alert with three choices: shut it down, call a technician, or mark it OK. Safety events, like low oxygen or a flame, stop the machine first. And members scan the QR code on any box to open its manual on their phone.`,
+    cue: `click on "on their phone".` },
+  { key: "s6", who: "C", say: `Underneath is one simple idea. Every machine draws electricity in its own pattern: warming up, cutting, or left on with nobody working. PREVUMO learns each machine's normal range and flags what doesn't fit. To be clear, nothing here is measured yet. Makerspaces and Fab Labs we spoke with were open to a free pilot, and that data will teach it a real problem from a false alarm.`,
+    note: `If asked which spaces: name them only if the team has their names and emails. Otherwise: "Interest so far, nothing signed. Turning that into one to three written pilots is our next step."`,
+    handoff: `C: D, so who pays for this?` },
+  { key: "s7", who: "D", say: `Our customer is whoever runs the makerspace: a university, a community space or a Fab Lab. They get three things: protected machines, from a seventeen hundred dollar welder to an eight thousand dollar laser; safe members; and fairly billed materials, at about ten cents a gram. Fabman already handles access and idle shutoff; PREVUMO adds sensors made for each machine, next to it. No sponsors yet: we're looking for a first host site.`,
+    cue: `click on "first host site".` },
+  { key: "s8", who: "D", say: `Our first market is one we can count: more than two thousand active Fab Labs worldwide, twenty nine of them in Canada, and more than two thousand makerspaces and Fab Labs in the US. Nine in ten Fab Labs list a laser cutter. We start in Canadian makerspaces, then campus and college shops, then small fabrication shops running the same machines.`,
+    handoff: `D: E, what happens next?` },
+  { key: "s9", who: "E", say: `Next, we bench test the printer and laser boxes. Then a four week free pilot that only watches, with the owner labelling every alert. If they keep it on after learning, we've earned the right to switch machines off. Approval comes first, and the welder comes last.`,
+    cue: `click on "the welder comes last".` },
+  { key: "s10", who: "E", say: `Every machine fails its own way. [pause] PREVUMO gives each one its own guard. [pause] Thank you, we'd love your questions.`,
+    note: `The QR opens prevumo.vercel.app: every prototype, live. Leave this slide up during questions; jump to an appendix slide only when a question needs one.` },
+];
+const words = (t) => t.replace(/\[pause\]/g, "").split(/\s+/).filter(Boolean).length;
+const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
+let t = 0;
+const out = {};
+for (const sl of SLIDES) {
+  const w = words(sl.say), d = (w / WPM) * 60 + (sl.handoff || sl.cue ? 2 : 0);
+  sl.words = w; sl.from = t; sl.to = t + d; t += d;
+  out[sl.key] = [
+    `${sl.who} · ${clock(sl.from)} to ${clock(sl.to)} · ${w} words${sl.film ? ` · ${sl.film}` : ""}`,
+    sl.key === "s1" ? "Speakers: A, B, C, D, E. Write the names in at the first rehearsal." : null,
+    "",
+    sl.say.replace(/ \[pause\] /g, "\n[pause]\n"),
+    sl.note ? `\n${sl.note}` : null,
+    sl.handoff ? `\nHAND OFF (${sl.handoff.split(":")[0]}):${sl.handoff.slice(sl.handoff.indexOf(":") + 1)}\nCUE: the next speaker clicks.` : null,
+    sl.cue ? `\nCUE: ${sl.cue}` : null,
+  ].filter((x) => x !== null).join("\n");
+}
 module.exports = {
-  s1: `A · 0:00 to 0:15 · about 35 words
-${WHO}
-
-Hi, we're Group 10, and this is PREVUMO: a series of preventive boxes for makerspaces, one for each type of machine, so every machine runs safely and lasts longer. Here's where we started, where we are, and where we go next.
-
-CUE: click on "where we started".`,
-
-  s2: `A · 0:15 to 0:50 · about 70 words
-
-We started with a box that measured electricity, so shared spaces could bill each user. We took it to shared kitchens, restaurants, cafés and makerspaces. Ten interviews and forty nine emails later, two things were clear: every owner we asked builds electricity into rent, and cafés weren't interested. Makerspaces were. An Ontario makerspace director told us: "Managing equipment is one of the biggest tasks we have." So we kept one customer.
-
-HAND OFF (A): B, what did we find inside the makerspace?
-CUE: B clicks.`,
-
-  s3: `B · 0:50 to 1:20 · about 60 words
-
-Inside makerspaces we found the real problem: every machine breaks, and gets misused, in its own way. A welder's shielding gas gets left open. A 3D printer's nozzle stays above two hundred degrees after a failed print. A laser cutter catches fire when someone walks away. So we studied the most common machines one by one, and gave each its own module.
-
-CUE: click on "its own module". The film starts by itself.`,
-
-  s4: `B · 1:20 to 2:05 · about 85 words. The film plays by itself, no sound.
-
-This is the welder module. Every box shares one core: an NFC reader for the member's fob, a display, a QR sticker that opens the machine's manual, and a controller on Wi-Fi. A member who isn't trained on this welder stays locked out. During a session the gas valve opens and a scale weighs the wire used, while an oxygen sensor by the cylinder watches day and night. The other four modules are the same box with their own sensors: spool scales, exhaust and air checks, flame and coolant.
-
-HAND OFF (B): C, and the owner?
-CUE: C clicks.`,
-
-  s5: `C · 2:05 to 2:40 · about 70 words. The film plays by itself, no sound.
-
-The owner runs it all from one app: every machine, who is on it, and what they used, in grams of filament or wire, or laser minutes. When something looks wrong, there is one alert with three choices: shut it down, call a technician, or mark it OK. Safety events, like low oxygen or a flame, stop the machine first. And members scan the QR code on any box to open its manual on their phone.
-
-CUE: click on "on their phone".`,
-
-  s6: `C · 2:40 to 3:15 · about 75 words
-
-Underneath is one simple idea. Every machine draws electricity in its own pattern: a printer warming up, a laser cutting, a machine left on with nobody working. PREVUMO learns each machine's normal range and flags what doesn't fit. To be clear, nothing here is measured yet; every chart is illustrative. Makerspaces and Fab Labs we spoke with were open to trying it for free, and that pilot data is what will teach it a real problem from a false alarm.
-
-If asked which spaces: name them only if the team has their names and emails. Otherwise: "Interest so far, nothing signed. Turning that into one to three written pilots is our next step."
-
-HAND OFF (C): D, so who pays for this?
-CUE: D clicks.`,
-
-  s7: `D · 3:15 to 3:50 · about 75 words
-
-Our customer is whoever runs the makerspace: a university, a community space or a Fab Lab. They get three things: machines from a seventeen hundred dollar welder to an eight thousand dollar laser stay protected, members stay safe, and materials are charged fairly, because spaces like the University of Regina already bill ten cents a gram. Tools like Fabman already handle access and idle shutoff; PREVUMO adds the sensors made for each machine, and works beside them. No sponsors yet: we're looking for a first host site.
-
-CUE: click on "first host site".`,
-
-  s8: `D · 3:50 to 4:15 · about 55 words
-
-Our first market is one we can count: more than two thousand active Fab Labs worldwide, twenty nine of them in Canada, and more than two thousand makerspaces and Fab Labs in the US. Almost every Fab Lab lists a laser cutter. We start in Canadian makerspaces, then campus and college shops, then small fabrication shops running the same machines.
-
-HAND OFF (D): E, what happens next?
-CUE: E clicks.`,
-
-  s9: `E · 4:15 to 4:40 · about 45 words
-
-Next, we bench test the printer and laser boxes. Then a four week free pilot that only watches, with the owner labelling every alert. If they keep it on after learning, we've earned the right to switch machines off. Approval comes first, and the welder comes last.
-
-CUE: click on "the welder comes last".`,
-
-  s10: `E · 4:40 to 4:50 · about 20 words
-
-Every machine fails its own way.
-[pause]
-PREVUMO gives each one its own guard.
-[pause]
-Thank you, we'd love your questions.
-
-The QR opens prevumo.vercel.app: every prototype, live. Leave this slide up during questions; jump to the appendix slides only when a question needs one.`,
-
+  SLIDES, TOTAL: t,
+  ...out,
   a1: `APPENDIX, for questions. Safety and fail safe.
 
 Short answer: no power or a frozen controller means everything off and closed, and nothing restarts on its own.
