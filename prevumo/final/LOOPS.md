@@ -309,3 +309,10 @@ Deliverables land in `prevumo/deliverables/final/`; sources and build scripts li
 * **Market (slide 8):** Make's directory (460 US makerspaces, about 3,300 worldwide as a rough estimate) now anchors the plan: 23 spaces in three years, 5%.
 * **Appendix:** the numbers behind the plan (A3) and the evidence table (A5) rewritten from GA5 and PD B4/B5; sources added.
 * **Checked:** Make's counts, the Adafruit controller ($17.50) and the Digi-Key contactor ($55.68), read with Firecrawl. The talk is 526 words, 4:41.
+
+### Presentation day (Fri Nov 27): the PowerPoint crash
+* **Report:** the deck crashed and misbehaved in PowerPoint.
+* **Found in the file:** duplicate shape ids on seven slides (on slides 4 and 5 the film shared its id with another shape, and the autoplay timing pointed at that id); 17 content type entries for slide masters that do not exist; both film posters were JPEG data stored as .png; and the films were H.264 at level 5.0, above what PowerPoint plays reliably.
+* **Fixed:** `final/sanitize.py` now runs after every build: unique shape ids, real PNG posters, only valid content types, the autoplay timing aimed at the film's own id, and a conventional package ([Content_Types].xml first, media stored). The films in the deck are re-encoded as H.264 High at level 4.0 with a silent AAC track.
+* **Checked:** the structure check and the Office validator pass; python-pptx opens all 18 slides with notes and finds both films as video shapes; LibreOffice renders every slide unchanged.
+* **Backup:** `PREVUMO-final-backup-no-films.pptx`, the same deck with still frames instead of films, for a computer where video still fails.

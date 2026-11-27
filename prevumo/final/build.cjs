@@ -21,11 +21,13 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 const OUT = process.argv.includes("--out") ? process.argv[process.argv.indexOf("--out") + 1] : path.join(OUT_DIR, "PREVUMO-final.pptx");
 const URL_LIVE = "https://prevumo.vercel.app";
 const URL_VIDEO = "https://prevumo.vercel.app/video";
+const NO_FILMS = process.argv.includes("--no-films");
 const MEDIA = path.join(HERE, "media");
 const ASSETS = path.join(HERE, "assets");
 const FILMS = {
-  hardware: { file: path.join(MEDIA, "hardware.mp4"), poster: path.join(MEDIA, "hardware.jpg"), fallback: path.join(HERE, "..", "deliverables", "pd-b3", "1-welder.png") },
-  software: { file: path.join(MEDIA, "software.mp4"), poster: path.join(MEDIA, "software.jpg"), fallback: path.join(ASSETS, "owner-app-169.png") },
+  // the -ppt copies are H.264 High at level 4.0 with a silent AAC track, the format PowerPoint plays everywhere
+  hardware: { file: path.join(MEDIA, "hardware-ppt.mp4"), poster: path.join(MEDIA, "hardware-poster.png"), fallback: path.join(HERE, "..", "deliverables", "pd-b3", "1-welder.png") },
+  software: { file: path.join(MEDIA, "software-ppt.mp4"), poster: path.join(MEDIA, "software-poster.png"), fallback: path.join(ASSETS, "owner-app-169.png") },
 };
 
 const HEX = {
@@ -194,7 +196,7 @@ async function autoplayFilms(file) {
     qrLight: await qr(URL_LIVE, false),
   };
   for (const f of Object.values(FILMS)) {
-    f.posterData = fs.existsSync(f.poster) ? file64(f.poster, "image/jpeg") : file64(f.fallback);
+    f.posterData = fs.existsSync(f.poster) ? file64(f.poster, "image/png") : file64(f.fallback);
     if (fs.existsSync(f.file)) f.seconds = +require("child_process").execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f.file]).toString().trim();
   }
 
@@ -217,7 +219,7 @@ async function autoplayFilms(file) {
   const film = (slide, which, o, name) => {
     const f = FILMS[which];
     slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: o.x - 0.05, y: o.y - 0.05, w: o.w + 0.1, h: o.h + 0.1, rectRadius: 0.1, fill: { color: HEX.ink }, line: { color: HEX.ink }, objectName: `${name} frame` });
-    if (fs.existsSync(f.file)) slide.addMedia({ type: "video", path: f.file, ...o, cover: f.posterData, objectName: name });
+    if (fs.existsSync(f.file) && !NO_FILMS) slide.addMedia({ type: "video", path: f.file, ...o, cover: f.posterData, objectName: name });
     else slide.addImage({ data: f.posterData, ...o, sizing: { type: "cover", w: o.w, h: o.h }, objectName: `${name} poster` });
   };
 
@@ -601,10 +603,9 @@ async function autoplayFilms(file) {
 
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
-  const auto = await autoplayFilms(OUT);
-  // folder entries in the zip can stop cloud services (OneDrive, Google Drive) from opening the deck
-  try { require("child_process").execFileSync("zip", ["-dq", OUT, "*/"]); } catch { /* none to remove */ }
-  console.log(`wrote ${OUT}, ${auto} film(s) set to play automatically`);
+  // sanitize.py: unique shape ids, real PNG posters, valid content types, autoplay timing, a conventional zip
+  console.log(require("child_process").execFileSync("python3", [path.join(HERE, "sanitize.py"), OUT]).toString().trim());
+  console.log(`wrote ${OUT}${NO_FILMS ? " (no films: posters only)" : ""}`);
 })().catch((e) => {
   console.error(e);
   process.exit(1);
